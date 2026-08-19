@@ -508,6 +508,10 @@ function App() {
     }
   }
 
+  const handleClearLogs = () => {
+    setLogs([])
+  }
+
   const handleStop = async (id: number) => {
     // @ts-ignore
     await window.api.stopServer(id);
@@ -970,6 +974,7 @@ function App() {
                   logs={logs}
                   endOfLogsRef={endOfLogsRef}
                   handleSendCommand={handleSendCommand}
+                  handleClearLogs={handleClearLogs}
                   onlinePlayers={onlinePlayers}
                 />
               )}
