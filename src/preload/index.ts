@@ -71,7 +71,13 @@ const api = {
   writeFile: (id: number, relPath: string, content: string) => ipcRenderer.invoke('write-file', id, relPath, content),
 
   getCacheInfo: () => ipcRenderer.invoke('get-cache-info'),
-  clearCache: () => ipcRenderer.invoke('clear-cache')
+  clearCache: () => ipcRenderer.invoke('clear-cache'),
+
+  // Backups
+  getBackups: (id: number) => ipcRenderer.invoke('get-backups', id),
+  createBackup: (id: number, name: string) => ipcRenderer.invoke('create-backup', id, name),
+  restoreBackup: (id: number, filename: string) => ipcRenderer.invoke('restore-backup', id, filename),
+  deleteBackup: (id: number, filename: string) => ipcRenderer.invoke('delete-backup', id, filename)
 }
 
 

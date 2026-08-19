@@ -3,6 +3,7 @@ import { ConsoleTab } from './components/tabs/ConsoleTab';
 import { OptionsTab } from './components/tabs/OptionsTab';
 import { PlayersTab } from './components/tabs/PlayersTab';
 import { FilesTab } from './components/tabs/FilesTab';
+import { BackupsTab } from './components/tabs/BackupsTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
 import minecraftBg from './assets/minecraft-bg.png';
 
@@ -31,7 +32,7 @@ function App() {
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview')
   const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
 
   const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
@@ -949,7 +950,8 @@ function App() {
                   { id: 'players', label: 'Players', icon: 'group' },
                   { id: 'mods', label: 'Mods', icon: 'extension' },
                   { id: 'software', label: 'Software', icon: 'memory' },
-                  { id: 'files', label: 'Files', icon: 'folder' }
+                  { id: 'files', label: 'Files', icon: 'folder' },
+                  { id: 'backups', label: 'Backups', icon: 'save' }
                 ].map(tab => (
                   <button
                     key={tab.id}
@@ -1027,6 +1029,9 @@ function App() {
               )}
               {activeTab === 'files' && (
                 <FilesTab serverId={activeServerId} />
+              )}
+              {activeTab === 'backups' && (
+                <BackupsTab activeServerId={activeServerId} />
               )}
 
               {/* TAB: MODS */}

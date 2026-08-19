@@ -835,12 +835,15 @@ app.whenReady().then(() => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString());
       const targetPath = join(serverDir, relPath);
-      if (!targetPath.startsWith(serverDir) || targetPath === serverDir) return false;
-      if (await exists(targetPath)) {
+      if (!targetPath.startsWith(serverDir)) return false;
+      
+      const stat = await fsPromises.stat(targetPath);
+      if (stat.isDirectory()) {
         await fsPromises.rm(targetPath, { recursive: true, force: true });
-        return true;
+      } else {
+        await fsPromises.unlink(targetPath);
       }
-      return false;
+      return true;
     } catch (e: any) {
       console.error(e.message);
       return false;
@@ -852,10 +855,9 @@ app.whenReady().then(() => {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString());
       const targetPath = join(serverDir, relPath);
       if (!targetPath.startsWith(serverDir)) return null;
-      if (await exists(targetPath)) {
-        return await fsPromises.readFile(targetPath, 'utf-8');
-      }
-      return null;
+      
+      if (!await exists(targetPath)) return null;
+      return await fsPromises.readFile(targetPath, 'utf-8');
     } catch (e: any) {
       console.error(e.message);
       return null;
@@ -867,7 +869,8 @@ app.whenReady().then(() => {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString());
       const targetPath = join(serverDir, relPath);
       if (!targetPath.startsWith(serverDir)) return false;
-      await fsPromises.writeFile(targetPath, content, 'utf-8');
+      
+      await fsPromises.writeFile(targetPath, content);
       return true;
     } catch (e: any) {
       console.error(e.message);
@@ -875,8 +878,100 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle('get-cache-info', () => {
-    return CacheManager.getCacheSize();
+  // --- Backups ---
+  ipcMain.handle('create-backup', async (_, id, name) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const backupsDir = join(serverDir, 'backups');
+      if (!fs.existsSync(backupsDir)) {
+        await fsPromises.mkdir(backupsDir, { recursive: true });
+      }
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const safeName = name ? name.replace(/[^a-zA-Z0-9_-]/g, '') : 'backup';
+      const backupName = `${safeName}_${timestamp}.zip`;
+      const backupPath = join(backupsDir, backupName);
+
+      const AdmZip = require('adm-zip');
+      const zip = new AdmZip();
+      const worldFolders = ['world', 'world_nether', 'world_the_end'];
+      
+      let addedSomething = false;
+      for (const folder of worldFolders) {
+        const folderPath = join(serverDir, folder);
+        if (fs.existsSync(folderPath)) {
+          zip.addLocalFolder(folderPath, folder);
+          addedSomething = true;
+        }
+      }
+
+      if (addedSomething) {
+        zip.writeZip(backupPath);
+        return true;
+      }
+      return false;
+    } catch (e: any) {
+      console.error('Backup error:', e.message);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('get-backups', async (_, id) => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+    const backupsDir = join(serverDir, 'backups');
+    if (!fs.existsSync(backupsDir)) return [];
+
+    const files = await fsPromises.readdir(backupsDir);
+    const result: any[] = [];
+    for (const f of files) {
+      if (f.endsWith('.zip')) {
+        const stat = await fsPromises.stat(join(backupsDir, f));
+        result.push({
+          name: f,
+          size: stat.size,
+          date: stat.mtimeMs
+        });
+      }
+    }
+    return result.sort((a, b) => b.date - a.date);
+  });
+
+  ipcMain.handle('restore-backup', async (_, id, filename) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const backupPath = join(serverDir, 'backups', filename);
+      
+      if (!fs.existsSync(backupPath)) throw new Error('Backup file not found');
+      
+      const worldFolders = ['world', 'world_nether', 'world_the_end'];
+      for (const folder of worldFolders) {
+        const folderPath = join(serverDir, folder);
+        if (fs.existsSync(folderPath)) {
+          await fsPromises.rm(folderPath, { recursive: true, force: true });
+        }
+      }
+      
+      const extractZip = require('extract-zip');
+      await extractZip(backupPath, { dir: serverDir });
+      return true;
+    } catch (e: any) {
+      console.error('Restore error:', e.message);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('delete-backup', async (_, id, filename) => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+    const backupPath = join(serverDir, 'backups', filename);
+    if (fs.existsSync(backupPath)) {
+      await fsPromises.unlink(backupPath);
+      return true;
+    }
+    return false;
+  });
+
+  ipcMain.handle('get-cache-info', async () => {
+    return await CacheManager.getCacheSize();
   });
 
   ipcMain.handle('clear-cache', () => {
