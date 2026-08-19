@@ -769,7 +769,35 @@ app.whenReady().then(() => {
     if (activeServers[id]) {
       return await activeServers[id].getPlayerInventory(playerName);
     }
-    return null;
+    
+    // Read offline
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const cachePath = join(serverDir, 'usercache.json');
+      if (!fs.existsSync(cachePath)) return null;
+      
+      const cache = JSON.parse(await fsPromises.readFile(cachePath, 'utf-8'));
+      const playerEntry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase());
+      if (!playerEntry) return null;
+
+      const datPath = join(serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+      if (!fs.existsSync(datPath)) return null;
+
+      const buffer = await fsPromises.readFile(datPath);
+      
+      const nbt = require('prismarine-nbt');
+      const { parsed } = await nbt.parse(buffer);
+      
+      const inventory = parsed.value.Inventory?.value?.value || [];
+      return inventory.map((item: any) => ({
+        slot: item.Slot.value,
+        id: item.id.value.replace('minecraft:', ''),
+        count: item.Count.value
+      }));
+    } catch (err: any) {
+      console.log(`[System] Offline Inventory Error: ${err.message}`);
+      return null;
+    }
   });
 
   

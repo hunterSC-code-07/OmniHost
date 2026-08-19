@@ -136,60 +136,79 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
           </div>
 
           {playerListType === 'history' ? (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20">
-              <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-12">
-                <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">Total Playtime</h3>
-                <p className="text-4xl font-black text-brand">
-                  {(() => {
-                    const stats = playerData.find(p => p.username === selectedPlayer);
-                    if (!stats) return '0h 0m 0s';
-                    
-                    let livePlaytime = stats.totalPlaytime || 0;
-                    if (onlinePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
-                      livePlaytime += (now - stats.currentSessionStart);
-                    }
-
-                    const hrs = Math.floor(livePlaytime / (1000 * 60 * 60));
-                    const mins = Math.floor((livePlaytime / (1000 * 60)) % 60);
-                    const secs = Math.floor((livePlaytime / 1000) % 60);
-                    return `${hrs}h ${mins}m ${secs}s`;
-                  })()}
-                </p>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-20">
+              <div className="xl:col-span-2 space-y-6">
+                <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
+                  <h3 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    Log off Inventory {playerInventory === null && <span className="text-xs text-red-400 ml-2">(No Data)</span>}
+                  </h3>
+                  <div className="bg-[#c6c6c6] p-6 rounded-lg border-[4px] border-[#555555] inline-block shadow-2xl mx-auto w-full max-w-[480px]">
+                    <div className="grid grid-cols-9 gap-1 mb-4 bg-[#c6c6c6]">
+                      {Array.from({ length: 27 }).map((_, i) => <MinecraftSlot key={`main-${i}`} slotId={i + 9} />)}
+                    </div>
+                    <div className="grid grid-cols-9 gap-1 mt-6">
+                      {Array.from({ length: 9 }).map((_, i) => <MinecraftSlot key={`hotbar-${i}`} slotId={i} />)}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
-                <div>
-                  <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">First Joined</h3>
-                  <p className="text-lg font-bold text-white">
+
+              <div className="space-y-6">
+                <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-6">
+                  <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">Total Playtime</h3>
+                  <p className="text-3xl font-black text-brand">
                     {(() => {
                       const stats = playerData.find(p => p.username === selectedPlayer);
-                      return stats?.firstJoin ? new Date(stats.firstJoin).toLocaleString() : 'Unknown';
-                    })()}
-                  </p>
-                </div>
-                <div className="h-[1px] w-full bg-gray-800"></div>
-                <div>
-                  <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Last Seen</h3>
-                  <p className="text-lg font-bold text-white">
-                    {(() => {
-                      const stats = playerData.find(p => p.username === selectedPlayer);
-                      if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
-                      return stats?.lastLeft ? new Date(stats.lastLeft).toLocaleString() : 'Unknown';
-                    })()}
-                  </p>
-                </div>
-                <div className="h-[1px] w-full bg-gray-800"></div>
-                <div>
-                  <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Log off Position</h3>
-                  <p className="text-lg font-bold text-white">
-                    {(() => {
-                      const stats = playerData.find(p => p.username === selectedPlayer);
-                      if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
-                      if (stats?.logoffPosition) {
-                        return `X: ${stats.logoffPosition.x}, Y: ${stats.logoffPosition.y}, Z: ${stats.logoffPosition.z}`;
+                      if (!stats) return '0h 0m 0s';
+                      
+                      let livePlaytime = stats.totalPlaytime || 0;
+                      if (onlinePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
+                        livePlaytime += (now - stats.currentSessionStart);
                       }
-                      return 'Unknown';
+
+                      const hrs = Math.floor(livePlaytime / (1000 * 60 * 60));
+                      const mins = Math.floor((livePlaytime / (1000 * 60)) % 60);
+                      const secs = Math.floor((livePlaytime / 1000) % 60);
+                      return `${hrs}h ${mins}m ${secs}s`;
                     })()}
                   </p>
+                </div>
+                <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
+                  <div>
+                    <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">First Joined</h3>
+                    <p className="text-lg font-bold text-white">
+                      {(() => {
+                        const stats = playerData.find(p => p.username === selectedPlayer);
+                        return stats?.firstJoin ? new Date(stats.firstJoin).toLocaleString() : 'Unknown';
+                      })()}
+                    </p>
+                  </div>
+                  <div className="h-[1px] w-full bg-gray-800"></div>
+                  <div>
+                    <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Last Seen</h3>
+                    <p className="text-lg font-bold text-white">
+                      {(() => {
+                        const stats = playerData.find(p => p.username === selectedPlayer);
+                        if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
+                        return stats?.lastLeft ? new Date(stats.lastLeft).toLocaleString() : 'Unknown';
+                      })()}
+                    </p>
+                  </div>
+                  <div className="h-[1px] w-full bg-gray-800"></div>
+                  <div>
+                    <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Log off Position</h3>
+                    <p className="text-lg font-bold text-white">
+                      {(() => {
+                        const stats = playerData.find(p => p.username === selectedPlayer);
+                        if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
+                        if (stats?.logoffPosition) {
+                          return `X: ${stats.logoffPosition.x}, Y: ${stats.logoffPosition.y}, Z: ${stats.logoffPosition.z}`;
+                        }
+                        return 'Unknown';
+                      })()}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
