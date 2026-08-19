@@ -24,7 +24,7 @@ export class FrpAdapter {
     }
   }
 
-  async start() {
+  async start(ip: string = "34.131.235.17") {
     if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });
 
     // 1. Download and Extract FRP from GitHub
@@ -51,9 +51,8 @@ export class FrpAdapter {
     }
 
     // 2. Build the FRP Configuration
-    // NOTE: We will change this IP once you get your free cloud server!
     const tomlConfig = `
-serverAddr = "34.131.235.17"
+serverAddr = "${ip}"
 serverPort = 7000
 
 [[proxies]]

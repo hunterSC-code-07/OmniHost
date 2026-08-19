@@ -4,9 +4,10 @@ import { OptionsTab } from './components/tabs/OptionsTab';
 import { PlayersTab } from './components/tabs/PlayersTab';
 import { FilesTab } from './components/tabs/FilesTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
+import minecraftBg from './assets/minecraft-bg.png';
 
 const getGameImageUrl = (game: string) => {
-  if (game.toLowerCase().includes('minecraft')) return 'https://images.unsplash.com/photo-1607513746994-51f730a44832?q=80&w=1000'
+  if (game.toLowerCase().includes('minecraft')) return minecraftBg;
   if (game.toLowerCase().includes('palworld')) return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000'
   if (game.toLowerCase().includes('dayz')) return 'https://images.unsplash.com/photo-1519082273180-60b61665a3c5?q=80&w=1000'
   return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000'
@@ -32,6 +33,10 @@ function App() {
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files'>('overview')
   const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
+
+  const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
+  const [showTunnelModal, setShowTunnelModal] = useState(false)
+  const [tempTunnelIp, setTempTunnelIp] = useState('')
 
 
   const [rawConfigText, setRawConfigText] = useState('')
@@ -87,6 +92,9 @@ function App() {
   const [editingSoftwareVersion, setEditingSoftwareVersion] = useState('')
   const [editingAvailableVersions, setEditingAvailableVersions] = useState<string[]>([])
   const [isChangingSoftware, setIsChangingSoftware] = useState(false)
+  const [isClearingCache, setIsClearingCache] = useState(false)
+  const [cacheSize, setCacheSize] = useState<number>(0)
+  const [serverToDelete, setServerToDelete] = useState<number | null>(null)
 
   const endOfLogsRef = useRef<HTMLDivElement>(null)
 
@@ -97,6 +105,22 @@ function App() {
       setServers(data)
     }
     fetchServers()
+
+    const fetchCacheSize = async () => {
+      try {
+        // @ts-ignore
+        const size = await window.api.getCacheInfo()
+        setCacheSize(size)
+      } catch (e) {
+        console.error('Failed to get cache size:', e)
+      }
+    }
+    fetchCacheSize()
+    
+    // Poll cache size every 3 seconds to keep it updated in real-time
+    const cacheInterval = setInterval(fetchCacheSize, 3000)
+
+
 
     // --- LISTENER 1: CONSOLE LOGS ---
     // @ts-ignore
@@ -119,6 +143,8 @@ function App() {
         return newHistory
       })
     })
+
+    return () => clearInterval(cacheInterval)
   }, [])
 
   useEffect(() => {
@@ -378,7 +404,7 @@ function App() {
     if (tunnelStatus === 'Offline') {
       setTunnelStatus('Starting...');
       // @ts-ignore
-      await window.api.startTunnel();
+      await window.api.startTunnel(tunnelIp);
       setTunnelStatus('Online');
       showToast("Tunnel connected!");
     } else {
@@ -453,14 +479,25 @@ function App() {
     }
   }
 
-  const handleDelete = async (id: number) => {
-    if (confirm('Are you sure you want to delete this server? This action cannot be undone!')) {
+  const handleDelete = (id: number) => {
+    setServerToDelete(id);
+  }
+
+  const confirmDeleteServer = async () => {
+    if (serverToDelete === null) return;
+    try {
       // @ts-ignore
-      await window.api.deleteServer(id);
-      setActiveServerId(null);
+      await window.api.deleteServer(serverToDelete);
+      if (activeServerId === serverToDelete) {
+        setActiveServerId(null);
+      }
       // @ts-ignore
       const data = await window.api.getServers();
       setServers(data);
+    } catch (e: any) {
+      alert("Failed to delete server: " + e.message);
+    } finally {
+      setServerToDelete(null);
     }
   }
 
@@ -473,6 +510,10 @@ function App() {
     } catch (error) {
       alert("Backend Error: " + error);
     }
+  }
+
+  const handleClearLogs = () => {
+    setLogs([])
   }
 
   const handleStop = async (id: number) => {
@@ -609,13 +650,36 @@ function App() {
 
 
 
+  const handleClearCache = async () => {
+    setIsClearingCache(true);
+    try {
+      // @ts-ignore
+      await window.api.clearCache();
+      setCacheSize(0);
+      setToasts(prev => [...prev, { id: Date.now(), message: 'Cache successfully cleared!' }]);
+    } catch (e: any) {
+      setToasts(prev => [...prev, { id: Date.now(), message: `Failed to clear cache: ${e.message || e}` }]);
+    } finally {
+      setIsClearingCache(false);
+    }
+  };
+
+  const formatBytes = (bytes: number, decimals = 2) => {
+    if (!+bytes) return '0 Bytes'
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
+
   const activeServer = servers.find(s => s.id === activeServerId);
 
   return (
     <div className="bg-background font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden">
       
       {/* TOP NAVBAR */}
-      <header className="fixed top-0 left-0 right-0 h-20 bg-surface/90 backdrop-blur-xl z-40 border-b border-outline-variant/20 shadow-lg">
+      <header className="fixed top-0 left-0 right-[8px] h-20 bg-surface/90 backdrop-blur-xl z-40 border-b border-outline-variant/20 shadow-lg">
         <div className="h-full px-gutter max-w-container-max mx-auto flex items-center justify-between">
           
           <div className="flex items-center gap-8">
@@ -645,6 +709,21 @@ function App() {
 
           <div className="flex items-center gap-6">
             {/* Right side navbar items can go here in the future */}
+            {activeServerId === null && activeGameHub === null && (
+              <button
+                onClick={handleClearCache}
+                disabled={isClearingCache}
+                className="relative overflow-hidden group px-2.5 py-2 rounded-lg border bg-surface/40 border-outline-variant/30 text-on-surface-variant hover:text-red-400 hover:border-red-500/50 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)] transition-all flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Clear App Cache"
+              >
+                <span className={`material-symbols-outlined text-[20px] ${isClearingCache ? 'animate-spin' : ''}`}>
+                  {isClearingCache ? 'sync' : 'delete'}
+                </span>
+                <span className="max-w-0 overflow-hidden group-hover:max-w-[200px] transition-all duration-300 ease-out whitespace-nowrap ml-0 group-hover:ml-2 text-sm font-semibold opacity-0 group-hover:opacity-100">
+                  Clear {formatBytes(cacheSize)}
+                </span>
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -674,11 +753,11 @@ function App() {
                   
                   {/* Minecraft Hub */}
                   <div onClick={() => setActiveGameHub('Minecraft')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] ring-1 hover:ring-primary cursor-pointer ring-surface-container-high">
-                    <div className="absolute inset-0 bg-cover bg-center z-0 transition-transform duration-700 group-hover:scale-105" style={{backgroundImage: `url('${getGameImageUrl('Minecraft')}')`}}></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10"></div>
+                    <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Minecraft')}')`}}></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
                     <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                      <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1">Game Hub</p>
-                      <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-primary transition-colors">Minecraft</h2>
+                      <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
+                      <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-primary transition-colors drop-shadow-lg shadow-black">Minecraft</h2>
                     </div>
                   </div>
 
@@ -835,9 +914,14 @@ function App() {
                   <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
                 </div>
                 <div className="flex gap-3 items-center">
-                  <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group p-2.5 rounded-lg border transition-all ${tunnelStatus === 'Online' ? 'bg-brand/10 border-brand/50 text-brand shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 border-gray-600 text-gray-400 cursor-not-allowed' : 'bg-[#050505]/60 backdrop-blur-xl border-white/10 hover:border-white/30 text-gray-400 hover:text-white'}`}>
-                    <span className={`material-symbols-outlined text-[20px] ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
-                  </button>
+                  <div className="flex bg-[#050505]/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] rounded-lg overflow-hidden transition-all hover:border-white/30">
+                    <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
+                      <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
+                    </button>
+                    <button onClick={() => { setTempTunnelIp(tunnelIp); setShowTunnelModal(true); }} className="px-3 border-l border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center" title="Tunnel IP Settings">
+                      <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
+                    </button>
+                  </div>
                   <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-6 py-2.5 rounded-lg font-bold transition-all hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
                     <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
@@ -905,6 +989,7 @@ function App() {
                   logs={logs}
                   endOfLogsRef={endOfLogsRef}
                   handleSendCommand={handleSendCommand}
+                  handleClearLogs={handleClearLogs}
                   onlinePlayers={onlinePlayers}
                 />
               )}
@@ -1208,9 +1293,11 @@ function App() {
       {/* TOAST SYSTEM */}
       <div className="absolute bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
         {toasts.map(toast => (
-          <div key={toast.id} className="bg-gray-800/95 backdrop-blur-sm border border-gray-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-right-8 fade-in duration-300">
-            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-            <span className="font-bold text-sm">{toast.message}</span>
+          <div key={toast.id} className="relative overflow-hidden group bg-[#050505]/80 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-5 py-3 rounded-xl flex items-center gap-3 animate-in slide-in-from-right-8 fade-in duration-300 pointer-events-auto">
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-brand/5 to-brand/20 opacity-30 pointer-events-none"></div>
+            <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
+            <div className="relative z-10 w-2.5 h-2.5 bg-brand rounded-full animate-pulse shadow-[0_0_8px_rgba(255,215,0,0.6)]"></div>
+            <span className="relative z-10 font-bold text-sm text-white">{toast.message}</span>
           </div>
         ))}
       </div>
@@ -1370,6 +1457,101 @@ function App() {
                 {isCreatingServer ? 'Creating...' : 'Create Server'}
               </button>
             </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {serverToDelete !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
+            
+            {/* Glow effects */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-red-500/20 rounded-full blur-[60px] pointer-events-none"></div>
+
+            <div className="p-8 relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400 shadow-[inset_0_0_15px_rgba(239,68,68,0.2)]">
+                  <span className="material-symbols-outlined text-3xl">warning</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-on-surface">Delete Server</h2>
+                  <p className="text-on-surface-variant text-sm">This action cannot be undone.</p>
+                </div>
+              </div>
+              
+              <p className="text-on-surface-variant mb-8 leading-relaxed">
+                Are you sure you want to permanently delete <span className="text-white font-bold">{servers.find(s => s.id === serverToDelete)?.name}</span>? All files, worlds, and configurations will be lost.
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setServerToDelete(null)}
+                  className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDeleteServer}
+                  className="px-5 py-2.5 rounded-lg font-bold bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-red-400 hover:text-red-300 hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] transition-all flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[20px]">delete</span>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* TUNNEL SETTINGS MODAL */}
+      {showTunnelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
+            <div className="p-6 relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-brand/10 w-14 h-14 flex items-center justify-center rounded-xl border border-brand/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+                  <span className="material-symbols-outlined text-brand text-3xl leading-none">cell_tower</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1 drop-shadow-md">Tunnel Configuration</h2>
+                  <p className="text-sm text-on-surface-variant">Set the remote IP address for FRP</p>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <label className="block text-sm font-bold text-on-surface-variant mb-2">Remote Server IP</label>
+                <input 
+                  type="text" 
+                  value={tempTunnelIp}
+                  onChange={(e) => setTempTunnelIp(e.target.value)}
+                  placeholder="e.g. 34.131.235.17"
+                  className="w-full bg-surface-container-lowest/50 border border-outline-variant/50 focus:border-brand/70 rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                />
+                <p className="text-xs text-on-surface-variant/60 mt-2">
+                  This IP will be used to generate the frpc.toml configuration. Changes take effect on the next tunnel start.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowTunnelModal(false)}
+                  className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setTunnelIp(tempTunnelIp);
+                    localStorage.setItem('tunnelIp', tempTunnelIp);
+                    setShowTunnelModal(false);
+                    showToast("Tunnel IP updated!");
+                  }}
+                  className="bg-brand/10 border border-brand/50 text-brand shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:bg-brand/20 px-6 py-2.5 rounded-lg font-bold transition-all uppercase tracking-wider text-sm"
+                >
+                  Save Changes
+                </button>
+              </div>
             </div>
           </div>
         </div>

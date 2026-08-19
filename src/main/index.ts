@@ -32,6 +32,9 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 const CURSEFORGE_API_KEY = process.env.CURSEFORGE_API_KEY || '';
 
+// Set app data to be stored locally in the repo for full portability
+app.setPath('userData', join(process.cwd(), '.omnihost-data'));
+
 // Fix Windows UI freeze/hang issues with Framer Motion without disabling hardware acceleration entirely
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion');
 
@@ -718,8 +721,8 @@ app.whenReady().then(() => {
   });
 
   // Tunnels
-  ipcMain.handle('start-tunnel', async () => {
-    await tunnelProvider.start();
+  ipcMain.handle('start-tunnel', async (_, ip: string) => {
+    await tunnelProvider.start(ip);
     return true;
   });
 

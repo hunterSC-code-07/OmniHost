@@ -6,7 +6,7 @@ import crypto from 'crypto';
 
 export class CacheManager {
   static getCacheDir() {
-    return path.join(app.getPath('userData'), 'cache');
+    return path.join(app.getPath('userData'), 'omnihost-cache');
   }
 
   static getCategoryDir(category: 'java' | 'jars' | 'mods' | 'modpacks') {
