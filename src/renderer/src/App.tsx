@@ -1287,9 +1287,11 @@ function App() {
       {/* TOAST SYSTEM */}
       <div className="absolute bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
         {toasts.map(toast => (
-          <div key={toast.id} className="bg-gray-800/95 backdrop-blur-sm border border-gray-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 animate-in slide-in-from-right-8 fade-in duration-300">
-            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.6)]"></div>
-            <span className="font-bold text-sm">{toast.message}</span>
+          <div key={toast.id} className="relative overflow-hidden group bg-[#050505]/80 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-5 py-3 rounded-xl flex items-center gap-3 animate-in slide-in-from-right-8 fade-in duration-300 pointer-events-auto">
+            <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-brand/5 to-brand/20 opacity-30 pointer-events-none"></div>
+            <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
+            <div className="relative z-10 w-2.5 h-2.5 bg-brand rounded-full animate-pulse shadow-[0_0_8px_rgba(255,215,0,0.6)]"></div>
+            <span className="relative z-10 font-bold text-sm text-white">{toast.message}</span>
           </div>
         ))}
       </div>
