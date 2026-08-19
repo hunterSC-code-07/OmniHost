@@ -708,8 +708,8 @@ app.whenReady().then(() => {
   });
 
   // Tunnels
-  ipcMain.handle('start-tunnel', async () => {
-    await tunnelProvider.start();
+  ipcMain.handle('start-tunnel', async (_, ip: string) => {
+    await tunnelProvider.start(ip);
     return true;
   });
 

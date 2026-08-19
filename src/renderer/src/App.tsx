@@ -34,6 +34,10 @@ function App() {
   const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files'>('overview')
   const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
 
+  const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
+  const [showTunnelModal, setShowTunnelModal] = useState(false)
+  const [tempTunnelIp, setTempTunnelIp] = useState('')
+
 
   const [rawConfigText, setRawConfigText] = useState('')
   const [advancedMode, setAdvancedMode] = useState(false)
@@ -400,7 +404,7 @@ function App() {
     if (tunnelStatus === 'Offline') {
       setTunnelStatus('Starting...');
       // @ts-ignore
-      await window.api.startTunnel();
+      await window.api.startTunnel(tunnelIp);
       setTunnelStatus('Online');
       showToast("Tunnel connected!");
     } else {
@@ -904,9 +908,14 @@ function App() {
                   <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
                 </div>
                 <div className="flex gap-3 items-center">
-                  <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group p-2.5 rounded-lg border transition-all ${tunnelStatus === 'Online' ? 'bg-brand/10 border-brand/50 text-brand shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 border-gray-600 text-gray-400 cursor-not-allowed' : 'bg-[#050505]/60 backdrop-blur-xl border-white/10 hover:border-white/30 text-gray-400 hover:text-white'}`}>
-                    <span className={`material-symbols-outlined text-[20px] ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
-                  </button>
+                  <div className="flex bg-[#050505]/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] rounded-lg overflow-hidden transition-all hover:border-white/30">
+                    <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
+                      <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
+                    </button>
+                    <button onClick={() => { setTempTunnelIp(tunnelIp); setShowTunnelModal(true); }} className="px-3 border-l border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center" title="Tunnel IP Settings">
+                      <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
+                    </button>
+                  </div>
                   <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-6 py-2.5 rounded-lg font-bold transition-all hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
                     <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
@@ -1481,6 +1490,58 @@ function App() {
                 >
                   <span className="material-symbols-outlined text-[20px]">delete</span>
                   Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* TUNNEL SETTINGS MODAL */}
+      {showTunnelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
+            <div className="p-6 relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="bg-brand/10 w-14 h-14 flex items-center justify-center rounded-xl border border-brand/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+                  <span className="material-symbols-outlined text-brand text-3xl leading-none">cell_tower</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-white mb-1 drop-shadow-md">Tunnel Configuration</h2>
+                  <p className="text-sm text-on-surface-variant">Set the remote IP address for FRP</p>
+                </div>
+              </div>
+              
+              <div className="mb-8">
+                <label className="block text-sm font-bold text-on-surface-variant mb-2">Remote Server IP</label>
+                <input 
+                  type="text" 
+                  value={tempTunnelIp}
+                  onChange={(e) => setTempTunnelIp(e.target.value)}
+                  placeholder="e.g. 34.131.235.17"
+                  className="w-full bg-surface-container-lowest/50 border border-outline-variant/50 focus:border-brand/70 rounded-lg px-4 py-3 text-white outline-none transition-colors"
+                />
+                <p className="text-xs text-on-surface-variant/60 mt-2">
+                  This IP will be used to generate the frpc.toml configuration. Changes take effect on the next tunnel start.
+                </p>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowTunnelModal(false)}
+                  className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setTunnelIp(tempTunnelIp);
+                    localStorage.setItem('tunnelIp', tempTunnelIp);
+                    setShowTunnelModal(false);
+                    showToast("Tunnel IP updated!");
+                  }}
+                  className="bg-brand/10 border border-brand/50 text-brand shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:bg-brand/20 px-6 py-2.5 rounded-lg font-bold transition-all uppercase tracking-wider text-sm"
+                >
+                  Save Changes
                 </button>
               </div>
             </div>
