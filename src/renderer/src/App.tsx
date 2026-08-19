@@ -38,7 +38,7 @@ function App() {
   const [advancedMode, setAdvancedMode] = useState(false)
   const [props, setProps] = useState<Record<string, string>>({})
 
-  const [playerListType, setPlayerListType] = useState<'live' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>('live')
+  const [playerListType, setPlayerListType] = useState<'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>('live')
   const [playerData, setPlayerData] = useState<any[]>([])
   const [newPlayerName, setNewPlayerName] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
@@ -547,14 +547,20 @@ function App() {
   }
 
   const loadPlayers = async (id: number, type: string) => {
-    // @ts-ignore
-    const data = await window.api.readJson(id, type);
-    setPlayerData(data);
+    if (type === 'history') {
+      // @ts-ignore
+      const stats = await window.api.getPlayerStats(id);
+      setPlayerData(Object.values(stats));
+    } else {
+      // @ts-ignore
+      const data = await window.api.readJson(id, type);
+      setPlayerData(data);
+    }
   }
 
   const handleAddPlayer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPlayerName || activeServerId === null || playerListType === 'live') return;
+    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;
     setIsProcessing(true);
 
     let uuid = "00000000-0000-0000-0000-000000000000";

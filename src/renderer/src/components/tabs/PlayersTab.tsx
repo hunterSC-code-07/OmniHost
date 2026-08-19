@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface PlayersTabProps {
   selectedPlayer: string | null;
   setSelectedPlayer: React.Dispatch<React.SetStateAction<string | null>>;
-  playerListType: 'live' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips';
-  setPlayerListType: React.Dispatch<React.SetStateAction<'live' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>>;
+  playerListType: 'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips';
+  setPlayerListType: React.Dispatch<React.SetStateAction<'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>>;
   newPlayerName: string;
   setNewPlayerName: React.Dispatch<React.SetStateAction<string>>;
   isProcessing: boolean;
@@ -31,6 +31,12 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
   playerInventory,
   sendPlayerCommand
 }) => {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   const handleImageError = (e: any, itemId: string) => {
     const target = e.target as HTMLImageElement;
     if (target.src.includes('/items/')) {
@@ -66,14 +72,14 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
       {!selectedPlayer ? (
         <>
           <div className="flex gap-2 mb-8 bg-gray-900/50 p-2 rounded-xl border border-gray-800">
-            {['live', 'whitelist', 'ops', 'banned-players', 'banned-ips'].map(type => (
+            {['live', 'history', 'whitelist', 'ops', 'banned-players', 'banned-ips'].map(type => (
               <button key={type} onClick={() => setPlayerListType(type as any)} className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all capitalize ${playerListType === type ? 'bg-green-600 text-white shadow-lg shadow-green-500/20' : 'text-gray-400 hover:bg-gray-800'}`}>
                 {type.replace('-', ' ')}
               </button>
             ))}
           </div>
 
-          {playerListType !== 'live' && (
+          {(playerListType !== 'live' && playerListType !== 'history') && (
             <form onSubmit={handleAddPlayer} className="mb-6 flex gap-3">
               <input type="text" placeholder="Enter Username/IP..." value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} className="flex-1 bg-darkCard border border-gray-800 rounded-lg px-4 py-3 text-white outline-none focus:border-brand" disabled={isProcessing} />
               <button type="submit" disabled={isProcessing} className="px-8 bg-brand hover:bg-yellow-600 rounded-lg font-bold transition-all disabled:opacity-50">{isProcessing ? 'Adding...' : 'Add'}</button>
@@ -86,7 +92,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                 {(playerListType === 'live' ? onlinePlayers : playerData).map((player: any, idx) => {
-                  const pName = typeof player === 'string' ? player : (player.name || player.ip);
+                  const pName = typeof player === 'string' ? player : (player.username || player.name || player.ip);
                   const isIp = playerListType === 'banned-ips';
                   return (
                     <div key={idx} onClick={() => !isIp && setSelectedPlayer(pName)} className={`bg-darkCard border border-gray-800/50 p-4 rounded-xl flex items-center justify-between group transition-all shadow-md ${!isIp ? 'cursor-pointer hover:border-brand' : ''}`}>
@@ -101,7 +107,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
                           <p className="text-xs text-green-500 font-mono">Click for details &rarr;</p>
                         </div>
                       </div>
-                      {playerListType !== 'live' && (
+                      {(playerListType !== 'live' && playerListType !== 'history') && (
                         <button onClick={(e) => { e.stopPropagation(); handleRemovePlayer(pName); }} className="w-8 h-8 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all opacity-0 group-hover:opacity-100">✕</button>
                       )}
                     </div>
@@ -129,6 +135,65 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
             <button onClick={() => setSelectedPlayer(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all">&larr; Back</button>
           </div>
 
+          {playerListType === 'history' ? (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 pb-20">
+              <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-12">
+                <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">Total Playtime</h3>
+                <p className="text-4xl font-black text-brand">
+                  {(() => {
+                    const stats = playerData.find(p => p.username === selectedPlayer);
+                    if (!stats) return '0h 0m 0s';
+                    
+                    let livePlaytime = stats.totalPlaytime || 0;
+                    if (onlinePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
+                      livePlaytime += (now - stats.currentSessionStart);
+                    }
+
+                    const hrs = Math.floor(livePlaytime / (1000 * 60 * 60));
+                    const mins = Math.floor((livePlaytime / (1000 * 60)) % 60);
+                    const secs = Math.floor((livePlaytime / 1000) % 60);
+                    return `${hrs}h ${mins}m ${secs}s`;
+                  })()}
+                </p>
+              </div>
+              <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
+                <div>
+                  <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">First Joined</h3>
+                  <p className="text-lg font-bold text-white">
+                    {(() => {
+                      const stats = playerData.find(p => p.username === selectedPlayer);
+                      return stats?.firstJoin ? new Date(stats.firstJoin).toLocaleString() : 'Unknown';
+                    })()}
+                  </p>
+                </div>
+                <div className="h-[1px] w-full bg-gray-800"></div>
+                <div>
+                  <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Last Seen</h3>
+                  <p className="text-lg font-bold text-white">
+                    {(() => {
+                      const stats = playerData.find(p => p.username === selectedPlayer);
+                      if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
+                      return stats?.lastLeft ? new Date(stats.lastLeft).toLocaleString() : 'Unknown';
+                    })()}
+                  </p>
+                </div>
+                <div className="h-[1px] w-full bg-gray-800"></div>
+                <div>
+                  <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Log off Position</h3>
+                  <p className="text-lg font-bold text-white">
+                    {(() => {
+                      const stats = playerData.find(p => p.username === selectedPlayer);
+                      if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
+                      if (stats?.logoffPosition) {
+                        return `X: ${stats.logoffPosition.x}, Y: ${stats.logoffPosition.y}, Z: ${stats.logoffPosition.z}`;
+                      }
+                      return 'Unknown';
+                    })()}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-20">
             <div className="xl:col-span-2 space-y-6">
               <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
@@ -178,6 +243,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
             </div>
 
           </div>
+          )}
         </div>
       )}
     </div>

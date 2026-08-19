@@ -52,6 +52,7 @@ const api = {
   // Mod Browser
     getServerMeta: (id: number) => ipcRenderer.invoke('get-server-meta', id),
   updateServerMeta: (id: number, changes: any) => ipcRenderer.invoke('update-server-meta', id, changes),
+  getPlayerStats: (id: number) => ipcRenderer.invoke('get-player-stats', id),
   getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
   toggleAutoStart: (id: number, enabled: boolean) => ipcRenderer.invoke('toggle-auto-start', id, enabled),
   getCurseforgeMod: (modId: number) => ipcRenderer.invoke('get-curseforge-mod', modId),

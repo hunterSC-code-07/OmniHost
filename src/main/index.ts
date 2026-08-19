@@ -313,6 +313,19 @@ app.whenReady().then(() => {
   });
 
 
+  ipcMain.handle('get-player-stats', async (_, id) => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+    const statsPath = join(serverDir, 'player-stats.json');
+    if (fs.existsSync(statsPath)) {
+      try {
+        return JSON.parse(fs.readFileSync(statsPath, 'utf-8'));
+      } catch (e) {
+        return {};
+      }
+    }
+    return {};
+  });
+
   ipcMain.handle('get-server-meta', async (_, id) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString());
     const metaPath = join(serverDir, 'omnihost.json');

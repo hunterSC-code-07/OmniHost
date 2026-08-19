@@ -83,6 +83,62 @@ export class MinecraftAdapter {
     fs.writeFileSync(join(this.serverDir, 'eula.txt'), 'eula=true\n');
   }
 
+  async updatePlayerStats(username: string, isJoin: boolean) {
+    const statsPath = join(this.serverDir, 'player-stats.json');
+    let stats: any = {};
+    if (fs.existsSync(statsPath)) {
+      try {
+        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));
+      } catch (e) {}
+    }
+    
+    if (!stats[username]) {
+      stats[username] = {
+        username,
+        firstJoin: Date.now(),
+        lastLeft: null,
+        totalPlaytime: 0
+      };
+    }
+
+    if (isJoin) {
+      stats[username].currentSessionStart = Date.now();
+      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');
+    } else {
+      const joinTime = stats[username].currentSessionStart;
+      if (joinTime) {
+        const duration = Date.now() - joinTime;
+        stats[username].totalPlaytime += duration;
+        stats[username].currentSessionStart = null;
+      }
+      stats[username].lastLeft = Date.now();
+
+      try {
+        const cachePath = join(this.serverDir, 'usercache.json');
+        if (fs.existsSync(cachePath)) {
+          const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+          const playerEntry = cache.find((p: any) => p.name.toLowerCase() === username.toLowerCase());
+          if (playerEntry) {
+            const datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+            if (fs.existsSync(datPath)) {
+              const buffer = fs.readFileSync(datPath);
+              const nbt = require('prismarine-nbt');
+              const { parsed } = await nbt.parse(buffer);
+              const pos = parsed.value.Pos?.value?.value || [];
+              if (pos.length === 3) {
+                 stats[username].logoffPosition = { x: Math.round(pos[0]), y: Math.round(pos[1]), z: Math.round(pos[2]) };
+              }
+            }
+          }
+        }
+      } catch (err) {
+        this.sendLog(`[System] Error getting position for ${username}: ${err}`);
+      }
+
+      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');
+    }
+  }
+
   async start() {
     await this.init();
     this.onlinePlayers = []; 
@@ -199,12 +255,14 @@ export class MinecraftAdapter {
         if (joinMatch) {
           if (!this.onlinePlayers.includes(joinMatch[1])) {
             this.onlinePlayers.push(joinMatch[1]);
+            this.updatePlayerStats(joinMatch[1], true);
             this.sendPlayerUpdate();
           }
         }
         const leaveMatch = cleanText.match(/([a-zA-Z0-9_]{3,16}) left the game/);
         if (leaveMatch) {
           this.onlinePlayers = this.onlinePlayers.filter(p => p !== leaveMatch[1]);
+          this.updatePlayerStats(leaveMatch[1], false);
           this.sendPlayerUpdate();
         }
       });
@@ -223,6 +281,12 @@ export class MinecraftAdapter {
       if (this.statsTimer) clearInterval(this.statsTimer);
       this.autoStopTimer = null;
       this.statsTimer = null;
+
+      // Update stats for all players before clearing them
+      for (const pName of this.onlinePlayers) {
+        this.updatePlayerStats(pName, false);
+      }
+      
       this.onlinePlayers = []; 
       this.sendPlayerUpdate();
 
