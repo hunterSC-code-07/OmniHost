@@ -10,6 +10,7 @@ interface OptionsTabProps {
   props: Record<string, string>;
   setProps: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   serverId: number;
+  onConfigSaved?: () => void;
 }
 
 export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
@@ -20,7 +21,8 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
   setRawConfigText,
   props,
   setProps,
-  serverId
+  serverId,
+  onConfigSaved
 }) => {
   const [ramLimit, setRamLimit] = useState(2);
   const [cpuLimit, setCpuLimit] = useState(2);
@@ -59,7 +61,9 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
     });
     // Also toggle the proxy listening state
     await window.api.toggleAutoStart(serverId, autoStart);
+    
     handleSaveConfig();
+    if (onConfigSaved) onConfigSaved();
     setIsSavingMeta(false);
   };
 

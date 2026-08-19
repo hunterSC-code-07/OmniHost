@@ -22,6 +22,14 @@ const api = {
     ipcRenderer.removeAllListeners('online-players')
     ipcRenderer.on('online-players', (_, data) => callback(data))
   },
+  onServerStats: (callback: (data: {id: number, cpu: number, ram: number}) => void) => {
+    ipcRenderer.removeAllListeners('server-stats')
+    ipcRenderer.on('server-stats', (_, data) => callback(data))
+  },
+  onServerTps: (callback: (data: {id: number, tps: number}) => void) => {
+    ipcRenderer.removeAllListeners('server-tps')
+    ipcRenderer.on('server-tps', (_, data) => callback(data))
+  },
   
   // Versions & Downloads
   createServer: (name: string, type: string, version: string) => ipcRenderer.invoke('create-server', name, type, version),

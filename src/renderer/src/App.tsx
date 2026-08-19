@@ -3,6 +3,7 @@ import { ConsoleTab } from './components/tabs/ConsoleTab';
 import { OptionsTab } from './components/tabs/OptionsTab';
 import { PlayersTab } from './components/tabs/PlayersTab';
 import { FilesTab } from './components/tabs/FilesTab';
+import { OverviewTab } from './components/tabs/OverviewTab';
 
 const getGameImageUrl = (game: string) => {
   if (game.toLowerCase().includes('minecraft')) return 'https://images.unsplash.com/photo-1607513746994-51f730a44832?q=80&w=1000'
@@ -25,10 +26,11 @@ const classOptions = [
 function App() {
   const [servers, setServers] = useState<any[]>([])
   const [logs, setLogs] = useState<string[]>([])
+  const [tunnelStatus, setTunnelStatus] = useState('Offline')
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'console' | 'options' | 'players' | 'software' | 'mods' | 'files'>('console')
+  const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files'>('overview')
   const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
 
 
@@ -40,6 +42,10 @@ function App() {
   const [playerData, setPlayerData] = useState<any[]>([])
   const [newPlayerName, setNewPlayerName] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
+
+  // Performance Stats
+  const [statsHistory, setStatsHistory] = useState<{cpu: number, ram: number}[]>([])
+
 
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
   const [playerInventory, setPlayerInventory] = useState<any[] | null>(null)
@@ -104,7 +110,15 @@ function App() {
       setOnlinePlayers(data.players)
     })
 
-
+    // --- LISTENER 3: SERVER STATS ---
+    // @ts-ignore
+    window.api.onServerStats((data: { id: number, cpu: number, ram: number }) => {
+      setStatsHistory(prev => {
+        const newHistory = [...prev, { cpu: data.cpu, ram: data.ram }]
+        if (newHistory.length > 30) newHistory.shift() // keep last 30 data points (60 seconds at 2s interval)
+        return newHistory
+      })
+    })
   }, [])
 
   useEffect(() => {
@@ -206,37 +220,51 @@ function App() {
     }
   }, [selectedPlayer, activeServerId])
 
-  const fetchMods = async () => {
+  const fetchServerMeta = async () => {
     if (activeServerId === null) return;
     // @ts-ignore
     const meta = await window.api.getServerMeta(activeServerId);
     setServerMeta(meta);
-    if (meta) {
-      // @ts-ignore
-      const installed = await window.api.getInstalledMods(activeServerId);
-      setInstalledMods(installed);
-      
-      let defaultClassId = 6; // Mods
-      if (meta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins
-      else if (meta.type === 'Vanilla') defaultClassId = 6945; // Data Packs
-      
-      setActiveClassId(defaultClassId);
-
-      setIsSearchingMods(true);
-      // @ts-ignore
-      const results = await window.api.searchCurseforgeMods('', meta.type, meta.version, 0, defaultClassId, activeSortField);
-      setModResults(results);
-      // We don't get total count easily without headers, so just use results length or mock it.
-      setTotalModCount(results.length > 0 ? 10000 : 0);
-      setIsSearchingMods(false);
-    }
   };
 
   useEffect(() => {
-    if (activeServerId !== null && (activeTab === 'mods' || activeTab === 'software')) {
+    if (activeServerId !== null) {
+      fetchServerMeta();
+      // Reset stats when switching servers
+      setStatsHistory([]);
+    } else {
+      setServerMeta(null);
+    }
+  }, [activeServerId]);
+
+  const fetchMods = async () => {
+    if (activeServerId === null || !serverMeta) return;
+    
+    // @ts-ignore
+    const installed = await window.api.getInstalledMods(activeServerId);
+    setInstalledMods(installed);
+    
+    let defaultClassId = 6; // Mods
+    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins
+    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs
+    
+    setActiveClassId(defaultClassId);
+
+    setIsSearchingMods(true);
+    console.log('[DEBUG] Calling searchCurseforgeMods', { search: '', type: serverMeta.type, version: serverMeta.version, classId: defaultClassId, sortField: activeSortField });
+    // @ts-ignore
+    const results = await window.api.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);
+    console.log('[DEBUG] searchCurseforgeMods returned:', results?.length);
+    setModResults(results);
+    setTotalModCount(results?.length > 0 ? 10000 : 0);
+    setIsSearchingMods(false);
+  };
+
+  useEffect(() => {
+    if (activeServerId !== null && serverMeta && (activeTab === 'mods' || activeTab === 'software')) {
       fetchMods();
     }
-  }, [activeServerId, activeTab, modViewType]);
+  }, [activeServerId, activeTab, modViewType, serverMeta]);
 
   useEffect(() => {
     if (activeTab === 'mods' && serverMeta && !isSearchingMods) {
@@ -251,9 +279,16 @@ function App() {
     const targetClassId = cId !== undefined ? cId : activeClassId;
     const targetSortField = sField !== undefined ? sField : activeSortField;
     // @ts-ignore
-    const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);
-    setModResults(results);
-    setTotalModCount(results.length > 0 ? 10000 : 0);
+    try {
+      console.log('[DEBUG] Calling searchCurseforgeMods (handleSearch)', { search: modSearchQuery, type: serverMeta.type, version: serverMeta.version, classId: targetClassId, sortField: targetSortField });
+      // @ts-ignore
+      const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);
+      console.log('[DEBUG] handleSearch returned:', results?.length);
+      setModResults(results);
+      setTotalModCount(results?.length > 0 ? 10000 : 0);
+    } catch (error) {
+      console.error('[ERROR] handleSearchMods failed', error);
+    }
     setIsSearchingMods(false);
   };
 
@@ -337,6 +372,21 @@ function App() {
     const id = Date.now();
     setToasts(prev => [...prev, { id, message }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+  }
+
+  const handleTunnel = async () => {
+    if (tunnelStatus === 'Offline') {
+      setTunnelStatus('Starting...');
+      // @ts-ignore
+      await window.api.startTunnel();
+      setTunnelStatus('Online');
+      showToast("Tunnel connected!");
+    } else {
+      // @ts-ignore
+      await window.api.stopTunnel();
+      setTunnelStatus('Offline');
+      showToast("Tunnel disconnected.");
+    }
   }
 
 
@@ -772,8 +822,16 @@ function App() {
           <>
             <div className="bg-[#0a0a0a] border-b border-white/5 p-6 flex flex-col gap-6 shadow-sm z-10">
               <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
-                <div className="flex gap-3">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setActiveServerId(null)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors border border-white/10 flex items-center justify-center group" title="Back to Dashboard">
+                    <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                  </button>
+                  <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
+                </div>
+                <div className="flex gap-3 items-center">
+                  <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group p-2.5 rounded-lg border transition-all ${tunnelStatus === 'Online' ? 'bg-brand/10 border-brand/50 text-brand shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 border-gray-600 text-gray-400 cursor-not-allowed' : 'bg-[#050505]/60 backdrop-blur-xl border-white/10 hover:border-white/30 text-gray-400 hover:text-white'}`}>
+                    <span className={`material-symbols-outlined text-[20px] ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
+                  </button>
                   <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-6 py-2.5 rounded-lg font-bold transition-all hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
                     <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
@@ -795,6 +853,7 @@ function App() {
               {/* Sub Top Nav Bar for Server Tabs */}
               <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
                 {[
+                  { id: 'overview', label: 'Overview', icon: 'dashboard' },
                   { id: 'console', label: 'Console', icon: 'terminal' },
                   { id: 'options', label: 'Options', icon: 'settings' },
                   { id: 'players', label: 'Players', icon: 'group' },
@@ -820,6 +879,20 @@ function App() {
 
             <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col bg-surface-container-lowest">
               
+              {/* TAB: OVERVIEW */}
+              {activeTab === 'overview' && (
+                <OverviewTab 
+                  statsHistory={statsHistory}
+                  serverStatus={activeServer.status as 'Online' | 'Offline'}
+                  serverVersion={serverMeta ? `${serverMeta.type} ${serverMeta.version}` : 'Loading...'}
+                  onlinePlayers={onlinePlayers}
+                  maxPlayers={activeServer.maxPlayers || 20}
+                  logs={logs}
+                  maxRam={serverMeta?.ram ? Number(serverMeta.ram) : 2}
+                  maxCpu={serverMeta?.cpu ? Number(serverMeta.cpu) : 2}
+                />
+              )}
+
               {/* TAB: CONSOLE */}
               {activeTab === 'console' && (
                 <ConsoleTab 
@@ -840,6 +913,7 @@ function App() {
                   setRawConfigText={setRawConfigText}
                   props={props}
                   setProps={setProps}
+                  onConfigSaved={fetchServerMeta}
                 />
               )}
 
@@ -1097,7 +1171,7 @@ function App() {
                             setTimeout(() => {
                               setIsChangingSoftware(false);
                               // Refetch meta to update view
-                              fetchMods();
+                              fetchServerMeta();
                               // Update the servers list globally
                               // @ts-ignore
                               window.api.getServers().then(setServers);

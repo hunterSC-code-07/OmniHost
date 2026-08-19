@@ -4,6 +4,7 @@ import { app, BrowserWindow } from 'electron'
 import fs from 'fs'
 import semver from 'semver'
 import { JavaManager } from './JavaManager'
+import pidusage from 'pidusage'
 
 export class MinecraftAdapter {
   serverId: number;
@@ -11,6 +12,7 @@ export class MinecraftAdapter {
   process: ChildProcess | null = null;
   onlinePlayers: string[] = [];
   autoStopTimer: NodeJS.Timeout | null = null;
+  statsTimer: NodeJS.Timeout | null = null;
   omnihostMeta: any = {}; 
 
   constructor(serverId: number) {
@@ -128,7 +130,10 @@ export class MinecraftAdapter {
     let targetExecutable = javaPath;
     const ramLimit = this.omnihostMeta.ram ? `-Xmx${this.omnihostMeta.ram}G` : '-Xmx2G';
     const minRam = this.omnihostMeta.ram ? `-Xms${this.omnihostMeta.ram}G` : '-Xms2G';
-    const cpuLimit = this.omnihostMeta.cpu ? `-XX:ActiveProcessorCount=${this.omnihostMeta.cpu}` : '';
+    
+    // Minimum of 4 cores to prevent World Gen NPE in modern Minecraft
+    const safeCpuLimit = this.omnihostMeta.cpu ? Math.max(4, parseInt(this.omnihostMeta.cpu)) : null;
+    const cpuLimit = safeCpuLimit ? `-XX:ActiveProcessorCount=${safeCpuLimit}` : '';
     let targetArgs = [ramLimit, minRam, '-jar', 'server.jar', 'nogui'];
     if (cpuLimit) targetArgs.splice(2, 0, cpuLimit);
     let env = { ...process.env };
@@ -162,6 +167,24 @@ export class MinecraftAdapter {
     this.sendLog(`[System] Launching Java with args: ${targetArgs.join(' ')}`);
     this.process = spawn(targetExecutable, targetArgs, { cwd: this.serverDir, env });
 
+    if (this.process.pid) {
+      this.statsTimer = setInterval(async () => {
+        if (!this.process || !this.process.pid) return;
+        try {
+          const stats = await pidusage(this.process.pid);
+          BrowserWindow.getAllWindows().forEach(win => {
+            if (!win.isDestroyed()) win.webContents.send('server-stats', {
+              id: this.serverId,
+              cpu: stats.cpu,
+              ram: stats.memory
+            });
+          });
+        } catch (e) {
+          // PID might not exist anymore
+        }
+      }, 2000);
+    }
+
     const readline = require('readline');
     if (this.process.stdout) {
       const rl = readline.createInterface({ input: this.process.stdout, terminal: false });
@@ -169,6 +192,7 @@ export class MinecraftAdapter {
         const rawText = line.trim();
         const cleanText = rawText.replace(/\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])/g, '');
         if (!cleanText) return;
+
         this.sendLog(`[Minecraft]: ${cleanText}`);
 
         const joinMatch = cleanText.match(/([a-zA-Z0-9_]{3,16}) joined the game/);
@@ -196,7 +220,9 @@ export class MinecraftAdapter {
       const p = this.process;
       this.process = null;
       if (this.autoStopTimer) clearTimeout(this.autoStopTimer);
+      if (this.statsTimer) clearInterval(this.statsTimer);
       this.autoStopTimer = null;
+      this.statsTimer = null;
       this.onlinePlayers = []; 
       this.sendPlayerUpdate();
 
