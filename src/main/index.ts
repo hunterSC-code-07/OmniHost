@@ -854,7 +854,10 @@ app.whenReady().then(() => {
       const playerEntry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase());
       if (!playerEntry) return null;
 
-      const datPath = join(serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+      let datPath = join(serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+      if (!fs.existsSync(datPath)) {
+        datPath = join(serverDir, 'world', 'players', 'data', `${playerEntry.uuid}.dat`);
+      }
       if (!fs.existsSync(datPath)) return null;
 
       const buffer = await fsPromises.readFile(datPath);
@@ -864,9 +867,9 @@ app.whenReady().then(() => {
       
       const inventory = parsed.value.Inventory?.value?.value || [];
       return inventory.map((item: any) => ({
-        slot: item.Slot.value,
-        id: item.id.value.replace('minecraft:', ''),
-        count: item.Count.value
+        slot: item.Slot?.value ?? 0,
+        id: item.id?.value?.replace('minecraft:', '') ?? 'air',
+        count: item.Count?.value ?? item.count?.value ?? 1
       }));
     } catch (err: any) {
       console.log(`[System] Offline Inventory Error: ${err.message}`);

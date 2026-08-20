@@ -14,6 +14,7 @@ export class MinecraftAdapter {
   autoStopTimer: NodeJS.Timeout | null = null;
   statsTimer: NodeJS.Timeout | null = null;
   omnihostMeta: any = {}; 
+  javaPid: number | null = null; 
 
   constructor(serverId: number) {
     this.serverId = serverId;
@@ -42,10 +43,75 @@ export class MinecraftAdapter {
     }
   }
 
+  private getActualPid(): Promise<number> {
+    return new Promise((resolve) => {
+      const proc = this.process;
+      if (!proc || !proc.pid) return resolve(0);
+      if (this.javaPid) return resolve(this.javaPid);
+      if (process.platform !== 'win32') return resolve(proc.pid);
+
+      const { spawn } = require('child_process');
+      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);
+      
+      let out = '';
+      ps.stdout.on('data', (data: any) => out += data.toString());
+      
+      ps.on('close', () => {
+        const pid = parseInt(out.trim());
+        if (!isNaN(pid) && pid > 0) {
+          this.javaPid = pid;
+          resolve(pid);
+        } else {
+          resolve(proc.pid!);
+        }
+      });
+
+      const script = `
+        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name
+        $target = ${proc.pid}
+        $children = @{}
+        foreach ($p in $all) {
+            if (-not $children.ContainsKey($p.ParentProcessId)) {
+                $children[$p.ParentProcessId] = @()
+            }
+            $children[$p.ParentProcessId] += $p
+        }
+        $queue = [System.Collections.Generic.Queue[int]]::new()
+        $queue.Enqueue($target)
+        $found = 0
+        while ($queue.Count -gt 0) {
+            $curr = $queue.Dequeue()
+            if ($children.ContainsKey($curr)) {
+                foreach ($c in $children[$curr]) {
+                    if ($c.Name -match 'java') {
+                        $found = $c.ProcessId
+                        break
+                    }
+                    $queue.Enqueue($c.ProcessId)
+                }
+            }
+            if ($found -ne 0) { break }
+        }
+        Write-Output $found
+      `;
+      ps.stdin.write(script);
+      ps.stdin.end();
+    });
+  }
+
+  private lastSaveFlushTime: number = 0;
+
   async getPlayerInventory(playerName: string) {
     try {
-      this.sendCommand('save-all flush');
-      await new Promise(r => setTimeout(r, 200));
+      // Rate-limit save-all flush to avoid spamming "Saved the game" to all players in-game.
+      // The live inventory tracker polls every 3s, but we only need to flush to disk periodically.
+      // Between flushes, we read the .dat file as-is (updated on auto-save every ~5min or player disconnect).
+      const now = Date.now();
+      if (now - this.lastSaveFlushTime > 60000 && this.process?.stdin) {
+        this.process.stdin.write('save-all flush\n');
+        this.lastSaveFlushTime = now;
+        await new Promise(r => setTimeout(r, 200));
+      }
 
       const cachePath = join(this.serverDir, 'usercache.json');
       if (!fs.existsSync(cachePath)) return null;
@@ -54,21 +120,23 @@ export class MinecraftAdapter {
       const playerEntry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase());
       if (!playerEntry) return null;
 
-      const datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+      let datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+      if (!fs.existsSync(datPath)) {
+        datPath = join(this.serverDir, 'world', 'players', 'data', `${playerEntry.uuid}.dat`);
+      }
       if (!fs.existsSync(datPath)) return null;
 
       const buffer = fs.readFileSync(datPath);
       
       // Clean NBT Require (Fixes the deprecation warning in the terminal!)
-      const libName = 'prismarine-nbt';
-      const nbt = require(libName);
+      const nbt = require('prismarine-nbt');
       const { parsed } = await nbt.parse(buffer);
       
       const inventory = parsed.value.Inventory?.value?.value || [];
       return inventory.map((item: any) => ({
-        slot: item.Slot.value,
-        id: item.id.value.replace('minecraft:', ''),
-        count: item.Count.value
+        slot: item.Slot?.value ?? 0,
+        id: item.id?.value?.replace('minecraft:', '') ?? 'air',
+        count: item.Count?.value ?? item.count?.value ?? 1
       }));
     } catch (err: any) {
       this.sendLog(`[System] Inventory Error: ${err.message}`);
@@ -119,7 +187,10 @@ export class MinecraftAdapter {
           const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
           const playerEntry = cache.find((p: any) => p.name.toLowerCase() === username.toLowerCase());
           if (playerEntry) {
-            const datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+            let datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
+            if (!fs.existsSync(datPath)) {
+              datPath = join(this.serverDir, 'world', 'players', 'data', `${playerEntry.uuid}.dat`);
+            }
             if (fs.existsSync(datPath)) {
               const buffer = fs.readFileSync(datPath);
               const nbt = require('prismarine-nbt');
@@ -136,6 +207,65 @@ export class MinecraftAdapter {
       }
 
       fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');
+    }
+  }
+
+  /**
+   * Parses a Forge/NeoForge run.bat or start.bat file to extract Java arguments.
+   * This allows us to spawn Java directly instead of through cmd.exe,
+   * which is required for pidusage to measure the correct process.
+   * 
+   * Typical Forge/NeoForge run.bat format:
+   *   @echo off
+   *   java @user_jvm_args.txt @libraries/.../win_args.txt %*
+   *   pause
+   * 
+   * Returns the extracted args array, or null if parsing fails.
+   */
+  private parseRunBat(batPath: string): string[] | null {
+    try {
+      const content = fs.readFileSync(batPath, 'utf-8');
+      const lines = content.split(/\r?\n/);
+
+      // Forge run.bat has TWO java commands:
+      //   1) java -jar forge-...-shim.jar --onlyCheckJava  (version check, exits immediately)
+      //   2) java @user_jvm_args.txt @libraries/.../win_args.txt %*  (actual server)
+      // We want the LAST java command, which is always the actual server launch.
+      let lastJavaArgs: string[] | null = null;
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+
+        // Skip non-Java lines (echo, set, rem, pause, empty, labels, conditionals, etc.)
+        if (!line || line.startsWith('@echo') || line.startsWith('REM') || line.startsWith('rem') ||
+            line.startsWith('set ') || line.startsWith('SET ') || line === 'pause' || line === 'PAUSE' ||
+            line.startsWith('::') || line.startsWith('if ') || line.startsWith('IF ') ||
+            line.startsWith(':') || line.startsWith('echo') || line.startsWith('goto')) {
+          continue;
+        }
+
+        // Look for the java launch command
+        // Matches: java ..., "java" ..., %JAVA_HOME%\bin\java ..., "path\to\java.exe" ...
+        const javaMatch = line.match(/^(?:@\s*)?(?:"[^"]*[/\\])?(?:java(?:w)?(?:\.exe)?)"?\s+(.*)/i);
+        if (javaMatch) {
+          const argsString = javaMatch[1];
+          // Parse the args, preserving @argfile references and handling %* placeholder
+          const args: string[] = [];
+          // Split on spaces, but respect quoted strings and @-prefixed argfile paths
+          const tokens = argsString.match(/(?:[^\s"]+|"[^"]*")+/g) || [];
+          for (const token of tokens) {
+            if (token === '%*' || token === '%1' || token === '%~1') continue; // Skip batch arg placeholders
+            // Remove surrounding quotes if present
+            const cleaned = token.replace(/^"(.*)"$/, '$1');
+            if (cleaned) args.push(cleaned);
+          }
+          if (args.length > 0) lastJavaArgs = args;
+        }
+      }
+
+      return lastJavaArgs;
+    } catch (e) {
+      return null; // File read or parse error
     }
   }
 
@@ -201,12 +331,25 @@ export class MinecraftAdapter {
       env.JAVA_HOME = pathModule.dirname(javaBinDir);
     }
 
-    if (fs.existsSync(runBatPath)) {
-      targetExecutable = 'cmd.exe';
-      targetArgs = ['/c', 'run.bat', 'nogui'];
-    } else if (fs.existsSync(startBatPath)) {
-      targetExecutable = 'cmd.exe';
-      targetArgs = ['/c', 'start.bat', 'nogui'];
+    // Try to parse run.bat/start.bat and launch Java directly (fixes CPU/RAM stats for Forge/NeoForge)
+    // Launching through cmd.exe causes pidusage to measure cmd.exe instead of the actual Java process
+    const batPath = fs.existsSync(runBatPath) ? runBatPath : fs.existsSync(startBatPath) ? startBatPath : null;
+    if (batPath) {
+      const parsedArgs = this.parseRunBat(batPath);
+      if (parsedArgs) {
+        // Filter out any -Xmx/-Xms from the batch file args so OmniHost's limits take precedence
+        const filteredArgs = parsedArgs.filter(a => !a.startsWith('-Xmx') && !a.startsWith('-Xms'));
+        targetArgs = [ramLimit, minRam];
+        if (cpuLimit) targetArgs.push(cpuLimit);
+        targetArgs.push(...filteredArgs);
+        // Ensure 'nogui' is present
+        if (!targetArgs.includes('nogui')) targetArgs.push('nogui');
+      } else {
+        // Fallback: could not parse bat file, use cmd.exe (stats may not work)
+        this.sendLog(`[System] Warning: Could not parse ${batPath === runBatPath ? 'run.bat' : 'start.bat'}, launching via cmd.exe (resource stats may be inaccurate).`);
+        targetExecutable = 'cmd.exe';
+        targetArgs = ['/c', batPath === runBatPath ? 'run.bat' : 'start.bat', 'nogui'];
+      }
     } else {
       const files = fs.readdirSync(this.serverDir);
       const forgeJar = files.find(f => (f.startsWith('forge-') || f.startsWith('neoforge-')) && f.endsWith('.jar') && !f.includes('installer'));
@@ -222,12 +365,15 @@ export class MinecraftAdapter {
 
     this.sendLog(`[System] Launching Java with args: ${targetArgs.join(' ')}`);
     this.process = spawn(targetExecutable, targetArgs, { cwd: this.serverDir, env });
+    this.javaPid = null;
 
     if (this.process.pid) {
       this.statsTimer = setInterval(async () => {
         if (!this.process || !this.process.pid) return;
         try {
-          const stats = await pidusage(this.process.pid);
+          const actualPid = await this.getActualPid();
+          if (actualPid === 0) return;
+          const stats = await pidusage(actualPid);
           BrowserWindow.getAllWindows().forEach(win => {
             if (!win.isDestroyed()) win.webContents.send('server-stats', {
               id: this.serverId,
@@ -236,7 +382,8 @@ export class MinecraftAdapter {
             });
           });
         } catch (e) {
-          // PID might not exist anymore
+          // PID might not exist anymore (e.g. temporary java check process finished)
+          this.javaPid = null;
         }
       }, 2000);
     }

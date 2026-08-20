@@ -277,6 +277,7 @@ function App() {
   }, [activeServerId, activeTab, playerListType])
 
   useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
     if (selectedPlayer && activeServerId !== null) {
       const fetchInv = async () => {
         // @ts-ignore
@@ -284,8 +285,12 @@ function App() {
         setPlayerInventory(inv);
       };
       fetchInv();
+      if (playerListType === 'live') {
+        interval = setInterval(fetchInv, 3000);
+      }
     }
-  }, [selectedPlayer, activeServerId])
+    return () => { if (interval) clearInterval(interval); };
+  }, [selectedPlayer, activeServerId, playerListType])
 
   const fetchServerMeta = async () => {
     if (activeServerId === null) return;
