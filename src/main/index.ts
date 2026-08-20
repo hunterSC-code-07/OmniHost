@@ -84,7 +84,40 @@ app.whenReady().then(() => {
   
   // Database
   ipcMain.handle('get-servers', () => {
-    return getServers()
+    const list = getServers() as any[];
+    const serversDir = join(app.getPath('userData'), 'servers');
+    return list.map((srv) => {
+      let meta: any = {};
+      let port = 25565;
+      const srvDir = join(serversDir, srv.id.toString());
+      const metaPath = join(srvDir, 'omnihost.json');
+      if (fs.existsSync(metaPath)) {
+        try {
+          meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+        } catch (e) {}
+      }
+      const propsPath = join(srvDir, 'server.properties');
+      if (fs.existsSync(propsPath)) {
+        try {
+          const props = fs.readFileSync(propsPath, 'utf-8');
+          const match = props.match(/^server-port=(\d+)/m);
+          if (match) port = parseInt(match[1], 10);
+        } catch (e) {}
+      }
+      let type = meta.type;
+      if (!type && srv.game) {
+        const typeMatch = srv.game.match(/\((.*?)\)/);
+        if (typeMatch) type = typeMatch[1];
+        else type = 'Vanilla';
+      }
+      return {
+        ...srv,
+        type: type || 'Vanilla',
+        version: meta.version || '1.20.4',
+        loaderVersion: meta.loaderVersion || '',
+        port: srv.port || port || 25565
+      };
+    });
   })
 
   ipcMain.handle('delete-server', async (_, id) => {

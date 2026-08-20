@@ -6,13 +6,20 @@ import { FilesTab } from './components/tabs/FilesTab';
 import { BackupsTab } from './components/tabs/BackupsTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
 import minecraftBg from './assets/minecraft-bg.png';
+import palworldBg from './assets/palworld-bg.jpg';
+import dayzBg from './assets/dayz-bg.jpg';
+import satisfactoryBg from './assets/satisfactory-bg.jpg';
+
+const supportedGameHubs = ['Minecraft'];
+const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
 
 const getGameImageUrl = (game: string) => {
   if (game.toLowerCase().includes('minecraft')) return minecraftBg;
-  if (game.toLowerCase().includes('palworld')) return 'https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=1000'
-  if (game.toLowerCase().includes('dayz')) return 'https://images.unsplash.com/photo-1519082273180-60b61665a3c5?q=80&w=1000'
-  return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000'
-}
+  if (game.toLowerCase().includes('palworld')) return palworldBg;
+  if (game.toLowerCase().includes('dayz')) return dayzBg;
+  if (game.toLowerCase().includes('satisfactory')) return satisfactoryBg;
+  return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';
+};
 
 const classOptions = [
   { id: 6, name: 'Mods' },
@@ -725,9 +732,10 @@ function App() {
     <div className="bg-gradient-to-b from-[#121212] to-[#050505] font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden relative">
       
       {/* Dynamic Backgrounds */}
-      <div className={`absolute inset-0 bg-gradient-to-br from-[#0a1f0a] via-[#1b5e20] to-[#051105] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Minecraft' ? 'opacity-100' : 'opacity-0'}`}></div>
-      <div className={`absolute inset-0 bg-gradient-to-br from-[#42c0ff]/40 via-[#fcb746]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Palworld' ? 'opacity-100' : 'opacity-0'}`}></div>
-      <div className={`absolute inset-0 bg-gradient-to-br from-[#8b0000]/30 via-[#3a0000]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'DayZ' ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#0a1f0a] via-[#1b5e20] to-[#051105] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Minecraft' || activeGameHub === 'Minecraft' ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#42c0ff]/40 via-[#fcb746]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Palworld' || activeGameHub === 'Palworld' ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#8b0000]/30 via-[#3a0000]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'DayZ' || activeGameHub === 'DayZ' ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#fa9549]/35 via-[#7c2d12]/25 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Satisfactory' || activeGameHub === 'Satisfactory' ? 'opacity-100' : 'opacity-0'}`}></div>
       
       {/* TOP NAVBAR */}
       <header className="fixed top-0 left-0 right-[8px] h-20 bg-gradient-to-b from-[#121212] to-[#050505] z-40 border-b border-white/5 shadow-lg">
@@ -800,7 +808,7 @@ function App() {
 
               {/* Game Hub Cards */}
               <div className="px-gutter py-stack-md relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                   
                   {/* Minecraft Hub */}
                   <div onMouseEnter={() => setHoveredGame('Minecraft')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Minecraft')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(76,175,80,0.15)] ring-1 hover:ring-primary cursor-pointer ring-surface-container-high">
@@ -812,29 +820,33 @@ function App() {
                     </div>
                   </div>
 
-                  {/* Palworld Hub (Coming Soon) */}
-                  <div onMouseEnter={() => setHoveredGame('Palworld')} onMouseLeave={() => setHoveredGame(null)} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ring-1 ring-surface-container-high opacity-60 grayscale hover:grayscale-0 cursor-not-allowed">
-                    <div className="absolute inset-0 bg-cover bg-center z-0" style={{backgroundImage: `url('${getGameImageUrl('Palworld')}')`}}></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10"></div>
-                    <div className="absolute top-4 right-4 z-20 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-surface-container-high">
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">Under Development</span>
-                    </div>
+                  {/* Palworld Hub */}
+                  <div onMouseEnter={() => setHoveredGame('Palworld')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Palworld')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(66,192,255,0.2)] ring-1 hover:ring-[#42c0ff] cursor-pointer ring-surface-container-high">
+                    <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Palworld')}')`}}></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
                     <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                      <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-1">Game Hub</p>
-                      <h2 className="font-headline-lg text-headline-lg text-on-surface-variant leading-tight">Palworld</h2>
+                      <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
+                      <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-[#42c0ff] transition-colors drop-shadow-lg shadow-black">Palworld</h2>
                     </div>
                   </div>
 
-                  {/* DayZ Hub (Coming Soon) */}
-                  <div onMouseEnter={() => setHoveredGame('DayZ')} onMouseLeave={() => setHoveredGame(null)} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ring-1 ring-surface-container-high opacity-60 grayscale hover:grayscale-0 cursor-not-allowed">
-                    <div className="absolute inset-0 bg-cover bg-center z-0" style={{backgroundImage: `url('${getGameImageUrl('DayZ')}')`}}></div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10"></div>
-                    <div className="absolute top-4 right-4 z-20 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-surface-container-high">
-                      <span className="font-label-sm text-label-sm text-on-surface-variant">Under Development</span>
-                    </div>
+                  {/* DayZ Hub */}
+                  <div onMouseEnter={() => setHoveredGame('DayZ')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('DayZ')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.2)] ring-1 hover:ring-red-500 cursor-pointer ring-surface-container-high">
+                    <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('DayZ')}')`}}></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
                     <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                      <p className="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-1">Game Hub</p>
-                      <h2 className="font-headline-lg text-headline-lg text-on-surface-variant leading-tight">DayZ</h2>
+                      <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
+                      <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-red-400 transition-colors drop-shadow-lg shadow-black">DayZ</h2>
+                    </div>
+                  </div>
+
+                  {/* Satisfactory Hub */}
+                  <div onMouseEnter={() => setHoveredGame('Satisfactory')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Satisfactory')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(250,149,73,0.25)] ring-1 hover:ring-[#fa9549] cursor-pointer ring-surface-container-high">
+                    <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Satisfactory')}')`}}></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
+                    <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
+                      <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
+                      <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-[#fa9549] transition-colors drop-shadow-lg shadow-black">Satisfactory</h2>
                     </div>
                   </div>
 
@@ -865,14 +877,14 @@ function App() {
                           </tr>
                         ) : (
                           servers.filter(s => s.status === 'Online').map(server => (
-                            <tr key={server.id} onClick={() => { setActiveServerId(server.id); setActiveTab('console'); }} className="border-b border-surface-container-high/50 hover:bg-surface-container-high/80 hover:text-on-surface transition-colors cursor-pointer group">
+                            <tr key={server.id} onClick={() => { setActiveServerId(server.id); setActiveTab('overview'); }} className="border-b border-surface-container-high/50 hover:bg-surface-container-high/80 hover:text-on-surface transition-colors cursor-pointer group">
                               <td className="px-6 py-4 font-bold group-hover:text-primary transition-colors">{server.name}</td>
                               <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
                                   <span className="w-2 h-2 rounded-full bg-[#4CAF50] shadow-[0_0_8px_rgba(76,175,80,0.8)]"></span>Active
                                 </div>
                               </td>
-                              <td className="px-6 py-4 font-label-sm tracking-wider">127.0.0.1:{server.port}</td>
+                              <td className="px-6 py-4 font-label-sm tracking-wider font-mono text-on-surface">{tunnelIp}:{server.port || 25565}</td>
                               <td className="px-6 py-4">0/20</td>
                               <td className="px-6 py-4 text-right">Running</td>
                             </tr>
@@ -898,57 +910,136 @@ function App() {
                   Back to Dashboard
                 </button>
                 
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-surface-container-high pb-6">
-                  <div>
-                    <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
-                    <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">Manage your available {activeGameHub} servers or create a new one.</p>
-                  </div>
-                  <button onClick={() => setShowCreateModal(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
-                    <span className="material-symbols-outlined">add_box</span>
-                    NEW {activeGameHub.toUpperCase()} SERVER
-                  </button>
-                </div>
-
-                <div className="flex flex-col gap-4 mt-6">
-                  <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Available Servers</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {servers.filter(s => s.game.toLowerCase().includes(activeGameHub.toLowerCase())).length === 0 ? (
-                      <div className="col-span-full py-16 text-center border-dashed glass-panel">
-                        <p className="text-on-surface-variant italic font-body-lg text-body-lg">No servers found for {activeGameHub}.</p>
+                {isGameSupported(activeGameHub) ? (
+                  <>
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-surface-container-high pb-6">
+                      <div>
+                        <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
+                        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">Manage your available {activeGameHub} servers or create a new one.</p>
                       </div>
-                    ) : (
-                      servers.filter(s => s.game.toLowerCase().includes(activeGameHub.toLowerCase())).map(server => (
-                        <div key={server.id} onClick={() => { setActiveServerId(server.id); setActiveTab('console'); }} className="group relative rounded-xl overflow-hidden glass-panel p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
-                          <div className="flex justify-between items-start">
-                            <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">{server.name}</h3>
-                            <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-full border border-surface-container-highest">
-                              {server.status === 'Online' ? (
-                                <><span className="w-2 h-2 rounded-full bg-[#4CAF50] shadow-[0_0_8px_rgba(76,175,80,0.8)]"></span><span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Online</span></>
-                              ) : (
-                                <><span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span><span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Offline</span></>
-                              )}
+                      <button onClick={() => setShowCreateModal(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
+                        <span className="material-symbols-outlined">add_box</span>
+                        NEW {activeGameHub.toUpperCase()} SERVER
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-4 mt-6">
+                      <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Available Servers</h2>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {servers.filter(s => s.game.toLowerCase().includes(activeGameHub.toLowerCase())).length === 0 ? (
+                          <div className="col-span-full py-16 text-center border-dashed glass-panel">
+                            <p className="text-on-surface-variant italic font-body-lg text-body-lg">No servers found for {activeGameHub}.</p>
+                          </div>
+                        ) : (
+                          servers.filter(s => s.game.toLowerCase().includes(activeGameHub.toLowerCase())).map(server => (
+                            <div key={server.id} onClick={() => { setActiveServerId(server.id); setActiveTab('overview'); }} className="group relative rounded-xl overflow-hidden glass-panel p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                              <div className="flex justify-between items-start">
+                                <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">{server.name}</h3>
+                                <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-full border border-surface-container-highest">
+                                  {server.status === 'Online' ? (
+                                    <><span className="w-2 h-2 rounded-full bg-[#4CAF50] shadow-[0_0_8px_rgba(76,175,80,0.8)]"></span><span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Online</span></>
+                                  ) : (
+                                    <><span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span><span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Offline</span></>
+                                  )}
+                                </div>
+                              </div>
+                              
+                              <div className="flex flex-col gap-3 mt-4">
+                                <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+                                  <span className="material-symbols-outlined text-lg text-primary">cell_tower</span>
+                                  <span className="font-mono text-on-surface tracking-wider">{tunnelIp}:{server.port || 25565}</span>
+                                </div>
+                                
+                                <div className="flex flex-col gap-1.5 pt-2 border-t border-surface-container-high/60">
+                                  <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="material-symbols-outlined text-base opacity-70">memory</span>
+                                      Software:
+                                    </span>
+                                    <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
+                                      {server.type || 'Vanilla'}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="material-symbols-outlined text-base opacity-70">tag</span>
+                                      Version:
+                                    </span>
+                                    <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
+                                      {server.version || '1.20.4'}{server.loaderVersion ? ` (${server.loaderVersion})` : ''}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                              
+                              <div className="mt-6 pt-4 border-t border-surface-container-high flex justify-end">
+                                <button className="text-primary font-label-md text-label-md uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
+                                  Manage <span className="material-symbols-outlined text-sm">arrow_forward</span>
+                                </button>
+                              </div>
                             </div>
-                          </div>
-                          
-                          <div className="flex flex-col gap-2 mt-4">
-                            <p className="font-label-md text-label-md text-on-surface-variant flex items-center gap-3">
-                              <span className="material-symbols-outlined text-lg opacity-70">memory</span> {server.type} {server.version}
-                            </p>
-                            <p className="font-label-md text-label-md text-on-surface-variant flex items-center gap-3">
-                              <span className="material-symbols-outlined text-lg opacity-70">public</span> 127.0.0.1:{server.port}
-                            </p>
-                          </div>
-                          
-                          <div className="mt-6 pt-4 border-t border-surface-container-high flex justify-end">
-                            <button className="text-primary font-label-md text-label-md uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
-                              Manage <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                            </button>
-                          </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex flex-col gap-6">
+                    <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-surface-container-high pb-6">
+                      <div>
+                        <div className="flex items-center gap-3 mb-2">
+                          <span className="px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.2)]">
+                            Under Development
+                          </span>
                         </div>
-                      ))
-                    )}
+                        <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
+                        <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-1">
+                          Dedicated server orchestration and automated deployment for {activeGameHub}.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="glass-panel p-8 md:p-12 rounded-2xl border border-surface-container-high flex flex-col items-center text-center max-w-3xl mx-auto my-6 relative overflow-hidden">
+                      <div className="w-20 h-20 rounded-2xl bg-surface-container-high flex items-center justify-center mb-6 ring-1 ring-outline-variant/40 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
+                        <span className="material-symbols-outlined text-4xl text-primary animate-pulse">engineering</span>
+                      </div>
+                      
+                      <h2 className="font-headline-lg text-headline-lg text-on-surface mb-3">
+                        {activeGameHub} Hub is Under Development
+                      </h2>
+                      
+                      <p className="font-body-lg text-body-lg text-on-surface-variant max-w-xl mb-8 leading-relaxed">
+                        Dedicated server installation, live console telemetry, mod loading, and automatic port tunneling for {activeGameHub} are currently in active development and will be available in an upcoming update.
+                      </p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full text-left mb-8">
+                        <div className="p-4 rounded-xl bg-surface-container/60 border border-surface-container-high">
+                          <span className="material-symbols-outlined text-primary text-xl mb-2">dns</span>
+                          <h4 className="font-bold text-sm text-on-surface">Automated Server</h4>
+                          <p className="text-xs text-on-surface-variant mt-1">One-click server deployment and updates</p>
+                        </div>
+                        <div className="p-4 rounded-xl bg-surface-container/60 border border-surface-container-high">
+                          <span className="material-symbols-outlined text-primary text-xl mb-2">tune</span>
+                          <h4 className="font-bold text-sm text-on-surface">Configuration</h4>
+                          <p className="text-xs text-on-surface-variant mt-1">Full graphical server properties editor</p>
+                        </div>
+                        <div className="p-4 rounded-xl bg-surface-container/60 border border-surface-container-high">
+                          <span className="material-symbols-outlined text-primary text-xl mb-2">monitoring</span>
+                          <h4 className="font-bold text-sm text-on-surface">Live Telemetry</h4>
+                          <p className="text-xs text-on-surface-variant mt-1">Real-time metrics, logs, and player list</p>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => setActiveGameHub(null)} 
+                        className="bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/40 transition-all px-8 py-3 rounded-xl font-label-md text-label-md flex items-center gap-2 hover:scale-105 active:scale-95"
+                      >
+                        <span className="material-symbols-outlined text-sm">arrow_back</span>
+                        Back to Dashboard
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           )}

@@ -314,14 +314,40 @@ export class MinecraftAdapter {
     const startBatPath = join(this.serverDir, 'start.bat');
     
     let targetExecutable = javaPath;
-    const ramLimit = this.omnihostMeta.ram ? `-Xmx${this.omnihostMeta.ram}G` : '-Xmx2G';
-    const minRam = this.omnihostMeta.ram ? `-Xms${this.omnihostMeta.ram}G` : '-Xms2G';
+    const maxRamGB = this.omnihostMeta.ram ? parseInt(this.omnihostMeta.ram, 10) : 2;
+    const minRamGB = Math.min(1, maxRamGB);
+    const ramLimit = `-Xmx${maxRamGB}G`;
+    const minRam = `-Xms${minRamGB}G`;
     
     // Minimum of 4 cores to prevent World Gen NPE in modern Minecraft
     const safeCpuLimit = this.omnihostMeta.cpu ? Math.max(4, parseInt(this.omnihostMeta.cpu)) : null;
     const cpuLimit = safeCpuLimit ? `-XX:ActiveProcessorCount=${safeCpuLimit}` : '';
-    let targetArgs = [ramLimit, minRam, '-jar', 'server.jar', 'nogui'];
-    if (cpuLimit) targetArgs.splice(2, 0, cpuLimit);
+
+    // High-performance GC flags (Aikar's G1GC flags) to prevent GC stutter and chunk generation lag
+    const g1gcFlags = [
+      '-XX:+UseG1GC',
+      '-XX:+ParallelRefProcEnabled',
+      '-XX:MaxGCPauseMillis=200',
+      '-XX:+UnlockExperimentalVMOptions',
+      '-XX:+DisableExplicitGC',
+      '-XX:G1NewSizePercent=30',
+      '-XX:G1MaxNewSizePercent=40',
+      '-XX:G1ReservePercent=20',
+      '-XX:G1HeapWastePercent=5',
+      '-XX:G1MixedGCCountTarget=4',
+      '-XX:InitiatingHeapOccupancyPercent=15',
+      '-XX:G1MixedGCLiveThresholdPercent=90',
+      '-XX:G1RSetUpdatingPauseTimePercent=5',
+      '-XX:SurvivorRatio=32',
+      '-XX:+PerfDisableSharedMem',
+      '-XX:MaxTenuringThreshold=1',
+      '-XX:G1PeriodicGCInterval=15000'
+    ];
+
+    const baseFlags = [ramLimit, minRam, ...g1gcFlags];
+    if (cpuLimit) baseFlags.push(cpuLimit);
+
+    let targetArgs = [...baseFlags, '-jar', 'server.jar', 'nogui'];
     let env = { ...process.env };
 
     if (javaPath !== 'java') {
@@ -339,9 +365,7 @@ export class MinecraftAdapter {
       if (parsedArgs) {
         // Filter out any -Xmx/-Xms from the batch file args so OmniHost's limits take precedence
         const filteredArgs = parsedArgs.filter(a => !a.startsWith('-Xmx') && !a.startsWith('-Xms'));
-        targetArgs = [ramLimit, minRam];
-        if (cpuLimit) targetArgs.push(cpuLimit);
-        targetArgs.push(...filteredArgs);
+        targetArgs = [...baseFlags, ...filteredArgs];
         // Ensure 'nogui' is present
         if (!targetArgs.includes('nogui')) targetArgs.push('nogui');
       } else {
@@ -354,9 +378,7 @@ export class MinecraftAdapter {
       const files = fs.readdirSync(this.serverDir);
       const forgeJar = files.find(f => (f.startsWith('forge-') || f.startsWith('neoforge-')) && f.endsWith('.jar') && !f.includes('installer'));
       if (forgeJar) {
-        targetArgs = [ramLimit, minRam];
-        if (cpuLimit) targetArgs.push(cpuLimit);
-        targetArgs.push('-jar', forgeJar, 'nogui');
+        targetArgs = [...baseFlags, '-jar', forgeJar, 'nogui'];
       } else if (!fs.existsSync(jarPath)) {
         this.sendLog(`[System Error] server.jar or modloader not found! Please delete and recreate this server.`);
         return;
