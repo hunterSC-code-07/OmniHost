@@ -62,6 +62,8 @@ function App() {
   const [newServerType, setNewServerType] = useState('Vanilla')
   const [newServerVersion, setNewServerVersion] = useState('')
   const [availableVersions, setAvailableVersions] = useState<string[]>([])
+  const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')
+  const [availableLoaderVersions, setAvailableLoaderVersions] = useState<string[]>([])
   const [isCreatingServer, setIsCreatingServer] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState(0)
   const [downloadText, setDownloadText] = useState('Downloading server.jar...')
@@ -92,6 +94,8 @@ function App() {
   const [editingSoftwareType, setEditingSoftwareType] = useState('Vanilla')
   const [editingSoftwareVersion, setEditingSoftwareVersion] = useState('')
   const [editingAvailableVersions, setEditingAvailableVersions] = useState<string[]>([])
+  const [editingLoaderVersion, setEditingLoaderVersion] = useState('')
+  const [editingAvailableLoaderVersions, setEditingAvailableLoaderVersions] = useState<string[]>([])
   const [isChangingSoftware, setIsChangingSoftware] = useState(false)
   const [isClearingCache, setIsClearingCache] = useState(false)
   const [cacheSize, setCacheSize] = useState<number>(0)
@@ -207,6 +211,41 @@ function App() {
       fetchVersions()
     }
   }, [activeTab, editingSoftwareType])
+
+  useEffect(() => {
+    if (showCreateModal && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && newServerVersion) {
+      const fetchLoaderVersions = async () => {
+        // @ts-ignore
+        const loaders = await window.api.getLoaderVersions(newServerType, newServerVersion);
+        setAvailableLoaderVersions(loaders);
+        setNewServerLoaderVersion(loaders.length > 0 ? loaders[0] : '');
+      }
+      fetchLoaderVersions();
+    } else {
+      setAvailableLoaderVersions([]);
+      setNewServerLoaderVersion('');
+    }
+  }, [showCreateModal, newServerType, newServerVersion]);
+
+  useEffect(() => {
+    if (activeTab === 'software' && ['Forge', 'Fabric', 'NeoForge'].includes(editingSoftwareType) && editingSoftwareVersion) {
+      const fetchLoaderVersions = async () => {
+        // @ts-ignore
+        const loaders = await window.api.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);
+        setEditingAvailableLoaderVersions(loaders);
+        // If current server has a loaderVersion, try to select it, else top
+        if (serverMeta && serverMeta.loaderVersion && loaders.includes(serverMeta.loaderVersion)) {
+           setEditingLoaderVersion(serverMeta.loaderVersion);
+        } else {
+           setEditingLoaderVersion(loaders.length > 0 ? loaders[0] : '');
+        }
+      }
+      fetchLoaderVersions();
+    } else {
+      setEditingAvailableLoaderVersions([]);
+      setEditingLoaderVersion('');
+    }
+  }, [activeTab, editingSoftwareType, editingSoftwareVersion, serverMeta]);
 
   useEffect(() => {
     let delay: NodeJS.Timeout;
@@ -451,7 +490,7 @@ function App() {
         }
       } else {
         // @ts-ignore
-        const newId = await window.api.createServer(newServerName, newServerType, newServerVersion);
+        const newId = await window.api.createServer(newServerName, newServerType, newServerVersion, newServerLoaderVersion);
         
         // @ts-ignore
         window.api.onDownloadProgress(newId, (progress: number, text?: string) => {
@@ -460,7 +499,7 @@ function App() {
         });
 
         // @ts-ignore
-        await window.api.downloadServerJar(newId, newServerType, newServerVersion);
+        await window.api.downloadServerJar(newId, newServerType, newServerVersion, newServerLoaderVersion);
       }
 
       showToast('Server Created Successfully!');
@@ -1233,6 +1272,24 @@ function App() {
                         </select>
                       </div>
 
+                      {['Forge', 'Fabric', 'NeoForge'].includes(editingSoftwareType) && (
+                        <div>
+                          <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
+                          <select 
+                            value={editingLoaderVersion}
+                            onChange={e => setEditingLoaderVersion(e.target.value)}
+                            className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#FFD700] shadow-inner"
+                            disabled={isChangingSoftware || editingAvailableLoaderVersions.length === 0}
+                          >
+                            {editingAvailableLoaderVersions.length === 0 ? (
+                              <option>Loading...</option>
+                            ) : (
+                              editingAvailableLoaderVersions.map(v => <option key={v} value={v}>{v}</option>)
+                            )}
+                          </select>
+                        </div>
+                      )}
+
                       <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-4 mt-4">
                         <p className="text-sm text-yellow-500 font-bold mb-1">Warning: Mod Compatibility</p>
                         <p className="text-xs text-yellow-600">Changing software versions or types may cause compatibility issues with installed mods. Old mods will be moved to a backup folder.</p>
@@ -1253,11 +1310,11 @@ function App() {
                             });
 
                             // @ts-ignore
-                            await window.api.changeServerSoftware(activeServerId, editingSoftwareType, editingSoftwareVersion);
+                            await window.api.changeServerSoftware(activeServerId, editingSoftwareType, editingSoftwareVersion, editingLoaderVersion);
                             
                             // Re-download the jar
                             // @ts-ignore
-                            await window.api.downloadServerJar(activeServerId, editingSoftwareType, editingSoftwareVersion);
+                            await window.api.downloadServerJar(activeServerId, editingSoftwareType, editingSoftwareVersion, editingLoaderVersion);
                             
                             // Show success
                             setDownloadText('Software updated successfully!');
@@ -1361,6 +1418,23 @@ function App() {
                         <option>Loading versions...</option>
                       ) : (
                         availableVersions.map(v => <option key={v} value={v}>{v}</option>)
+                      )}
+                    </select>
+                  </div>
+                )}
+                {['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
+                  <div>
+                    <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
+                    <select 
+                      value={newServerLoaderVersion}
+                      onChange={e => setNewServerLoaderVersion(e.target.value)}
+                      className="w-full bg-[#0a0a0f] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
+                      disabled={isCreatingServer || availableLoaderVersions.length === 0}
+                    >
+                      {availableLoaderVersions.length === 0 ? (
+                        <option>Loading loader versions...</option>
+                      ) : (
+                        availableLoaderVersions.map(v => <option key={v} value={v}>{v}</option>)
                       )}
                     </select>
                   </div>

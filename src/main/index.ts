@@ -99,15 +99,15 @@ app.whenReady().then(() => {
     return true;
   });
 
-  ipcMain.handle('create-server', async (_, name, type, version) => {
+  ipcMain.handle('create-server', async (_, name, type, version, loaderVersion) => {
     const id = createServer(name, type);
     const serverDir = join(app.getPath('userData'), 'servers', id.toString());
     if (!await exists(serverDir)) await fsPromises.mkdir(serverDir, { recursive: true });
-    await fsPromises.writeFile(join(serverDir, 'omnihost.json'), JSON.stringify({ type, version }));
+    await fsPromises.writeFile(join(serverDir, 'omnihost.json'), JSON.stringify({ type, version, loaderVersion }));
     return id;
   })
 
-  ipcMain.handle('change-server-software', async (_, id, type, version) => {
+  ipcMain.handle('change-server-software', async (_, id, type, version, loaderVersion) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString());
     const modsDir = join(serverDir, 'mods');
     
@@ -132,7 +132,7 @@ app.whenReady().then(() => {
     }
 
     // Update omnihost.json
-    fs.writeFileSync(join(serverDir, 'omnihost.json'), JSON.stringify({ type, version }));
+    fs.writeFileSync(join(serverDir, 'omnihost.json'), JSON.stringify({ type, version, loaderVersion }));
     
     // Update DB
     updateServerSoftware(id, type);
@@ -222,6 +222,75 @@ app.whenReady().then(() => {
       return Array.from(mcVersions).reverse();
     } catch (e) {
       console.error(e);
+      return [];
+    }
+  });
+
+  ipcMain.handle('get-loader-versions', async (_, type: string, mcVersion: string) => {
+    try {
+      if (type === 'Forge') {
+        const promoRes = await axios.get('https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json');
+        const recommended = promoRes.data.promos[`${mcVersion}-recommended`];
+        
+        const mavenRes = await axios.get('https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml');
+        const xml = mavenRes.data;
+        const versionMatches = xml.match(/<version>(.*?)<\/version>/g) || [];
+        
+        const versions = new Set<string>();
+        for (const vTag of versionMatches) {
+          const v = vTag.replace('<version>', '').replace('</version>', '');
+          if (v.startsWith(mcVersion + '-')) {
+            versions.add(v.replace(mcVersion + '-', ''));
+          }
+        }
+        
+        let result = Array.from(versions).sort((a, b) => {
+          const vA = a.split('.').map(Number);
+          const vB = b.split('.').map(Number);
+          for (let i = 0; i < Math.max(vA.length, vB.length); i++) {
+            const numA = vA[i] || 0;
+            const numB = vB[i] || 0;
+            if (numA !== numB) return numB - numA;
+          }
+          return 0;
+        });
+
+        if (recommended && result.includes(recommended)) {
+          result = result.filter(v => v !== recommended);
+          result.unshift(recommended + ' (Recommended)');
+        }
+        return result;
+
+      } else if (type === 'Fabric') {
+        const res = await axios.get('https://meta.fabricmc.net/v2/versions/loader');
+        const loaders = res.data;
+        return loaders.map((l: any) => l.version);
+      } else if (type === 'NeoForge') {
+        const res = await axios.get('https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge');
+        const all: string[] = res.data.versions;
+        
+        let prefix = mcVersion.replace('1.', '');
+        if (mcVersion.startsWith('1.20') || mcVersion.startsWith('1.21')) {
+           prefix = prefix.split('.')[0] + '.';
+        } else {
+           prefix = prefix + '.';
+        }
+
+        const versions = all.filter((v: string) => v.startsWith(prefix));
+        return versions.sort((a, b) => {
+          const vA = a.split('.').map(Number);
+          const vB = b.split('.').map(Number);
+          for (let i = 0; i < Math.max(vA.length, vB.length); i++) {
+            const numA = vA[i] || 0;
+            const numB = vB[i] || 0;
+            if (numA !== numB) return numB - numA;
+          }
+          return 0;
+        });
+      }
+      return [];
+    } catch (e: any) {
+      console.error('Error fetching loader versions:', e.message);
       return [];
     }
   });
@@ -600,7 +669,7 @@ app.whenReady().then(() => {
     }
   });
 
-  ipcMain.handle('download-server-jar', async (event, id, type, version) => {
+  ipcMain.handle('download-server-jar', async (event, id, type, version, loaderVersion) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString());
     const jarPath = join(serverDir, 'server.jar');
     const installerPath = join(serverDir, 'installer.jar');
@@ -622,25 +691,30 @@ app.whenReady().then(() => {
         const buildData = await axios.get(`https://fill.papermc.io/v3/projects/paper/versions/${version}/builds/${build}`, { headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' } });
         downloadUrl = buildData.data.downloads['server:default'].url;
       } else if (type === 'Fabric') {
-        const loaderRes = await axios.get('https://meta.fabricmc.net/v2/versions/loader');
-        const loader = loaderRes.data.find((v: any) => v.stable).version;
+        const loader = loaderVersion ? loaderVersion.replace(' (Recommended)', '') : (await axios.get('https://meta.fabricmc.net/v2/versions/loader')).data.find((v: any) => v.stable).version;
         const installerRes = await axios.get('https://meta.fabricmc.net/v2/versions/installer');
         const installer = installerRes.data.find((v: any) => v.stable).version;
         downloadUrl = `https://meta.fabricmc.net/v2/versions/loader/${version}/${loader}/${installer}/server/jar`;
       } else if (type === 'Forge') {
-        const forgeRes = await axios.get('https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json');
-        let forgeVersion = forgeRes.data.promos[version + '-latest'] || forgeRes.data.promos[version + '-recommended'];
+        let forgeVersion = loaderVersion ? loaderVersion.replace(' (Recommended)', '') : null;
+        if (!forgeVersion) {
+          const forgeRes = await axios.get('https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json');
+          forgeVersion = forgeRes.data.promos[version + '-latest'] || forgeRes.data.promos[version + '-recommended'];
+        }
         if (!forgeVersion) throw new Error('Forge version not found for ' + version);
         downloadUrl = `https://maven.minecraftforge.net/net/minecraftforge/forge/${version}-${forgeVersion}/forge-${version}-${forgeVersion}-installer.jar`;
         isInstaller = true;
         installerArgs = ['--installServer'];
       } else if (type === 'NeoForge') {
-        const neoRes = await axios.get('https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge');
-        const all: string[] = neoRes.data.versions;
-        let prefix = version.startsWith('1.') ? version.substring(2) : version;
-        const matched = all.filter((v: string) => v.startsWith(prefix + '.')).sort((a: string, b: string) => semver.rcompare(semver.coerce(a)!, semver.coerce(b)!));
-        if (matched.length === 0) throw new Error('NeoForge version not found for ' + version);
-        const neoVersion = matched[0];
+        let neoVersion = loaderVersion ? loaderVersion.replace(' (Recommended)', '') : null;
+        if (!neoVersion) {
+          const neoRes = await axios.get('https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge');
+          const all: string[] = neoRes.data.versions;
+          let prefix = version.startsWith('1.') ? version.substring(2) : version;
+          const matched = all.filter((v: string) => v.startsWith(prefix + '.')).sort((a: string, b: string) => semver.rcompare(semver.coerce(a)!, semver.coerce(b)!));
+          if (matched.length === 0) throw new Error('NeoForge version not found for ' + version);
+          neoVersion = matched[0];
+        }
         downloadUrl = `https://maven.neoforged.net/releases/net/neoforged/neoforge/${neoVersion}/neoforge-${neoVersion}-installer.jar`;
         isInstaller = true;
         installerArgs = ['--installServer'];
