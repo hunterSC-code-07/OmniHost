@@ -32,6 +32,7 @@ function App() {
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
+  const [hoveredGame, setHoveredGame] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview')
   const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
 
@@ -716,11 +717,16 @@ function App() {
   const activeServer = servers.find(s => s.id === activeServerId);
 
   return (
-    <div className="bg-background font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden">
+    <div className="bg-gradient-to-b from-[#121212] to-[#050505] font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden relative">
+      
+      {/* Dynamic Backgrounds */}
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#0a1f0a] via-[#1b5e20] to-[#051105] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Minecraft' ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#42c0ff]/40 via-[#fcb746]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Palworld' ? 'opacity-100' : 'opacity-0'}`}></div>
+      <div className={`absolute inset-0 bg-gradient-to-br from-[#8b0000]/30 via-[#3a0000]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'DayZ' ? 'opacity-100' : 'opacity-0'}`}></div>
       
       {/* TOP NAVBAR */}
-      <header className="fixed top-0 left-0 right-[8px] h-20 bg-surface/90 backdrop-blur-xl z-40 border-b border-outline-variant/20 shadow-lg">
-        <div className="h-full px-gutter max-w-container-max mx-auto flex items-center justify-between">
+      <header className="fixed top-0 left-0 right-[8px] h-20 bg-gradient-to-b from-[#121212] to-[#050505] z-40 border-b border-white/5 shadow-lg">
+        <div className="h-full px-gutter w-full flex items-center justify-between">
           
           <div className="flex items-center gap-8">
             {/* LOGO */}
@@ -769,8 +775,8 @@ function App() {
       </header>
 
       {/* MAIN CONTENT */}
-      <main className="relative pt-20 bg-background flex-1 overflow-y-auto w-full">
-        <div className="flex flex-col w-full relative max-w-container-max mx-auto min-h-full">
+      <main className="relative pt-20 bg-transparent flex-1 overflow-y-auto w-full">
+        <div className="flex flex-col w-full relative min-h-full">
 
           {/* DASHBOARD VIEW */}
           {activeServerId === null && activeGameHub === null && (
@@ -792,7 +798,7 @@ function App() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   
                   {/* Minecraft Hub */}
-                  <div onClick={() => setActiveGameHub('Minecraft')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(255,215,0,0.15)] ring-1 hover:ring-primary cursor-pointer ring-surface-container-high">
+                  <div onMouseEnter={() => setHoveredGame('Minecraft')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Minecraft')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(76,175,80,0.15)] ring-1 hover:ring-primary cursor-pointer ring-surface-container-high">
                     <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Minecraft')}')`}}></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
                     <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
@@ -802,7 +808,7 @@ function App() {
                   </div>
 
                   {/* Palworld Hub (Coming Soon) */}
-                  <div className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ring-1 ring-surface-container-high opacity-60 grayscale cursor-not-allowed">
+                  <div onMouseEnter={() => setHoveredGame('Palworld')} onMouseLeave={() => setHoveredGame(null)} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ring-1 ring-surface-container-high opacity-60 grayscale hover:grayscale-0 cursor-not-allowed">
                     <div className="absolute inset-0 bg-cover bg-center z-0" style={{backgroundImage: `url('${getGameImageUrl('Palworld')}')`}}></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10"></div>
                     <div className="absolute top-4 right-4 z-20 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-surface-container-high">
@@ -815,7 +821,7 @@ function App() {
                   </div>
 
                   {/* DayZ Hub (Coming Soon) */}
-                  <div className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ring-1 ring-surface-container-high opacity-60 grayscale cursor-not-allowed">
+                  <div onMouseEnter={() => setHoveredGame('DayZ')} onMouseLeave={() => setHoveredGame(null)} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ring-1 ring-surface-container-high opacity-60 grayscale hover:grayscale-0 cursor-not-allowed">
                     <div className="absolute inset-0 bg-cover bg-center z-0" style={{backgroundImage: `url('${getGameImageUrl('DayZ')}')`}}></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10"></div>
                     <div className="absolute top-4 right-4 z-20 bg-surface-container-lowest/80 backdrop-blur-md px-3 py-1.5 rounded-full border border-surface-container-high">
@@ -836,7 +842,7 @@ function App() {
                   <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
                     <h2 className="font-headline-lg text-headline-lg text-on-background">Active Servers List</h2>
                   </div>
-                  <div className="overflow-x-auto rounded-xl border border-surface-container-high bg-surface-container-low">
+                  <div className="overflow-x-auto rounded-xl glass-panel">
                     <table className="w-full text-left border-collapse">
                       <thead className="bg-surface-container-high/50 text-primary font-label-md text-label-md uppercase tracking-widest">
                         <tr className="border-b border-surface-container-high">
@@ -892,7 +898,7 @@ function App() {
                     <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
                     <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">Manage your available {activeGameHub} servers or create a new one.</p>
                   </div>
-                  <button onClick={() => setShowCreateModal(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(233,196,0,0.3)] hover:scale-105 active:scale-95">
+                  <button onClick={() => setShowCreateModal(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
                     <span className="material-symbols-outlined">add_box</span>
                     NEW {activeGameHub.toUpperCase()} SERVER
                   </button>
@@ -902,12 +908,12 @@ function App() {
                   <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Available Servers</h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {servers.filter(s => s.game.toLowerCase().includes(activeGameHub.toLowerCase())).length === 0 ? (
-                      <div className="col-span-full py-16 text-center border border-dashed border-surface-container-high rounded-xl bg-surface-container-lowest">
+                      <div className="col-span-full py-16 text-center border-dashed glass-panel">
                         <p className="text-on-surface-variant italic font-body-lg text-body-lg">No servers found for {activeGameHub}.</p>
                       </div>
                     ) : (
                       servers.filter(s => s.game.toLowerCase().includes(activeGameHub.toLowerCase())).map(server => (
-                        <div key={server.id} onClick={() => { setActiveServerId(server.id); setActiveTab('console'); }} className="group relative rounded-xl overflow-hidden bg-surface-container-low p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+                        <div key={server.id} onClick={() => { setActiveServerId(server.id); setActiveTab('console'); }} className="group relative rounded-xl overflow-hidden glass-panel p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all cursor-pointer hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
                           <div className="flex justify-between items-start">
                             <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">{server.name}</h3>
                             <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-full border border-surface-container-highest">
@@ -945,8 +951,8 @@ function App() {
         {/* ACTIVE SERVER VIEW */}
         {activeServer !== undefined && activeServerId !== null && (
           <>
-            <div className="bg-[#0a0a0a] border-b border-white/5 p-6 flex flex-col gap-6 shadow-sm z-10">
-              <div className="flex justify-between items-center">
+            <div className="glass-panel p-6 flex flex-col gap-6 z-10">
+              <div className="flex justify-between items-center relative z-20">
                 <div className="flex items-center gap-4">
                   <button onClick={() => setActiveServerId(null)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors border border-white/10 flex items-center justify-center group" title="Back to Dashboard">
                     <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
@@ -954,7 +960,7 @@ function App() {
                   <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
                 </div>
                 <div className="flex gap-3 items-center">
-                  <div className="flex bg-[#050505]/60 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] rounded-lg overflow-hidden transition-all hover:border-white/30">
+                  <div className="flex glass-panel rounded-lg overflow-hidden transition-all hover:border-white/30">
                     <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
                       <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
                     </button>
@@ -962,17 +968,17 @@ function App() {
                       <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
                     </button>
                   </div>
-                  <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-6 py-2.5 rounded-lg font-bold transition-all hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
+                  <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group glass-panel px-6 py-2.5 rounded-lg font-bold transition-all hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
                     <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
                     <span className="relative z-10">DELETE</span>
                   </button>
-                  <button onClick={() => activeServer.status === 'Online' ? handleStop(activeServer.id) : handleStart(activeServer.id)} className={`relative overflow-hidden group bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-8 py-2.5 rounded-lg font-bold transition-all ${activeServer.status === 'Online' ? 'hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300' : 'hover:border-green-500/60 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-green-400 hover:text-green-300'}`}>
+                  <button onClick={() => activeServer.status === 'Online' ? handleStop(activeServer.id) : handleStart(activeServer.id)} className={`relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all ${activeServer.status === 'Online' ? 'hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300' : 'hover:border-green-500/60 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-green-400 hover:text-green-300'}`}>
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
                     <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
                     <span className="relative z-10">{activeServer.status === 'Online' ? 'STOP' : 'START'}</span>
                   </button>
-                  <button onClick={() => handleRestart(activeServer.id)} className="relative overflow-hidden group bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-8 py-2.5 rounded-lg font-bold transition-all hover:border-brand/60 hover:shadow-[0_8px_32px_rgba(255,215,0,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-brand hover:text-yellow-300">
+                  <button onClick={() => handleRestart(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all hover:border-brand/60 hover:shadow-[0_8px_32px_rgba(76,175,80,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-brand hover:text-green-300">
                     <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
                     <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
                     <span className="relative z-10">RESTART</span>
@@ -997,7 +1003,7 @@ function App() {
                     onClick={() => setActiveTab(tab.id as any)}
                     className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap ${
                       activeTab === tab.id 
-                      ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(233,196,0,0.1)]' 
+                      ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(76,175,80,0.1)]' 
                       : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent'
                     }`}
                   >
@@ -1008,7 +1014,7 @@ function App() {
               </div>
             </div>
 
-            <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col bg-surface-container-lowest">
+            <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col bg-gradient-to-br from-[#121212] via-[#0a0a0a] to-[#050505] border border-white/5 shadow-inner rounded-xl m-4">
               
               {/* TAB: OVERVIEW */}
               {activeTab === 'overview' && (
@@ -1231,16 +1237,16 @@ function App() {
               {/* TAB: SOFTWARE */}
               {activeTab === 'software' && (
                 <div className="h-full flex flex-col p-8">
-                  <h3 className="text-2xl font-bold text-[#FFD700] mb-6">Change Software</h3>
+                  <h3 className="text-2xl font-bold text-[#4CAF50] mb-6">Change Software</h3>
                   
                   {isChangingSoftware ? (
                     <div className="flex-1 flex flex-col items-center justify-center">
-                      <div className="w-16 h-16 border-4 border-[#FFD700] border-t-transparent rounded-full animate-spin mb-4"></div>
+                      <div className="w-16 h-16 border-4 border-[#4CAF50] border-t-transparent rounded-full animate-spin mb-4"></div>
                       <h4 className="text-xl font-bold text-white mb-2">Changing Software</h4>
                       <p className="text-gray-400">{downloadText}</p>
                       {downloadProgress > 0 && (
                         <div className="w-full max-w-md bg-gray-800 rounded-full h-2 mt-4 overflow-hidden">
-                          <div className="bg-[#FFD700] h-2 transition-all duration-300" style={{ width: `${downloadProgress}%` }}></div>
+                          <div className="bg-[#4CAF50] h-2 transition-all duration-300" style={{ width: `${downloadProgress}%` }}></div>
                         </div>
                       )}
                     </div>
@@ -1251,7 +1257,7 @@ function App() {
                         <select 
                           value={editingSoftwareType}
                           onChange={e => setEditingSoftwareType(e.target.value)}
-                          className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#FFD700] shadow-inner"
+                          className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#4CAF50] shadow-inner"
                         >
                           <option>Vanilla</option>
                           <option>Paper</option>
@@ -1266,7 +1272,7 @@ function App() {
                         <select 
                           value={editingSoftwareVersion}
                           onChange={e => setEditingSoftwareVersion(e.target.value)}
-                          className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#FFD700] shadow-inner"
+                          className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#4CAF50] shadow-inner"
                         >
                           {editingAvailableVersions.map(v => <option key={v} value={v}>{v}</option>)}
                         </select>
@@ -1278,7 +1284,7 @@ function App() {
                           <select 
                             value={editingLoaderVersion}
                             onChange={e => setEditingLoaderVersion(e.target.value)}
-                            className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#FFD700] shadow-inner"
+                            className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#4CAF50] shadow-inner"
                             disabled={isChangingSoftware || editingAvailableLoaderVersions.length === 0}
                           >
                             {editingAvailableLoaderVersions.length === 0 ? (
@@ -1337,7 +1343,7 @@ function App() {
                           }
                         }}
                         disabled={!editingSoftwareVersion}
-                        className="mt-4 bg-gradient-to-br from-[#FFD700] to-[#D4AF37] text-black font-black py-3 px-6 rounded hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                        className="mt-4 bg-gradient-to-br from-[#4CAF50] to-[#388E3C] text-black font-black py-3 px-6 rounded hover:scale-[1.02] active:scale-95 transition-transform disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                       >
                         Apply Changes
                       </button>
@@ -1358,7 +1364,7 @@ function App() {
           <div key={toast.id} className="relative overflow-hidden group bg-[#050505]/80 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] px-5 py-3 rounded-xl flex items-center gap-3 animate-in slide-in-from-right-8 fade-in duration-300 pointer-events-auto">
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-brand/5 to-brand/20 opacity-30 pointer-events-none"></div>
             <div className="absolute -inset-[200%] bg-gradient-to-r from-transparent via-white/20 to-transparent -rotate-45 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-[4000ms] ease-in-out pointer-events-none"></div>
-            <div className="relative z-10 w-2.5 h-2.5 bg-brand rounded-full animate-pulse shadow-[0_0_8px_rgba(255,215,0,0.6)]"></div>
+            <div className="relative z-10 w-2.5 h-2.5 bg-brand rounded-full animate-pulse shadow-[0_0_8px_rgba(76,175,80,0.6)]"></div>
             <span className="relative z-10 font-bold text-sm text-white">{toast.message}</span>
           </div>
         ))}
@@ -1589,7 +1595,7 @@ function App() {
           <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
             <div className="p-6 relative z-10">
               <div className="flex items-center gap-4 mb-6">
-                <div className="bg-brand/10 w-14 h-14 flex items-center justify-center rounded-xl border border-brand/30 shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+                <div className="bg-brand/10 w-14 h-14 flex items-center justify-center rounded-xl border border-brand/30 shadow-[0_0_15px_rgba(76,175,80,0.2)]">
                   <span className="material-symbols-outlined text-brand text-3xl leading-none">cell_tower</span>
                 </div>
                 <div>

@@ -25,8 +25,8 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
   };
 
   return (
-    <div className="absolute inset-0 flex min-h-0 bg-background font-body">
-      <div className="flex-1 flex flex-col bg-surface-container-lowest min-h-0 min-w-0">
+    <div className="absolute inset-0 flex min-h-0 bg-transparent font-body">
+      <div className="flex-1 flex flex-col bg-transparent min-h-0 min-w-0">
         <div className="flex-1 p-6 overflow-y-auto font-mono text-sm text-on-surface-variant min-h-0 shadow-inner">
           {logs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
           {logs.map((log, i) => (
@@ -43,7 +43,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
           <div ref={endOfLogsRef} />
         </div>
 
-        <form onSubmit={onSubmit} className="p-4 bg-surface-container-low border-t border-surface-container-highest flex gap-3 items-center">
+        <form onSubmit={onSubmit} className="p-4 bg-transparent border-t border-surface-container-highest flex gap-3 items-center">
           <span className="text-on-surface-variant font-bold text-xl leading-none flex items-center">&gt;</span>
           <input type="text" value={consoleInput} onChange={(e) => setConsoleInput(e.target.value)} placeholder="Type a command..." className="flex-1 bg-transparent border-none outline-none text-brand font-mono placeholder-on-surface-variant/30" />
           
@@ -55,7 +55,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
         </form>
       </div>
 
-      <div className="w-72 bg-surface-container-low border-l border-surface-container-highest flex flex-col shadow-inner min-h-0">
+      <div className="w-72 bg-transparent border-l border-surface-container-highest flex flex-col min-h-0">
         <div className="p-5 border-b border-surface-container-highest flex justify-between items-center bg-surface-container-highest/20">
           <h3 className="font-headline-md text-headline-md text-on-surface">Live Players</h3>
           <div className="bg-[#4CAF50]/10 border border-[#4CAF50]/30 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(76,175,80,0.1)]">{onlinePlayers.length} Online</div>

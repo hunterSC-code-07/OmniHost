@@ -28,11 +28,39 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(212, 175, 55, 0.3); /* Subtle gold */
+  background: rgba(76, 175, 80, 0.3); /* Subtle green */
   border-radius: 4px;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(212, 175, 55, 0.7); /* Brighter gold on hover */
+  background: rgba(76, 175, 80, 0.7); /* Brighter green on hover */
+}
+
+@keyframes glass-shine {
+  0% { transform: translateX(-200%) skewX(-15deg); }
+  100% { transform: translateX(200%) skewX(-15deg); }
+}
+
+.glass-panel {
+  @apply bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(to right, transparent, rgba(76, 175, 80, 0.15), transparent);
+  transform: translateX(-200%) skewX(-15deg);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.glass-panel:hover::before {
+  animation: glass-shine 1.5s ease-in-out infinite;
 }

@@ -151,7 +151,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
       </div>
 
       {advancedMode ? (
-        <div className="h-[65vh] bg-surface-container-lowest border border-surface-container-highest rounded-xl overflow-hidden flex flex-col shadow-inner">
+        <div className="h-[65vh] bg-transparent border border-surface-container-highest rounded-xl overflow-hidden flex flex-col shadow-inner">
           <textarea 
             className="flex-1 w-full bg-transparent text-brand p-6 font-mono text-sm focus:outline-none resize-none selection:bg-brand/30" 
             value={rawConfigText} 
@@ -235,7 +235,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
           </div>
 
           {/* Properties Grid */}
-          <div className="bg-surface-container-lowest p-6 border border-surface-container-highest rounded-2xl shadow-inner">
+          <div className="bg-transparent p-6 border border-surface-container-highest rounded-2xl shadow-inner">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               <ConfigNumber label="Slots" propKey="max-players" />
               <ConfigSelect label="Gamemode" propKey="gamemode" options={['survival', 'creative', 'adventure', 'spectator']} />
