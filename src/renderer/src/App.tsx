@@ -37,14 +37,14 @@ const classOptions = [
 
 function App() {
   const [servers, setServers] = useState<any[]>([])
-  const [logs, setLogs] = useState<string[]>([])
+  const [logs, setLogs] = useState<{id: string, msg: string}[]>([])
   const [tunnelStatus, setTunnelStatus] = useState('Offline')
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
   const [hoveredGame, setHoveredGame] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview')
-  const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
+  const [onlinePlayers, setOnlinePlayers] = useState<Record<string, string[]>>({})
 
   const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
   const [showTunnelModal, setShowTunnelModal] = useState(false)
@@ -61,7 +61,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Performance Stats
-  const [statsHistory, setStatsHistory] = useState<{cpu: number, ram: number}[]>([])
+  const [statsHistory, setStatsHistory] = useState<Record<string, {cpu: number, ram: number}[]>>({})
 
 
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
@@ -120,16 +120,41 @@ function App() {
   const [isClearingCache, setIsClearingCache] = useState(false)
   const [cacheSize, setCacheSize] = useState<number>(0)
   const [serverToDelete, setServerToDelete] = useState<number | null>(null)
+  const [showModpackPrompt, setShowModpackPrompt] = useState(false)
 
   const endOfLogsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const fetchServers = async () => {
+    const fetchInitialData = async () => {
       // @ts-ignore
       const data = await window.api.getServers()
       setServers(data)
+      
+      const initialLogs: {id: string, msg: string}[] = [];
+      const initialOnlinePlayers: Record<string, string[]> = {};
+      
+      data.forEach((s: any) => {
+         if (s.logs) {
+            s.logs.forEach((msg: string) => {
+               initialLogs.push({ id: s.id.toString(), msg });
+            });
+         }
+         if (s.onlinePlayers && s.onlinePlayers.length > 0) {
+            initialOnlinePlayers[s.id.toString()] = s.onlinePlayers;
+         }
+      });
+      
+      setLogs(initialLogs);
+      setOnlinePlayers(initialOnlinePlayers);
+      
+      // @ts-ignore
+      if (window.api.getTunnelStatus) {
+        // @ts-ignore
+        const status = await window.api.getTunnelStatus();
+        setTunnelStatus(status);
+      }
     }
-    fetchServers()
+    fetchInitialData()
 
     const fetchCacheSize = async () => {
       try {
@@ -149,24 +174,30 @@ function App() {
 
     // --- LISTENER 1: CONSOLE LOGS ---
     // @ts-ignore
-    window.api.onConsoleLog((msg: string) => {
-      setLogs(prev => [...prev, msg])
+    window.api.onConsoleLog((data: { id: number | string, msg: string }) => {
+      setLogs(prev => {
+        const newLogs = [...prev, { id: data.id.toString(), msg: data.msg }];
+        if (newLogs.length > 5000) newLogs.shift();
+        return newLogs;
+      });
     })
 
     // --- LISTENER 2: LIVE PLAYERS ---
     // @ts-ignore
     window.api.onOnlinePlayers((data: { id: number, players: string[] }) => {
-      setOnlinePlayers(data.players)
+      setOnlinePlayers(prev => ({ ...prev, [data.id.toString()]: data.players }));
     })
 
     // --- LISTENER 3: SERVER STATS ---
     // @ts-ignore
     window.api.onServerStats((data: { id: number, cpu: number, ram: number }) => {
       setStatsHistory(prev => {
-        const newHistory = [...prev, { cpu: data.cpu, ram: data.ram }]
-        if (newHistory.length > 30) newHistory.shift() // keep last 30 data points (60 seconds at 2s interval)
-        return newHistory
-      })
+        const idStr = data.id.toString();
+        const currentStats = prev[idStr] || [];
+        const newHistory = [...currentStats, { cpu: data.cpu, ram: data.ram }];
+        if (newHistory.length > 30) newHistory.shift();
+        return { ...prev, [idStr]: newHistory };
+      });
     })
 
     return () => clearInterval(cacheInterval)
@@ -321,8 +352,7 @@ function App() {
   useEffect(() => {
     if (activeServerId !== null) {
       fetchServerMeta();
-      // Reset stats when switching servers
-      setStatsHistory([]);
+      // State is preserved in dictionary, no longer cleared
     } else {
       setServerMeta(null);
     }
@@ -578,7 +608,9 @@ function App() {
   }
 
   const handleClearLogs = () => {
-    setLogs([])
+    if (activeServerId !== null) {
+      setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));
+    }
   }
 
   const handleStop = async (id: number) => {
@@ -739,6 +771,7 @@ function App() {
   }
 
   const activeServer = servers.find(s => s.id === activeServerId);
+  const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
 
   return (
     <div className="bg-gradient-to-b from-[#121212] to-[#050505] font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden relative">
@@ -876,7 +909,7 @@ function App() {
                   <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
                     <h2 className="font-headline-lg text-headline-lg text-on-background">Active Servers List</h2>
                   </div>
-                  <div className="overflow-x-auto rounded-xl glass-panel">
+                  <div className="overflow-x-auto rounded-xl bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
                     <table className="w-full text-left border-collapse">
                       <thead className="bg-surface-container-high/50 text-primary font-label-md text-label-md uppercase tracking-widest">
                         <tr className="border-b border-surface-container-high">
@@ -1145,25 +1178,30 @@ function App() {
               {/* TAB: OVERVIEW */}
               {activeTab === 'overview' && (
                 <OverviewTab 
-                  statsHistory={statsHistory}
+                  statsHistory={activeServerId ? (statsHistory[activeServerId.toString()] || []) : []}
                   serverStatus={activeServer.status as 'Online' | 'Offline'}
                   serverVersion={serverMeta ? `${serverMeta.type} ${serverMeta.version}` : 'Loading...'}
-                  onlinePlayers={onlinePlayers}
+                  onlinePlayers={activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : []}
                   maxPlayers={activeServer.maxPlayers || 20}
-                  logs={logs}
-                  maxRam={serverMeta?.ram ? Number(serverMeta.ram) : 2}
-                  maxCpu={serverMeta?.cpu ? Number(serverMeta.cpu) : 2}
+                  logs={activeLogs}
+                  maxRam={serverMeta?.ram ? Number(serverMeta.ram) : 4}
+                  maxCpu={serverMeta?.cpu ? Number(serverMeta.cpu) : 4}
                 />
               )}
 
               {/* TAB: CONSOLE */}
               {activeTab === 'console' && (
                 <ConsoleTab 
-                  logs={logs}
+                  logs={activeLogs}
                   endOfLogsRef={endOfLogsRef}
                   handleSendCommand={handleSendCommand}
                   handleClearLogs={handleClearLogs}
-                  onlinePlayers={onlinePlayers}
+                  onlinePlayers={activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : []}
+                  onPlayerClick={(playerName) => {
+                    setPlayerListType('live');
+                    setSelectedPlayer(playerName);
+                    setActiveTab('players');
+                  }}
                 />
               )}
 
@@ -1190,7 +1228,7 @@ function App() {
                   newPlayerName={newPlayerName}
                   setNewPlayerName={setNewPlayerName}
                   isProcessing={isProcessing}
-                  onlinePlayers={onlinePlayers}
+                  onlinePlayers={activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : []}
                   playerData={playerData}
                   handleAddPlayer={handleAddPlayer}
                   handleRemovePlayer={handleRemovePlayer}
@@ -1417,8 +1455,16 @@ function App() {
                         {isTypeMenuOpen && (
                           <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
                             <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                            {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge'].map(opt => (
-                              <div key={opt} onClick={() => { setEditingSoftwareType(opt); setIsTypeMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingSoftwareType === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                            {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge', 'CurseForge Modpack'].map(opt => (
+                              <div key={opt} onClick={() => { 
+                                if (opt === 'CurseForge Modpack') {
+                                  setShowModpackPrompt(true);
+                                  setIsTypeMenuOpen(false);
+                                } else {
+                                  setEditingSoftwareType(opt); 
+                                  setIsTypeMenuOpen(false); 
+                                }
+                              }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingSoftwareType === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
                                 {opt} {editingSoftwareType === opt && <span className="float-right text-brand">✓</span>}
                               </div>
                             ))}
@@ -1782,6 +1828,55 @@ function App() {
                 {isCreatingServer ? 'Creating...' : 'Create Server'}
               </button>
             </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODPACK REDIRECT PROMPT MODAL */}
+      {showModpackPrompt && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
+            
+            {/* Glow effects */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/20 rounded-full blur-[60px] pointer-events-none"></div>
+
+            <div className="p-8 relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-[inset_0_0_15px_rgba(76,175,80,0.2)]">
+                  <span className="material-symbols-outlined text-3xl">info</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-on-surface">Change to Modpack</h2>
+                  <p className="text-on-surface-variant text-sm">Action Recommended</p>
+                </div>
+              </div>
+              
+              <p className="text-on-surface-variant mb-8 leading-relaxed">
+                Moving existing vanilla or lightly-modded worlds into heavy CurseForge modpacks can be complicated and cause corruption. Would you like to create a <span className="text-white font-bold">new server</span> for your modpack instead?
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowModpackPrompt(false)}
+                  className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowModpackPrompt(false);
+                    setActiveServerId(null);
+                    setActiveGameHub('Minecraft');
+                    setShowCreateModal(true);
+                    setNewServerType('CurseForge Modpack');
+                  }}
+                  className="px-5 py-2.5 rounded-lg font-bold bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-primary hover:text-green-300 hover:border-primary/60 hover:shadow-[0_8px_32px_rgba(76,175,80,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] transition-all flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                  Create New Server
+                </button>
+              </div>
             </div>
           </div>
         </div>

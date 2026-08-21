@@ -16,7 +16,7 @@ export class PlayitAdapter {
   sendLog(msg: string) {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length > 0) {
-      windows[0].webContents.send('console-log', msg);
+      windows[0].webContents.send('console-log', { id: 'global', msg });
     }
   }
 

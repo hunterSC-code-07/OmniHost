@@ -26,8 +26,8 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
   serverId,
   onConfigSaved
 }) => {
-  const [ramLimit, setRamLimit] = useState(2);
-  const [cpuLimit, setCpuLimit] = useState(2);
+  const [ramLimit, setRamLimit] = useState(4);
+  const [cpuLimit, setCpuLimit] = useState(4);
   const [autoStart, setAutoStart] = useState(false);
   const [autoStop, setAutoStop] = useState(false);
   const [sysInfo, setSysInfo] = useState({ totalMem: 8, cpus: 4 });
@@ -86,30 +86,62 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
     );
   };
 
-  const ConfigSelect = ({ label, propKey, options }: any) => (
-    <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
-      <span className="font-label-md text-label-md text-on-surface">{label}</span>
-      <select 
-        value={props[propKey] || ''} 
-        onChange={(e) => setProps(prev => ({ ...prev, [propKey]: e.target.value }))} 
-        className="bg-background text-on-surface border border-surface-container-highest rounded-lg px-3 py-1.5 outline-none font-label-md text-label-md capitalize focus:border-brand focus:ring-1 focus:ring-brand/50 transition-all cursor-pointer"
-      >
-        {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
-      </select>
-    </div>
-  );
+  const ConfigSelect = ({ label, propKey, options }: any) => {
+    const [isOpen, setIsOpen] = useState(false);
+    return (
+      <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl relative" style={{ zIndex: isOpen ? 50 : 10 }}>
+        <span className="font-label-md text-label-md text-on-surface">{label}</span>
+        <div className="relative">
+          <button 
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex items-center gap-2 bg-[#050505] border border-gray-800 rounded-lg px-4 py-1.5 text-white outline-none focus:border-brand shadow-inner font-bold w-40 justify-between capitalize"
+          >
+            <span className="truncate">{props[propKey] || 'Select...'}</span>
+            <svg className="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+          </button>
+          
+          {isOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)}></div>
+              <div className="absolute top-full right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2 w-48 max-h-60 overflow-y-auto">
+                {options.map((opt: string) => (
+                  <div 
+                    key={opt} 
+                    onClick={() => { setProps(prev => ({ ...prev, [propKey]: opt })); setIsOpen(false); }} 
+                    className={`px-4 py-2 cursor-pointer hover:bg-white/10 transition-colors capitalize ${props[propKey] === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                  >
+                    {opt} {props[propKey] === opt && <span className="float-right text-brand">✓</span>}
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
 
-  const ConfigNumber = ({ label, propKey }: any) => (
-    <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
-      <span className="font-label-md text-label-md text-on-surface">{label}</span>
-      <input 
-        type="number" 
-        value={props[propKey] || 0} 
-        onChange={(e) => setProps(prev => ({ ...prev, [propKey]: e.target.value }))} 
-        className="bg-background text-on-surface border border-surface-container-highest rounded-lg px-3 py-1.5 w-24 text-right outline-none font-label-md text-label-md focus:border-brand focus:ring-1 focus:ring-brand/50 transition-all" 
-      />
-    </div>
-  );
+  const ConfigNumber = ({ label, propKey }: any) => {
+    const val = parseInt(props[propKey] || '0', 10);
+    const inc = () => setProps(prev => ({ ...prev, [propKey]: (val + 1).toString() }));
+    const dec = () => setProps(prev => ({ ...prev, [propKey]: (val - 1).toString() }));
+    
+    return (
+      <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
+        <span className="font-label-md text-label-md text-on-surface">{label}</span>
+        <div className="flex items-center gap-1 bg-background border border-surface-container-highest rounded-lg overflow-hidden focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/50 transition-all">
+          <button type="button" onClick={dec} className="px-3 py-1.5 hover:bg-surface-container-highest hover:text-brand transition-colors text-on-surface-variant font-bold border-r border-surface-container-highest">-</button>
+          <input 
+            type="number" 
+            value={props[propKey] || 0} 
+            onChange={(e) => setProps(prev => ({ ...prev, [propKey]: e.target.value }))} 
+            className="bg-transparent text-on-surface w-12 text-center outline-none font-label-md text-label-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+          />
+          <button type="button" onClick={inc} className="px-3 py-1.5 hover:bg-surface-container-highest hover:text-brand transition-colors text-on-surface-variant font-bold border-l border-surface-container-highest">+</button>
+        </div>
+      </div>
+    );
+  };
 
   const ConfigString = ({ label, propKey, placeholder, isFullWidth = false }: any) => (
     <div className={`bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl ${isFullWidth ? 'col-span-1 md:col-span-2 xl:col-span-3' : ''} gap-4`}>

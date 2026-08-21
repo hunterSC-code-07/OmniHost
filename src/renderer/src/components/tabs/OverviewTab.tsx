@@ -20,8 +20,8 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(({
   onlinePlayers,
   maxPlayers = 20,
   logs,
-  maxRam = 2,
-  maxCpu = 2
+  maxRam = 4,
+  maxCpu = 4
 }) => {
   
   // Helpers to generate smooth SVG paths

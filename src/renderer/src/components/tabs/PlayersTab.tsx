@@ -245,11 +245,11 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
               <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-white">Health and Actions</h3>
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                  <button onClick={() => sendPlayerCommand('kill {player}', 'Killed {player}!')} className="bg-[#ff8800] hover:bg-orange-500 text-white font-bold py-3 rounded-lg shadow-lg active:scale-95 transition-transform flex justify-center">☠️ Kill</button>
-                  <button onClick={() => sendPlayerCommand('effect give {player} instant_health 1 10', 'Healed {player}!')} className="bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg active:scale-95 transition-transform flex justify-center">❤️ Heal</button>
-                  <button onClick={() => sendPlayerCommand('effect give {player} hunger 10 10', 'Starved {player}!')} className="bg-[#ff8800] hover:bg-orange-500 text-white font-bold py-3 rounded-lg shadow-lg active:scale-95 transition-transform flex justify-center">🍖 Starve</button>
-                  <button onClick={() => sendPlayerCommand('effect give {player} saturation 1 10', 'Fed {player}!')} className="bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg active:scale-95 transition-transform flex justify-center">🍗 Feed</button>
-                  <button onClick={() => sendPlayerCommand('clear {player}', 'Cleared {player}\'s inventory!')} className="col-span-2 lg:col-span-4 bg-red-600/80 hover:bg-red-500 text-white font-bold py-3 rounded-lg shadow-lg active:scale-95 transition-transform border border-red-500/50">🗑️ Clear Inventory</button>
+                  <button onClick={() => sendPlayerCommand('kill {player}', 'Killed {player}!')} className="bg-orange-900/10 border border-orange-900/30 hover:border-orange-500/50 hover:bg-orange-900/20 text-orange-400 font-bold py-3 rounded-lg shadow-sm active:scale-95 transition-all flex justify-center items-center gap-2">☠️ Kill</button>
+                  <button onClick={() => sendPlayerCommand('effect give {player} instant_health 1 10', 'Healed {player}!')} className="bg-green-900/10 border border-green-900/30 hover:border-green-500/50 hover:bg-green-900/20 text-green-400 font-bold py-3 rounded-lg shadow-sm active:scale-95 transition-all flex justify-center items-center gap-2">❤️ Heal</button>
+                  <button onClick={() => sendPlayerCommand('effect give {player} hunger 10 10', 'Starved {player}!')} className="bg-orange-900/10 border border-orange-900/30 hover:border-orange-500/50 hover:bg-orange-900/20 text-orange-400 font-bold py-3 rounded-lg shadow-sm active:scale-95 transition-all flex justify-center items-center gap-2">🍖 Starve</button>
+                  <button onClick={() => sendPlayerCommand('effect give {player} saturation 1 10', 'Fed {player}!')} className="bg-green-900/10 border border-green-900/30 hover:border-green-500/50 hover:bg-green-900/20 text-green-400 font-bold py-3 rounded-lg shadow-sm active:scale-95 transition-all flex justify-center items-center gap-2">🍗 Feed</button>
+                  <button onClick={() => sendPlayerCommand('clear {player}', 'Cleared {player}\'s inventory!')} className="col-span-2 lg:col-span-4 bg-red-900/10 border border-red-900/30 hover:border-red-500/50 hover:bg-red-900/20 text-red-400 font-bold py-3 rounded-lg shadow-sm active:scale-95 transition-all flex justify-center items-center gap-2">🗑️ Clear Inventory</button>
                 </div>
               </div>
             </div>
@@ -258,16 +258,16 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
               <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-white">Control Panel</h3>
                 <div className="space-y-3">
-                  <button onClick={() => sendPlayerCommand('whitelist add {player}', 'Added {player} to Whitelist!')} className="w-full bg-gray-800 hover:bg-gray-700 py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-colors">
-                    <span>Add to Whitelist</span> <span className="text-gray-400">→</span>
+                  <button onClick={() => sendPlayerCommand('whitelist add {player}', 'Added {player} to Whitelist!')} className="w-full bg-[#111111] hover:bg-[#1a1a1a] py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-all border border-[#222222] hover:border-brand text-gray-200">
+                    <span>Add to Whitelist</span> <span className="text-gray-500">→</span>
                   </button>
-                  <button onClick={() => sendPlayerCommand('op {player}', 'Made {player} an OP!')} className="w-full bg-gray-800 hover:bg-gray-700 py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-colors">
-                    <span>Make Operator (OP)</span> <span className="text-gray-400">→</span>
+                  <button onClick={() => sendPlayerCommand('op {player}', 'Made {player} an OP!')} className="w-full bg-[#111111] hover:bg-[#1a1a1a] py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-all border border-[#222222] hover:border-brand text-gray-200">
+                    <span>Make Operator (OP)</span> <span className="text-gray-500">→</span>
                   </button>
-                  <button onClick={() => sendPlayerCommand('deop {player}', 'Removed {player} as OP!')} className="w-full bg-gray-800 hover:bg-gray-700 py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-colors">
-                    <span className="text-yellow-500">Remove OP</span> <span className="text-gray-400">→</span>
+                  <button onClick={() => sendPlayerCommand('deop {player}', 'Removed {player} as OP!')} className="w-full bg-[#111111] hover:bg-[#1a1a1a] py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-all border border-[#222222] hover:border-brand text-yellow-500">
+                    <span>Remove OP</span> <span className="text-gray-500">→</span>
                   </button>
-                  <button onClick={() => sendPlayerCommand('ban {player}', 'Banned {player} from server!')} className="w-full bg-red-900/30 hover:bg-red-900/60 border border-red-900 py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-colors text-red-400">
+                  <button onClick={() => sendPlayerCommand('ban {player}', 'Banned {player} from server!')} className="w-full bg-[#1a0505] hover:bg-[#2a0a0a] border border-[#330000] hover:border-red-500 py-3 px-4 rounded-lg font-bold flex justify-between items-center transition-all text-red-400">
                     <span>Ban Player</span> <span className="text-red-500">→</span>
                   </button>
                 </div>

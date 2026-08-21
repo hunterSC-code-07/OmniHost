@@ -15,6 +15,8 @@ export class MinecraftAdapter {
   statsTimer: NodeJS.Timeout | null = null;
   omnihostMeta: any = {}; 
   javaPid: number | null = null; 
+  isFullyStarted: boolean = false; 
+  logHistory: string[] = [];
 
   constructor(serverId: number) {
     this.serverId = serverId;
@@ -23,8 +25,10 @@ export class MinecraftAdapter {
 
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output!
+    this.logHistory.push(msg);
+    if (this.logHistory.length > 2000) this.logHistory.shift();
     BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('console-log', msg);
+      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
     });
   }
 
@@ -107,7 +111,7 @@ export class MinecraftAdapter {
       // The live inventory tracker polls every 3s, but we only need to flush to disk periodically.
       // Between flushes, we read the .dat file as-is (updated on auto-save every ~5min or player disconnect).
       const now = Date.now();
-      if (now - this.lastSaveFlushTime > 60000 && this.process?.stdin) {
+      if (now - this.lastSaveFlushTime > 60000 && this.process?.stdin && this.isFullyStarted) {
         this.process.stdin.write('save-all flush\n');
         this.lastSaveFlushTime = now;
         await new Promise(r => setTimeout(r, 200));
@@ -149,6 +153,20 @@ export class MinecraftAdapter {
     
     // Auto-accept EULA
     fs.writeFileSync(join(this.serverDir, 'eula.txt'), 'eula=true\n');
+
+    // Prevent console commands (like our periodic save-all flush) from spamming Ops in-game
+    const propsPath = join(this.serverDir, 'server.properties');
+    if (fs.existsSync(propsPath)) {
+      let props = fs.readFileSync(propsPath, 'utf-8');
+      if (props.includes('broadcast-console-to-ops=true')) {
+        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');
+        fs.writeFileSync(propsPath, props);
+      } else if (!props.includes('broadcast-console-to-ops=')) {
+        fs.appendFileSync(propsPath, '\nbroadcast-console-to-ops=false\n');
+      }
+    } else {
+      fs.writeFileSync(propsPath, 'broadcast-console-to-ops=false\n');
+    }
   }
 
   async updatePlayerStats(username: string, isJoin: boolean) {
@@ -272,6 +290,8 @@ export class MinecraftAdapter {
   async start() {
     await this.init();
     this.onlinePlayers = []; 
+    this.logHistory = [];
+    this.isFullyStarted = false;
     this.sendPlayerUpdate();
     
     this.sendLog(`[System] Starting Server ${this.serverId}...`);
@@ -314,14 +334,14 @@ export class MinecraftAdapter {
     const startBatPath = join(this.serverDir, 'start.bat');
     
     let targetExecutable = javaPath;
-    const maxRamGB = this.omnihostMeta.ram ? parseInt(this.omnihostMeta.ram, 10) : 2;
+    const maxRamGB = this.omnihostMeta.ram ? parseInt(this.omnihostMeta.ram, 10) : 4;
     const minRamGB = Math.min(1, maxRamGB);
     const ramLimit = `-Xmx${maxRamGB}G`;
     const minRam = `-Xms${minRamGB}G`;
     
     // Minimum of 4 cores to prevent World Gen NPE in modern Minecraft
-    const safeCpuLimit = this.omnihostMeta.cpu ? Math.max(4, parseInt(this.omnihostMeta.cpu)) : null;
-    const cpuLimit = safeCpuLimit ? `-XX:ActiveProcessorCount=${safeCpuLimit}` : '';
+    const safeCpuLimit = this.omnihostMeta.cpu ? Math.max(4, parseInt(this.omnihostMeta.cpu)) : 4;
+    const cpuLimit = `-XX:ActiveProcessorCount=${safeCpuLimit}`;
 
     // High-performance GC flags (Aikar's G1GC flags) to prevent GC stutter and chunk generation lag
     const g1gcFlags = [
@@ -420,6 +440,10 @@ export class MinecraftAdapter {
 
         this.sendLog(`[Minecraft]: ${cleanText}`);
 
+        if (cleanText.match(/Done \(.+?\)! For help, type "help"/i)) {
+          this.isFullyStarted = true;
+        }
+
         const joinMatch = cleanText.match(/([a-zA-Z0-9_]{3,16}) joined the game/);
         if (joinMatch) {
           if (!this.onlinePlayers.includes(joinMatch[1])) {
@@ -439,8 +463,13 @@ export class MinecraftAdapter {
     this.process.stderr?.on('data', (data) => this.sendLog(`[Minecraft Error]: ${data.toString().trim()}`));
   }
 
-  stop() {
-    if (this.process) {
+  async stop(): Promise<void> {
+    return new Promise((resolve) => {
+      if (!this.process) {
+        resolve();
+        return;
+      }
+      
       this.sendLog(`[System] Stopping Server ${this.serverId}...`);
       this.process.stdin?.write('stop\n');
       
@@ -459,20 +488,39 @@ export class MinecraftAdapter {
       this.onlinePlayers = []; 
       this.sendPlayerUpdate();
 
+      let isResolved = false;
+
+      p.on('exit', () => {
+         if (!isResolved) {
+             isResolved = true;
+             resolve();
+         }
+      });
+
       // Force kill after 15 seconds if it hasn't gracefully exited
       setTimeout(() => {
-        try {
-          if (p.pid) {
-            // Check if process is still alive
-            process.kill(p.pid, 0);
-            this.sendLog(`[System] Server took too long to stop. Force killing process tree...`);
-            const { exec } = require('child_process');
-            exec(`taskkill /pid ${p.pid} /T /F`, () => {});
+        if (!isResolved) {
+          try {
+            if (p.pid) {
+              // Check if process is still alive
+              process.kill(p.pid, 0);
+              this.sendLog(`[System] Server took too long to stop. Force killing process tree...`);
+              const { exec } = require('child_process');
+              exec(`taskkill /pid ${p.pid} /T /F`, () => {
+                 isResolved = true;
+                 resolve();
+              });
+            } else {
+              isResolved = true;
+              resolve();
+            }
+          } catch (e) {
+            // Process already dead
+            isResolved = true;
+            resolve();
           }
-        } catch (e) {
-          // Process already dead
         }
       }, 15000);
-    }
+    });
   }
 }

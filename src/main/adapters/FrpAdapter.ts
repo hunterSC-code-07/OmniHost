@@ -20,7 +20,7 @@ export class FrpAdapter {
   sendLog(msg: string) {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length > 0) {
-      windows[0].webContents.send('console-log', msg);
+      windows[0].webContents.send('console-log', { id: 'global', msg });
     }
   }
 
@@ -50,13 +50,13 @@ export class FrpAdapter {
       this.sendLog('[System] Extraction complete!');
     }
 
-    // 2. Build the FRP Configuration
+    // 2. Generate TOML Config
     const tomlConfig = `
 serverAddr = "${ip}"
 serverPort = 7000
 
 [[proxies]]
-name = "minecraft-vanilla"
+name = "minecraft-${Date.now()}"
 type = "tcp"
 localIP = "127.0.0.1"
 localPort = 25565
@@ -66,21 +66,27 @@ remotePort = 25565
 
     this.sendLog('[FRP Tunnel] Connecting to the Cloud Server...');
     
-    // 3. Launch the Client
-    this.process = spawn(this.exePath, ['-c', this.configPath], { cwd: this.frpDir });
+    // Clean up any zombie frpc processes before starting
+    import('child_process').then(cp => {
+      cp.exec('taskkill /F /IM frpc.exe', () => {
+        // 3. Launch the Client
+        this.process = spawn(this.exePath, ['-c', this.configPath], { cwd: this.frpDir });
 
-    this.process.stdout?.on('data', (data) => this.sendLog(`[FRP]: ${data.toString().trim()}`));
-    this.process.stderr?.on('data', (data) => this.sendLog(`[FRP Error]: ${data.toString().trim()}`));
-    
-    this.process.on('error', (err) => {
-      this.sendLog(`[FRP Fatal]: ${err.message}`);
+        this.process.stdout?.on('data', (data) => this.sendLog(`[FRP]: ${data.toString().trim()}`));
+        this.process.stderr?.on('data', (data) => this.sendLog(`[FRP Error]: ${data.toString().trim()}`));
+        
+        this.process.on('error', (err) => {
+          this.sendLog(`[FRP Fatal]: ${err.message}`);
+        });
+      });
     });
   }
 
   stop() {
     if (this.process) {
       this.sendLog('[FRP Tunnel] Disconnecting...');
-      this.process.kill();
+      this.process.kill('SIGKILL');
+      import('child_process').then(cp => cp.exec('taskkill /F /IM frpc.exe'));
       this.process = null;
     }
   }

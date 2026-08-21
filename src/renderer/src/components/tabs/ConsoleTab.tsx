@@ -8,6 +8,7 @@ interface ConsoleTabProps {
   handleSendCommand: (command: string) => void;
   handleClearLogs: () => void;
   onlinePlayers: string[];
+  onPlayerClick: (playerName: string) => void;
 }
 
 export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
@@ -15,7 +16,8 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
   endOfLogsRef,
   handleSendCommand,
   handleClearLogs,
-  onlinePlayers
+  onlinePlayers,
+  onPlayerClick
 }) => {
   const [consoleInput, setConsoleInput] = useState('');
 
@@ -79,9 +81,9 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
             ) : (
               <div className="space-y-3">
                 {onlinePlayers.map((playerName, idx) => (
-                  <div key={idx} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm">
-                    <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background" />
-                    <span className="font-label-lg text-label-lg text-on-surface">{playerName}</span>
+                  <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-brand/50 hover:bg-surface-container-lowest/80 transition-colors group">
+                    <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform" />
+                    <span className="font-label-lg text-label-lg text-on-surface group-hover:text-brand transition-colors">{playerName}</span>
                   </div>
                 ))}
               </div>
