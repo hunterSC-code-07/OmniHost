@@ -30,9 +30,9 @@ export function getServers() {
   return db.prepare('SELECT * FROM servers').all()
 }
 
-export function createServer(name: string, type: string) {
+export function createServer(name: string, game: string) {
   const insert = db.prepare('INSERT INTO servers (name, game, status, players) VALUES (?, ?, ?, ?)')
-  const info = insert.run(name, `Minecraft (${type})`, 'Offline', 0)
+  const info = insert.run(name, game, 'Offline', 0)
   return info.lastInsertRowid
 }
 
@@ -41,7 +41,7 @@ export function deleteServer(id: number) {
   stmt.run(id)
 }
 
-export function updateServerSoftware(id: number, type: string) {
+export function updateServerSoftware(id: number, game: string) {
   const stmt = db.prepare('UPDATE servers SET game = ? WHERE id = ?')
-  stmt.run(`Minecraft (${type})`, id)
+  stmt.run(game, id)
 }

@@ -46,6 +46,7 @@ function App() {
   const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
   const [showTunnelModal, setShowTunnelModal] = useState(false)
   const [tempTunnelIp, setTempTunnelIp] = useState('')
+  const [radminIp, setRadminIp] = useState('')
 
 
   const [rawConfigText, setRawConfigText] = useState('')
@@ -454,17 +455,42 @@ function App() {
   }
 
   const handleTunnel = async () => {
-    if (tunnelStatus === 'Offline') {
-      setTunnelStatus('Starting...');
+    if (activeServer?.game === 'DayZ') {
       // @ts-ignore
-      await window.api.startTunnel(tunnelIp);
-      setTunnelStatus('Online');
-      showToast("Tunnel connected!");
+      const installed = await window.api.radminCheck();
+      if (!installed) {
+        showToast("Radmin VPN not found! Opening download page...");
+        // @ts-ignore
+        window.api.radminInstall();
+        return;
+      }
+      
+      showToast("Opening Radmin VPN...");
+      // @ts-ignore
+      await window.api.radminOpen();
+      
+      // Try to fetch IP after a short delay
+      setTimeout(async () => {
+        // @ts-ignore
+        const ip = await window.api.radminGetIp();
+        if (ip) {
+          setRadminIp(ip);
+          showToast("Radmin VPN IP: " + ip);
+        }
+      }, 3000);
     } else {
-      // @ts-ignore
-      await window.api.stopTunnel();
-      setTunnelStatus('Offline');
-      showToast("Tunnel disconnected.");
+      if (tunnelStatus === 'Offline') {
+        setTunnelStatus('Starting...');
+        // @ts-ignore
+        await window.api.startTunnel(tunnelIp);
+        setTunnelStatus('Online');
+        showToast("Tunnel connected!");
+      } else {
+        // @ts-ignore
+        await window.api.stopTunnel();
+        setTunnelStatus('Offline');
+        showToast("Tunnel disconnected.");
+      }
     }
   }
 
@@ -1057,10 +1083,15 @@ function App() {
                 </div>
                 <div className="flex gap-3 items-center">
                   <div className="flex glass-panel rounded-lg overflow-hidden transition-all hover:border-white/30">
-                    <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
-                      <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
+                    {activeServer?.game === 'DayZ' && radminIp && (
+                      <div className="px-4 py-2.5 flex items-center justify-center text-brand font-bold text-sm bg-brand/5 border-r border-white/10" title="Radmin VPN IP (Share with friends)">
+                        IP: {radminIp}
+                      </div>
+                    )}
+                    <button onClick={handleTunnel} title={activeServer?.game === 'DayZ' ? 'Open Radmin VPN' : (tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel')} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${activeServer?.game === 'DayZ' ? 'text-brand hover:bg-brand/10' : tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
+                      <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' && activeServer?.game !== 'DayZ' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' && activeServer?.game !== 'DayZ' ? 'sync' : (activeServer?.game === 'DayZ' ? 'lan' : 'cell_tower')}</span>
                     </button>
-                    <button onClick={() => { setTempTunnelIp(tunnelIp); setShowTunnelModal(true); }} className="px-3 border-l border-white/10 hover:bg-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center" title="Tunnel IP Settings">
+                    <button onClick={() => { if (activeServer?.game !== 'DayZ') { setTempTunnelIp(tunnelIp); setShowTunnelModal(true); } }} className={`px-3 border-l border-white/10 ${activeServer?.game === 'DayZ' ? 'opacity-50 cursor-not-allowed text-gray-600' : 'hover:bg-white/10 text-gray-400 hover:text-white'} transition-colors flex items-center justify-center`} title={activeServer?.game === 'DayZ' ? "No settings for Radmin VPN" : "Tunnel IP Settings"}>
                       <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
                     </button>
                   </div>
@@ -1686,7 +1717,7 @@ function App() {
         </div>
       )}
       {/* TUNNEL SETTINGS MODAL */}
-      {showTunnelModal && (
+      {showTunnelModal && activeServer?.game !== 'DayZ' && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
             <div className="p-6 relative z-10">

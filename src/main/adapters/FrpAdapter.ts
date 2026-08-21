@@ -2,6 +2,7 @@ import { spawn, ChildProcess } from 'child_process'
 import { join } from 'path'
 import { app, BrowserWindow } from 'electron'
 import fs from 'fs'
+import os from 'os'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
 
@@ -51,16 +52,85 @@ export class FrpAdapter {
     }
 
     // 2. Build the FRP Configuration
+    // Get the local LAN IP to prevent game servers dropping loopback packets (127.0.0.1)
+    let localIp = '127.0.0.1';
+    const interfaces = os.networkInterfaces();
+    for (const name of Object.keys(interfaces)) {
+      if (name.toLowerCase().includes('nordlynx') || name.toLowerCase().includes('vpn')) continue;
+      for (const iface of interfaces[name]!) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          localIp = iface.address;
+          break;
+        }
+      }
+    }
+
     const tomlConfig = `
 serverAddr = "${ip}"
 serverPort = 7000
 
 [[proxies]]
-name = "minecraft-vanilla"
+name = "minecraft-tcp"
 type = "tcp"
-localIP = "127.0.0.1"
+localIP = "${localIp}"
 localPort = 25565
 remotePort = 25565
+
+[[proxies]]
+name = "minecraft-udp"
+type = "udp"
+localIP = "${localIp}"
+localPort = 25565
+remotePort = 25565
+
+[[proxies]]
+name = "dayz-game"
+type = "udp"
+localIP = "${localIp}"
+localPort = 2302
+remotePort = 2302
+
+[[proxies]]
+name = "dayz-steam-query"
+type = "udp"
+localIP = "${localIp}"
+localPort = 2303
+remotePort = 2303
+
+[[proxies]]
+name = "dayz-steam-master-8766"
+type = "udp"
+localIP = "${localIp}"
+localPort = 8766
+remotePort = 8766
+
+[[proxies]]
+name = "dayz-steam-master-2304"
+type = "udp"
+localIP = "${localIp}"
+localPort = 2304
+remotePort = 2304
+
+[[proxies]]
+name = "dayz-von"
+type = "udp"
+localIP = "${localIp}"
+localPort = 2305
+remotePort = 2305
+
+[[proxies]]
+name = "dayz-battleye"
+type = "udp"
+localIP = "${localIp}"
+localPort = 2306
+remotePort = 2306
+
+[[proxies]]
+name = "dayz-steam"
+type = "udp"
+localIP = "${localIp}"
+localPort = 27016
+remotePort = 27016
 `;
     fs.writeFileSync(this.configPath, tomlConfig);
 

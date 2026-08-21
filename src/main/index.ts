@@ -11,9 +11,12 @@ import os from 'os'
 // Import our custom modules
 import { getServers, createServer, deleteServer, updateServerSoftware } from './db'
 import { MinecraftAdapter } from './adapters/MinecraftAdapter'
+import { DayzAdapter } from './adapters/DayzAdapter'
 import { WakeProxy } from './adapters/WakeProxy'
 import { FrpAdapter } from './adapters/FrpAdapter'
+import { RadminVpnAdapter } from './adapters/RadminVpnAdapter'
 import { JavaManager } from './adapters/JavaManager'
+import { SteamCMDManager } from './adapters/SteamCMDManager'
 import { spawn } from 'child_process'
 import extractZip from 'extract-zip'
 import { CacheManager } from './CacheManager';
@@ -76,9 +79,10 @@ app.whenReady().then(() => {
   })
 
   // --- 1. INITIALIZE SYSTEMS ---
-  const activeServers: Record<number, MinecraftAdapter> = {};
+  const activeServers: Record<number, any> = {};
   const activeProxies: Record<number, WakeProxy> = {};
   const tunnelProvider = new FrpAdapter();
+  const radminVpnProvider = new RadminVpnAdapter();
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
   
@@ -132,12 +136,26 @@ app.whenReady().then(() => {
     return true;
   });
 
-  ipcMain.handle('create-server', async (_, name, type, version, loaderVersion) => {
-    const id = createServer(name, type);
+  ipcMain.handle('create-server', async (_, name, game, type, version, loaderVersion) => {
+    let gameStr = game === 'Minecraft' ? `Minecraft (${type})` : game;
+    const id = createServer(name, gameStr);
     const serverDir = join(app.getPath('userData'), 'servers', id.toString());
     if (!await exists(serverDir)) await fsPromises.mkdir(serverDir, { recursive: true });
-    await fsPromises.writeFile(join(serverDir, 'omnihost.json'), JSON.stringify({ type, version, loaderVersion }));
+    await fsPromises.writeFile(join(serverDir, 'omnihost.json'), JSON.stringify({ game, type, version, loaderVersion }));
+    // DayZ downloading is now handled by the install-steam-app IPC handler
+    
     return id;
+  })
+
+  ipcMain.handle('install-steam-app', async (_, id, appId, username?: string, password?: string, steamGuardCode?: string) => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+    await SteamCMDManager.installApp(id, appId, serverDir, username, password, steamGuardCode);
+    return true;
+  })
+
+  ipcMain.handle('send-steamcmd-input', async (_, data: string) => {
+    SteamCMDManager.sendInput(data);
+    return true;
   })
 
   ipcMain.handle('change-server-software', async (_, id, type, version, loaderVersion) => {
@@ -164,11 +182,11 @@ app.whenReady().then(() => {
       }
     }
 
-    // Update omnihost.json
-    fs.writeFileSync(join(serverDir, 'omnihost.json'), JSON.stringify({ type, version, loaderVersion }));
+    // Update omnihost.json (Assumes Minecraft since DayZ doesn't use software changer yet)
+    fs.writeFileSync(join(serverDir, 'omnihost.json'), JSON.stringify({ game: 'Minecraft', type, version, loaderVersion }));
     
     // Update DB
-    updateServerSoftware(id, type);
+    updateServerSoftware(id, `Minecraft (${type})`);
 
     return true;
   })
@@ -807,7 +825,21 @@ app.whenReady().then(() => {
   // Server Lifecycle
   ipcMain.handle('start-server', async (_, id) => {
     if (!activeServers[id]) {
-      activeServers[id] = new MinecraftAdapter(id);
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      let game = 'Minecraft';
+      try {
+        const metaPath = join(serverDir, 'omnihost.json');
+        if (fs.existsSync(metaPath)) {
+          const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));
+          if (meta.game) game = meta.game;
+        }
+      } catch (e) {}
+      
+      if (game === 'DayZ') {
+        activeServers[id] = new DayzAdapter(id);
+      } else {
+        activeServers[id] = new MinecraftAdapter(id);
+      }
     }
     
     // CRITICAL: Stop proxy if it exists to free the port!
@@ -838,17 +870,49 @@ app.whenReady().then(() => {
     return true;
   });
 
+  // Radmin VPN
+  ipcMain.handle('radmin-check', () => {
+    return radminVpnProvider.isInstalled();
+  });
+  
+  ipcMain.handle('radmin-install', () => {
+    radminVpnProvider.install();
+    return true;
+  });
+
+  ipcMain.handle('radmin-open', async () => {
+    return await radminVpnProvider.open();
+  });
+
+  ipcMain.handle('radmin-get-ip', async () => {
+    return await radminVpnProvider.getIp();
+  });
+
   // Config Editor
   ipcMain.handle('read-config', async (_, id) => {
-    const configPath = join(app.getPath('userData'), 'servers', id.toString(), 'server.properties');
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+    let configName = 'server.properties';
+    try {
+      const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'));
+      if (meta.game === 'DayZ') configName = 'serverDZ.cfg';
+    } catch (e) {}
+    
+    const configPath = join(serverDir, configName);
     if (await exists(configPath)) return await fsPromises.readFile(configPath, 'utf-8');
-    return '# No server.properties found.\n# Start the server once to generate this file automatically!';
+    return `# No ${configName} found.\n# Start the server once to generate this file automatically!`;
   });
 
   ipcMain.handle('write-config', async (_, id, data) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString());
     if (!await exists(serverDir)) await fsPromises.mkdir(serverDir, { recursive: true });
-    await fsPromises.writeFile(join(serverDir, 'server.properties'), data);
+    
+    let configName = 'server.properties';
+    try {
+      const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'));
+      if (meta.game === 'DayZ') configName = 'serverDZ.cfg';
+    } catch (e) {}
+    
+    await fsPromises.writeFile(join(serverDir, configName), data);
     return true;
   });
 

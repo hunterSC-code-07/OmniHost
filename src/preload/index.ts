@@ -7,6 +7,10 @@ const api = {
   stopServer: (id: number) => ipcRenderer.invoke('stop-server', id),
   startTunnel: (ip: string) => ipcRenderer.invoke('start-tunnel', ip),
   stopTunnel: () => ipcRenderer.invoke('stop-tunnel'),
+  radminCheck: () => ipcRenderer.invoke('radmin-check'),
+  radminInstall: () => ipcRenderer.invoke('radmin-install'),
+  radminOpen: () => ipcRenderer.invoke('radmin-open'),
+  radminGetIp: () => ipcRenderer.invoke('radmin-get-ip'),
   readConfig: (id: number) => ipcRenderer.invoke('read-config', id),
   writeConfig: (id: number, data: string) => ipcRenderer.invoke('write-config', id, data),
   readJson: (id: number, filename: string) => ipcRenderer.invoke('read-json', id, filename),
@@ -32,7 +36,7 @@ const api = {
   },
   
   // Versions & Downloads
-  createServer: (name: string, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('create-server', name, type, version, loaderVersion),
+  createServer: (name: string, game: string, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion),
   changeServerSoftware: (id: number, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('change-server-software', id, type, version, loaderVersion),
   deleteServer: (id: number) => ipcRenderer.invoke('delete-server', id),
   getVanillaVersions: () => ipcRenderer.invoke('get-vanilla-versions'),
@@ -45,6 +49,12 @@ const api = {
   getModpackDetails: (modId: number) => ipcRenderer.invoke('get-modpack-details', modId),
   installCurseforgeModpack: (id: number, modId: number, version: string) => ipcRenderer.invoke('install-curseforge-modpack', id, modId, version),
   downloadServerJar: (id: number, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('download-server-jar', id, type, version, loaderVersion),
+  installSteamApp: (id: number, appId: number, username?: string, password?: string, steamGuardCode?: string) => ipcRenderer.invoke('install-steam-app', id, appId, username, password, steamGuardCode),
+  sendSteamCmdInput: (data: string) => ipcRenderer.invoke('send-steamcmd-input', data),
+  onSteamGuardPrompt: (callback: (message: string) => void) => {
+    ipcRenderer.removeAllListeners('steam-guard-prompt')
+    ipcRenderer.on('steam-guard-prompt', (_, message) => callback(message))
+  },
   onDownloadProgress: (id: number, callback: (progress: number, text?: string) => void) => {
     ipcRenderer.removeAllListeners(`download-progress-${id}`)
     ipcRenderer.on(`download-progress-${id}`, (_, progress, text) => callback(progress, text))
