@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { DayzConsoleTab } from './tabs/DayzConsoleTab';
+import { DayzOptionsTab } from './tabs/DayzOptionsTab';
+import { DayzEconomyTab } from './tabs/DayzEconomyTab';
 
 interface DayzHubProps {
   activeServerId: number;
@@ -34,7 +36,7 @@ export const DayzHub: React.FC<DayzHubProps> = ({
   onlinePlayers,
   statsHistory,
 }) => {
-  const [activeTab, setActiveTab] = useState<'console' | 'options'>('console');
+  const [activeTab, setActiveTab] = useState<'console' | 'options' | 'economy'>('console');
   
   const endOfLogsRef = useRef<HTMLDivElement>(null);
 
@@ -104,6 +106,8 @@ export const DayzHub: React.FC<DayzHubProps> = ({
             <div className="flex items-center gap-2 min-w-max pb-2 px-1">
               {[
                 { id: 'console', label: 'Console', icon: 'terminal' },
+                { id: 'options', label: 'Options', icon: 'settings' },
+                { id: 'economy', label: 'Economy', icon: 'storefront' },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -133,6 +137,12 @@ export const DayzHub: React.FC<DayzHubProps> = ({
             onlinePlayers={onlinePlayers[activeServerId] || []}
             onPlayerClick={() => {}}
           />
+        )}
+        {activeTab === 'options' && (
+          <DayzOptionsTab activeServerId={activeServerId} />
+        )}
+        {activeTab === 'economy' && (
+          <DayzEconomyTab activeServerId={activeServerId} />
         )}
       </div>
     </div>
