@@ -51,6 +51,10 @@ const api = {
   installCurseforgeModpack: (id: number, modId: number, version: string) => ipcRenderer.invoke('install-curseforge-modpack', id, modId, version),
   downloadServerJar: (id: number, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('download-server-jar', id, type, version, loaderVersion),
   installSteamApp: (id: number, appId: number, username?: string, password?: string, steamGuardCode?: string) => ipcRenderer.invoke('install-steam-app', id, appId, username, password, steamGuardCode),
+  checkSteamCache: (appId: number) => ipcRenderer.invoke('check-steam-cache', appId),
+  deleteSteamCache: (appId: number) => ipcRenderer.invoke('delete-steam-cache', appId),
+  updateSteamCache: (id: number, appId: number, username?: string, password?: string, steamGuardCode?: string) => ipcRenderer.invoke('update-steam-cache', id, appId, username, password, steamGuardCode),
+  copySteamCache: (id: number, appId: number) => ipcRenderer.invoke('copy-steam-cache', id, appId),
   sendSteamCmdInput: (data: string) => ipcRenderer.invoke('send-steamcmd-input', data),
   onSteamGuardPrompt: (callback: (message: string) => void) => {
     ipcRenderer.removeAllListeners('steam-guard-prompt')
