@@ -116,10 +116,13 @@ app.whenReady().then(() => {
       }
       return {
         ...srv,
+        status: activeServers[srv.id] ? 'Online' : srv.status,
         type: type || 'Vanilla',
         version: meta.version || '1.20.4',
         loaderVersion: meta.loaderVersion || '',
-        port: srv.port || port || 25565
+        port: srv.port || port || 25565,
+        onlinePlayers: activeServers[srv.id] ? activeServers[srv.id].onlinePlayers : [],
+        logs: activeServers[srv.id] ? activeServers[srv.id].logHistory : []
       };
     });
   })
@@ -127,12 +130,25 @@ app.whenReady().then(() => {
   ipcMain.handle('delete-server', async (_, id) => {
     deleteServer(id);
     if (activeServers[id]) {
-      activeServers[id].stop();
+      await activeServers[id].stop();
       delete activeServers[id];
     }
     const serversDir = join(app.getPath('userData'), 'servers');
     const srvDir = join(serversDir, id.toString());
-    if (await exists(srvDir)) await fsPromises.rm(srvDir, { recursive: true, force: true });
+    if (await exists(srvDir)) {
+      for (let i = 0; i < 5; i++) {
+        try {
+          await fsPromises.rm(srvDir, { recursive: true, force: true });
+          break;
+        } catch (e: any) {
+          if (e.code === 'EBUSY' && i < 4) {
+            await new Promise(r => setTimeout(r, 1000));
+          } else {
+            throw e;
+          }
+        }
+      }
+    }
     return true;
   });
 
@@ -729,6 +745,7 @@ app.whenReady().then(() => {
       let downloadUrl = '';
       let isInstaller = false;
       let installerArgs: string[] = [];
+      let buildNumberStr = '';
 
       if (type === 'Vanilla') {
         const manifestRes = await axios.get('https://launchermeta.mojang.com/mc/game/version_manifest_v2.json');
@@ -738,7 +755,8 @@ app.whenReady().then(() => {
         downloadUrl = vRes.data.downloads.server.url;
       } else if (type === 'Paper') {
         const buildsRes = await axios.get(`https://fill.papermc.io/v3/projects/paper/versions/${version}`, { headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' } });
-        const build = buildsRes.data.builds[buildsRes.data.builds.length - 1];
+        const build = buildsRes.data.builds[0];
+        buildNumberStr = `-b${build}`;
         const buildData = await axios.get(`https://fill.papermc.io/v3/projects/paper/versions/${version}/builds/${build}`, { headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' } });
         downloadUrl = buildData.data.downloads['server:default'].url;
       } else if (type === 'Fabric') {
@@ -774,7 +792,7 @@ app.whenReady().then(() => {
       if (!downloadUrl) throw new Error('Could not resolve download URL');
 
       const targetPath = isInstaller ? installerPath : jarPath;
-      const fileName = `${type}-${version}${isInstaller ? '-installer' : ''}.jar`;
+      const fileName = `${type}-${version}${buildNumberStr}${isInstaller ? '-installer' : ''}.jar`;
       const cachedFile = await CacheManager.getOrDownload(
         'jars', 
         downloadUrl, 
@@ -865,9 +883,12 @@ app.whenReady().then(() => {
     return true;
   });
 
-  ipcMain.handle('stop-tunnel', () => {
+  ipcMain.handle('stop-tunnel', async () => {
     tunnelProvider.stop();
-    return true;
+  });
+
+  ipcMain.handle('get-tunnel-status', () => {
+    return tunnelProvider.process ? 'Online' : 'Offline';
   });
 
   // Radmin VPN

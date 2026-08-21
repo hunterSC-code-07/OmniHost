@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import 'overlayscrollbars/overlayscrollbars.css';
 import { ConsoleTab } from './components/tabs/ConsoleTab';
 import { OptionsTab } from './components/tabs/OptionsTab';
 import { PlayersTab } from './components/tabs/PlayersTab';
 import { FilesTab } from './components/tabs/FilesTab';
 import { BackupsTab } from './components/tabs/BackupsTab';
 import { OverviewTab } from './components/tabs/OverviewTab';
+import { AnimatedBackground } from './components/AnimatedBackground';
 import minecraftBg from './assets/minecraft-bg.png';
 import palworldBg from './assets/palworld-bg.jpg';
 import dayzBg from './assets/dayz-bg.jpg';
@@ -34,14 +37,14 @@ const classOptions = [
 
 function App() {
   const [servers, setServers] = useState<any[]>([])
-  const [logs, setLogs] = useState<string[]>([])
+  const [logs, setLogs] = useState<{id: string, msg: string}[]>([])
   const [tunnelStatus, setTunnelStatus] = useState('Offline')
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
   const [hoveredGame, setHoveredGame] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview')
-  const [onlinePlayers, setOnlinePlayers] = useState<string[]>([])
+  const [onlinePlayers, setOnlinePlayers] = useState<Record<string, string[]>>({})
 
   const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
   const [showTunnelModal, setShowTunnelModal] = useState(false)
@@ -59,7 +62,7 @@ function App() {
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Performance Stats
-  const [statsHistory, setStatsHistory] = useState<{cpu: number, ram: number}[]>([])
+  const [statsHistory, setStatsHistory] = useState<Record<string, {cpu: number, ram: number}[]>>({})
 
 
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
@@ -73,6 +76,9 @@ function App() {
   const [availableVersions, setAvailableVersions] = useState<string[]>([])
   const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')
   const [availableLoaderVersions, setAvailableLoaderVersions] = useState<string[]>([])
+  const [isNewServerTypeMenuOpen, setIsNewServerTypeMenuOpen] = useState(false)
+  const [isNewServerVersionMenuOpen, setIsNewServerVersionMenuOpen] = useState(false)
+  const [isNewServerLoaderMenuOpen, setIsNewServerLoaderMenuOpen] = useState(false)
   const [isCreatingServer, setIsCreatingServer] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState(0)
   const [downloadText, setDownloadText] = useState('Downloading server.jar...')
@@ -81,6 +87,8 @@ function App() {
   const [modpackSearch, setModpackSearch] = useState('')
   const [modpackVersionFilter, setModpackVersionFilter] = useState('')
   const [modpackLoaderFilter, setModpackLoaderFilter] = useState('')
+  const [isModpackVersionMenuOpen, setIsModpackVersionMenuOpen] = useState(false)
+  const [isModpackLoaderMenuOpen, setIsModpackLoaderMenuOpen] = useState(false)
   const [modpacks, setModpacks] = useState<any[]>([])
   const [selectedModpack, setSelectedModpack] = useState<any>(null)
   const [isSearchingPacks, setIsSearchingPacks] = useState(false)
@@ -97,6 +105,7 @@ function App() {
   const [activeClassId, setActiveClassId] = useState<number>(6)
   const [activeSortField, setActiveSortField] = useState<number>(2)
   const [isClassMenuOpen, setIsClassMenuOpen] = useState(false)
+  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false)
   const [totalModCount, setTotalModCount] = useState<number>(0)
 
   // Software Switching States
@@ -105,20 +114,48 @@ function App() {
   const [editingAvailableVersions, setEditingAvailableVersions] = useState<string[]>([])
   const [editingLoaderVersion, setEditingLoaderVersion] = useState('')
   const [editingAvailableLoaderVersions, setEditingAvailableLoaderVersions] = useState<string[]>([])
+  const [isTypeMenuOpen, setIsTypeMenuOpen] = useState(false)
+  const [isVersionMenuOpen, setIsVersionMenuOpen] = useState(false)
+  const [isLoaderMenuOpen, setIsLoaderMenuOpen] = useState(false)
   const [isChangingSoftware, setIsChangingSoftware] = useState(false)
   const [isClearingCache, setIsClearingCache] = useState(false)
   const [cacheSize, setCacheSize] = useState<number>(0)
   const [serverToDelete, setServerToDelete] = useState<number | null>(null)
+  const [showModpackPrompt, setShowModpackPrompt] = useState(false)
 
   const endOfLogsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const fetchServers = async () => {
+    const fetchInitialData = async () => {
       // @ts-ignore
       const data = await window.api.getServers()
       setServers(data)
+      
+      const initialLogs: {id: string, msg: string}[] = [];
+      const initialOnlinePlayers: Record<string, string[]> = {};
+      
+      data.forEach((s: any) => {
+         if (s.logs) {
+            s.logs.forEach((msg: string) => {
+               initialLogs.push({ id: s.id.toString(), msg });
+            });
+         }
+         if (s.onlinePlayers && s.onlinePlayers.length > 0) {
+            initialOnlinePlayers[s.id.toString()] = s.onlinePlayers;
+         }
+      });
+      
+      setLogs(initialLogs);
+      setOnlinePlayers(initialOnlinePlayers);
+      
+      // @ts-ignore
+      if (window.api.getTunnelStatus) {
+        // @ts-ignore
+        const status = await window.api.getTunnelStatus();
+        setTunnelStatus(status);
+      }
     }
-    fetchServers()
+    fetchInitialData()
 
     const fetchCacheSize = async () => {
       try {
@@ -138,24 +175,30 @@ function App() {
 
     // --- LISTENER 1: CONSOLE LOGS ---
     // @ts-ignore
-    window.api.onConsoleLog((msg: string) => {
-      setLogs(prev => [...prev, msg])
+    window.api.onConsoleLog((data: { id: number | string, msg: string }) => {
+      setLogs(prev => {
+        const newLogs = [...prev, { id: data.id.toString(), msg: data.msg }];
+        if (newLogs.length > 5000) newLogs.shift();
+        return newLogs;
+      });
     })
 
     // --- LISTENER 2: LIVE PLAYERS ---
     // @ts-ignore
     window.api.onOnlinePlayers((data: { id: number, players: string[] }) => {
-      setOnlinePlayers(data.players)
+      setOnlinePlayers(prev => ({ ...prev, [data.id.toString()]: data.players }));
     })
 
     // --- LISTENER 3: SERVER STATS ---
     // @ts-ignore
     window.api.onServerStats((data: { id: number, cpu: number, ram: number }) => {
       setStatsHistory(prev => {
-        const newHistory = [...prev, { cpu: data.cpu, ram: data.ram }]
-        if (newHistory.length > 30) newHistory.shift() // keep last 30 data points (60 seconds at 2s interval)
-        return newHistory
-      })
+        const idStr = data.id.toString();
+        const currentStats = prev[idStr] || [];
+        const newHistory = [...currentStats, { cpu: data.cpu, ram: data.ram }];
+        if (newHistory.length > 30) newHistory.shift();
+        return { ...prev, [idStr]: newHistory };
+      });
     })
 
     return () => clearInterval(cacheInterval)
@@ -310,8 +353,7 @@ function App() {
   useEffect(() => {
     if (activeServerId !== null) {
       fetchServerMeta();
-      // Reset stats when switching servers
-      setStatsHistory([]);
+      // State is preserved in dictionary, no longer cleared
     } else {
       setServerMeta(null);
     }
@@ -592,7 +634,9 @@ function App() {
   }
 
   const handleClearLogs = () => {
-    setLogs([])
+    if (activeServerId !== null) {
+      setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));
+    }
   }
 
   const handleStop = async (id: number) => {
@@ -735,9 +779,9 @@ function App() {
       // @ts-ignore
       await window.api.clearCache();
       setCacheSize(0);
-      setToasts(prev => [...prev, { id: Date.now(), message: 'Cache successfully cleared!' }]);
+      showToast('Cache successfully cleared!');
     } catch (e: any) {
-      setToasts(prev => [...prev, { id: Date.now(), message: `Failed to clear cache: ${e.message || e}` }]);
+      showToast(`Failed to clear cache: ${e.message || e}`);
     } finally {
       setIsClearingCache(false);
     }
@@ -753,6 +797,7 @@ function App() {
   }
 
   const activeServer = servers.find(s => s.id === activeServerId);
+  const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
 
   return (
     <div className="bg-gradient-to-b from-[#121212] to-[#050505] font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden relative">
@@ -764,7 +809,7 @@ function App() {
       <div className={`absolute inset-0 bg-gradient-to-br from-[#fa9549]/35 via-[#7c2d12]/25 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Satisfactory' || activeGameHub === 'Satisfactory' ? 'opacity-100' : 'opacity-0'}`}></div>
       
       {/* TOP NAVBAR */}
-      <header className="fixed top-0 left-0 right-[8px] h-20 bg-gradient-to-b from-[#121212] to-[#050505] z-40 border-b border-white/5 shadow-lg">
+      <header className="fixed top-0 left-0 right-0 h-20 bg-gradient-to-b from-[#121212] to-[#050505] z-40 border-b border-white/5 shadow-lg">
         <div className="h-full px-gutter w-full flex items-center justify-between">
           
           <div className="flex items-center gap-8">
@@ -814,12 +859,17 @@ function App() {
       </header>
 
       {/* MAIN CONTENT */}
-      <main className="relative pt-20 bg-transparent flex-1 overflow-y-auto w-full">
-        <div className="flex flex-col w-full relative min-h-full">
+      <main className="relative pt-20 bg-transparent flex-1 w-full flex flex-col min-h-0 overflow-hidden outline-none">
+        <div className="flex flex-col w-full relative h-full">
 
           {/* DASHBOARD VIEW */}
           {activeServerId === null && activeGameHub === null && (
-            <>
+            <OverlayScrollbarsComponent 
+              className="flex-1 w-full block min-h-0"
+              options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+              defer
+            >
+              <div className="w-full flex flex-col relative min-h-full pb-8">
               {/* Background gradient */}
               <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none"></div>
               
@@ -885,7 +935,7 @@ function App() {
                   <div className="flex items-center justify-between border-b border-surface-container-high pb-4">
                     <h2 className="font-headline-lg text-headline-lg text-on-background">Active Servers List</h2>
                   </div>
-                  <div className="overflow-x-auto rounded-xl glass-panel">
+                  <div className="overflow-x-auto rounded-xl bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)] relative">
                     <table className="w-full text-left border-collapse">
                       <thead className="bg-surface-container-high/50 text-primary font-label-md text-label-md uppercase tracking-widest">
                         <tr className="border-b border-surface-container-high">
@@ -921,12 +971,18 @@ function App() {
                   </div>
                 </div>
               </div>
-            </>
+              </div>
+            </OverlayScrollbarsComponent>
           )}
 
           {/* GAME HUB VIEW */}
           {activeServerId === null && activeGameHub !== null && (
-            <div className="flex-1 overflow-y-auto relative min-h-0 flex flex-col">
+            <OverlayScrollbarsComponent 
+              className="flex-1 w-full block min-h-0"
+              options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+              defer
+            >
+              <div className="w-full flex flex-col relative min-h-full pb-8">
               <div className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{backgroundImage: `url('${getGameImageUrl(activeGameHub)}')`}}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40 z-0 pointer-events-none"></div>
               
@@ -1068,12 +1124,15 @@ function App() {
                 )}
               </div>
             </div>
+            </OverlayScrollbarsComponent>
           )}
 
         {/* ACTIVE SERVER VIEW */}
         {activeServer !== undefined && activeServerId !== null && (
-          <>
-            <div className="glass-panel p-6 flex flex-col gap-6 z-10">
+          <div className="flex-1 flex flex-col relative overflow-hidden">
+            <AnimatedBackground />
+            
+            <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
               <div className="flex justify-between items-center relative z-20">
                 <div className="flex items-center gap-4">
                   <button onClick={() => setActiveServerId(null)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors border border-white/10 flex items-center justify-center group" title="Back to Dashboard">
@@ -1114,57 +1173,66 @@ function App() {
               </div>
 
               {/* Sub Top Nav Bar for Server Tabs */}
-              <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                {[
-                  { id: 'overview', label: 'Overview', icon: 'dashboard' },
-                  { id: 'console', label: 'Console', icon: 'terminal' },
-                  { id: 'options', label: 'Options', icon: 'settings' },
-                  { id: 'players', label: 'Players', icon: 'group' },
-                  { id: 'mods', label: 'Mods', icon: 'extension' },
-                  { id: 'software', label: 'Software', icon: 'memory' },
-                  { id: 'files', label: 'Files', icon: 'folder' },
-                  { id: 'backups', label: 'Backups', icon: 'save' }
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as any)}
-                    className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap ${
-                      activeTab === tab.id 
-                      ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(76,175,80,0.1)]' 
-                      : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent'
-                    }`}
-                  >
-                    <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-                    {tab.label}
-                  </button>
-                ))}
+              <div className="w-full pb-1">
+                <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer>
+                  <div className="flex items-center gap-2 min-w-max pb-2 px-1">
+                    {[
+                      { id: 'overview', label: 'Overview', icon: 'dashboard' },
+                      { id: 'console', label: 'Console', icon: 'terminal' },
+                      { id: 'options', label: 'Options', icon: 'settings' },
+                      { id: 'players', label: 'Players', icon: 'group' },
+                      { id: 'mods', label: 'Mods', icon: 'extension' },
+                      { id: 'software', label: 'Software', icon: 'memory' },
+                      { id: 'files', label: 'Files', icon: 'folder' },
+                      { id: 'backups', label: 'Backups', icon: 'save' }
+                    ].map(tab => (
+                      <button
+                        key={tab.id}
+                        onClick={() => setActiveTab(tab.id as any)}
+                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap ${
+                          activeTab === tab.id 
+                          ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(76,175,80,0.1)]' 
+                          : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                        {tab.label}
+                      </button>
+                    ))}
+                  </div>
+                </OverlayScrollbarsComponent>
               </div>
             </div>
 
-            <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col bg-gradient-to-br from-[#121212] via-[#0a0a0a] to-[#050505] border border-white/5 shadow-inner rounded-xl m-4">
+            <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
               
               {/* TAB: OVERVIEW */}
               {activeTab === 'overview' && (
                 <OverviewTab 
-                  statsHistory={statsHistory}
+                  statsHistory={activeServerId ? (statsHistory[activeServerId.toString()] || []) : []}
                   serverStatus={activeServer.status as 'Online' | 'Offline'}
                   serverVersion={serverMeta ? `${serverMeta.type} ${serverMeta.version}` : 'Loading...'}
-                  onlinePlayers={onlinePlayers}
+                  onlinePlayers={activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : []}
                   maxPlayers={activeServer.maxPlayers || 20}
-                  logs={logs}
-                  maxRam={serverMeta?.ram ? Number(serverMeta.ram) : 2}
-                  maxCpu={serverMeta?.cpu ? Number(serverMeta.cpu) : 2}
+                  logs={activeLogs}
+                  maxRam={serverMeta?.ram ? Number(serverMeta.ram) : 4}
+                  maxCpu={serverMeta?.cpu ? Number(serverMeta.cpu) : 4}
                 />
               )}
 
               {/* TAB: CONSOLE */}
               {activeTab === 'console' && (
                 <ConsoleTab 
-                  logs={logs}
+                  logs={activeLogs}
                   endOfLogsRef={endOfLogsRef}
                   handleSendCommand={handleSendCommand}
                   handleClearLogs={handleClearLogs}
-                  onlinePlayers={onlinePlayers}
+                  onlinePlayers={activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : []}
+                  onPlayerClick={(playerName) => {
+                    setPlayerListType('live');
+                    setSelectedPlayer(playerName);
+                    setActiveTab('players');
+                  }}
                 />
               )}
 
@@ -1191,7 +1259,7 @@ function App() {
                   newPlayerName={newPlayerName}
                   setNewPlayerName={setNewPlayerName}
                   isProcessing={isProcessing}
-                  onlinePlayers={onlinePlayers}
+                  onlinePlayers={activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : []}
                   playerData={playerData}
                   handleAddPlayer={handleAddPlayer}
                   handleRemovePlayer={handleRemovePlayer}
@@ -1208,8 +1276,8 @@ function App() {
 
               {/* TAB: MODS */}
               {activeTab === 'mods' && (
-                <div className="absolute inset-0 p-8 overflow-y-auto">
-                  <div className="flex justify-between items-end mb-6">
+                <div className="absolute inset-0 flex flex-col p-8 min-h-0">
+                  <div className="flex justify-between items-end mb-6 shrink-0">
                     <div>
                       <h3 className="text-xl font-bold text-white">Mod Manager</h3>
                       <p className="text-gray-400 text-sm mt-1">
@@ -1217,9 +1285,9 @@ function App() {
                       </p>
                     </div>
                     <div className="flex gap-4 items-center">
-                      <div className="bg-gray-900/50 p-1 rounded-lg border border-gray-800 flex">
-                         <button onClick={() => setModViewType('browse')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all ${modViewType === 'browse' ? 'bg-brand text-white shadow-md' : 'text-gray-400 hover:text-white'}`}>Browse</button>
-                         <button onClick={() => setModViewType('installed')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all ${modViewType === 'installed' ? 'bg-brand text-white shadow-md' : 'text-gray-400 hover:text-white'}`}>Installed ({installedMods.length})</button>
+                      <div className="bg-black/40 backdrop-blur-md p-1 rounded-lg border border-white/5 flex shadow-inner">
+                         <button onClick={() => setModViewType('browse')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all ${modViewType === 'browse' ? 'bg-brand text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>Browse</button>
+                         <button onClick={() => setModViewType('installed')} className={`px-4 py-2 rounded-md font-bold text-sm transition-all ${modViewType === 'installed' ? 'bg-brand text-black shadow-md' : 'text-gray-400 hover:text-white'}`}>Installed ({installedMods.length})</button>
                       </div>
                     </div>
                   </div>
@@ -1227,19 +1295,19 @@ function App() {
                   {serverMeta && (
                     <>
                       {modViewType === 'browse' && (
-                        <div className="animate-in fade-in duration-300">
+                        <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
                           {/* TOP CONTROLS */}
-                          <div className="flex flex-col md:flex-row justify-between items-center bg-[#1a1a1a] p-3 rounded-lg border border-[#2a2a2a] mb-4 text-[#bfbfbf] text-sm">
+                          <div className="flex flex-col md:flex-row justify-between items-center bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/5 mb-4 text-[#bfbfbf] text-sm shrink-0 shadow-inner relative z-50">
                             <div className="relative">
                               <button onClick={() => setIsClassMenuOpen(!isClassMenuOpen)} className="flex items-center gap-2 hover:text-white px-3 py-1 font-bold">
                                 {classOptions.find(c => c.id === activeClassId)?.name || 'Mods'}
                                 <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                               </button>
                               {isClassMenuOpen && (
-                                <div className="absolute top-full left-0 mt-2 w-56 bg-[#2a2a2a] border border-[#3a3a3a] rounded-md shadow-2xl z-50 py-2">
+                                <div className="absolute top-full left-0 mt-2 w-56 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
                                   {classOptions.map(cls => (
-                                    <div key={cls.id} onClick={() => { setActiveClassId(cls.id); setIsClassMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-[#3a3a3a] ${activeClassId === cls.id ? 'text-white font-bold' : 'text-[#bfbfbf]'}`}>
-                                      {cls.name} {activeClassId === cls.id && <span className="float-right">✓</span>}
+                                    <div key={cls.id} onClick={() => { setActiveClassId(cls.id); setIsClassMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${activeClassId === cls.id ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                                      {cls.name} {activeClassId === cls.id && <span className="float-right text-brand">✓</span>}
                                     </div>
                                   ))}
                                 </div>
@@ -1251,36 +1319,50 @@ function App() {
                             </div>
 
                             <div className="flex items-center gap-4">
-                              <select value={activeSortField} onChange={(e) => setActiveSortField(Number(e.target.value))} className="bg-transparent text-[#bfbfbf] outline-none cursor-pointer hover:text-white font-bold">
-                                <option value={1} className="bg-[#1a1a1a]">Sort: Featured</option>
-                                <option value={2} className="bg-[#1a1a1a]">Sort: Popularity</option>
-                                <option value={3} className="bg-[#1a1a1a]">Sort: Last Updated</option>
-                                <option value={4} className="bg-[#1a1a1a]">Sort: Name</option>
-                              </select>
+                              <div className="relative">
+                                <button onClick={() => setIsSortMenuOpen(!isSortMenuOpen)} className="flex items-center gap-2 hover:text-white px-3 py-1 font-bold bg-transparent text-[#bfbfbf]">
+                                  {[{id:1, name:'Sort: Featured'},{id:2, name:'Sort: Popularity'},{id:3, name:'Sort: Last Updated'},{id:4, name:'Sort: Name'}].find(o => o.id === activeSortField)?.name || 'Sort: Popularity'}
+                                  <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                                </button>
+                                {isSortMenuOpen && (
+                                  <div className="absolute top-full right-0 mt-2 w-48 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                                    {[{id:1, name:'Sort: Featured'},{id:2, name:'Sort: Popularity'},{id:3, name:'Sort: Last Updated'},{id:4, name:'Sort: Name'}].map(opt => (
+                                      <div key={opt.id} onClick={() => { setActiveSortField(opt.id); setIsSortMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${activeSortField === opt.id ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                                        {opt.name} {activeSortField === opt.id && <span className="float-right text-brand">✓</span>}
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
                               
-                              <div className="flex items-center gap-2 border-l border-[#3a3a3a] pl-4 cursor-pointer hover:text-white font-bold">
+                              <div className="flex items-center gap-2 border-l border-white/10 pl-4 cursor-default font-bold text-[#bfbfbf]">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                                 Filters
                               </div>
                             </div>
                           </div>
 
-                          <form onSubmit={(e) => handleSearchMods(e)} className="mb-6 flex gap-3">
-                            <input type="text" placeholder={`Search ${serverMeta?.type} ${classOptions.find(c => c.id === activeClassId)?.name.toLowerCase()}...`} value={modSearchQuery} onChange={(e) => setModSearchQuery(e.target.value)} className="flex-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg px-6 py-3 text-white outline-none focus:border-[#4a4a4a] shadow-inner text-base" disabled={isSearchingMods} />
-                            <button type="submit" disabled={isSearchingMods} className="px-8 bg-[#3a3a3a] hover:bg-[#4a4a4a] rounded-lg font-bold transition-all disabled:opacity-50 text-white shadow-lg">{isSearchingMods ? 'Searching...' : 'Search'}</button>
+                          <form onSubmit={(e) => handleSearchMods(e)} className="mb-6 flex gap-3 shrink-0 relative z-40">
+                            <input type="text" placeholder={`Search ${serverMeta?.type} ${classOptions.find(c => c.id === activeClassId)?.name.toLowerCase()}...`} value={modSearchQuery} onChange={(e) => setModSearchQuery(e.target.value)} className="flex-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-lg px-6 py-3 text-white outline-none focus:border-brand/50 shadow-inner text-base" disabled={isSearchingMods} />
+                            <button type="submit" disabled={isSearchingMods} className="px-8 bg-black/40 backdrop-blur-md border border-white/5 hover:bg-white/10 rounded-lg font-bold transition-all disabled:opacity-50 text-white shadow-lg">{isSearchingMods ? 'Searching...' : 'Search'}</button>
                           </form>
 
+                          <OverlayScrollbarsComponent 
+                            className="flex-1 min-h-0" 
+                            options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+                            defer
+                          >
                           {modResults.length === 0 && !isSearchingMods && modSearchQuery && (
                             <div className="text-center text-gray-500 mt-20">No projects found. Try a different search.</div>
                           )}
 
-                          <div className="flex flex-col gap-[1px] bg-[#2a2a2a] border border-[#2a2a2a] rounded overflow-hidden shadow-lg">
+                          <div className="flex flex-col gap-[1px] bg-white/5 border border-white/5 rounded overflow-hidden shadow-lg pb-4">
                             {modResults.map((mod: any) => {
                                const isInstalled = installedMods.some(m => m.name.toLowerCase().includes(mod.slug?.replace(/-/g, '') || mod.name.toLowerCase().replace(/ /g, '')));
                                return (
                                 <React.Fragment key={mod.id}>
-                                  <div className="bg-[#1e1e1e] p-4 flex gap-4 group transition-colors hover:bg-[#252525]">
-                                    <img src={mod.logo?.thumbnailUrl || 'https://via.placeholder.com/128'} alt={mod.name} className="w-[84px] h-[84px] rounded shadow-md bg-[#111111] object-cover flex-shrink-0" />
+                                  <div className="bg-black/30 backdrop-blur-sm p-4 flex gap-4 group transition-colors hover:bg-black/50">
+                                    <img src={mod.logo?.thumbnailUrl || 'https://via.placeholder.com/128'} alt={mod.name} className="w-[84px] h-[84px] rounded shadow-md bg-black/50 object-cover flex-shrink-0" />
                                   
                                   <div className="flex-1 min-w-0 flex flex-col justify-between">
                                     <div>
@@ -1310,30 +1392,36 @@ function App() {
                                   </div>
 
                                   <div className="flex items-center justify-center ml-4 shrink-0">
-                                    <button onClick={() => handleInstallMod(mod)} disabled={installingModId !== null || isInstalled} className={`px-5 py-2 rounded-md font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_4px_rgba(0,0,0,0.5)] ${isInstalled ? 'bg-[#333333] text-[#aaaaaa]' : 'bg-[#e25822] hover:bg-[#ff6922] text-white'}`}>
+                                    <button onClick={() => handleInstallMod(mod)} disabled={installingModId !== null || isInstalled} className={`px-5 py-2 rounded-md font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(0,0,0,0.5)] ${isInstalled ? 'bg-black/40 text-gray-400 border border-white/5' : 'bg-brand hover:brightness-110 text-black shadow-[0_0_15px_rgba(76,175,80,0.3)]'}`}>
                                       {isInstalled ? 'Installed' : installingModId === mod.id ? 'Installing...' : 'Install'}
                                     </button>
                                   </div>
                                 </div>
                                 {installingModId === mod.id && (
-                                  <div className="bg-[#1a1a1a] px-4 py-2 text-xs text-[#00ff88] border-b border-[#2a2a2a] animate-pulse">
+                                  <div className="bg-black/40 px-4 py-2 text-xs text-brand border-b border-white/5 animate-pulse">
                                     {installProgressText}
                                   </div>
                                 )}
                               </React.Fragment>
                             )})}
                           </div>
+                          </OverlayScrollbarsComponent>
                         </div>
                       )}
 
                       {modViewType === 'installed' && (
-                        <div className="animate-in fade-in duration-300">
+                        <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
+                          <OverlayScrollbarsComponent 
+                            className="flex-1 min-h-0" 
+                            options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+                            defer
+                          >
                           {installedMods.length === 0 ? (
                             <div className="text-center text-gray-500 mt-20">No mods installed yet.</div>
                           ) : (
-                            <div className="bg-darkCard border border-gray-800 rounded-xl overflow-hidden shadow-md">
+                            <div className="bg-black/30 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-lg">
                               <table className="w-full text-left text-sm text-gray-300">
-                                <thead className="bg-gray-900/50 border-b border-gray-800 text-gray-400 uppercase font-bold text-xs">
+                                <thead className="bg-black/40 border-b border-white/5 text-gray-400 uppercase font-bold text-xs">
                                   <tr>
                                     <th className="px-6 py-4">File Name</th>
                                     <th className="px-6 py-4 w-32">Size</th>
@@ -1342,7 +1430,7 @@ function App() {
                                 </thead>
                                 <tbody>
                                   {installedMods.map((mod: any, idx) => (
-                                    <tr key={idx} className="border-b border-gray-800/50 hover:bg-gray-800/30 transition-colors">
+                                    <tr key={idx} className="border-b border-white/5 hover:bg-white/5 transition-colors">
                                       <td className="px-6 py-4 font-mono font-bold text-gray-200">{mod.name}</td>
                                       <td className="px-6 py-4 text-gray-500">{(mod.size / 1024 / 1024).toFixed(2)} MB</td>
                                       <td className="px-6 py-4 text-right">
@@ -1354,6 +1442,7 @@ function App() {
                               </table>
                             </div>
                           )}
+                          </OverlayScrollbarsComponent>
                         </div>
                       )}
                     </>
@@ -1363,10 +1452,16 @@ function App() {
 
               {/* TAB: SOFTWARE */}
               {activeTab === 'software' && (
-                <div className="h-full flex flex-col p-8">
-                  <h3 className="text-2xl font-bold text-[#4CAF50] mb-6">Change Software</h3>
-                  
-                  {isChangingSoftware ? (
+                <div className="absolute inset-0 flex flex-col p-8 min-h-0 animate-in fade-in duration-300">
+                  <h3 className="text-2xl font-bold text-[#4CAF50] mb-6 shrink-0">Change Software</h3>
+                  <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-xl min-h-0">
+                    <OverlayScrollbarsComponent 
+                      className="flex-1 min-h-0"
+                      options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+                      defer
+                    >
+                      <div className="p-8 pb-16">
+                        {isChangingSoftware ? (
                     <div className="flex-1 flex flex-col items-center justify-center">
                       <div className="w-16 h-16 border-4 border-[#4CAF50] border-t-transparent rounded-full animate-spin mb-4"></div>
                       <h4 className="text-xl font-bold text-white mb-2">Changing Software</h4>
@@ -1379,47 +1474,79 @@ function App() {
                     </div>
                   ) : (
                     <div className="flex flex-col gap-6 max-w-xl">
-                      <div>
+                      <div className="relative z-50">
                         <label className="block text-sm font-bold text-gray-400 mb-2">Software Type</label>
-                        <select 
-                          value={editingSoftwareType}
-                          onChange={e => setEditingSoftwareType(e.target.value)}
-                          className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#4CAF50] shadow-inner"
+                        <button 
+                          onClick={() => setIsTypeMenuOpen(!isTypeMenuOpen)}
+                          className="w-full flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 rounded p-3 text-white shadow-inner font-bold"
                         >
-                          <option>Vanilla</option>
-                          <option>Paper</option>
-                          <option>Fabric</option>
-                          <option>Forge</option>
-                          <option>NeoForge</option>
-                        </select>
+                          {editingSoftwareType}
+                          <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        </button>
+                        {isTypeMenuOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                            <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                            {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge', 'CurseForge Modpack'].map(opt => (
+                              <div key={opt} onClick={() => { 
+                                if (opt === 'CurseForge Modpack') {
+                                  setShowModpackPrompt(true);
+                                  setIsTypeMenuOpen(false);
+                                } else {
+                                  setEditingSoftwareType(opt); 
+                                  setIsTypeMenuOpen(false); 
+                                }
+                              }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingSoftwareType === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                                {opt} {editingSoftwareType === opt && <span className="float-right text-brand">✓</span>}
+                              </div>
+                            ))}
+                            </OverlayScrollbarsComponent>
+                          </div>
+                        )}
                       </div>
 
-                      <div>
+                      <div className="relative z-40">
                         <label className="block text-sm font-bold text-gray-400 mb-2">Minecraft Version</label>
-                        <select 
-                          value={editingSoftwareVersion}
-                          onChange={e => setEditingSoftwareVersion(e.target.value)}
-                          className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#4CAF50] shadow-inner"
+                        <button 
+                          onClick={() => setIsVersionMenuOpen(!isVersionMenuOpen)}
+                          className="w-full flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 rounded p-3 text-white shadow-inner font-bold"
                         >
-                          {editingAvailableVersions.map(v => <option key={v} value={v}>{v}</option>)}
-                        </select>
+                          {editingSoftwareVersion || 'Loading...'}
+                          <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        </button>
+                        {isVersionMenuOpen && editingAvailableVersions.length > 0 && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                            <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                            {editingAvailableVersions.map(opt => (
+                              <div key={opt} onClick={() => { setEditingSoftwareVersion(opt); setIsVersionMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingSoftwareVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                                {opt} {editingSoftwareVersion === opt && <span className="float-right text-brand">✓</span>}
+                              </div>
+                            ))}
+                            </OverlayScrollbarsComponent>
+                          </div>
+                        )}
                       </div>
 
                       {['Forge', 'Fabric', 'NeoForge'].includes(editingSoftwareType) && (
-                        <div>
-                          <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
-                          <select 
-                            value={editingLoaderVersion}
-                            onChange={e => setEditingLoaderVersion(e.target.value)}
-                            className="w-full bg-[#050505] border border-gray-800 rounded p-3 text-white outline-none focus:border-[#4CAF50] shadow-inner"
-                            disabled={isChangingSoftware || editingAvailableLoaderVersions.length === 0}
+                        <div className="relative z-30">
+                          <label className="block text-sm font-bold text-gray-400 mb-2">Loader Version</label>
+                          <button 
+                            onClick={() => { if (!isChangingSoftware && editingAvailableLoaderVersions.length > 0) setIsLoaderMenuOpen(!isLoaderMenuOpen) }}
+                            className={`w-full flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 rounded p-3 text-white shadow-inner font-bold ${isChangingSoftware || editingAvailableLoaderVersions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
-                            {editingAvailableLoaderVersions.length === 0 ? (
-                              <option>Loading...</option>
-                            ) : (
-                              editingAvailableLoaderVersions.map(v => <option key={v} value={v}>{v}</option>)
-                            )}
-                          </select>
+                            {editingAvailableLoaderVersions.length === 0 ? 'Loading...' : (editingLoaderVersion || 'Select version')}
+                            <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                          </button>
+                          {isLoaderMenuOpen && editingAvailableLoaderVersions.length > 0 && (
+                            <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                              <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                              {editingAvailableLoaderVersions.map(opt => (
+                                <div key={opt} onClick={() => { setEditingLoaderVersion(opt); setIsLoaderMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingLoaderVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                                  {opt} {editingLoaderVersion === opt && <span className="float-right text-brand">✓</span>}
+                                </div>
+                              ))}
+                              </OverlayScrollbarsComponent>
+                            </div>
+                          )}
                         </div>
                       )}
 
@@ -1476,11 +1603,14 @@ function App() {
                       </button>
                     </div>
                   )}
+                  </div>
+                  </OverlayScrollbarsComponent>
+                  </div>
                 </div>
               )}
 
             </div>
-          </>
+          </div>
         )}
       </div>
       </main>
@@ -1500,7 +1630,7 @@ function App() {
       {/* CREATE SERVER MODAL */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <div className={`bg-[#0a0a0a] p-8 rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] w-full relative overflow-hidden ${newServerType === 'CurseForge Modpack' ? 'max-w-4xl' : 'max-w-md'}`}>
+          <div className={`bg-[#0a0a0a] p-8 rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] w-full relative ${newServerType === 'CurseForge Modpack' ? 'max-w-4xl' : 'max-w-md'}`}>
             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
             <div className="relative z-10">
               <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Create New Server</h2>
@@ -1521,55 +1651,80 @@ function App() {
                     />
                   </div>
 
-                  <div>
+                  <div className="relative z-50">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
-                    <select 
-                      value={newServerType}
-                      onChange={e => setNewServerType(e.target.value)}
-                      className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner"
+                    <button 
+                      onClick={() => setIsNewServerTypeMenuOpen(!isNewServerTypeMenuOpen)}
+                      className="w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold"
                       disabled={isCreatingServer}
                     >
-                    <option value="Vanilla">Vanilla (Official)</option>
-                    <option value="Paper">Paper (Optimized)</option>
-                    <option value="Fabric">Fabric (Mods)</option>
-                    <option value="Forge">Forge (Mods)</option>
-                    <option value="NeoForge">NeoForge (Mods)</option>
-                    <option value="CurseForge Modpack">CurseForge Modpack</option>
-                  </select>
-                </div>
+                      {newServerType}
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </button>
+                    {isNewServerTypeMenuOpen && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                        {[
+                          { val: 'Vanilla', label: 'Vanilla (Official)' },
+                          { val: 'Paper', label: 'Paper (Optimized)' },
+                          { val: 'Fabric', label: 'Fabric (Mods)' },
+                          { val: 'Forge', label: 'Forge (Mods)' },
+                          { val: 'NeoForge', label: 'NeoForge (Mods)' },
+                          { val: 'CurseForge Modpack', label: 'CurseForge Modpack' }
+                        ].map(opt => (
+                          <div key={opt.val} onClick={() => { setNewServerType(opt.val); setIsNewServerTypeMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerType === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                            {opt.label} {newServerType === opt.val && <span className="float-right text-brand">✓</span>}
+                          </div>
+                        ))}
+                        </OverlayScrollbarsComponent>
+                      </div>
+                    )}
+                  </div>
 
                 {newServerType !== 'CurseForge Modpack' && (
-                  <div>
+                  <div className="relative z-40">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
-                    <select 
-                      value={newServerVersion}
-                      onChange={e => setNewServerVersion(e.target.value)}
-                      className="w-full bg-[#0a0a0f] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
-                      disabled={isCreatingServer || availableVersions.length === 0}
+                    <button 
+                      onClick={() => { if (!isCreatingServer && availableVersions.length > 0) setIsNewServerVersionMenuOpen(!isNewServerVersionMenuOpen) }}
+                      className={`w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      {availableVersions.length === 0 ? (
-                        <option>Loading versions...</option>
-                      ) : (
-                        availableVersions.map(v => <option key={v} value={v}>{v}</option>)
-                      )}
-                    </select>
+                      {availableVersions.length === 0 ? 'Loading...' : (newServerVersion || 'Select version')}
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </button>
+                    {isNewServerVersionMenuOpen && availableVersions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                        {availableVersions.map(opt => (
+                          <div key={opt} onClick={() => { setNewServerVersion(opt); setIsNewServerVersionMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                            {opt} {newServerVersion === opt && <span className="float-right text-brand">✓</span>}
+                          </div>
+                        ))}
+                        </OverlayScrollbarsComponent>
+                      </div>
+                    )}
                   </div>
                 )}
                 {['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
-                  <div>
+                  <div className="relative z-30">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
-                    <select 
-                      value={newServerLoaderVersion}
-                      onChange={e => setNewServerLoaderVersion(e.target.value)}
-                      className="w-full bg-[#0a0a0f] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
-                      disabled={isCreatingServer || availableLoaderVersions.length === 0}
+                    <button 
+                      onClick={() => { if (!isCreatingServer && availableLoaderVersions.length > 0) setIsNewServerLoaderMenuOpen(!isNewServerLoaderMenuOpen) }}
+                      className={`w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableLoaderVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
-                      {availableLoaderVersions.length === 0 ? (
-                        <option>Loading loader versions...</option>
-                      ) : (
-                        availableLoaderVersions.map(v => <option key={v} value={v}>{v}</option>)
-                      )}
-                    </select>
+                      {availableLoaderVersions.length === 0 ? 'Loading...' : (newServerLoaderVersion || 'Select version')}
+                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </button>
+                    {isNewServerLoaderMenuOpen && availableLoaderVersions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                        {availableLoaderVersions.map(opt => (
+                          <div key={opt} onClick={() => { setNewServerLoaderVersion(opt); setIsNewServerLoaderMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerLoaderVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                            {opt} {newServerLoaderVersion === opt && <span className="float-right text-brand">✓</span>}
+                          </div>
+                        ))}
+                        </OverlayScrollbarsComponent>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1581,61 +1736,96 @@ function App() {
                     <input 
                       type="text" 
                       placeholder="Search Modpacks..." 
-                      className="flex-1 bg-[#0a0a0f] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
+                      className="flex-1 bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
                       value={modpackSearch}
                       onChange={e => setModpackSearch(e.target.value)}
                     />
-                    <select 
-                      className="bg-[#0a0a0f] border border-gray-800 rounded p-2 text-white outline-none"
-                      value={modpackVersionFilter}
-                      onChange={e => setModpackVersionFilter(e.target.value)}
-                    >
-                      <option value="">All Versions</option>
-                      <option value="1.20.1">1.20.1</option>
-                      <option value="1.19.2">1.19.2</option>
-                      <option value="1.18.2">1.18.2</option>
-                      <option value="1.16.5">1.16.5</option>
-                    </select>
-                    <select 
-                      className="bg-[#0a0a0f] border border-gray-800 rounded p-2 text-white outline-none"
-                      value={modpackLoaderFilter}
-                      onChange={e => setModpackLoaderFilter(e.target.value)}
-                    >
-                      <option value="">Any Loader</option>
-                      <option value="Forge">Forge</option>
-                      <option value="Fabric">Fabric</option>
-                      <option value="NeoForge">NeoForge</option>
-                    </select>
+                    <div className="relative z-50 flex-1">
+                      <button 
+                        onClick={() => setIsModpackVersionMenuOpen(!isModpackVersionMenuOpen)}
+                        className="w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
+                      >
+                        {modpackVersionFilter || 'All Versions'}
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                      </button>
+                      {isModpackVersionMenuOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                          {[
+                            { val: '', label: 'All Versions' },
+                            { val: '1.20.1', label: '1.20.1' },
+                            { val: '1.19.2', label: '1.19.2' },
+                            { val: '1.18.2', label: '1.18.2' },
+                            { val: '1.16.5', label: '1.16.5' }
+                          ].map(opt => (
+                            <div key={opt.val} onClick={() => { setModpackVersionFilter(opt.val); setIsModpackVersionMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${modpackVersionFilter === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                              {opt.label} {modpackVersionFilter === opt.val && <span className="float-right text-brand">✓</span>}
+                            </div>
+                          ))}
+                          </OverlayScrollbarsComponent>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="relative z-50 flex-1">
+                      <button 
+                        onClick={() => setIsModpackLoaderMenuOpen(!isModpackLoaderMenuOpen)}
+                        className="w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
+                      >
+                        {modpackLoaderFilter || 'Any Loader'}
+                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                      </button>
+                      {isModpackLoaderMenuOpen && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
+                          {[
+                            { val: '', label: 'Any Loader' },
+                            { val: 'Forge', label: 'Forge' },
+                            { val: 'Fabric', label: 'Fabric' },
+                            { val: 'NeoForge', label: 'NeoForge' }
+                          ].map(opt => (
+                            <div key={opt.val} onClick={() => { setModpackLoaderFilter(opt.val); setIsModpackLoaderMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${modpackLoaderFilter === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
+                              {opt.label} {modpackLoaderFilter === opt.val && <span className="float-right text-brand">✓</span>}
+                            </div>
+                          ))}
+                          </OverlayScrollbarsComponent>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex-1 overflow-y-auto max-h-[400px] bg-[#0a0a0f] rounded-lg border border-gray-800 p-2 space-y-2 relative">
-                    {isSearchingPacks && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <span className="text-white font-bold">Searching...</span>
-                      </div>
-                    )}
-                    {modpacks.length === 0 && !isSearchingPacks && (
-                      <div className="text-gray-500 text-center py-8">No modpacks found.</div>
-                    )}
-                    {modpacks.map(pack => (
-                      <div 
-                        key={pack.id} 
-                        onClick={() => setSelectedModpack(pack)}
-                        className={`flex gap-4 p-3 rounded-lg cursor-pointer transition-colors border ${selectedModpack?.id === pack.id ? 'bg-brand/20 border-brand' : 'hover:bg-gray-800/50 border-transparent'}`}
-                      >
-                        <img src={pack.logo?.thumbnailUrl || undefined} alt={pack.name} className="w-16 h-16 rounded-md object-cover" />
-                        <div className="flex-1 overflow-hidden">
-                          <h3 className="text-white font-bold truncate">{pack.name}</h3>
-                          <p className="text-xs text-gray-400 truncate">{pack.summary}</p>
-                          <div className="flex gap-2 mt-2">
-                            <span className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">{pack.downloadCount.toLocaleString()} DLs</span>
-                            {pack.latestFiles[0]?.gameVersions[0] && (
-                               <span className="text-xs bg-brand/20 text-brand px-2 py-0.5 rounded">{pack.latestFiles[0].gameVersions[0]}</span>
-                            )}
+                  <div className="flex-1 bg-[#050505] rounded-lg border border-gray-800 relative flex flex-col min-h-[400px] max-h-[400px]">
+                    <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="flex-1 w-full block min-h-0">
+                      <div className="p-2 space-y-2">
+                        {isSearchingPacks && (
+                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                            <span className="text-white font-bold">Searching...</span>
                           </div>
-                        </div>
+                        )}
+                        {modpacks.length === 0 && !isSearchingPacks && (
+                          <div className="text-gray-500 text-center py-8">No modpacks found.</div>
+                        )}
+                        {modpacks.map(pack => (
+                          <div 
+                            key={pack.id} 
+                            onClick={() => setSelectedModpack(pack)}
+                            className={`flex gap-4 p-3 rounded-lg cursor-pointer transition-colors border ${selectedModpack?.id === pack.id ? 'bg-brand/20 border-brand' : 'hover:bg-gray-800/50 border-transparent'}`}
+                          >
+                            <img src={pack.logo?.thumbnailUrl || undefined} alt={pack.name} className="w-16 h-16 rounded-md object-cover" />
+                            <div className="flex-1 overflow-hidden">
+                              <h3 className="text-white font-bold truncate">{pack.name}</h3>
+                              <p className="text-xs text-gray-400 truncate">{pack.summary}</p>
+                              <div className="flex gap-2 mt-2">
+                                <span className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">{pack.downloadCount.toLocaleString()} DLs</span>
+                                {pack.latestFiles[0]?.gameVersions[0] && (
+                                  <span className="text-xs bg-brand/20 text-brand px-2 py-0.5 rounded">{pack.latestFiles[0].gameVersions[0]}</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    ))}
+                    </OverlayScrollbarsComponent>
                   </div>
                 </div>
               )}
@@ -1669,6 +1859,55 @@ function App() {
                 {isCreatingServer ? 'Creating...' : 'Create Server'}
               </button>
             </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODPACK REDIRECT PROMPT MODAL */}
+      {showModpackPrompt && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
+            
+            {/* Glow effects */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-primary/20 rounded-full blur-[60px] pointer-events-none"></div>
+
+            <div className="p-8 relative z-10">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center text-primary shadow-[inset_0_0_15px_rgba(76,175,80,0.2)]">
+                  <span className="material-symbols-outlined text-3xl">info</span>
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-on-surface">Change to Modpack</h2>
+                  <p className="text-on-surface-variant text-sm">Action Recommended</p>
+                </div>
+              </div>
+              
+              <p className="text-on-surface-variant mb-8 leading-relaxed">
+                Moving existing vanilla or lightly-modded worlds into heavy CurseForge modpacks can be complicated and cause corruption. Would you like to create a <span className="text-white font-bold">new server</span> for your modpack instead?
+              </p>
+
+              <div className="flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowModpackPrompt(false)}
+                  className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowModpackPrompt(false);
+                    setActiveServerId(null);
+                    setActiveGameHub('Minecraft');
+                    setShowCreateModal(true);
+                    setNewServerType('CurseForge Modpack');
+                  }}
+                  className="px-5 py-2.5 rounded-lg font-bold bg-[#050505]/60 backdrop-blur-xl border border-white/10 border-t-white/30 border-l-white/20 shadow-[0_8px_32px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.2)] text-primary hover:text-green-300 hover:border-primary/60 hover:shadow-[0_8px_32px_rgba(76,175,80,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] transition-all flex items-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[20px]">add_circle</span>
+                  Create New Server
+                </button>
+              </div>
             </div>
           </div>
         </div>

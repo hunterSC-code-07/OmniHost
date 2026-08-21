@@ -11,15 +11,16 @@ const api = {
   radminInstall: () => ipcRenderer.invoke('radmin-install'),
   radminOpen: () => ipcRenderer.invoke('radmin-open'),
   radminGetIp: () => ipcRenderer.invoke('radmin-get-ip'),
+  getTunnelStatus: () => ipcRenderer.invoke('get-tunnel-status'),
   readConfig: (id: number) => ipcRenderer.invoke('read-config', id),
   writeConfig: (id: number, data: string) => ipcRenderer.invoke('write-config', id, data),
   readJson: (id: number, filename: string) => ipcRenderer.invoke('read-json', id, filename),
   writeJson: (id: number, filename: string, data: any) => ipcRenderer.invoke('write-json', id, filename, data),
   sendCommand: (id: number, cmd: string) => ipcRenderer.invoke('send-command', id, cmd),
   getInventory: (id: number, playerName: string) => ipcRenderer.invoke('get-inventory', id, playerName),
-  onConsoleLog: (callback: (msg: string) => void) => {
+  onConsoleLog: (callback: (data: { id: number | string, msg: string }) => void) => {
     ipcRenderer.removeAllListeners('console-log')
-    ipcRenderer.on('console-log', (_, msg) => callback(msg))
+    ipcRenderer.on('console-log', (_, data) => callback(data))
   },
   // --- NEW: Listens for the live player array ---
   onOnlinePlayers: (callback: (data: {id: number, players: string[]}) => void) => {
