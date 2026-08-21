@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 
-export function SteamLoginModal({ setShowSteamLoginModal, showToast, activeGameHub, steamLoginAction, steamUsername, setSteamUsername, steamPassword, setSteamPassword, isSteamGuardRequired, setIsSteamGuardRequired, steamGuardCode, setSteamGuardCode, setIsDayzCached, handleCreateServer, setIsCreatingServer }: any) {
+export function SteamLoginModal({ setShowSteamLoginModal, showToast, activeGameHub, steamLoginAction, steamUsername, setSteamUsername, steamPassword, setSteamPassword, isSteamGuardRequired, setIsSteamGuardRequired, steamGuardCode, setSteamGuardCode, setIsDayzCached, handleCreateServer }: any) {
+    const [isUpdating, setIsUpdating] = useState(false);
+
     const handleUpdateSteamCache = async () => {
         try {
-          setIsCreatingServer(true);
+          setIsUpdating(true);
           // @ts-ignore
           await window.api.updateSteamCache(0, 223350, steamUsername, steamPassword, steamGuardCode);
           showToast("DayZ Base Files Updated Successfully!");
@@ -20,7 +22,7 @@ export function SteamLoginModal({ setShowSteamLoginModal, showToast, activeGameH
             alert("Failed to update cache: " + e.message);
           }
         } finally {
-          setIsCreatingServer(false);
+          setIsUpdating(false);
         }
       };
     useEffect(() => {
@@ -80,6 +82,7 @@ export function SteamLoginModal({ setShowSteamLoginModal, showToast, activeGameH
                 <button 
                   onClick={() => setShowSteamLoginModal(false)}
                   className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                  disabled={isUpdating}
                 >
                   Cancel
                 </button>
@@ -88,10 +91,17 @@ export function SteamLoginModal({ setShowSteamLoginModal, showToast, activeGameH
                     if (steamLoginAction === 'create') handleCreateServer();
                     else handleUpdateSteamCache();
                   }}
-                  disabled={!steamUsername || !steamPassword || (isSteamGuardRequired && !steamGuardCode)}
-                  className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors"
+                  disabled={!steamUsername || !steamPassword || (isSteamGuardRequired && !steamGuardCode) || isUpdating}
+                  className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors flex items-center justify-center gap-2"
                 >
-                  {steamLoginAction === 'create' ? 'Login & Download' : 'Login & Update Cache'}
+                  {isUpdating ? (
+                    <>
+                      <span className="material-symbols-outlined animate-spin text-[20px]">sync</span>
+                      Updating...
+                    </>
+                  ) : (
+                    steamLoginAction === 'create' ? 'Login & Download' : 'Login & Update Cache'
+                  )}
                 </button>
               </div>
             </div>

@@ -17,7 +17,7 @@ async function exists(path: string) {
     return false
   }
 }
-const CURSEFORGE_API_KEY = process.env.CURSEFORGE_API_KEY || ''
+
 
 export function registerMinecraftIpc(activeServers: Record<number, any>) {
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
@@ -234,7 +234,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
         else if (modloader === 'NeoForge') url += '&modLoaderType=6'
       }
 
-      const res = await axios.get(url, { headers: { 'x-api-key': CURSEFORGE_API_KEY } })
+      const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } })
       return res.data.data
     } catch (e: any) {
       console.error('Error searching modpacks:', e.message)
@@ -249,7 +249,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
   ipcMain.handle('get-modpack-details', async (_, modId) => {
     try {
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {
-        headers: { 'x-api-key': CURSEFORGE_API_KEY }
+        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
       })
       return res.data.data
     } catch (e: any) {
@@ -283,7 +283,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
 
         if (search) url += `&searchFilter=${encodeURIComponent(search)}`
 
-        const res = await axios.get(url, { headers: { 'x-api-key': CURSEFORGE_API_KEY } })
+        const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } })
         return res.data.data
       } catch (e: any) {
         console.error(e.message)
@@ -299,7 +299,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
   ipcMain.handle('get-curseforge-mod', async (_, modId) => {
     try {
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {
-        headers: { 'x-api-key': CURSEFORGE_API_KEY }
+        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
       })
       return res.data.data
     } catch (e: any) {
@@ -315,7 +315,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
   ipcMain.handle('get-curseforge-file', async (_, modId, fileId) => {
     try {
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}/files/${fileId}`, {
-        headers: { 'x-api-key': CURSEFORGE_API_KEY }
+        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
       })
       return res.data.data
     } catch (e: any) {
@@ -408,7 +408,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
       event.sender.send(`download-progress-${id}`, 0, 'Fetching pack details...')
 
       const filesRes = await axios.get(`https://api.curseforge.com/v1/mods/${modId}/files`, {
-        headers: { 'x-api-key': CURSEFORGE_API_KEY }
+        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
       })
       const allFiles: any[] = filesRes.data.data
 
@@ -430,7 +430,7 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
           try {
             const singleRes = await axios.get(
               `https://api.curseforge.com/v1/mods/${modId}/files/${targetFile.serverPackFileId}`,
-              { headers: { 'x-api-key': CURSEFORGE_API_KEY } }
+              { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } }
             )
             targetFile = singleRes.data.data
             isServerPack = true
@@ -543,37 +543,42 @@ export function registerMinecraftIpc(activeServers: Record<number, any>) {
 
         const modFiles = manifest.files || []
         let count = 0
-        for (const mod of modFiles) {
-          count++
-          event.sender.send(
-            `download-progress-${id}`,
-            Math.round((count / modFiles.length) * 100),
-            `Downloading Mods (${count}/${modFiles.length})...`
-          )
-          try {
-            const fRes = await axios.get(
-              `https://api.curseforge.com/v1/mods/${mod.projectID}/files/${mod.fileID}/download-url`,
-              { headers: { 'x-api-key': CURSEFORGE_API_KEY } }
-            )
-            let dUrl = fRes.data.data
-            if (!dUrl) {
-              const manualRes = await axios.get(
-                `https://api.curseforge.com/v1/mods/${mod.projectID}/files/${mod.fileID}`,
-                { headers: { 'x-api-key': CURSEFORGE_API_KEY } }
+        
+        const CHUNK_SIZE = 10;
+        for (let i = 0; i < modFiles.length; i += CHUNK_SIZE) {
+          const chunk = modFiles.slice(i, i + CHUNK_SIZE);
+          await Promise.all(chunk.map(async (mod: any) => {
+            try {
+              const fRes = await axios.get(
+                `https://api.curseforge.com/v1/mods/${mod.projectID}/files/${mod.fileID}/download-url`,
+                { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } }
               )
-              dUrl = manualRes.data.data.downloadUrl
+              let dUrl = fRes.data.data
+              if (!dUrl) {
+                const manualRes = await axios.get(
+                  `https://api.curseforge.com/v1/mods/${mod.projectID}/files/${mod.fileID}`,
+                  { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } }
+                )
+                dUrl = manualRes.data.data.downloadUrl
+              }
+              if (dUrl) {
+                const nameParts = dUrl.split('/')
+                const fileName = decodeURIComponent(nameParts[nameParts.length - 1])
+                const cachedOverride = await CacheManager.getOrDownload('mods', dUrl, fileName)
+                await fsPromises.copyFile(cachedOverride, join(modsDir, fileName))
+              }
+            } catch (e) {
+              console.error('Failed to download mod', mod.projectID)
+            } finally {
+              count++
+              event.sender.send(
+                `download-progress-${id}`,
+                Math.round((count / modFiles.length) * 100),
+                `Downloading Mods (${count}/${modFiles.length})...`
+              )
             }
-            if (dUrl) {
-              const nameParts = dUrl.split('/')
-              const fileName = decodeURIComponent(nameParts[nameParts.length - 1])
-              const cachedOverride = await CacheManager.getOrDownload('mods', dUrl, fileName)
-              await fsPromises.copyFile(cachedOverride, join(modsDir, fileName))
-            }
-          } catch (e) {
-            console.error('Failed to download mod', mod.projectID)
-          }
+          }));
         }
-
         if (await exists(overridesDir)) {
           const cp = require('child_process')
           if (process.platform === 'win32') {

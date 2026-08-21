@@ -13,6 +13,10 @@ interface DayzHubProps {
   handleDelete: (id: number) => void;
   handleTunnel: () => void;
   radminIp: string | null;
+  logs: any[];
+  setLogs: React.Dispatch<React.SetStateAction<any[]>>;
+  onlinePlayers: Record<string, string[]>;
+  statsHistory: Record<string, {cpu: number, ram: number}[]>;
 }
 
 export const DayzHub: React.FC<DayzHubProps> = ({
@@ -25,12 +29,13 @@ export const DayzHub: React.FC<DayzHubProps> = ({
   handleDelete,
   handleTunnel,
   radminIp,
+  logs,
+  setLogs,
+  onlinePlayers,
+  statsHistory,
 }) => {
   const [activeTab, setActiveTab] = useState<'console' | 'options'>('console');
   
-  // DayZ Local State
-  const [logs, setLogs] = useState<{id: string, msg: string}[]>([]);
-  const [onlinePlayers, setOnlinePlayers] = useState<string[]>([]);
   const endOfLogsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -40,39 +45,18 @@ export const DayzHub: React.FC<DayzHubProps> = ({
     }
   }, [logs, activeTab]);
 
-  useEffect(() => {
-    // Listen for incoming DayZ logs
-    window.api.onConsoleLog((data: any) => {
-      // The new IPC sends { id: number | string, msg: string }
-      if (data.id !== activeServerId && data.id !== activeServerId.toString()) return;
-      const msgs = data.msg.split('\n').filter((l: string) => l.trim() !== '');
-      setLogs(prev => {
-        const newLogs = [...prev, ...msgs.map((m: string) => ({ 
-          id: crypto.randomUUID(), 
-          msg: m 
-        }))];
-        if (newLogs.length > 200) return newLogs.slice(newLogs.length - 200);
-        return newLogs;
-      });
-    });
 
-    window.api.onOnlinePlayers((data: any) => {
-      if (data.id !== activeServerId) return;
-      setOnlinePlayers(data.players);
-    });
-
-  }, [activeServerId]);
 
   const handleSendCommand = (cmd: string) => {
     window.api.sendCommand(activeServerId, cmd);
   };
 
   const handleClearLogs = () => {
-    setLogs([]);
+    setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));
   };
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden">
+    <div className="flex-1 flex flex-col relative overflow-hidden bg-[#0A0A0A]">
       <div className="absolute inset-0 bg-[url('https://c4.wallpaperflare.com/wallpaper/705/886/141/dayz-dark-video-games-wallpaper-preview.jpg')] bg-cover bg-center opacity-[0.03] z-0"></div>
       
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
@@ -142,11 +126,11 @@ export const DayzHub: React.FC<DayzHubProps> = ({
       <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
         {activeTab === 'console' && (
           <DayzConsoleTab 
-            logs={logs.map(l => l.msg)}
+            logs={activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : []}
             endOfLogsRef={endOfLogsRef}
             handleSendCommand={handleSendCommand}
             handleClearLogs={handleClearLogs}
-            onlinePlayers={onlinePlayers}
+            onlinePlayers={onlinePlayers[activeServerId] || []}
             onPlayerClick={() => {}}
           />
         )}

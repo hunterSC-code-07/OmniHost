@@ -154,18 +154,29 @@ export class MinecraftAdapter {
     // Auto-accept EULA
     fs.writeFileSync(join(this.serverDir, 'eula.txt'), 'eula=true\n');
 
-    // Prevent console commands (like our periodic save-all flush) from spamming Ops in-game
     const propsPath = join(this.serverDir, 'server.properties');
     if (fs.existsSync(propsPath)) {
       let props = fs.readFileSync(propsPath, 'utf-8');
+      let modified = false;
+
       if (props.includes('broadcast-console-to-ops=true')) {
         props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');
-        fs.writeFileSync(propsPath, props);
+        modified = true;
       } else if (!props.includes('broadcast-console-to-ops=')) {
-        fs.appendFileSync(propsPath, '\nbroadcast-console-to-ops=false\n');
+        props += '\nbroadcast-console-to-ops=false\n';
+        modified = true;
+      }
+
+      if (!props.includes('online-mode=')) {
+        props += '\nonline-mode=false\n';
+        modified = true;
+      }
+
+      if (modified) {
+        fs.writeFileSync(propsPath, props);
       }
     } else {
-      fs.writeFileSync(propsPath, 'broadcast-console-to-ops=false\n');
+      fs.writeFileSync(propsPath, 'broadcast-console-to-ops=false\nonline-mode=false\n');
     }
   }
 

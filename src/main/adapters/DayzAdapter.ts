@@ -26,7 +26,7 @@ export class DayzAdapter {
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output!
     BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('console-log', msg);
+      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
     });
   }
 

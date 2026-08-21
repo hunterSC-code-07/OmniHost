@@ -35,6 +35,10 @@ const api = {
     ipcRenderer.removeAllListeners('server-tps')
     ipcRenderer.on('server-tps', (_, data) => callback(data))
   },
+  onServersUpdate: (callback: (data: any[]) => void) => {
+    ipcRenderer.removeAllListeners('servers-update')
+    ipcRenderer.on('servers-update', (_, data) => callback(data))
+  },
   
   // Versions & Downloads
   createServer: (name: string, game: string, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion),

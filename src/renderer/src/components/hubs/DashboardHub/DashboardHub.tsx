@@ -254,6 +254,76 @@ export function DashboardHub({
                   </div>
                 </div>
               )}
+
+              <div className="mt-8 bg-surface-container/30 border border-outline-variant/30 rounded-2xl overflow-hidden backdrop-blur-md">
+                {servers.filter((s: any) => s.game.includes(activeGameHub)).length === 0 ? (
+                  <div className="py-20 flex flex-col items-center justify-center text-center px-4">
+                    <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-4">
+                      <span className="material-symbols-outlined text-3xl text-on-surface-variant">dns</span>
+                    </div>
+                    <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">No {activeGameHub} servers found</h3>
+                    <p className="font-body-md text-body-md text-on-surface-variant max-w-md">Click the "NEW {activeGameHub.toUpperCase()} SERVER" button above to create one.</p>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-outline-variant/30 bg-surface-container-low/50">
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Server Name</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Type / Version</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Address</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {servers.filter((s: any) => s.game.includes(activeGameHub)).map((server: any, idx: number, arr: any[]) => (
+                          <tr 
+                            key={server.id} 
+                            className={`border-b border-outline-variant/20 hover:bg-surface-container/50 transition-colors cursor-pointer group ${idx === arr.length - 1 ? 'border-none' : ''}`}
+                            onClick={() => setActiveServerId(server.id)}
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2.5 h-2.5 rounded-full ${server.status === 'Online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500/50'}`}></span>
+                                <span className={`font-label-sm tracking-widest uppercase ${server.status === 'Online' ? 'text-green-400' : 'text-on-surface-variant'}`}>{server.status}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-on-surface text-base group-hover:text-primary transition-colors">{server.name}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="font-body-md text-on-surface-variant">{server.type} {server.version}</span>
+                            </td>
+                            <td className="px-6 py-4 font-label-sm tracking-wider font-mono text-on-surface">{tunnelIp}:{server.port || 25565}</td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                {server.status === 'Offline' ? (
+                                  <button onClick={() => handleStart(server.id)} className="w-8 h-8 rounded bg-green-500/10 text-green-400 hover:bg-green-500/20 flex items-center justify-center transition-colors" title="Start Server">
+                                    <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+                                  </button>
+                                ) : (
+                                  <>
+                                    <button onClick={() => handleRestart(server.id)} className="w-8 h-8 rounded bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 flex items-center justify-center transition-colors" title="Restart Server">
+                                      <span className="material-symbols-outlined text-[18px]">restart_alt</span>
+                                    </button>
+                                    <button onClick={() => handleStop(server.id)} className="w-8 h-8 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 flex items-center justify-center transition-colors" title="Stop Server">
+                                      <span className="material-symbols-outlined text-[18px]">stop</span>
+                                    </button>
+                                  </>
+                                )}
+                                <button onClick={() => handleDelete(server.id)} className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors ml-2" title="Delete Server">
+                                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
             </>
           ) : (
             <div className="flex flex-col gap-6">

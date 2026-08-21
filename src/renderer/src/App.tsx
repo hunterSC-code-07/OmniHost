@@ -26,6 +26,8 @@ const getGameImageUrl = (game: string) => {
 export default function App() {
   const [servers, setServers] = useState<any[]>([])
   const [logs, setLogs] = useState<{id: string, msg: string}[]>([])
+  const [onlinePlayers, setOnlinePlayers] = useState<Record<string, string[]>>({})
+  const [statsHistory, setStatsHistory] = useState<Record<string, {cpu: number, ram: number}[]>>({})
   const [tunnelStatus, setTunnelStatus] = useState('Offline')
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
@@ -71,6 +73,34 @@ export default function App() {
     // @ts-ignore
     window.api.onServersUpdate((data: any[]) => {
       setServers(data)
+    });
+
+    // @ts-ignore
+    window.api.onConsoleLog((data: any) => {
+      const msgs = data.msg.split('\n').filter((l: string) => l.trim() !== '');
+      setLogs(prev => {
+        const newLogs = [...prev, ...msgs.map((m: string) => ({ 
+          id: data.id.toString(), 
+          msg: m 
+        }))];
+        if (newLogs.length > 500) return newLogs.slice(newLogs.length - 500);
+        return newLogs;
+      });
+    });
+
+    // @ts-ignore
+    window.api.onOnlinePlayers((data: any) => {
+      setOnlinePlayers(prev => ({...prev, [data.id.toString()]: data.players}));
+    });
+
+    // @ts-ignore
+    window.api.onServerStats((data: any) => {
+      setStatsHistory(prev => {
+        const history = prev[data.id.toString()] || [];
+        const newHistory = [...history, {cpu: data.cpu, ram: data.ram}];
+        if (newHistory.length > 20) newHistory.shift();
+        return {...prev, [data.id.toString()]: newHistory};
+      });
     });
   }, []);
 
@@ -289,6 +319,10 @@ export default function App() {
                 handleDelete={handleDelete}
                 handleTunnel={handleTunnel}
                 radminIp={radminIp}
+                logs={logs}
+                setLogs={setLogs}
+                onlinePlayers={onlinePlayers}
+                statsHistory={statsHistory}
               />
             ) : (
               <MinecraftHub 
@@ -307,6 +341,10 @@ export default function App() {
                 setTempTunnelIp={setTempTunnelIp} 
                 setShowTunnelModal={setShowTunnelModal} 
                 showToast={showToast}
+                logs={logs}
+                setLogs={setLogs}
+                onlinePlayers={onlinePlayers}
+                statsHistory={statsHistory}
               />
             )
           )}

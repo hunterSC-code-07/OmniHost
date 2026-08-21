@@ -37,7 +37,7 @@ export function CreateServerModal({ setShowCreateModal, setServers, servers, act
           if (newServerType === 'CurseForge Modpack') {
             const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));
             // @ts-ignore
-            const newId = await window.api.createServer(newServerName, 'Forge', versionFilter); // Dummy values, updated below
+            const newId = await window.api.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);
             
             // @ts-ignore
             window.api.onDownloadProgress(newId, (progress: number, text?: string) => {
@@ -146,6 +146,30 @@ export function CreateServerModal({ setShowCreateModal, setServers, servers, act
           setIsCreatingServer(false);
         }
       }
+      useEffect(() => {
+        const fetchModpacks = async () => {
+          if (newServerType !== 'CurseForge Modpack') return;
+          setIsSearchingPacks(true);
+          try {
+            const typeStr = modpackLoaderFilter || 'Any';
+            const versionStr = modpackVersionFilter || '';
+            // @ts-ignore
+            const results = await window.api.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
+            setModpacks(results || []);
+          } catch (e) {
+            console.error(e);
+            setModpacks([]);
+          } finally {
+            setIsSearchingPacks(false);
+          }
+        };
+        
+        const timer = setTimeout(() => {
+          fetchModpacks();
+        }, 500);
+        return () => clearTimeout(timer);
+      }, [modpackSearch, modpackVersionFilter, modpackLoaderFilter, newServerType]);
+
     useEffect(() => {
           const fetchVersions = async () => {
             let versions: string[] = []
@@ -172,6 +196,26 @@ export function CreateServerModal({ setShowCreateModal, setServers, servers, act
             setAvailableVersions([]);
           }
       }, [newServerType])
+
+      useEffect(() => {
+        const fetchLoaderVersions = async () => {
+          if (!newServerVersion) return;
+          if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {
+            setAvailableLoaderVersions([]);
+            // @ts-ignore
+            const versions = await window.api.getLoaderVersions(newServerType, newServerVersion);
+            setAvailableLoaderVersions(versions);
+            if (versions && versions.length > 0) {
+              setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);
+            }
+          } else {
+            setAvailableLoaderVersions([]);
+            setNewServerLoaderVersion('');
+          }
+        }
+        fetchLoaderVersions();
+      }, [newServerType, newServerVersion])
+
 
   return (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">

@@ -38,17 +38,37 @@ export const DayzConsoleTab: React.FC<DayzConsoleTabProps> = React.memo(({
         >
           <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
             {logs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for DayZ server output... click Start to boot!</div>}
-            {logs.map((log, i) => (
-              <div key={i} className="mb-1 leading-relaxed break-words">
-                {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
-                {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
-                {log.includes('ERROR') ? <span className="text-red-400 font-bold">ERROR </span> : ''}
-                {log.startsWith('>') ? <span className="text-brand font-bold"> </span> : ''}
-                <span className={log.includes('joined the game') ? 'text-green-400 font-bold' : log.includes('left the game') ? 'text-gray-500' : log.startsWith('>') ? 'text-brand font-bold' : ''}>
-                  {log.replace(/(INFO|WARN|ERROR)/, '')}
-                </span>
-              </div>
-            ))}
+            {logs.map((log, i) => {
+              // Strip ANSI escape codes (e.g. \x1b[32m, \x1b[0m, \u001b[m, etc.)
+              const cleanLog = log.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
+              
+              const isInfo = cleanLog.includes('INFO');
+              const isWarn = cleanLog.includes('WARN');
+              const isError = cleanLog.includes('ERROR') || cleanLog.includes('Exception');
+              const isJoin = cleanLog.includes('joined the game');
+              const isLeave = cleanLog.includes('left the game');
+              const isCommand = cleanLog.startsWith('>');
+              
+              let colorClass = 'text-on-surface-variant';
+              if (isError) colorClass = 'text-red-400';
+              else if (isWarn) colorClass = 'text-yellow-400';
+              else if (isJoin) colorClass = 'text-green-400 font-bold';
+              else if (isLeave) colorClass = 'text-gray-500';
+              else if (isCommand) colorClass = 'text-brand font-bold';
+              else if (isInfo) colorClass = 'text-on-surface-variant/90';
+
+              return (
+                <div key={i} className={`mb-1 leading-relaxed break-words whitespace-pre-wrap ${colorClass}`}>
+                  {isInfo && !isCommand && <span className="text-blue-400 font-bold mr-1">INFO</span>}
+                  {isWarn && !isCommand && <span className="text-yellow-400 font-bold mr-1">WARN</span>}
+                  {isError && !isCommand && <span className="text-red-400 font-bold mr-1">ERROR</span>}
+                  {isCommand && <span className="text-brand font-bold mr-1">&gt;</span>}
+                  <span>
+                    {cleanLog.replace(/(INFO|WARN|ERROR|\[INFO\]|\[WARN\]|\[ERROR\])/g, '').replace(/^> /, '').trim()}
+                  </span>
+                </div>
+              );
+            })}
             <div ref={endOfLogsRef} />
           </div>
         </OverlayScrollbarsComponent>

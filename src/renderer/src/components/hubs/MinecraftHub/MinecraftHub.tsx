@@ -25,15 +25,13 @@ const classOptions = [
   { id: 4546, name: 'Customization' }
 ];
 
-export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, handleStart, handleStop, handleRestart, handleDelete, handleTunnel, tunnelStatus, radminIp, tunnelIp, setTempTunnelIp, setShowTunnelModal, servers, showToast }: any) {
-    const [logs, setLogs] = useState<{id: string, msg: string}[]>([])
+export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, handleStart, handleStop, handleRestart, handleDelete, handleTunnel, tunnelStatus, radminIp, tunnelIp, setTempTunnelIp, setShowTunnelModal, servers, showToast, logs, setLogs, onlinePlayers, statsHistory }: any) {
   
         const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview');
 
   const [downloadProgress, setDownloadProgress] = useState(0);
   const [downloadText, setDownloadText] = useState('');
   const [showModpackPrompt, setShowModpackPrompt] = useState(false);
-  const [onlinePlayers, setOnlinePlayers] = useState<Record<string, string[]>>({})
 
         
 
@@ -47,7 +45,6 @@ export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, 
   const [isProcessing, setIsProcessing] = useState(false)
 
   // Performance Stats
-  const [statsHistory, setStatsHistory] = useState<Record<string, {cpu: number, ram: number}[]>>({})
 
 
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
@@ -83,6 +80,16 @@ export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, 
   const [isLoaderMenuOpen, setIsLoaderMenuOpen] = useState(false)
   const [isChangingSoftware, setIsChangingSoftware] = useState(false)
   const endOfLogsRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Scroll to bottom when logs change
+    if (activeTab === 'console') {
+      endOfLogsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logs, activeTab]);
+
+
+
   useEffect(() => {
     if (activeTab === 'software' && serverMeta) {
        setEditingSoftwareType(serverMeta.type || 'Vanilla');
@@ -347,16 +354,26 @@ export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, 
   }
 
   const loadPlayers = async (id: number, type: string) => {
+    if (type === 'live') {
+      setPlayerData([]);
+      return;
+    }
     if (type === 'history') {
       // @ts-ignore
       const stats = await window.api.getPlayerStats(id);
-      setPlayerData(Object.values(stats));
+      setPlayerData(stats ? Object.values(stats) : []);
     } else {
       // @ts-ignore
       const data = await window.api.readJson(id, type);
-      setPlayerData(data);
+      setPlayerData(data || []);
     }
   }
+
+  useEffect(() => {
+    if (activeServerId !== null && activeTab === 'players' && playerListType !== 'live') {
+      loadPlayers(activeServerId, playerListType);
+    }
+  }, [activeServerId, activeTab, playerListType]);
 
   const handleAddPlayer = async (e: React.FormEvent) => {
     e.preventDefault();
