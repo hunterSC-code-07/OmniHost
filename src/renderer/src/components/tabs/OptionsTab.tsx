@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings, Save } from 'lucide-react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import 'overlayscrollbars/overlayscrollbars.css';
 
 interface OptionsTabProps {
   advancedMode: boolean;
@@ -123,7 +125,13 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
   );
 
   return (
-    <div className="absolute inset-0 bg-transparent p-6 overflow-y-auto font-body flex flex-col gap-6">
+    <div className="absolute inset-0 flex min-h-0">
+      <OverlayScrollbarsComponent 
+        className="flex-1 min-h-0 min-w-0 w-full" 
+        options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+        defer
+      >
+        <div className="p-6 bg-transparent font-body flex flex-col gap-6 min-h-full">
       
       {/* Header Controls */}
       <div className="flex justify-between items-end">
@@ -261,6 +269,8 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
           
         </div>
       )}
+        </div>
+      </OverlayScrollbarsComponent>
     </div>
   );
 });

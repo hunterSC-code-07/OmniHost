@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import 'overlayscrollbars/overlayscrollbars.css';
 
 interface PlayersTabProps {
   selectedPlayer: string | null;
@@ -68,10 +70,10 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
   }
 
   return (
-    <div className="h-full flex flex-col p-8 overflow-y-auto">
+    <div className="absolute inset-0 flex flex-col min-h-0 overflow-hidden outline-none">
       {!selectedPlayer ? (
         <>
-          <div className="flex gap-2 mb-8 bg-gray-900/50 p-2 rounded-xl border border-gray-800">
+          <div className="flex gap-2 mb-8 bg-surface/60 backdrop-blur-md p-2 rounded-xl border border-outline-variant/30 shrink-0 mx-8 mt-8 shadow-sm">
             {['live', 'history', 'whitelist', 'ops', 'banned-players', 'banned-ips'].map(type => (
               <button key={type} onClick={() => setPlayerListType(type as any)} className={`flex-1 py-3 rounded-lg font-bold text-sm transition-all capitalize ${playerListType === type ? 'bg-green-600 text-white shadow-lg shadow-green-500/20' : 'text-gray-400 hover:bg-gray-800'}`}>
                 {type.replace('-', ' ')}
@@ -80,13 +82,18 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
           </div>
 
           {(playerListType !== 'live' && playerListType !== 'history') && (
-            <form onSubmit={handleAddPlayer} className="mb-6 flex gap-3">
+            <form onSubmit={handleAddPlayer} className="mb-6 flex gap-3 shrink-0 mx-8">
               <input type="text" placeholder="Enter Username/IP..." value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} className="flex-1 bg-darkCard border border-gray-800 rounded-lg px-4 py-3 text-white outline-none focus:border-brand" disabled={isProcessing} />
               <button type="submit" disabled={isProcessing} className="px-8 bg-brand hover:bg-yellow-600 rounded-lg font-bold transition-all disabled:opacity-50">{isProcessing ? 'Adding...' : 'Add'}</button>
             </form>
           )}
 
-          <div className="flex-1 overflow-y-auto">
+          <OverlayScrollbarsComponent 
+            className="flex-1 min-h-0 w-full block"
+            options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+            defer
+          >
+            <div className="w-full block px-8 pb-8">
             {(playerListType === 'live' ? onlinePlayers : playerData).length === 0 ? (
               <div className="text-center text-gray-500 mt-12">No records found.</div>
             ) : (
@@ -115,28 +122,34 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
                 })}
               </div>
             )}
-          </div>
+            </div>
+          </OverlayScrollbarsComponent>
         </>
       ) : (
-        <div className="animate-in fade-in slide-in-from-right-4 duration-300">
-          <div className="flex items-center justify-between bg-darkCard p-6 rounded-xl border border-gray-800 mb-6 shadow-md">
-            <div className="flex items-center gap-5">
-              <img src={`https://mc-heads.net/avatar/${selectedPlayer}/64`} alt="face" className="w-16 h-16 rounded-lg shadow-lg bg-gray-900" />
-              <div>
-                <h2 className="text-3xl font-bold text-white flex items-center gap-3">
-                  {selectedPlayer}
-                  <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase ${onlinePlayers.includes(selectedPlayer) ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
-                    {onlinePlayers.includes(selectedPlayer) ? 'Online' : 'Offline'}
-                  </span>
-                </h2>
-                <p className="text-sm text-gray-400 font-mono mt-1">Player Profile details</p>
+        <div className="animate-in fade-in slide-in-from-right-4 duration-300 flex-1 flex flex-col min-h-0">
+          <OverlayScrollbarsComponent 
+            className="flex-1 min-h-0 w-full block"
+            options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+            defer
+          >
+            <div className="w-full block p-8">
+              <div className="flex items-center justify-between bg-darkCard p-6 rounded-xl border border-gray-800 mb-6 shadow-md shrink-0">
+                <div className="flex items-center gap-5">
+                  <img src={`https://mc-heads.net/avatar/${selectedPlayer}/64`} alt="face" className="w-16 h-16 rounded-lg shadow-lg bg-gray-900" />
+                  <div>
+                    <h2 className="text-3xl font-bold text-white flex items-center gap-3">
+                      {selectedPlayer}
+                      <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase ${onlinePlayers.includes(selectedPlayer) ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+                        {onlinePlayers.includes(selectedPlayer) ? 'Online' : 'Offline'}
+                      </span>
+                    </h2>
+                    <p className="text-sm text-gray-400 font-mono mt-1">Player Profile details</p>
+                  </div>
+                </div>
+                <button onClick={() => setSelectedPlayer(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all">&larr; Back</button>
               </div>
-            </div>
-            <button onClick={() => setSelectedPlayer(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all">&larr; Back</button>
-          </div>
-
           {playerListType === 'history' ? (
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-20">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
               <div className="xl:col-span-2 space-y-6">
                 <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
                   <h3 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
@@ -213,7 +226,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
               </div>
             </div>
           ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 pb-20">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
             <div className="xl:col-span-2 space-y-6">
               <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
@@ -263,6 +276,8 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
 
           </div>
           )}
+          </div>
+          </OverlayScrollbarsComponent>
         </div>
       )}
     </div>

@@ -1,4 +1,6 @@
 import React from 'react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import 'overlayscrollbars/overlayscrollbars.css';
 
 interface OverviewTabProps {
   statsHistory: { cpu: number; ram: number }[];
@@ -23,14 +25,17 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(({
 }) => {
   
   // Helpers to generate smooth SVG paths
-  const generatePath = (data: number[], max: number) => {
+  const generatePath = (data: number[], max: number, decimals: number) => {
     if (data.length === 0) return 'M0,50 L100,50';
     if (data.length === 1) return `M0,${50 - (data[0] / max) * 40} L100,${50 - (data[0] / max) * 40}`;
     
     // Scale X from 0 to 100, Y from 50 (bottom) to 10 (top, giving 10px padding)
     const points = data.map((val, i) => {
       const x = (i / (Math.max(29, data.length - 1))) * 100;
-      const y = 50 - (Math.min(val, max) / max) * 40;
+      // Snap to exact 0 if the rounded display text would be 0
+      const snappedVal = Number(val.toFixed(decimals)) === 0 ? 0 : val;
+      const pct = Math.min(snappedVal, max) / max;
+      const y = 50 - pct * 40;
       return [x, y];
     });
 
@@ -52,103 +57,106 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(({
   const currentCpu = cpuData.length > 0 ? cpuData[cpuData.length - 1] : 0;
   const currentRam = ramData.length > 0 ? ramData[ramData.length - 1] : 0;
   
-  const cpuPath = generatePath(cpuData, 100); // Max 100%
-  const ramPath = generatePath(ramData, maxRam); // Max allocated RAM
+  const cpuPath = generatePath(cpuData, 100, 0); // Max 100%, 0 decimals
+  const ramPath = generatePath(ramData, maxRam, 1); // Max allocated RAM, 1 decimal
 
   const recentLogs = logs.slice(-10);
 
   return (
-    <div className="absolute inset-0 flex min-h-0 bg-[#0f1411]">
-      <div className="flex-1 overflow-y-auto p-8 flex flex-col gap-8 min-h-0 min-w-0">
+    <div className="absolute inset-0 flex min-h-0">
+      <OverlayScrollbarsComponent 
+        className="flex-1 min-h-0 min-w-0 w-full" 
+        options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+        defer
+      >
+        <div className="p-8 flex flex-col gap-8 max-w-7xl mx-auto w-full">
         
-        <div className="flex flex-col gap-2">
-          <h1 className="text-3xl font-bold text-white tracking-tight">Server Overview</h1>
-          <p className="text-on-surface-variant font-body-lg">Real-time performance and status</p>
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-outline-variant/20 pb-6">
+          <div>
+            <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Server Overview</h1>
+            <p className="font-body-md text-body-md text-on-surface-variant">Real-time performance and status</p>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* CPU Chart Card */}
-          <div className="bg-[#151c17] border border-[#1f2922] rounded-2xl p-6 flex flex-col gap-4 shadow-lg relative overflow-hidden group">
-            <div className="flex justify-between items-center z-10">
-              <h3 className="font-headline-md text-white">CPU Usage</h3>
-              <span className="font-headline-lg text-[#84cc16] font-bold">{currentCpu.toFixed(0)}%</span>
+        {/* Performance Metrics */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+          {/* CPU Card */}
+          <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 flex flex-col hover:bg-surface-container-high/80 transition-colors h-[220px]">
+            <div className="flex justify-between items-center h-8">
+              <h3 className="font-headline-md text-headline-md text-on-surface">CPU Usage</h3>
+              <span className="font-headline-md text-headline-md text-primary font-bold">{currentCpu.toFixed(0)}%</span>
             </div>
-            <div className="h-[120px] w-full relative z-10 flex flex-col justify-end">
-              <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="w-full h-full overflow-visible">
-                <path d={`${cpuPath} L100,50 L0,50 Z`} fill="url(#cpu-gradient)" opacity="0.4" />
-                <path d={cpuPath} fill="none" stroke="#a3e635" strokeWidth="1.5" strokeLinecap="round" />
-                <defs>
-                  <linearGradient id="cpu-gradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#a3e635" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#a3e635" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
+            <div className="h-32 w-full relative overflow-hidden rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20 mt-auto">
+              <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible">
+                <path d={`${cpuPath} L100,50 L0,50 Z`} className="text-primary/20" fill="currentColor" />
+                <path d={cpuPath} fill="none" className="text-primary" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <div className="absolute bottom-2 right-2 text-[10px] text-white/40 uppercase tracking-widest">60s History</div>
+              <div className="absolute bottom-2 right-2 font-label-sm text-label-sm text-on-surface-variant">60s History</div>
             </div>
           </div>
 
-          {/* RAM Chart Card */}
-          <div className="bg-[#151c17] border border-[#1f2922] rounded-2xl p-6 flex flex-col gap-4 shadow-lg relative overflow-hidden group">
-            <div className="flex justify-between items-center z-10">
-              <h3 className="font-headline-md text-white">RAM Usage</h3>
-              <span className="font-headline-lg text-[#84cc16] font-bold">{currentRam.toFixed(1)} GB / {maxRam.toFixed(1)} GB</span>
+          {/* RAM Card */}
+          <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 flex flex-col hover:bg-surface-container-high/80 transition-colors h-[220px]">
+            <div className="flex justify-between items-center h-8">
+              <h3 className="font-headline-md text-headline-md text-on-surface">RAM Usage</h3>
+              <span className="font-headline-md text-headline-md text-primary font-bold">{currentRam.toFixed(1)} GB / {maxRam.toFixed(1)} GB</span>
             </div>
-            <div className="h-[120px] w-full relative z-10 flex flex-col justify-end">
-              <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="w-full h-full overflow-visible">
-                <path d={`${ramPath} L100,50 L0,50 Z`} fill="url(#ram-gradient)" opacity="0.4" />
-                <path d={ramPath} fill="none" stroke="#a3e635" strokeWidth="1.5" strokeLinecap="round" />
-                <defs>
-                  <linearGradient id="ram-gradient" x1="0" x2="0" y1="0" y2="1">
-                    <stop offset="0%" stopColor="#a3e635" stopOpacity="0.8" />
-                    <stop offset="100%" stopColor="#a3e635" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
+            <div className="h-32 w-full relative overflow-hidden rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20 mt-auto">
+              <svg viewBox="0 0 100 50" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible">
+                <path d={`${ramPath} L100,50 L0,50 Z`} className="text-secondary/20" fill="currentColor" />
+                <path d={ramPath} fill="none" className="text-secondary" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
-              <div className="absolute bottom-2 right-2 text-[10px] text-white/40 uppercase tracking-widest">60s History</div>
+              <div className="absolute bottom-2 right-2 font-label-sm text-label-sm text-on-surface-variant">60s History</div>
             </div>
           </div>
         </div>
 
-        {/* 3 Summary Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#151c17] border border-[#1f2922] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-lg">
-            <p className="text-xs text-white/50 uppercase tracking-widest font-bold">Status</p>
+        {/* Quick Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Status */}
+          <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high/80 transition-colors">
+            <div className="font-label-md text-label-md text-on-surface-variant">Status</div>
             <div className="flex items-center gap-2">
-              <span className={`w-3 h-3 rounded-full ${serverStatus === 'Online' ? 'bg-[#a3e635] shadow-[0_0_12px_#a3e635]' : 'bg-red-500 shadow-[0_0_12px_#ef4444]'}`}></span>
-              <span className="font-headline-md text-white font-bold">{serverStatus}</span>
+              <div className={`w-3 h-3 rounded-full ${serverStatus === 'Online' ? 'bg-secondary shadow-[0_0_10px_theme(colors.secondary)] animate-pulse' : 'bg-red-500 shadow-[0_0_10px_#ef4444]'}`}></div>
+              <span className="font-headline-md text-headline-md text-on-surface">{serverStatus}</span>
             </div>
           </div>
 
-          <div className="bg-[#151c17] border border-[#1f2922] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-lg">
-            <p className="text-xs text-white/50 uppercase tracking-widest font-bold">Server Version</p>
-            <span className="font-headline-md text-white font-bold">{serverVersion}</span>
+          {/* Version */}
+          <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high/80 transition-colors">
+            <div className="font-label-md text-label-md text-on-surface-variant">Server Version</div>
+            <div className="font-headline-md text-headline-md text-on-surface">{serverVersion}</div>
           </div>
 
-          <div className="bg-[#151c17] border border-[#1f2922] rounded-2xl p-6 flex flex-col items-center justify-center gap-2 shadow-lg">
-            <p className="text-xs text-white/50 uppercase tracking-widest font-bold">Active Players</p>
-            <div className="flex items-center gap-2 text-white">
-              <span className="material-symbols-outlined text-[20px] text-[#a3e635]">group</span>
-              <span className="font-headline-md font-bold">{onlinePlayers.length} / {maxPlayers}</span>
+          {/* Players */}
+          <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 flex flex-col items-center justify-center gap-2 hover:bg-surface-container-high/80 transition-colors">
+            <div className="font-label-md text-label-md text-on-surface-variant">Active Players</div>
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-secondary">group</span>
+              <span className="font-headline-md text-headline-md text-on-surface">{onlinePlayers.length} / {maxPlayers}</span>
             </div>
           </div>
         </div>
 
-        {/* Recent Logs Terminal */}
-        <div className="bg-[#101512] border border-[#1f2922] rounded-2xl p-6 flex flex-col gap-4 shadow-lg flex-1 min-h-[250px]">
-          <h3 className="font-headline-md text-white">Recent Logs</h3>
-          <div className="flex-1 bg-black/40 rounded-xl border border-white/5 p-4 overflow-y-auto font-mono text-xs text-gray-300 flex flex-col">
+        {/* Activity Feed */}
+        <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl flex flex-col overflow-hidden hover:bg-surface-container-high/80 transition-colors flex-1 min-h-[250px]">
+          <div className="border-b border-outline-variant/30 px-6 py-4">
+            <h3 className="font-headline-md text-headline-md text-on-surface">Recent Logs</h3>
+          </div>
+          <div className="p-6 overflow-y-auto bg-surface-container-lowest/50 font-console-text text-console-text space-y-2 flex-1">
              {recentLogs.length === 0 ? (
-               <div className="text-white/30 italic">No logs available.</div>
+               <div className="text-on-surface-variant italic font-body-md text-body-md">No logs available.</div>
              ) : (
                recentLogs.map((log, idx) => (
-                 <div key={idx} className="mb-1 opacity-80 hover:opacity-100 transition-opacity whitespace-pre-wrap break-words">{log}</div>
+                 <div key={idx} className="text-on-surface whitespace-pre-wrap break-words">{log}</div>
                ))
              )}
           </div>
         </div>
 
-      </div>
+        </div>
+      </OverlayScrollbarsComponent>
     </div>
   );
 });

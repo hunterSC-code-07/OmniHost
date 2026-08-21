@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import 'overlayscrollbars/overlayscrollbars.css';
 
 interface BackupsTabProps {
   activeServerId: number | null;
@@ -82,22 +84,22 @@ export const BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {
   };
 
   return (
-    <div className="h-full flex flex-col p-8 overflow-y-auto">
-      <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md mb-8">
-        <h2 className="text-xl font-bold text-white mb-4">Create World Backup</h2>
+    <div className="absolute inset-0 flex flex-col min-h-0">
+      <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 p-6 rounded-xl shadow-md mb-8 mx-8 mt-8 shrink-0">
+        <h2 className="font-headline-md text-headline-md text-on-surface mb-4">Create World Backup</h2>
         <form onSubmit={handleCreate} className="flex gap-4">
           <input
             type="text"
             placeholder="Backup Name (optional)"
             value={newBackupName}
             onChange={(e) => setNewBackupName(e.target.value)}
-            className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white outline-none focus:border-brand"
+            className="flex-1 bg-surface-container-lowest border border-outline-variant/50 rounded-lg px-4 py-3 text-on-surface outline-none focus:border-primary transition-colors"
             disabled={isProcessing}
           />
           <button
             type="submit"
             disabled={isProcessing}
-            className="px-8 bg-brand hover:bg-yellow-600 rounded-lg font-bold transition-all disabled:opacity-50 text-white"
+            className="px-8 bg-primary hover:bg-primary/80 rounded-lg font-bold transition-all disabled:opacity-50 text-on-primary"
           >
             {isProcessing && progressText.includes('Creat') ? 'Creating...' : 'Create Backup'}
           </button>
@@ -105,13 +107,18 @@ export const BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {
         {isProcessing && progressText && <p className="text-brand mt-4 text-sm font-mono animate-pulse">{progressText}</p>}
       </div>
 
-      <div className="flex-1 bg-darkCard rounded-xl border border-gray-800 overflow-hidden flex flex-col shadow-md">
-        <div className="p-4 border-b border-gray-800 bg-gray-900/50 flex justify-between items-center">
-          <h3 className="font-bold text-gray-200">Available Backups</h3>
-          <span className="text-sm text-gray-400 font-mono">{backups.length} backups</span>
+      <div className="flex-1 bg-surface/40 backdrop-blur-md rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col shadow-md mx-8 mb-8">
+        <div className="p-4 border-b border-outline-variant/30 bg-surface/60 flex justify-between items-center shrink-0">
+          <h3 className="font-headline-sm text-headline-sm text-on-surface">Available Backups</h3>
+          <span className="text-sm text-on-surface-variant font-mono">{backups.length} backups</span>
         </div>
         
-        <div className="flex-1 overflow-y-auto p-4">
+        <OverlayScrollbarsComponent 
+          className="flex-1 min-h-0 w-full block"
+          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+          defer
+        >
+          <div className="p-4 w-full block pb-8">
           {backups.length === 0 ? (
             <div className="h-full flex items-center justify-center text-gray-500 flex-col gap-2">
               <span className="text-4xl">📦</span>
@@ -120,13 +127,13 @@ export const BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {backups.map((b) => (
-                <div key={b.name} className="bg-gray-900 border border-gray-800 p-5 rounded-xl group hover:border-gray-600 transition-all flex flex-col">
+                <div key={b.name} className="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl group hover:border-primary/50 transition-all flex flex-col">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1 overflow-hidden">
-                      <h4 className="font-bold text-white truncate text-lg" title={b.name}>{b.name}</h4>
-                      <p className="text-xs text-gray-400 font-mono mt-1">{new Date(b.date).toLocaleString()}</p>
+                      <h4 className="font-bold text-on-surface truncate text-lg" title={b.name}>{b.name}</h4>
+                      <p className="text-xs text-on-surface-variant font-mono mt-1">{new Date(b.date).toLocaleString()}</p>
                     </div>
-                    <span className="text-xs bg-gray-800 px-2 py-1 rounded text-gray-300 font-mono whitespace-nowrap ml-2">
+                    <span className="text-xs bg-surface-container-high px-2 py-1 rounded text-on-surface font-mono whitespace-nowrap ml-2">
                       {formatBytes(b.size)}
                     </span>
                   </div>
@@ -151,7 +158,8 @@ export const BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {
               ))}
             </div>
           )}
-        </div>
+          </div>
+        </OverlayScrollbarsComponent>
       </div>
     </div>
   );

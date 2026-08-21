@@ -16,29 +16,29 @@ body {
   font-family: 'Andante', sans-serif;
 }
 
-/* Modern Glassy Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: rgba(76, 175, 80, 0.3); /* Subtle green */
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(76, 175, 80, 0.7); /* Brighter green on hover */
+/* OverlayScrollbars OmniHost Theme */
+.os-theme-dark {
+  --os-size: 8px;
+  --os-padding-perpendicular: 0;
+  --os-padding-axis: 0;
+  --os-track-border-radius: 4px;
+  --os-track-bg: transparent;
+  --os-track-bg-hover: transparent;
+  --os-track-bg-active: transparent;
+  
+  --os-handle-border-radius: 4px;
+  --os-handle-bg: rgba(76, 175, 80, 0.3);
+  --os-handle-bg-hover: rgba(76, 175, 80, 0.7);
+  --os-handle-bg-active: rgba(76, 175, 80, 0.8);
+  
+  --os-handle-border: 1px solid rgba(255, 255, 255, 0.1);
+  --os-handle-border-hover: 1px solid rgba(255, 255, 255, 0.2);
+  --os-handle-border-active: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 @keyframes glass-shine {
   0% { transform: translateX(-200%) skewX(-15deg); }
+  25% { transform: translateX(200%) skewX(-15deg); }
   100% { transform: translateX(200%) skewX(-15deg); }
 }
 
@@ -62,5 +62,5 @@ body {
 }
 
 .glass-panel:hover::before {
-  animation: glass-shine 1.5s ease-in-out infinite;
+  animation: glass-shine 6s ease-in-out infinite;
 }
