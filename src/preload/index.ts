@@ -111,7 +111,13 @@ const api = {
   getWorkshopItemDetails: (modIds: string[]) => ipcRenderer.invoke('get-workshop-item-details', modIds),
   getDayzInstalledMods: (id: number) => ipcRenderer.invoke('get-dayz-installed-mods', id),
   installDayzMod: (id: number, modId: string, title: string, user?: string, pass?: string, guard?: string) => ipcRenderer.invoke('install-dayz-mod', id, modId, title, user, pass, guard),
-  uninstallDayzMod: (id: number, modIdOrFolder: string) => ipcRenderer.invoke('uninstall-dayz-mod', id, modIdOrFolder)
+  uninstallDayzMod: (id: number, modIdOrFolder: string) => ipcRenderer.invoke('uninstall-dayz-mod', id, modIdOrFolder),
+  toggleDayzMapMod: (id: number, folderName: string, isMap: boolean) => ipcRenderer.invoke('toggle-dayz-map-mod', id, folderName, isMap),
+  toggleDayzModStatus: (id: number, folderName: string, isDisabled: boolean) => ipcRenderer.invoke('toggle-dayz-mod-status', id, folderName, isDisabled),
+  downloadDayzMission: (id: number, modId: string) => ipcRenderer.invoke('download-dayz-mission', id, modId),
+  extractDayzLocalMission: (id: number, localMissionsPath: string) => ipcRenderer.invoke('extract-dayz-local-mission', id, localMissionsPath),
+  selectWorkshopFolder: () => ipcRenderer.invoke('select-workshop-folder'),
+  importLocalWorkshop: (id: number, workshopPath: string) => ipcRenderer.invoke('import-local-workshop', id, workshopPath)
 }
 
 

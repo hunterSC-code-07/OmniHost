@@ -13,6 +13,8 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [installedMods, setInstalledMods] = useState<any[]>([]);
+  const [workshopPath, setWorkshopPath] = useState<string>('');
+  const [isImporting, setIsImporting] = useState<boolean>(false);
   const [loading, setLoading] = useState(false);
   const loadMoreRef = React.useRef(null);
   const [downloadProgress, setDownloadProgress] = useState<{ [id: string]: { percent: number, msg: string } }>({});
@@ -207,6 +209,28 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
     }
   };
 
+  const handleBrowseWorkshop = async () => {
+    const path = await window.api.selectWorkshopFolder();
+    if (path) {
+      setWorkshopPath(path);
+    }
+  };
+
+  const handleImportWorkshop = async () => {
+    if (!workshopPath) return;
+    setIsImporting(true);
+    try {
+      const count = await window.api.importLocalWorkshop(activeServerId, workshopPath);
+      alert(`Successfully imported ${count} mods from your !Workshop folder!\n\nNote: They have been marked as 'DISABLED' by default so your server doesn't crash on startup. Go to the 'Installed Mods' tab to enable the ones you want.`);
+      loadInstalledMods();
+    } catch (e: any) {
+      console.error(e);
+      alert('Failed to import local workshop mods: ' + e.message);
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-surface">
       <div className="p-4 flex flex-col gap-3">
@@ -273,6 +297,41 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
           </div>
         </div>
       )}
+
+      {/* Local Workshop Import */}
+      <div className="bg-surface-container rounded-xl p-4 border border-white/5 flex flex-col gap-3 mx-4 mb-4">
+        <div>
+          <h3 className="text-on-surface font-medium">Import Local Mods</h3>
+          <p className="text-on-surface-variant text-sm mt-1">Select your DayZ game folder to automatically find and import your client mods.</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <input 
+            type="text"
+            className="flex-1 bg-surface-container-high text-on-surface px-4 py-2 rounded-lg border border-white/10 outline-none focus:border-primary/50 text-sm"
+            placeholder="e.g. C:\Program Files (x86)\Steam\steamapps\common\DayZ"
+            value={workshopPath}
+            onChange={(e) => setWorkshopPath(e.target.value)}
+          />
+          <button 
+            onClick={handleBrowseWorkshop}
+            className="px-4 py-2 bg-surface-container-highest hover:bg-surface-container-highest/80 text-on-surface rounded-lg transition-colors border border-white/10 text-sm font-medium"
+          >
+            Browse
+          </button>
+          <button 
+            onClick={handleImportWorkshop}
+            disabled={!workshopPath || isImporting}
+            className="px-4 py-2 bg-primary hover:bg-primary/90 text-on-primary rounded-lg transition-colors text-sm font-medium disabled:opacity-50 flex items-center gap-2"
+          >
+            {isImporting ? (
+               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-on-primary"></div>
+            ) : (
+               <span className="material-symbols-outlined text-[18px]">drive_folder_upload</span>
+            )}
+            Import All
+          </button>
+        </div>
+      </div>
 
       <div className="flex-1 min-h-0 overflow-hidden flex flex-row">
         {/* Sidebar */}

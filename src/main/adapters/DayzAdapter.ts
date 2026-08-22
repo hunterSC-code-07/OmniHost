@@ -116,7 +116,8 @@ class Missions
     try {
       const folders = fs.readdirSync(this.serverDir, { withFileTypes: true });
       const mods = folders
-        .filter(f => f.isDirectory() && f.name.startsWith('@'))
+        .filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'))
+        .filter(f => !fs.existsSync(join(this.serverDir, f.name, 'disabled.txt')))
         .map(f => f.name)
         .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
       

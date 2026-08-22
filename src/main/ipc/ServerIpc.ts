@@ -1,4 +1,4 @@
-import { app, ipcMain } from 'electron'
+import { app, ipcMain, dialog } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
@@ -9,6 +9,8 @@ import { MinecraftAdapter } from '../adapters/MinecraftAdapter'
 import { WakeProxy } from '../adapters/WakeProxy'
 import { SteamWebAPI } from '../api/SteamWebAPI'
 import { SteamCMDManager } from '../adapters/SteamCMDManager'
+import axios from 'axios'
+import AdmZip from 'adm-zip'
 
 async function exists(path: string) {
   try {
@@ -18,6 +20,24 @@ async function exists(path: string) {
     return false
   }
 }
+
+export const DAYZ_MAP_REPOS: Record<string, { name: string, repoZip: string, template: string }> = {
+  '2289456201': { // Namalsk Island
+    name: 'Namalsk',
+    repoZip: 'https://github.com/SumrakDZN/Namalsk-Server/archive/refs/heads/master.zip',
+    template: 'regular.namalsk' 
+  },
+  '1602372402': { // Deer Isle
+    name: 'Deer Isle',
+    repoZip: 'https://github.com/ExpansionModTeam/DayZ-Expansion-Missions/archive/refs/heads/master.zip',
+    template: 'empty.deerisle'
+  },
+  '2699824632': { // Banov
+    name: 'Banov',
+    repoZip: 'https://github.com/KubeloLive/Banov/archive/refs/heads/main.zip',
+    template: 'empty.banov'
+  }
+};
 
 export function registerServerIpc(
   activeServers: Record<number, any>,
@@ -460,31 +480,307 @@ export function registerServerIpc(
       if (!(await exists(serverDir))) return [];
 
       const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });
-      const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));
+      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));
       
-      const modDetails = mods.map(f => {
-        const modIdPath = join(serverDir, f.name, 'modid.txt');
+      const modDetails = await Promise.all(mods.map(async f => {
+        const modDir = join(serverDir, f.name);
+        const modIdPath = join(modDir, 'modid.txt');
+        const isMapPath = join(modDir, 'is_map.txt');
+        const disabledPath = join(modDir, 'disabled.txt');
         let title = f.name.substring(1);
-        let id = '';
+        let idStr = '';
         if (fs.existsSync(modIdPath)) {
           const content = fs.readFileSync(modIdPath, 'utf-8').trim();
           const parts = content.split(':');
           if (parts.length === 2) {
-            id = parts[0];
+            idStr = parts[0];
             title = parts[1];
           }
         }
+
+        let isMap = false;
+        if (fs.existsSync(isMapPath)) {
+          const isMapContent = fs.readFileSync(isMapPath, 'utf-8').trim();
+          isMap = isMapContent === 'true';
+        } else {
+          if (idStr && DAYZ_MAP_REPOS[idStr]) {
+            isMap = true;
+          } else {
+            const mpmissionsPath1 = join(modDir, 'mpmissions');
+            const mpmissionsPath2 = join(modDir, 'ServerFiles', 'mpmissions');
+            if (fs.existsSync(mpmissionsPath1) || fs.existsSync(mpmissionsPath2)) {
+              isMap = true;
+            }
+          }
+        }
+
+        let hasLocalMissions = false;
+        let localMissionsPath = '';
+        const mp1 = join(modDir, 'mpmissions');
+        const mp2 = join(modDir, 'ServerFiles', 'mpmissions');
+        if (fs.existsSync(mp1)) {
+            hasLocalMissions = true;
+            localMissionsPath = mp1;
+        } else if (fs.existsSync(mp2)) {
+            hasLocalMissions = true;
+            localMissionsPath = mp2;
+        }
+
+        const isDisabled = fs.existsSync(disabledPath);
+
         return {
-          id: id || f.name,
+          id: idStr || f.name,
           title,
-          folderName: f.name
+          folderName: f.name,
+          isMap,
+          hasLocalMissions,
+          localMissionsPath,
+          isDisabled
         };
-      });
+      }));
 
       return modDetails;
     } catch (e) {
       console.error('Failed to get installed DayZ mods', e);
       return [];
+    }
+  });
+
+  ipcMain.handle('toggle-dayz-map-mod', async (_, id, folderName, isMap) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const modDir = join(serverDir, folderName);
+      if (await exists(modDir)) {
+        await fsPromises.writeFile(join(modDir, 'is_map.txt'), isMap ? 'true' : 'false', 'utf-8');
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Failed to toggle DayZ map mod', e);
+      return false;
+    }
+  });
+
+  ipcMain.handle('toggle-dayz-mod-status', async (_, id, folderName, isDisabled) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const modDir = join(serverDir, folderName);
+      if (await exists(modDir)) {
+        const disabledPath = join(modDir, 'disabled.txt');
+        if (isDisabled) {
+          await fsPromises.writeFile(disabledPath, 'true', 'utf-8');
+        } else {
+          if (await exists(disabledPath)) {
+            await fsPromises.rm(disabledPath);
+          }
+        }
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('Failed to toggle DayZ mod status', e);
+      return false;
+    }
+  });
+
+  async function fetchDayzMission(id: number, modId: string) {
+    const repoInfo = DAYZ_MAP_REPOS[modId];
+    if (!repoInfo || !repoInfo.repoZip) {
+      throw new Error('No mission repository found for this map mod.');
+    }
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+    const mpmissionsDir = join(serverDir, 'mpmissions');
+    
+    if (!(await exists(mpmissionsDir))) {
+      await fsPromises.mkdir(mpmissionsDir, { recursive: true });
+    }
+
+    // Download ZIP
+    const response = await axios({
+      url: repoInfo.repoZip,
+      method: 'GET',
+      responseType: 'arraybuffer'
+    });
+
+    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);
+    await fsPromises.writeFile(tempZipPath, response.data);
+
+    // Extract ZIP
+    const zip = new AdmZip(tempZipPath);
+    
+    const tempExtractDir = join(serverDir, `temp_mission_${modId}_${Date.now()}`);
+    zip.extractAllTo(tempExtractDir, true);
+    
+    // Recursively search for the template folder
+    let foundMissionPath = '';
+    async function findFolder(dir: string, targetFolder: string) {
+      const entries = await fsPromises.readdir(dir, { withFileTypes: true });
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          if (entry.name.toLowerCase() === targetFolder.toLowerCase()) {
+            foundMissionPath = join(dir, entry.name);
+            return;
+          }
+          await findFolder(join(dir, entry.name), targetFolder);
+        }
+      }
+    }
+
+    await findFolder(tempExtractDir, repoInfo.template);
+
+    if (foundMissionPath) {
+      const targetPath = join(mpmissionsDir, repoInfo.template);
+      if (await exists(targetPath)) {
+        await fsPromises.rm(targetPath, { recursive: true, force: true });
+      }
+      await fsPromises.cp(foundMissionPath, targetPath, { recursive: true });
+    } else {
+      throw new Error(`Mission folder ${repoInfo.template} not found in the downloaded repository.`);
+    }
+
+    // Cleanup
+    await fsPromises.rm(tempZipPath, { force: true });
+    await fsPromises.rm(tempExtractDir, { recursive: true, force: true });
+
+    // Update serverDZ.cfg
+    const cfgPath = join(serverDir, 'serverDZ.cfg');
+    if (await exists(cfgPath)) {
+      let cfgContent = await fsPromises.readFile(cfgPath, 'utf-8');
+      cfgContent = cfgContent.replace(/template\s*=\s*"[^"]*"/g, `template="${repoInfo.template}"`);
+      await fsPromises.writeFile(cfgPath, cfgContent, 'utf-8');
+    }
+    
+    return true;
+  }
+
+  ipcMain.handle('download-dayz-mission', async (_, id, modId) => {
+    try {
+      return await fetchDayzMission(id, modId);
+    } catch (e: any) {
+      console.error('Failed to download DayZ mission files', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('extract-dayz-local-mission', async (_, id, localMissionsPath) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const mpmissionsDir = join(serverDir, 'mpmissions');
+      
+      if (!(await exists(mpmissionsDir))) {
+        await fsPromises.mkdir(mpmissionsDir, { recursive: true });
+      }
+
+      // Read directories in localMissionsPath
+      const entries = await fsPromises.readdir(localMissionsPath, { withFileTypes: true });
+      let firstTemplate = '';
+      
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          const sourcePath = join(localMissionsPath, entry.name);
+          const destPath = join(mpmissionsDir, entry.name);
+          
+          if (await exists(destPath)) {
+            await fsPromises.rm(destPath, { recursive: true, force: true });
+          }
+          await fsPromises.cp(sourcePath, destPath, { recursive: true });
+          
+          if (!firstTemplate) {
+            firstTemplate = entry.name;
+          }
+        }
+      }
+
+      if (firstTemplate) {
+        const cfgPath = join(serverDir, 'serverDZ.cfg');
+        if (await exists(cfgPath)) {
+          let cfgContent = await fsPromises.readFile(cfgPath, 'utf-8');
+          cfgContent = cfgContent.replace(/template\s*=\s*"[^"]*"/g, `template="${firstTemplate}"`);
+          await fsPromises.writeFile(cfgPath, cfgContent, 'utf-8');
+        }
+      }
+
+      return true;
+    } catch (e: any) {
+      console.error('Failed to extract local DayZ mission', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('select-workshop-folder', async () => {
+    const result = await dialog.showOpenDialog({
+      properties: ['openDirectory'],
+      title: 'Select DayZ Game Folder'
+    });
+    if (!result.canceled && result.filePaths.length > 0) {
+      return result.filePaths[0];
+    }
+    return null;
+  });
+
+  ipcMain.handle('import-local-workshop', async (_, id, workshopPath) => {
+    try {
+      let actualWorkshopPath = workshopPath;
+      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {
+        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');
+      }
+
+      if (!(await exists(actualWorkshopPath))) {
+        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);
+      }
+
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const keysDir = join(serverDir, 'keys');
+      
+      if (!(await exists(keysDir))) {
+        await fsPromises.mkdir(keysDir, { recursive: true });
+      }
+
+      const entries = await fsPromises.readdir(actualWorkshopPath, { withFileTypes: true });
+      let importedCount = 0;
+
+      for (const entry of entries) {
+        if ((entry.isDirectory() || entry.isSymbolicLink()) && entry.name.startsWith('@')) {
+          const modSource = join(actualWorkshopPath, entry.name);
+          const modDest = join(serverDir, entry.name);
+          
+          // Remove if it exists
+          if (await exists(modDest)) {
+            // Since it could be a junction, rm handles it correctly (removes link, not target contents)
+            await fsPromises.rm(modDest, { recursive: true, force: true });
+          }
+
+          // Create symlink (junction on Windows for directories)
+          try {
+            // Resolve the real path in case the !Workshop entry is itself a junction (which it is)
+            const realSourcePath = await fsPromises.realpath(modSource);
+            await fsPromises.symlink(realSourcePath, modDest, 'junction');
+          } catch (symlinkError) {
+             console.error(`Failed to symlink ${entry.name}, falling back to copy`, symlinkError);
+             await fsPromises.cp(modSource, modDest, { recursive: true });
+          }
+
+          // Mark as disabled by default
+          await fsPromises.writeFile(join(modDest, 'disabled.txt'), 'true', 'utf-8');
+          
+          // Try to copy keys
+          const modKeysDir = join(modSource, 'keys');
+          if (await exists(modKeysDir)) {
+            const keyFiles = await fsPromises.readdir(modKeysDir);
+            for (const key of keyFiles) {
+              if (key.endsWith('.bikey')) {
+                await fsPromises.copyFile(join(modKeysDir, key), join(keysDir, key));
+              }
+            }
+          }
+          
+          importedCount++;
+        }
+      }
+      return importedCount;
+    } catch (e: any) {
+      console.error('Failed to import local workshop', e);
+      throw e;
     }
   });
 
@@ -534,6 +830,17 @@ export function registerServerIpc(
       for (const file of rootFiles) {
         if (file.endsWith('.bikey')) {
           await fsPromises.copyFile(join(targetModDir, file), join(keysDir, file));
+        }
+      }
+
+      // 4. Auto-download mission files if this is a known map repo
+      if (DAYZ_MAP_REPOS[modId]) {
+        try {
+          SteamCMDManager.sendLog(id, 100, `Fetching mission files for ${modTitle}...`);
+          await fetchDayzMission(id, modId);
+          SteamCMDManager.sendLog(id, 100, `Mission files downloaded and server configured!`);
+        } catch (e) {
+          console.warn(`Could not fetch auto mission files for ${modId}`, e);
         }
       }
 
