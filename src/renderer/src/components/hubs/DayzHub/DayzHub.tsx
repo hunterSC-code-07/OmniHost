@@ -7,6 +7,8 @@ import { DayzEconomyTab } from './tabs/DayzEconomyTab';
 import { DayzModsTab } from './tabs/DayzModsTab';
 import { DayzInstalledModsTab } from './tabs/DayzInstalledModsTab';
 import { DayzFilesTab } from './tabs/DayzFilesTab';
+import { motion, AnimatePresence } from 'motion/react';
+import { AnimatedBackground } from '../../AnimatedBackground';
 
 interface DayzHubProps {
   activeServerId: number;
@@ -40,6 +42,18 @@ export const DayzHub: React.FC<DayzHubProps> = ({
   statsHistory,
 }) => {
   const [activeTab, setActiveTab] = useState<'console' | 'options' | 'economy' | 'mods' | 'installed' | 'files'>('console');
+  const [tabDirection, setTabDirection] = useState(0);
+  const [isTabTransitioning, setIsTabTransitioning] = useState(false);
+  const handleTabChange = (newTab: typeof activeTab) => {
+    if (newTab === activeTab) return;
+    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];
+    const currentIndex = TABS.indexOf(activeTab);
+    const newIndex = TABS.indexOf(newTab);
+    setTabDirection(newIndex > currentIndex ? 1 : -1);
+    setIsTabTransitioning(true);
+    setActiveTab(newTab);
+    setTimeout(() => setIsTabTransitioning(false), 350);
+  };
   
   const endOfLogsRef = useRef<HTMLDivElement>(null);
 
@@ -62,7 +76,7 @@ export const DayzHub: React.FC<DayzHubProps> = ({
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden bg-[#0A0A0A]">
-      <div className="absolute inset-0 bg-[url('https://c4.wallpaperflare.com/wallpaper/705/886/141/dayz-dark-video-games-wallpaper-preview.jpg')] bg-cover bg-center opacity-[0.03] z-0"></div>
+      <AnimatedBackground />
       
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="flex justify-between items-center relative z-20">
@@ -117,11 +131,11 @@ export const DayzHub: React.FC<DayzHubProps> = ({
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all whitespace-nowrap ${
+                  onClick={() => handleTabChange(tab.id as any)}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${
                     activeTab === tab.id 
                     ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(76,175,80,0.1)]' 
-                    : 'text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-transparent'
+                    : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
@@ -134,6 +148,40 @@ export const DayzHub: React.FC<DayzHubProps> = ({
       </div>
 
       <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
+        <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
+          <AnimatePresence custom={tabDirection} mode="wait" initial={false}>
+            <motion.div
+              key={activeTab}
+              custom={tabDirection}
+              variants={{
+                enter: (direction: number) => ({
+                  x: direction > 0 ? 50 : -50,
+                  opacity: 0,
+                  position: 'absolute' as const,
+                  width: '100%',
+                  height: '100%'
+                }),
+                center: {
+                  x: 0,
+                  opacity: 1,
+                  position: 'relative' as const,
+                  width: '100%',
+                  height: '100%'
+                },
+                exit: (direction: number) => ({
+                  x: direction < 0 ? 50 : -50,
+                  opacity: 0,
+                  position: 'absolute' as const,
+                  width: '100%',
+                  height: '100%'
+                })
+              }}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              className="flex flex-col min-h-0 w-full h-full"
+            >
         {activeTab === 'console' && (
           <DayzConsoleTab 
             logs={activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : []}
@@ -159,6 +207,9 @@ export const DayzHub: React.FC<DayzHubProps> = ({
         {activeTab === 'files' && (
           <DayzFilesTab activeServerId={activeServerId} />
         )}
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
     </div>
   );
