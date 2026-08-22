@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import 'overlayscrollbars/overlayscrollbars.css';
+import { motion, AnimatePresence } from 'motion/react';
 import { DayzHub } from './components/hubs/DayzHub/DayzHub'
 import { MinecraftHub } from './components/hubs/MinecraftHub/MinecraftHub';
 import { DashboardHub } from './components/hubs/DashboardHub/DashboardHub';
@@ -23,6 +24,16 @@ const getGameImageUrl = (game: string) => {
   return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';
 };
 
+const getGameThemeColor = (game: string | null) => {
+  if (!game) return { omni: '#ffffff', host: '#cccccc' };
+  const g = game.toLowerCase();
+  if (g.includes('minecraft')) return { omni: '#4ade80', host: '#bbf7d0' };
+  if (g.includes('palworld')) return { omni: '#3b82f6', host: '#bfdbfe' };
+  if (g.includes('dayz')) return { omni: '#ef4444', host: '#fecaca' };
+  if (g.includes('satisfactory')) return { omni: '#eab308', host: '#fef08a' };
+  return { omni: '#ffffff', host: '#cccccc' };
+};
+
 export default function App() {
   const [servers, setServers] = useState<any[]>([])
   const [logs, setLogs] = useState<{id: string, msg: string}[]>([])
@@ -32,6 +43,13 @@ export default function App() {
 
   const [activeServerId, setActiveServerId] = useState<number | null>(null)
   const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
+  const [lastGameHub, setLastGameHub] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (activeGameHub) {
+      setLastGameHub(activeGameHub)
+    }
+  }, [activeGameHub])
   const [hoveredGame, setHoveredGame] = useState<string | null>(null)
 
   const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
@@ -41,6 +59,7 @@ export default function App() {
 
   const [toasts, setToasts] = useState<{ id: number, message: string }[]>([])
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [initialCreateServerType, setInitialCreateServerType] = useState('Vanilla')
   const [showSteamLoginModal, setShowSteamLoginModal] = useState(false)
   const [steamLoginAction, setSteamLoginAction] = useState<'create' | 'cache'>('create')
   const [steamUsername, setSteamUsername] = useState('')
@@ -245,16 +264,18 @@ export default function App() {
         <div className="h-full px-gutter w-full flex items-center justify-between">
           <div className="flex items-center gap-8">
             <div className="flex items-center gap-3 cursor-default group">
-              <h1 className="text-3xl font-sans text-white flex items-center whitespace-nowrap">
-                <span className="text-brand mr-2 flex">
-                  {"Omni".split("").map((char, i) => (
-                    <span key={`omni-${i}`} className="transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110" style={{ transitionDelay: `${i * 30}ms` }}>{char}</span>
-                  ))}
+              <h1 className="text-[34px] leading-none tracking-tight font-bold flex items-center whitespace-nowrap transition-transform duration-300 group-hover:scale-105" style={{ fontFamily: '"Oswald", sans-serif' }}>
+                <span 
+                  className={`mr-2 logo-sweep ${activeGameHub ? 'active' : ''}`}
+                  style={{ '--logo-default-color': '#ffffff', '--logo-game-color': getGameThemeColor(activeGameHub || lastGameHub).omni } as React.CSSProperties}
+                >
+                  Omni
                 </span>
-                <span className="flex">
-                  {"Host".split("").map((char, i) => (
-                    <span key={`host-${i}`} className="transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-110" style={{ transitionDelay: `${(i + 4) * 30}ms` }}>{char}</span>
-                  ))}
+                <span 
+                  className={`logo-sweep ${activeGameHub ? 'active' : ''}`}
+                  style={{ '--logo-default-color': '#cccccc', '--logo-game-color': getGameThemeColor(activeGameHub || lastGameHub).host } as React.CSSProperties}
+                >
+                  Host
                 </span>
               </h1>
             </div>
@@ -283,9 +304,11 @@ export default function App() {
       <main className="relative pt-20 bg-transparent flex-1 w-full flex flex-col min-h-0 overflow-hidden outline-none">
         <div className="flex flex-col w-full relative h-full">
 
+          <AnimatePresence>
           {/* DASHBOARD VIEW */}
           {activeServerId === null && (
-            <DashboardHub 
+            <motion.div key="dashboard-hub" exit={{ opacity: 0, transition: { duration: 0.2 } }} className="absolute inset-0 w-full h-full flex flex-col min-h-0">
+              <DashboardHub 
               servers={servers}
               activeGameHub={activeGameHub}
               hoveredGame={hoveredGame}
@@ -303,12 +326,21 @@ export default function App() {
               setShowCreateModal={setShowCreateModal}
               setShowSteamLoginModal={setShowSteamLoginModal}
               isGameSupported={isGameSupported} isDayzCached={isDayzCached} setIsDayzCached={setIsDayzCached} setSteamLoginAction={setSteamLoginAction} showToast={showToast}
-            />
+              />
+            </motion.div>
           )}
 
           {/* ACTIVE SERVER VIEW */}
           {activeServer !== undefined && activeServerId !== null && (
-            activeServer.game === 'DayZ' ? (
+            <motion.div 
+              key="active-server"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 20 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+              className="absolute inset-0 w-full h-full flex flex-col overflow-hidden"
+            >
+              {activeServer.game === 'DayZ' ? (
               <DayzHub 
                 activeServerId={activeServerId}
                 activeServer={activeServer}
@@ -345,9 +377,16 @@ export default function App() {
                 setLogs={setLogs}
                 onlinePlayers={onlinePlayers}
                 statsHistory={statsHistory}
-              />
-            )
+                onRedirectToCreateModpack={() => {
+                  setInitialCreateServerType('CurseForge Modpack');
+                  setActiveServerId(null);
+                  setShowCreateModal(true);
+                }}
+                />
+              )}
+            </motion.div>
           )}
+          </AnimatePresence>
         </div>
       </main>
 
@@ -363,7 +402,8 @@ export default function App() {
       {/* MODALS */}
         {showCreateModal && (
           <CreateServerModal 
-            setShowCreateModal={setShowCreateModal} 
+            initialServerType={initialCreateServerType}
+            setShowCreateModal={setShowCreateModal}
             servers={servers} 
             setServers={setServers} 
             activeGameHub={activeGameHub} 

@@ -6,6 +6,7 @@ import os from 'os'
 import { CacheManager } from '../CacheManager'
 import { FrpAdapter } from '../adapters/FrpAdapter'
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
+import { getServers } from '../db'
 
 async function exists(path: string) {
   try {
@@ -79,12 +80,31 @@ export function registerSystemIpc(
   ipcMain.handle('get-server-meta', async (_, id) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString())
     const metaPath = join(serverDir, 'omnihost.json')
+    let meta: any = null
     if (await exists(metaPath)) {
       try {
-        return JSON.parse(await fsPromises.readFile(metaPath, 'utf-8'))
+        meta = JSON.parse(await fsPromises.readFile(metaPath, 'utf-8'))
       } catch (e) {}
     }
-    return null
+    
+    // Fallback if omnihost.json is missing or missing type
+    if (!meta || !meta.type) {
+       // getServers is already imported at the top of the file now
+       const servers = getServers()
+       const srv = servers.find((s: any) => s.id === id)
+       if (srv) {
+          if (!meta) meta = {}
+          meta.version = '1.20.4' // Default version if missing
+          if (srv.game) {
+             const typeMatch = srv.game.match(/\((.*?)\)/)
+             if (typeMatch) meta.type = typeMatch[1]
+             else meta.type = 'Vanilla'
+          } else {
+             meta.type = 'Vanilla'
+          }
+       }
+    }
+    return meta
   })
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
