@@ -112,9 +112,25 @@ class Missions
       '-freezecheck'
     ];
 
+    // Load mods
+    try {
+      const folders = fs.readdirSync(this.serverDir, { withFileTypes: true });
+      const mods = folders
+        .filter(f => f.isDirectory() && f.name.startsWith('@'))
+        .map(f => f.name)
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      
+      if (mods.length > 0) {
+        args.push(`"-mod=${mods.join(';')}"`);
+        this.sendLog(`[System] Loading mods: ${mods.join(', ')}`);
+      }
+    } catch (e) {
+      this.sendLog(`[System Error] Failed to load mods: ${e}`);
+    }
+
     this.startTime = Date.now() - 5000; // Buffer of 5 seconds
 
-    this.process = spawn(exePath, args, { cwd: this.serverDir });
+    this.process = spawn(exePath, args, { cwd: this.serverDir, shell: true });
 
     this.process.stdout?.on('data', (data) => {
       this.sendLog(`[DayZ] ${data.toString().trim()}`);

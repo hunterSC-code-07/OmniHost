@@ -17,6 +17,10 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
   const [serverTimeAcceleration, setServerTimeAcceleration] = useState('1');
   const [serverNightTimeAcceleration, setServerNightTimeAcceleration] = useState('1');
   const [template, setTemplate] = useState('dayzOffline.chernarusplus');
+  const [availableMissions, setAvailableMissions] = useState<string[]>([
+    'dayzOffline.chernarusplus',
+    'dayzOffline.enoch'
+  ]);
 
   useEffect(() => {
     loadConfig();
@@ -30,6 +34,19 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
       if (config) {
         setConfigText(config);
         parseConfig(config);
+      }
+      
+      // Load available missions from mpmissions directory
+      try {
+        const res = await window.api.listDir(activeServerId, 'mpmissions');
+        if (res && res.length > 0) {
+          const dirs = res.filter((entry: any) => entry.isDirectory).map((entry: any) => entry.name);
+          if (dirs.length > 0) {
+            setAvailableMissions(dirs);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load mpmissions directory", e);
       }
     } catch (e) {
       console.error("Failed to load DayZ config", e);
@@ -203,9 +220,15 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
                 onChange={e => setTemplate(e.target.value)}
                 className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
               >
-                <option value="dayzOffline.chernarusplus">Chernarus (dayzOffline.chernarusplus)</option>
-                <option value="dayzOffline.enoch">Livonia (dayzOffline.enoch)</option>
+                {/* Ensure current template is always an option even if not found in mpmissions yet */}
+                {!availableMissions.includes(template) && (
+                  <option value={template}>{template} (Current)</option>
+                )}
+                {availableMissions.map(m => (
+                  <option key={m} value={m}>{m}</option>
+                ))}
               </select>
+              <p className="text-xs text-gray-500 mt-1">If using a custom map, enter its mission folder name here (e.g. regular.namalsk). Ensure the mission folder is copied into your server's mpmissions folder.</p>
             </div>
 
             {/* Time Acceleration */}

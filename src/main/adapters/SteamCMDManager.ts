@@ -162,4 +162,135 @@ export class SteamCMDManager {
     this.sendLog(serverId, 100, 'Download and Setup Complete!');
     return true;
   }
+
+  static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {
+    await this.ensureInstalled(serverId);
+
+    // Fetch total size from Steam API for accurate progress calculation
+    let totalSize = 0;
+    try {
+      const params = new URLSearchParams();
+      params.append('itemcount', '1');
+      params.append('publishedfileids[0]', modId);
+      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', params.toString(), {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+      });
+      const fileDetails = res.data?.response?.publishedfiledetails?.[0];
+      if (fileDetails && fileDetails.file_size) {
+        totalSize = parseInt(fileDetails.file_size, 10);
+      }
+    } catch (e) {
+      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);
+    }
+
+    return new Promise((resolve, reject) => {
+      this.sendLog(serverId, 0, `Starting Workshop download for Mod ${modId}...`);
+      
+      const exePath = this.getExePath();
+      
+      const loginArgs: string[] = [];
+      if (username && password) {
+        if (steamGuardCode) {
+          loginArgs.push('+login', username, password, steamGuardCode);
+        } else {
+          loginArgs.push('+login', username, password);
+        }
+      } else {
+        loginArgs.push('+login', 'anonymous');
+      }
+
+      // Workshop items are downloaded to steamapps/workshop/content/<appId>/<modId> inside the SteamCMD directory
+      // We don't force install dir here as SteamCMD handles workshop folders itself
+      const args: string[] = [
+        ...loginArgs,
+        '+workshop_download_item', appId.toString(), modId, 'validate',
+        '+quit'
+      ];
+
+      const proc = spawn(exePath, args, { cwd: this.getSteamCMDDir() });
+      this.activeProcess = proc;
+
+      let steamGuardRequested = false;
+      let downloadFailed = false;
+      let downloadErrorMsg = '';
+
+      const targetDir = join(this.getSteamCMDDir(), 'steamapps', 'workshop', 'downloads', appId.toString(), modId);
+      
+      const progressInterval = setInterval(async () => {
+        if (totalSize > 0 && fs.existsSync(targetDir)) {
+          let currentSize = 0;
+          const checkSize = async (dir: string) => {
+            if (!fs.existsSync(dir)) return;
+            try {
+              const files = await fs.promises.readdir(dir, { withFileTypes: true });
+              for (const file of files) {
+                const fullPath = join(dir, file.name);
+                if (file.isDirectory()) {
+                  await checkSize(fullPath);
+                } else {
+                  const stats = await fs.promises.stat(fullPath);
+                  currentSize += stats.size;
+                }
+              }
+            } catch (e) { /* ignore read errors during active download */ }
+          };
+          await checkSize(targetDir);
+          const percent = Math.min((currentSize / totalSize) * 100, 99.9);
+          this.sendLog(serverId, percent, `Downloading Mod Files (${percent.toFixed(1)}%)...`);
+        } else if (totalSize === 0) {
+          // Indeterminate UI fallback handled by DayzModsTab CSS animation when percent === 0
+          this.sendLog(serverId, 0, `Downloading Mod Files (Indeterminate)...`);
+        }
+      }, 1000);
+
+      proc.stdout?.on('data', (data) => {
+        const output = data.toString().trim();
+        if (output) {
+            console.log(`[SteamCMD Workshop ${modId}]:`, output);
+            const lowerOutput = output.toLowerCase();
+
+            if (lowerOutput.includes('failed (failure)') || lowerOutput.includes('access denied') || lowerOutput.includes('timeout')) {
+              downloadFailed = true;
+              downloadErrorMsg = output;
+            }
+
+            // Detect Steam Guard / 2FA prompts
+            if (lowerOutput.includes('steam guard') || lowerOutput.includes('two-factor') || lowerOutput.includes('enter the current code')) {
+              steamGuardRequested = true;
+            }
+
+            const progressMatch = output.match(/progress:\s*([0-9.]+)/i);
+            if (progressMatch) {
+                const percent = parseFloat(progressMatch[1]);
+                this.sendLog(serverId, percent, `Downloading Mod Files (${percent.toFixed(1)}%)...`);
+            } else if (output.includes('Success. Downloaded item')) {
+                this.sendLog(serverId, 100, 'Download Complete!');
+            }
+        }
+      });
+
+      proc.stderr?.on('data', (data) => {
+        console.error(`[SteamCMD Workshop ${modId} Error]:`, data.toString().trim());
+      });
+
+      proc.on('close', (code) => {
+        clearInterval(progressInterval);
+        this.activeProcess = null;
+        if (downloadFailed) {
+          reject(new Error(`LOGIN_REQUIRED: ${downloadErrorMsg}`));
+        } else if (code === 0 || code === 7) { 
+          resolve(true);
+        } else if (code === 5 && steamGuardRequested) {
+          reject(new Error('STEAM_GUARD_REQUIRED'));
+        } else {
+          reject(new Error(`SteamCMD exited with code ${code}`));
+        }
+      });
+
+      proc.on('error', (err) => {
+        clearInterval(progressInterval);
+        reject(err);
+      });
+    });
+  }
 }

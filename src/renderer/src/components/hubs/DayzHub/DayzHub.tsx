@@ -4,6 +4,9 @@ import 'overlayscrollbars/overlayscrollbars.css';
 import { DayzConsoleTab } from './tabs/DayzConsoleTab';
 import { DayzOptionsTab } from './tabs/DayzOptionsTab';
 import { DayzEconomyTab } from './tabs/DayzEconomyTab';
+import { DayzModsTab } from './tabs/DayzModsTab';
+import { DayzInstalledModsTab } from './tabs/DayzInstalledModsTab';
+import { DayzFilesTab } from './tabs/DayzFilesTab';
 
 interface DayzHubProps {
   activeServerId: number;
@@ -36,7 +39,7 @@ export const DayzHub: React.FC<DayzHubProps> = ({
   onlinePlayers,
   statsHistory,
 }) => {
-  const [activeTab, setActiveTab] = useState<'console' | 'options' | 'economy'>('console');
+  const [activeTab, setActiveTab] = useState<'console' | 'options' | 'economy' | 'mods' | 'installed' | 'files'>('console');
   
   const endOfLogsRef = useRef<HTMLDivElement>(null);
 
@@ -108,6 +111,9 @@ export const DayzHub: React.FC<DayzHubProps> = ({
                 { id: 'console', label: 'Console', icon: 'terminal' },
                 { id: 'options', label: 'Options', icon: 'settings' },
                 { id: 'economy', label: 'Economy', icon: 'storefront' },
+                { id: 'mods', label: 'Workshop', icon: 'extension' },
+                { id: 'installed', label: 'Installed Mods', icon: 'inventory_2' },
+                { id: 'files', label: 'Files', icon: 'folder' },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -143,6 +149,15 @@ export const DayzHub: React.FC<DayzHubProps> = ({
         )}
         {activeTab === 'economy' && (
           <DayzEconomyTab activeServerId={activeServerId} />
+        )}
+        {activeTab === 'mods' && (
+          <DayzModsTab activeServerId={activeServerId} />
+        )}
+        {activeTab === 'installed' && (
+          <DayzInstalledModsTab activeServerId={activeServerId} />
+        )}
+        {activeTab === 'files' && (
+          <DayzFilesTab activeServerId={activeServerId} />
         )}
       </div>
     </div>

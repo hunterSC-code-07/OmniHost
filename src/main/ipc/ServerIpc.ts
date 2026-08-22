@@ -7,6 +7,8 @@ import { getServers, createServer, deleteServer, updateServerSoftware } from '..
 import { DayzAdapter } from '../adapters/DayzAdapter'
 import { MinecraftAdapter } from '../adapters/MinecraftAdapter'
 import { WakeProxy } from '../adapters/WakeProxy'
+import { SteamWebAPI } from '../api/SteamWebAPI'
+import { SteamCMDManager } from '../adapters/SteamCMDManager'
 
 async function exists(path: string) {
   try {
@@ -436,6 +438,227 @@ export function registerServerIpc(
     } catch (e) {
       console.error('Failed to wipe DayZ loot', e);
       return false;
+    }
+  });
+
+  // --- DayZ Mods ---
+  ipcMain.handle('search-steam-workshop', async (_, query, queryType, page, requiredTags) => {
+    return await SteamWebAPI.searchWorkshop(query, 221100, page || 1, queryType || 9, requiredTags || []);
+  });
+
+  ipcMain.handle('get-mod-dependencies', async (_, modId) => {
+    return await SteamWebAPI.getModDependencies(modId);
+  });
+
+  ipcMain.handle('get-workshop-item-details', async (_, modIds) => {
+    return await SteamWebAPI.getWorkshopItemDetails(modIds);
+  });
+
+  ipcMain.handle('get-dayz-installed-mods', async (_, id) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      if (!(await exists(serverDir))) return [];
+
+      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });
+      const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));
+      
+      const modDetails = mods.map(f => {
+        const modIdPath = join(serverDir, f.name, 'modid.txt');
+        let title = f.name.substring(1);
+        let id = '';
+        if (fs.existsSync(modIdPath)) {
+          const content = fs.readFileSync(modIdPath, 'utf-8').trim();
+          const parts = content.split(':');
+          if (parts.length === 2) {
+            id = parts[0];
+            title = parts[1];
+          }
+        }
+        return {
+          id: id || f.name,
+          title,
+          folderName: f.name
+        };
+      });
+
+      return modDetails;
+    } catch (e) {
+      console.error('Failed to get installed DayZ mods', e);
+      return [];
+    }
+  });
+
+  ipcMain.handle('install-dayz-mod', async (_, id, modId, modTitle, username, password, steamGuardCode) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const appId = 221100;
+
+      // 1. Download via SteamCMD
+      await SteamCMDManager.downloadWorkshopItem(id, appId, modId, username, password, steamGuardCode);
+
+      // 2. Copy mod folder from SteamCMD cache to server dir
+      const steamCmdDir = SteamCMDManager.getSteamCMDDir();
+      const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), modId);
+      
+      if (!(await exists(workshopModDir))) {
+        throw new Error('Mod folder not found after download');
+      }
+
+      // Safe folder name (e.g. @CF)
+      const safeTitle = modTitle.replace(/[^a-zA-Z0-9]/g, '');
+      const folderName = `@${safeTitle || modId}`;
+      const targetModDir = join(serverDir, folderName);
+
+      SteamCMDManager.sendLog(id, 100, `Copying ${folderName} to server...`);
+      await fsPromises.cp(workshopModDir, targetModDir, { recursive: true });
+
+      // Save mod ID and title for reference
+      await fsPromises.writeFile(join(targetModDir, 'modid.txt'), `${modId}:${modTitle}`);
+
+      // 3. Copy .bikey files to server keys directory
+      const keysDir = join(serverDir, 'keys');
+      if (!(await exists(keysDir))) await fsPromises.mkdir(keysDir, { recursive: true });
+
+      const modKeysDir = join(targetModDir, 'keys');
+      if (await exists(modKeysDir)) {
+        const keyFiles = await fsPromises.readdir(modKeysDir);
+        for (const file of keyFiles) {
+          if (file.endsWith('.bikey')) {
+            await fsPromises.copyFile(join(modKeysDir, file), join(keysDir, file));
+          }
+        }
+      }
+
+      // We might also need to check the root of the mod directory for .bikey files
+      const rootFiles = await fsPromises.readdir(targetModDir);
+      for (const file of rootFiles) {
+        if (file.endsWith('.bikey')) {
+          await fsPromises.copyFile(join(targetModDir, file), join(keysDir, file));
+        }
+      }
+
+      return true;
+    } catch (e: any) {
+      console.error('Failed to install DayZ mod', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('uninstall-dayz-mod', async (_, id, modIdOrFolder) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      
+      // If it's a folder name (starts with @), remove it directly
+      if (modIdOrFolder.startsWith('@')) {
+        const modDir = join(serverDir, modIdOrFolder);
+        if (await exists(modDir)) {
+          // Ideally we'd also delete the .bikey files, but we don't know exactly which ones belong to this mod without parsing
+          await fsPromises.rm(modDir, { recursive: true, force: true });
+        }
+      } else {
+        // Find by modId inside modid.txt
+        const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });
+        const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));
+        for (const f of mods) {
+          const modIdPath = join(serverDir, f.name, 'modid.txt');
+          if (await exists(modIdPath)) {
+            const content = await fsPromises.readFile(modIdPath, 'utf-8');
+            if (content.startsWith(`${modIdOrFolder}:`)) {
+              await fsPromises.rm(join(serverDir, f.name), { recursive: true, force: true });
+              break;
+            }
+          }
+        }
+      }
+
+      return true;
+    } catch (e) {
+      console.error('Failed to uninstall DayZ mod', e);
+      return false;
+    }
+  });
+  // --- File System Operations ---
+  
+  const getServerPath = (serverId: number, relativePath: string) => {
+    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+    const safePath = join(serverDir, relativePath);
+    // Basic directory traversal protection
+    if (!safePath.startsWith(serverDir)) {
+      throw new Error('Access denied');
+    }
+    return safePath;
+  };
+
+  ipcMain.handle('fs-list-dir', async (_, serverId, dirPath) => {
+    try {
+      const fullPath = getServerPath(serverId, dirPath || '');
+      if (!(await exists(fullPath))) return [];
+
+      const entries = await fsPromises.readdir(fullPath, { withFileTypes: true });
+      const files = await Promise.all(entries.map(async (entry) => {
+        const entryPath = join(fullPath, entry.name);
+        const stats = await fsPromises.stat(entryPath);
+        return {
+          name: entry.name,
+          isDirectory: entry.isDirectory(),
+          size: stats.size,
+          mtime: stats.mtime.toISOString(),
+        };
+      }));
+
+      // Sort directories first, then alphabetically
+      return files.sort((a, b) => {
+        if (a.isDirectory === b.isDirectory) {
+          return a.name.localeCompare(b.name);
+        }
+        return a.isDirectory ? -1 : 1;
+      });
+    } catch (e) {
+      console.error('Failed to list directory', e);
+      return [];
+    }
+  });
+
+  ipcMain.handle('fs-read-file', async (_, serverId, filePath) => {
+    try {
+      const fullPath = getServerPath(serverId, filePath);
+      return await fsPromises.readFile(fullPath, 'utf-8');
+    } catch (e) {
+      console.error('Failed to read file', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('fs-write-file', async (_, serverId, filePath, content) => {
+    try {
+      const fullPath = getServerPath(serverId, filePath);
+      await fsPromises.writeFile(fullPath, content, 'utf-8');
+      return true;
+    } catch (e) {
+      console.error('Failed to write file', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('fs-delete', async (_, serverId, itemPath) => {
+    try {
+      const fullPath = getServerPath(serverId, itemPath);
+      await fsPromises.rm(fullPath, { recursive: true, force: true });
+      return true;
+    } catch (e) {
+      console.error('Failed to delete item', e);
+      throw e;
+    }
+  });
+
+  ipcMain.handle('fs-create-folder', async (_, serverId, folderPath) => {
+    try {
+      const fullPath = getServerPath(serverId, folderPath);
+      await fsPromises.mkdir(fullPath, { recursive: true });
+      return true;
+    } catch (e) {
+      console.error('Failed to create folder', e);
+      throw e;
     }
   });
 }

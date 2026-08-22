@@ -90,10 +90,11 @@ const api = {
   // Cache
   
   // File Manager
-  listDir: (id: number, relPath: string) => ipcRenderer.invoke('list-dir', id, relPath),
-  deleteItem: (id: number, relPath: string) => ipcRenderer.invoke('delete-item', id, relPath),
-  readFile: (id: number, relPath: string) => ipcRenderer.invoke('read-file', id, relPath),
-  writeFile: (id: number, relPath: string, content: string) => ipcRenderer.invoke('write-file', id, relPath, content),
+  listDir: (id: number, relPath: string) => ipcRenderer.invoke('fs-list-dir', id, relPath),
+  deleteItem: (id: number, relPath: string) => ipcRenderer.invoke('fs-delete', id, relPath),
+  readFile: (id: number, relPath: string) => ipcRenderer.invoke('fs-read-file', id, relPath),
+  writeFile: (id: number, relPath: string, content: string) => ipcRenderer.invoke('fs-write-file', id, relPath, content),
+  createFolder: (id: number, relPath: string) => ipcRenderer.invoke('fs-create-folder', id, relPath),
 
   getCacheInfo: () => ipcRenderer.invoke('get-cache-info'),
   clearCache: () => ipcRenderer.invoke('clear-cache'),
@@ -102,7 +103,15 @@ const api = {
   getBackups: (id: number) => ipcRenderer.invoke('get-backups', id),
   createBackup: (id: number, name: string) => ipcRenderer.invoke('create-backup', id, name),
   restoreBackup: (id: number, filename: string) => ipcRenderer.invoke('restore-backup', id, filename),
-  deleteBackup: (id: number, filename: string) => ipcRenderer.invoke('delete-backup', id, filename)
+  deleteBackup: (id: number, filename: string) => ipcRenderer.invoke('delete-backup', id, filename),
+
+  // DayZ Mods
+  searchSteamWorkshop: (query: string, queryType?: number, page?: number, requiredTags?: string[]) => ipcRenderer.invoke('search-steam-workshop', query, queryType, page, requiredTags),
+  getModDependencies: (modId: string) => ipcRenderer.invoke('get-mod-dependencies', modId),
+  getWorkshopItemDetails: (modIds: string[]) => ipcRenderer.invoke('get-workshop-item-details', modIds),
+  getDayzInstalledMods: (id: number) => ipcRenderer.invoke('get-dayz-installed-mods', id),
+  installDayzMod: (id: number, modId: string, title: string, user?: string, pass?: string, guard?: string) => ipcRenderer.invoke('install-dayz-mod', id, modId, title, user, pass, guard),
+  uninstallDayzMod: (id: number, modIdOrFolder: string) => ipcRenderer.invoke('uninstall-dayz-mod', id, modIdOrFolder)
 }
 
 
