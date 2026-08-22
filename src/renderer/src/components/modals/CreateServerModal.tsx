@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
-export function CreateServerModal({ setShowCreateModal, setServers, servers, activeGameHub, showToast, setSteamLoginAction, setShowSteamLoginModal, steamUsername, steamPassword, setSteamPassword, steamGuardCode, setSteamGuardCode, isSteamGuardRequired, setIsSteamGuardRequired, setActiveServerId }: any) {
+export function CreateServerModal({ initialServerType, setShowCreateModal, setServers, servers, activeGameHub, showToast, setSteamLoginAction, setShowSteamLoginModal, steamUsername, steamPassword, setSteamPassword, steamGuardCode, setSteamGuardCode, isSteamGuardRequired, setIsSteamGuardRequired, setActiveServerId }: any) {
     const [newServerName, setNewServerName] = useState('')
-    const [newServerType, setNewServerType] = useState('Vanilla')
+    const [newServerType, setNewServerType] = useState(initialServerType || 'Vanilla')
     const [newServerVersion, setNewServerVersion] = useState('')
     const [availableVersions, setAvailableVersions] = useState<string[]>([])
     const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')

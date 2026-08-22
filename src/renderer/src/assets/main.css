@@ -64,3 +64,17 @@ body {
 .glass-panel:hover::before {
   animation: glass-shine 6s ease-in-out infinite;
 }
+
+.logo-sweep {
+  background-size: 200% 100%;
+  background-image: linear-gradient(to right, var(--logo-default-color) 40%, var(--logo-game-color) 60%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-position: 0% 0;
+  transition: background-position 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logo-sweep.active {
+  background-position: 100% 0;
+}

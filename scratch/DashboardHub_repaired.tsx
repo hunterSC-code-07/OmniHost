@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 export function DashboardHub({ 
   servers, 
@@ -27,23 +27,14 @@ export function DashboardHub({
 }: any) {
 
   return (
-    <div className="relative w-full h-full flex-1 min-h-0">
-      <AnimatePresence>
-        {activeGameHub === null ? (
-                <motion.div 
-            key="dashboard" 
-            initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}
-            animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-            exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="absolute inset-0 w-full h-full flex flex-col min-h-0"
-          >
-            <OverlayScrollbarsComponent 
-              className="flex-1 w-full block min-h-0"
-              options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
-              defer
-            >
-      <div className="w-full flex flex-col relative min-h-full pb-8">
+    <OverlayScrollbarsComponent 
+      className="flex-1 w-full block min-h-0"
+      options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+      defer
+    >
+      <AnimatePresence mode="wait">
+      {activeGameHub === null ? (
+      <motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col relative min-h-full pb-8">
         {/* Background gradient */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none"></div>
         
@@ -62,7 +53,7 @@ export function DashboardHub({
             
             {/* Minecraft Hub */}
             <div onMouseEnter={() => setHoveredGame('Minecraft')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Minecraft')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(76,175,80,0.15)] ring-1 hover:ring-primary cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-Minecraft`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Minecraft')}')`}}></motion.div>
+              <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Minecraft')}')`}}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
               <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
                 <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
@@ -72,7 +63,7 @@ export function DashboardHub({
 
             {/* Palworld Hub */}
             <div onMouseEnter={() => setHoveredGame('Palworld')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Palworld')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(66,192,255,0.2)] ring-1 hover:ring-[#42c0ff] cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-Palworld`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Palworld')}')`}}></motion.div>
+              <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Palworld')}')`}}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
               <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
                 <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
@@ -82,7 +73,7 @@ export function DashboardHub({
 
             {/* DayZ Hub */}
             <div onMouseEnter={() => setHoveredGame('DayZ')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('DayZ')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.2)] ring-1 hover:ring-red-500 cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-DayZ`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('DayZ')}')`}}></motion.div>
+              <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('DayZ')}')`}}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
               <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
                 <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
@@ -92,7 +83,7 @@ export function DashboardHub({
 
             {/* Satisfactory Hub */}
             <div onMouseEnter={() => setHoveredGame('Satisfactory')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Satisfactory')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(250,149,73,0.2)] ring-1 hover:ring-[#fa9549] cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-Satisfactory`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Satisfactory')}')`}}></motion.div>
+              <div className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Satisfactory')}')`}}></div>
               <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
               <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
                 <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
@@ -122,7 +113,7 @@ export function DashboardHub({
                 </div>
                 <h3 className="font-headline-sm text-headline-sm text-on-surface mb-2">No servers found</h3>
                 <p className="font-body-md text-body-md text-on-surface-variant max-w-md">Select a Game Hub above to create and configure your first dedicated server instance.</p>
-              </div>
+              </motion.div>
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
@@ -194,24 +185,9 @@ export function DashboardHub({
           </div>
         </div>
       </div>
-            </OverlayScrollbarsComponent>
-          </motion.div>
-        ) : (
-          <motion.div 
-            key="game-hub"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
-            className="absolute inset-0 w-full h-full flex flex-col min-h-0"
-          >
-            <OverlayScrollbarsComponent 
-              className="flex-1 w-full block min-h-0"
-              options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
-              defer
-            >
-<div className="w-full flex flex-col relative min-h-full pb-8">
-        <motion.div layoutId={`game-bg-${activeGameHub}`} initial={{ opacity: 1 }} animate={{ opacity: 0.15 }} exit={{ opacity: 1 }} className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{backgroundImage: `url('${getGameImageUrl(activeGameHub)}')`}}></motion.div>
+      ) : (
+      <div className="w-full flex flex-col relative min-h-full pb-8">
+        <motion.div layoutId={game-bg-} initial={{ opacity: 1 }} animate={{ opacity: 0.15 }} exit={{ opacity: 1 }} className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{backgroundImage: `url('${getGameImageUrl(activeGameHub)}')`}}></motion.div>
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40 z-0 pointer-events-none"></div>
         
         <div className="relative z-10 px-gutter pt-stack-lg pb-stack-lg flex flex-col gap-6">
@@ -281,7 +257,7 @@ export function DashboardHub({
                 </div>
               )}
 
-              
+              <div className="mt-8 bg-surface-container/30 border border-outline-variant/30 rounded-2xl overflow-hidden backdrop-blur-md">
                 {servers.filter((s: any) => s.game.includes(activeGameHub)).length === 0 ? (
                   <div className="py-20 flex flex-col items-center justify-center text-center px-4">
                     <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-4">
@@ -291,60 +267,65 @@ export function DashboardHub({
                     <p className="font-body-md text-body-md text-on-surface-variant max-w-md">Click the "NEW {activeGameHub.toUpperCase()} SERVER" button above to create one.</p>
                   </div>
                 ) : (
-                    <div className="flex flex-col gap-4">
-                      <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Available Servers</h2>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {servers.filter((s: any) => s.game.includes(activeGameHub)).map((server: any) => (
-                          <div key={server.id} onClick={() => setActiveServerId(server.id)} className="group relative rounded-xl overflow-hidden glass-panel p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all duration-300 ease-out hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
-                            <div className="flex justify-between items-start">
-                              <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">{server.name}</h3>
-                              <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-full border border-surface-container-highest">
-                                {server.status === 'Online' ? (
-                                  <><span className="w-2 h-2 rounded-full bg-[#4CAF50] shadow-[0_0_8px_rgba(76,175,80,0.8)]"></span><span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Online</span></>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="border-b border-outline-variant/30 bg-surface-container-low/50">
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Server Name</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Type / Version</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">Address</th>
+                          <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {servers.filter((s: any) => s.game.includes(activeGameHub)).map((server: any, idx: number, arr: any[]) => (
+                          <tr 
+                            key={server.id} 
+                            className={`border-b border-outline-variant/20 hover:bg-surface-container/50 transition-colors cursor-pointer group ${idx === arr.length - 1 ? 'border-none' : ''}`}
+                            onClick={() => setActiveServerId(server.id)}
+                          >
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2.5 h-2.5 rounded-full ${server.status === 'Online' ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500/50'}`}></span>
+                                <span className={`font-label-sm tracking-widest uppercase ${server.status === 'Online' ? 'text-green-400' : 'text-on-surface-variant'}`}>{server.status}</span>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="font-bold text-on-surface text-base group-hover:text-primary transition-colors">{server.name}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="font-body-md text-on-surface-variant">{server.type} {server.version}</span>
+                            </td>
+                            <td className="px-6 py-4 font-label-sm tracking-wider font-mono text-on-surface">{tunnelIp}:{server.port || 25565}</td>
+                            <td className="px-6 py-4 text-right">
+                              <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                                {server.status === 'Offline' ? (
+                                  <button onClick={() => handleStart(server.id)} className="w-8 h-8 rounded bg-green-500/10 text-green-400 hover:bg-green-500/20 flex items-center justify-center transition-colors" title="Start Server">
+                                    <span className="material-symbols-outlined text-[18px]">play_arrow</span>
+                                  </button>
                                 ) : (
-                                  <><span className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]"></span><span className="text-xs text-on-surface-variant font-bold uppercase tracking-widest">Offline</span></>
+                                  <>
+                                    <button onClick={() => handleRestart(server.id)} className="w-8 h-8 rounded bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 flex items-center justify-center transition-colors" title="Restart Server">
+                                      <span className="material-symbols-outlined text-[18px]">restart_alt</span>
+                                    </button>
+                                    <button onClick={() => handleStop(server.id)} className="w-8 h-8 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 flex items-center justify-center transition-colors" title="Stop Server">
+                                      <span className="material-symbols-outlined text-[18px]">stop</span>
+                                    </button>
+                                  </>
                                 )}
+                                <button onClick={() => handleDelete(server.id)} className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors ml-2" title="Delete Server">
+                                  <span className="material-symbols-outlined text-[18px]">delete</span>
+                                </button>
                               </div>
-                            </div>
-                            
-                            <div className="flex flex-col gap-3 mt-4">
-                              <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
-                                <span className="material-symbols-outlined text-lg text-primary">cell_tower</span>
-                                <span className="font-mono text-on-surface tracking-wider">{tunnelIp}:{server.port || 25565}</span>
-                              </div>
-                              
-                              <div className="flex flex-col gap-1.5 pt-2 border-t border-surface-container-high/60">
-                                <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-base opacity-70">memory</span>
-                                    Software:
-                                  </span>
-                                  <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
-                                    {server.type || 'Vanilla'}
-                                  </span>
-                                </div>
-                                <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-base opacity-70">tag</span>
-                                    Version:
-                                  </span>
-                                  <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
-                                    {server.version || '1.20.4'}{server.loaderVersion ? ` (${server.loaderVersion})` : ''}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            <div className="mt-6 pt-4 border-t border-surface-container-high flex justify-end">
-                              <button className="text-primary font-label-md text-label-md uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
-                                Manage <span className="material-symbols-outlined text-sm">arrow_forward</span>
-                              </button>
-                            </div>
-                          </div>
+                            </td>
+                          </tr>
                         ))}
-                      </div>
-                    </div>
+                      </tbody>
+                    </table>
+                  </div>
                 )}
+              </div>
             </>
           ) : (
             <div className="flex flex-col gap-6">
@@ -404,11 +385,9 @@ export function DashboardHub({
             </div>
           )}
         </div>
-      </div>
-            </OverlayScrollbarsComponent>
-          </motion.div>
+      </motion.div>
       )}
       </AnimatePresence>
-    </div>
+    </OverlayScrollbarsComponent>
   );
 }

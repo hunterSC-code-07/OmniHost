@@ -1,53 +1,49 @@
 const fs = require('fs');
-const appPath = 'src/renderer/src/App.tsx';
-let content = fs.readFileSync(appPath, 'utf8');
+let code = fs.readFileSync('src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx', 'utf8');
 
-const startMarker = '{activeServerId === null && activeGameHub === null && (';
-const endMarker = '</OverlayScrollbarsComponent>';
-
-let startIdx = content.indexOf(startMarker, 800); // skip the top navbar button
-let endIdx = content.indexOf(endMarker, startIdx);
-
-if (startIdx === -1 || endIdx === -1) {
-  console.log("Could not find Dashboard block in App.tsx!");
-  process.exit(1);
+if (!code.includes('AnimatePresence')) {
+  code = code.replace("import { motion } from 'motion/react';", "import { motion, AnimatePresence } from 'motion/react';");
 }
 
-const extractedJSX = content.substring(startIdx, endIdx + endMarker.length);
+// 1. Wrap the activeGameHub check with AnimatePresence
+code = code.replace("{activeGameHub === null ? (", "<AnimatePresence mode=\"wait\">\n      {activeGameHub === null ? (");
+code = code.replace("      </OverlayScrollbarsComponent>", "      </AnimatePresence>\n      </OverlayScrollbarsComponent>");
 
-const dashboardComponent = `import React from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+// 2. Change the dashboard wrapper to motion.div
+code = code.replace(
+  '<div className="w-full flex flex-col relative min-h-full pb-8">\n          {/* Background gradient */',
+  '<motion.div key="dashboard" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="w-full flex flex-col relative min-h-full pb-8">\n          {/* Background gradient */'
+);
 
-export function DashboardHub({ servers, activeGameHub, hoveredGame, setHoveredGame, setActiveGameHub, setActiveServerId, handleStart, handleStop, handleRestart, handleDelete, handleTunnel, tunnelStatus, tunnelIp, getGameImageUrl }: any) {
-  return (
-    ${extractedJSX}
-  );
-}
-`;
+// We need to change its closing div. It is right before:
+//               </>
+//           ) : (
+// Actually, looking at previous output, there is an </> then ) : (.
+// Let's replace:
+//                 </div>
+//               </>
+//             ) : (
+code = code.replace("                </div>\n              </>\n            ) : (", "                </motion.div>\n              </>\n            ) : (");
 
-fs.writeFileSync('src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx', dashboardComponent);
+// 3. Change the gamehub wrapper to motion.div
+code = code.replace(
+  '            ) : (\n              <div className="flex flex-col gap-6">',
+  '            ) : (\n              <motion.div key="gamehub" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-6 w-full relative min-h-full">'
+);
+// And its closing tag which is before </AnimatePresence>
+code = code.replace('              </div>\n      </AnimatePresence>', '              </motion.div>\n      </AnimatePresence>');
 
-const replaceContent = `{activeServerId === null && activeGameHub === null && (
-            <DashboardHub 
-              servers={servers}
-              activeGameHub={activeGameHub}
-              hoveredGame={hoveredGame}
-              setHoveredGame={setHoveredGame}
-              setActiveGameHub={setActiveGameHub}
-              setActiveServerId={setActiveServerId}
-              handleStart={handleStart}
-              handleStop={handleStop}
-              handleRestart={handleRestart}
-              handleDelete={handleDelete}
-              handleTunnel={handleTunnel}
-              tunnelStatus={tunnelStatus}
-              tunnelIp={tunnelIp}
-              getGameImageUrl={getGameImageUrl}
-            />
-          )}`;
+// 4. Change the background image to motion.div with layoutId
+code = code.replace(
+  /<div className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{backgroundImage: url\('\$\{getGameImageUrl\(activeGameHub\)\}'\)}}><\/div>/g,
+  '<motion.div layoutId={game-bg-} initial={{ opacity: 1 }} animate={{ opacity: 0.15 }} exit={{ opacity: 1 }} className="absolute inset-0 bg-cover bg-center pointer-events-none" style={{backgroundImage: url(\'\')}}></motion.div>'
+);
+// Wait! Earlier I saw the gamehub view actually started with: <div className="flex flex-col gap-6">
+// Wait, no! The gamehub view in the previous output was:
+//           ) : (
+//              <div className="flex flex-col gap-6">
+//                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-surface-container-high pb-6">
 
-const newAppContent = content.substring(0, startIdx) + replaceContent + content.substring(endIdx + endMarker.length + 12);
-// The +12 skips the closing ')}' which is usually a few characters after OverlayScrollbarsComponent
+// Ah! It's <div className="flex flex-col gap-6">, NOT <div className="w-full flex flex-col relative min-h-full pb-8">!
 
-fs.writeFileSync(appPath, newAppContent);
-console.log("Dashboard correctly extracted and replaced.");
+fs.writeFileSync('scratch/DashboardHub_fixed.tsx', code, 'utf8');
