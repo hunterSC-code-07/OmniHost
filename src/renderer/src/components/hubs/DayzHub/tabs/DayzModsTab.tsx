@@ -19,6 +19,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
   const [steamCreds, setSteamCreds] = useState({ username: '', password: '', steamGuard: '' });
   const [showCreds, setShowCreds] = useState(false);
   const [installingMod, setInstallingMod] = useState<string | null>(null);
+  const [viewingMod, setViewingMod] = useState<any | null>(null);
 
   useEffect(() => {
     // Load installed mods and popular mods only once on mount or when server changes
@@ -207,57 +208,70 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
     }
   };
 
+  const stripBBCode = (text: string) => {
+    if (!text) return '';
+    return text.replace(/\[\/?(b|i|u|s|h\d|url|img|list|code|quote|spoiler|\*|hr)(?:=[^\]]+)?\]/gi, '');
+  };
+
   return (
-    <div className="flex flex-col h-full bg-surface">
-      <div className="p-4 flex flex-col gap-3">
-        <div className="flex gap-2">
+    <div className="flex flex-col h-full bg-transparent font-body text-white">
+      <div className="p-6 flex flex-col gap-4">
+        <div className="flex gap-3">
           <input 
             type="text" 
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch(undefined, undefined, 1, undefined)}
             placeholder="Search Steam Workshop..."
-            className="flex-1 bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-on-surface"
+            className="flex-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl px-4 py-2.5 text-white outline-none focus:border-red-500/50 shadow-inner"
           />
           <button 
             onClick={() => handleSearch(undefined, undefined, 1, undefined)}
             disabled={loading}
-            className="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded hover:bg-primary/30"
+            className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-xl font-bold transition-all disabled:opacity-50"
           >
             {loading ? 'Searching...' : 'Search'}
           </button>
         </div>
         
-        <div className="flex gap-4 border-b border-white/5">
+        <div className="flex gap-6 border-b border-white/5 mt-2">
           {categories.map(cat => (
             <button
               key={cat.id}
               onClick={() => handleCategoryChange(cat.id)}
-              className={`pb-2 text-sm font-medium transition-colors ${
+              className={`pb-3 text-sm font-bold transition-colors relative ${
                 activeCategory === cat.id 
-                  ? 'text-primary border-b-2 border-primary' 
-                  : 'text-on-surface-variant hover:text-on-surface'
+                  ? 'text-red-400' 
+                  : 'text-gray-400 hover:text-white'
               }`}
             >
               {cat.label}
+              {activeCategory === cat.id && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)]" />
+              )}
             </button>
           ))}
         </div>
       </div>
 
       {showCreds && (
-        <div className="p-4 bg-surface-container-high border border-white/10 m-4 rounded flex flex-col gap-3">
+        <div className="p-6 bg-black/60 backdrop-blur-xl border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] m-6 rounded-xl flex flex-col gap-4">
           <div className="flex justify-between items-center">
-            <span className="text-on-surface font-bold">Steam Login Required</span>
-            <button onClick={() => setShowCreds(false)} className="text-xs text-gray-400 hover:text-white">Close</button>
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-red-500">lock</span>
+              <span className="text-white font-bold text-lg">Steam Login Required</span>
+            </div>
+            <button onClick={() => setShowCreds(false)} className="text-gray-400 hover:text-white transition-colors">
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
           </div>
-          <span className="text-on-surface-variant text-sm">
+          <p className="text-gray-400 text-sm">
             DayZ Workshop mods require a Steam account that owns the game. Your credentials are used locally by SteamCMD.
-          </span>
-          <div className="flex gap-2 items-center flex-wrap">
-            <input type="text" placeholder="Username" value={steamCreds.username} onChange={e => setSteamCreds({...steamCreds, username: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[200px] text-on-surface" />
-            <input type="password" placeholder="Password" value={steamCreds.password} onChange={e => setSteamCreds({...steamCreds, password: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[200px] text-on-surface" />
-            <input type="text" placeholder="Steam Guard (if needed)" value={steamCreds.steamGuard} onChange={e => setSteamCreds({...steamCreds, steamGuard: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm w-48 text-on-surface" />
+          </p>
+          <div className="flex gap-3 items-center flex-wrap mt-2">
+            <input type="text" placeholder="Username" value={steamCreds.username} onChange={e => setSteamCreds({...steamCreds, username: e.target.value})} className="bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm flex-1 min-w-[200px] text-white outline-none focus:border-red-500/50" />
+            <input type="password" placeholder="Password" value={steamCreds.password} onChange={e => setSteamCreds({...steamCreds, password: e.target.value})} className="bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm flex-1 min-w-[200px] text-white outline-none focus:border-red-500/50" />
+            <input type="text" placeholder="Steam Guard (if needed)" value={steamCreds.steamGuard} onChange={e => setSteamCreds({...steamCreds, steamGuard: e.target.value})} className="bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm w-48 text-white outline-none focus:border-red-500/50" />
             <button 
               onClick={() => {
                 if (steamCreds.username && steamCreds.password) {
@@ -266,7 +280,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
                   alert('Username and password are required.');
                 }
               }} 
-              className="bg-primary/20 text-primary border border-primary/30 px-4 py-2 rounded hover:bg-primary/30 text-sm font-bold"
+              className="bg-red-500 text-black border border-red-400 px-6 py-2.5 rounded-lg hover:bg-red-400 hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] text-sm font-bold transition-all"
             >
               Save Credentials
             </button>
@@ -276,25 +290,28 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
 
       <div className="flex-1 min-h-0 overflow-hidden flex flex-row">
         {/* Sidebar */}
-        <div className="w-56 bg-surface-container border-r border-white/5 flex flex-col hidden md:flex shrink-0">
-          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1 p-4">
-            <h3 className="text-xs font-bold text-on-surface-variant mb-4 uppercase tracking-wider">Mod Type</h3>
-            <div className="flex flex-col gap-3">
+        <div className="w-64 bg-black/20 backdrop-blur-md border-r border-white/5 flex flex-col hidden md:flex shrink-0">
+          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-6">
+            <h3 className="text-xs font-bold text-gray-500 mb-6 uppercase tracking-widest">Mod Type</h3>
+            <div className="flex flex-col gap-4">
               {modTypes.map(({ label, tag }) => (
                 <label key={tag} className="flex items-center gap-3 cursor-pointer group">
-                  <input 
-                    type="checkbox" 
-                    className="w-4 h-4 rounded border-white/20 bg-surface-container-highest text-primary focus:ring-primary focus:ring-offset-surface cursor-pointer"
-                    checked={selectedTags.includes(tag)}
-                    onChange={(e) => {
-                      const newTags = e.target.checked 
-                        ? [...selectedTags, tag] 
-                        : selectedTags.filter(t => t !== tag);
-                      setSelectedTags(newTags);
-                      handleSearch(undefined, undefined, 1, newTags);
-                    }}
-                  />
-                  <span className="text-sm font-medium text-on-surface-variant group-hover:text-on-surface transition-colors">
+                  <div className="relative flex items-center justify-center">
+                    <input 
+                      type="checkbox" 
+                      className="w-5 h-5 rounded border-white/20 bg-black/40 text-red-500 focus:ring-red-500 focus:ring-offset-0 cursor-pointer appearance-none transition-all checked:bg-red-500/20 checked:border-red-500/50"
+                      checked={selectedTags.includes(tag)}
+                      onChange={(e) => {
+                        const newTags = e.target.checked 
+                          ? [...selectedTags, tag] 
+                          : selectedTags.filter(t => t !== tag);
+                        setSelectedTags(newTags);
+                        handleSearch(undefined, undefined, 1, newTags);
+                      }}
+                    />
+                    {selectedTags.includes(tag) && <span className="material-symbols-outlined absolute text-[14px] text-red-400 pointer-events-none">check</span>}
+                  </div>
+                  <span className="text-sm font-bold text-gray-400 group-hover:text-white transition-colors">
                     {label}
                   </span>
                 </label>
@@ -305,49 +322,58 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
 
         {/* Main Content */}
         <div className="flex-1 min-w-0 flex flex-col">
-          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1">
-            <div className="p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1">
+            <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {results.map(mod => {
               const isInstalled = installedMods.find(m => m.id === mod.id);
               const progress = downloadProgress[mod.id];
 
               return (
-                <div key={mod.id} className="bg-surface-container-high border border-white/5 rounded p-3 flex gap-3">
+                <div key={mod.id} className="bg-black/30 backdrop-blur-sm border border-white/5 hover:border-red-500/30 hover:bg-black/50 transition-colors shadow-lg rounded-xl p-4 flex gap-4 group">
                   {mod.thumbnail ? (
-                    <img src={mod.thumbnail} alt={mod.title} className="w-16 h-16 object-cover rounded bg-black/50" />
+                    <img src={mod.thumbnail} alt={mod.title} className="w-20 h-20 object-cover rounded-lg bg-black/50 shadow-md group-hover:scale-105 transition-transform shrink-0" />
                   ) : (
-                    <div className="w-16 h-16 bg-surface-container-highest rounded flex items-center justify-center">
-                      <span className="material-symbols-outlined text-gray-500">extension</span>
+                    <div className="w-20 h-20 bg-black/40 border border-white/5 rounded-lg flex items-center justify-center shadow-md group-hover:scale-105 transition-transform shrink-0">
+                      <span className="material-symbols-outlined text-gray-500 text-3xl">extension</span>
                     </div>
                   )}
-                  <div className="flex-1 flex flex-col justify-between overflow-hidden">
+                  <div className="flex-1 flex flex-col justify-between overflow-hidden min-w-0">
                     <div>
-                      <h3 className="text-sm font-bold text-on-surface truncate" title={mod.title}>{mod.title}</h3>
-                      <p className="text-xs text-on-surface-variant truncate">{mod.description || 'No description'}</p>
+                      <h3 className="text-sm font-bold text-white truncate group-hover:text-red-300 transition-colors" title={mod.title}>{mod.title}</h3>
+                      <p className="text-xs text-gray-400 line-clamp-2 mt-1">{stripBBCode(mod.description) || 'No description'}</p>
                     </div>
-                    <div className="mt-2 flex justify-between items-center">
+                    <div className="mt-3 flex justify-between items-center">
                       {progress ? (
                         <div className="w-full">
-                          <div className="text-[10px] text-primary mb-1 truncate">{progress.msg}</div>
-                          <div className="h-1 w-full bg-surface-container-highest rounded overflow-hidden relative">
+                          <div className="text-[10px] text-red-400 mb-1 font-bold truncate">{progress.msg}</div>
+                          <div className="h-1 w-full bg-black/60 rounded-full overflow-hidden border border-white/5 relative">
                             <div 
-                              className={`h-full bg-primary transition-all duration-300 ${progress.percent === 0 ? 'animate-pulse w-full' : ''}`} 
+                              className={`h-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] transition-all duration-300 ${progress.percent === 0 ? 'animate-pulse w-full' : ''}`} 
                               style={{ width: progress.percent === 0 ? '100%' : `${progress.percent}%` }}
                             ></div>
                           </div>
                         </div>
                       ) : (
-                        <button 
-                          onClick={() => isInstalled ? handleUninstall(mod.id) : handleInstall(mod)}
-                          disabled={installingMod !== null && installingMod !== mod.id}
-                          className={`text-xs px-3 py-1 rounded font-bold ${
-                            isInstalled 
-                            ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                            : 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                          }`}
-                        >
-                          {isInstalled ? 'Uninstall' : 'Install'}
-                        </button>
+                        <div className="flex gap-2 w-full">
+                          <button 
+                            onClick={() => setViewingMod(mod)}
+                            className="text-xs px-2.5 py-1.5 rounded-lg font-bold transition-all bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white border border-white/10 flex items-center justify-center"
+                            title="View Details"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">info</span>
+                          </button>
+                          <button 
+                            onClick={() => isInstalled ? handleUninstall(mod.id) : handleInstall(mod)}
+                            disabled={installingMod !== null && installingMod !== mod.id}
+                            className={`text-xs px-4 py-1.5 rounded-lg font-bold transition-all flex-1 text-center ${
+                              isInstalled 
+                              ? 'bg-white/5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/30' 
+                              : 'bg-red-500/20 text-red-400 hover:bg-red-500/30 border border-red-500/30 hover:border-red-400 hover:shadow-[0_0_15px_rgba(239,68,68,0.3)]'
+                            } disabled:opacity-50`}
+                          >
+                            {isInstalled ? 'Uninstall' : 'Install'}
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -371,6 +397,55 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
         </OverlayScrollbarsComponent>
         </div>
       </div>
+
+      {/* Mod Details Modal */}
+      {viewingMod && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212] border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-3xl max-h-full flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-white/5 shrink-0">
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                <span className="material-symbols-outlined text-red-500">info</span>
+                Mod Details
+              </h2>
+              <button onClick={() => setViewingMod(null)} className="text-gray-400 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-[24px]">close</span>
+              </button>
+            </div>
+            
+            <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {viewingMod.thumbnail ? (
+                  <img src={viewingMod.thumbnail} alt={viewingMod.title} className="w-full md:w-64 md:h-64 object-cover rounded-lg bg-black/50 shadow-md shrink-0 border border-white/5" />
+                ) : (
+                  <div className="w-full md:w-64 md:h-64 bg-black/40 border border-white/5 rounded-lg flex items-center justify-center shadow-md shrink-0">
+                    <span className="material-symbols-outlined text-gray-500 text-6xl">extension</span>
+                  </div>
+                )}
+                <div className="flex flex-col gap-4 flex-1 min-w-0">
+                  <div>
+                    <h3 className="text-2xl font-bold text-white mb-2 truncate">{viewingMod.title}</h3>
+                    <div className="flex gap-2">
+                      <span className="text-xs bg-red-900/30 text-red-400 border border-red-500/30 px-2 py-1 rounded">Workshop Mod</span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-gray-300 whitespace-pre-wrap break-words overflow-wrap-anywhere leading-relaxed mt-2 bg-black/20 p-4 rounded-lg border border-white/5 font-mono">
+                    {stripBBCode(viewingMod.description) || 'No description available for this mod.'}
+                  </div>
+                </div>
+              </div>
+            </OverlayScrollbarsComponent>
+            
+            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
+              <button 
+                onClick={() => setViewingMod(null)}
+                className="bg-white/10 hover:bg-white/20 text-white px-6 py-2 rounded-lg font-bold transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

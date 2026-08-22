@@ -81,7 +81,7 @@ export const DayzConsoleTab: React.FC<DayzConsoleTabProps> = React.memo(({
             <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">delete_sweep</span>
           </button>
           
-          <button type="submit" className="bg-brand/10 hover:bg-brand/20 text-brand border border-brand/50 hover:border-brand shadow-[0_0_15px_rgba(255,215,0,0.1)] px-8 py-2.5 rounded-xl font-bold transition-all uppercase tracking-widest text-sm">Send</button>
+          <button type="submit" className="bg-red-900/30 hover:bg-red-900/50 text-red-400 border border-red-500/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-8 py-2.5 rounded-xl font-bold transition-all uppercase tracking-widest text-sm">Send</button>
         </form>
       </div>
 

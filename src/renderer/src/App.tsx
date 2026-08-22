@@ -124,7 +124,7 @@ export default function App() {
   }, []);
 
   const showToast = (message: string) => {
-    const id = Date.now();
+    const id = Date.now() + Math.random();
     setToasts(prev => [...prev, { id, message }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
   }
@@ -307,7 +307,13 @@ export default function App() {
           <AnimatePresence>
           {/* DASHBOARD VIEW */}
           {activeServerId === null && (
-            <motion.div key="dashboard-hub" exit={{ opacity: 0, transition: { duration: 0.2 } }} className="absolute inset-0 w-full h-full flex flex-col min-h-0">
+            <motion.div 
+              key="dashboard-hub" 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1, transition: { duration: 0.2 } }}
+              exit={{ opacity: 1, transition: { duration: 0.4 } }} 
+              className="absolute inset-0 w-full h-full flex flex-col min-h-0"
+            >
               <DashboardHub 
               servers={servers}
               activeGameHub={activeGameHub}
@@ -334,11 +340,11 @@ export default function App() {
           {activeServer !== undefined && activeServerId !== null && (
             <motion.div 
               key="active-server"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-              className="absolute inset-0 w-full h-full flex flex-col overflow-hidden"
+              exit={{ opacity: 0, y: 30 }}
+              transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute inset-0 w-full h-full flex flex-col overflow-hidden z-10 bg-[#050505]"
             >
               {activeServer.game === 'DayZ' ? (
               <DayzHub 

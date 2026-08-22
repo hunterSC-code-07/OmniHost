@@ -1,4 +1,82 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+
+// Custom Dropdown Component
+const CustomSelect = ({ value, onChange, options }: { value: string, onChange: (val: string) => void, options: {label: string, value: string}[] }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative" ref={containerRef}>
+      <div 
+        className={`w-full bg-[#121212] border ${isOpen ? 'border-red-500' : 'border-white/10'} rounded-lg p-3 text-white outline-none cursor-pointer hover:border-red-500 transition-colors flex justify-between items-center`}
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <span>{options.find(o => o.value === value)?.label || value}</span>
+        <span className="material-symbols-outlined text-[20px] text-gray-400">{isOpen ? 'expand_less' : 'expand_more'}</span>
+      </div>
+      {isOpen && (
+        <OverlayScrollbarsComponent 
+          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }}
+          className="absolute top-full left-0 right-0 mt-2 bg-[#1a1a1a] border border-red-500/30 rounded-lg z-50 shadow-2xl max-h-60"
+        >
+          {options.map(opt => (
+            <div 
+              key={opt.value}
+              className={`p-3 cursor-pointer transition-colors ${value === opt.value ? 'bg-red-900/40 text-red-400 font-bold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}
+              onClick={() => { onChange(opt.value); setIsOpen(false); }}
+            >
+              {opt.label}
+            </div>
+          ))}
+        </OverlayScrollbarsComponent>
+      )}
+    </div>
+  )
+}
+
+// Custom Number Input Component
+const CustomNumberInput = ({ value, onChange, min, max }: { value: string, onChange: (val: string) => void, min?: number, max?: number }) => {
+  return (
+    <div className="flex bg-[#121212] border border-white/10 rounded-lg overflow-hidden focus-within:border-red-500 hover:border-white/20 transition-colors h-[48px]">
+      <input 
+        type="number"
+        className="flex-1 bg-transparent px-3 text-white outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        min={min}
+        max={max}
+        style={{ MozAppearance: 'textfield' }}
+      />
+      <div className="flex flex-col border-l border-white/10 w-8 bg-[#1a1a1a]">
+        <button 
+          type="button"
+          className="flex-1 flex items-center justify-center hover:bg-red-900/40 hover:text-red-400 text-gray-400 transition-colors"
+          onClick={() => onChange(String(Math.min(max ?? Infinity, Number(value) + 1)))}
+        >
+          <span className="material-symbols-outlined text-[16px]">expand_less</span>
+        </button>
+        <button 
+          type="button"
+          className="flex-1 flex items-center justify-center hover:bg-red-900/40 hover:text-red-400 text-gray-400 transition-colors border-t border-white/10"
+          onClick={() => onChange(String(Math.max(min ?? -Infinity, Number(value) - 1)))}
+        >
+          <span className="material-symbols-outlined text-[16px]">expand_more</span>
+        </button>
+      </div>
+    </div>
+  )
+}
 
 interface DayzOptionsTabProps {
   activeServerId: number;
@@ -134,9 +212,15 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
     );
   }
 
+  // Ensure current template is always an option even if not found in mpmissions yet
+  const templateOptions = availableMissions.includes(template) 
+    ? availableMissions.map(m => ({ label: m, value: m }))
+    : [{ label: `${template} (Current)`, value: template }, ...availableMissions.map(m => ({ label: m, value: m }))];
+
   return (
-    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#050505]">
-      <div className="max-w-3xl mx-auto space-y-8 pb-10">
+    <div className="flex-1 min-h-0 bg-black/20 backdrop-blur-sm flex flex-col">
+      <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-6">
+        <div className="max-w-3xl mx-auto space-y-8 pb-10">
         
         <div className="flex justify-between items-end">
           <div>
@@ -146,7 +230,7 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-brand hover:bg-green-600 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2"
+            className="bg-red-900/80 border border-red-500/50 hover:bg-red-800 hover:border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)] disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2"
           >
             {isSaving ? (
               <>
@@ -172,7 +256,7 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
                 type="text" 
                 value={hostname}
                 onChange={e => setHostname(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
+                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors"
                 placeholder="OmniHost DayZ Server"
               />
             </div>
@@ -184,7 +268,7 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
                 type="text" 
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
+                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors"
                 placeholder="Leave blank for public"
               />
             </div>
@@ -194,7 +278,7 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
                 type="text" 
                 value={passwordAdmin}
                 onChange={e => setPasswordAdmin(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
+                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors"
                 placeholder="Admin RCON password"
               />
             </div>
@@ -202,57 +286,43 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
             {/* Max Players */}
             <div>
               <label className="block text-sm font-bold text-gray-300 mb-2">Max Players</label>
-              <input 
-                type="number" 
+              <CustomNumberInput 
                 value={maxPlayers}
-                onChange={e => setMaxPlayers(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
-                min="1"
-                max="127"
+                onChange={setMaxPlayers}
+                min={1}
+                max={127}
               />
             </div>
 
             {/* Map Template */}
             <div>
               <label className="block text-sm font-bold text-gray-300 mb-2">Map (Template)</label>
-              <select
+              <CustomSelect 
                 value={template}
-                onChange={e => setTemplate(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
-              >
-                {/* Ensure current template is always an option even if not found in mpmissions yet */}
-                {!availableMissions.includes(template) && (
-                  <option value={template}>{template} (Current)</option>
-                )}
-                {availableMissions.map(m => (
-                  <option key={m} value={m}>{m}</option>
-                ))}
-              </select>
+                onChange={setTemplate}
+                options={templateOptions}
+              />
               <p className="text-xs text-gray-500 mt-1">If using a custom map, enter its mission folder name here (e.g. regular.namalsk). Ensure the mission folder is copied into your server's mpmissions folder.</p>
             </div>
 
             {/* Time Acceleration */}
             <div>
               <label className="block text-sm font-bold text-gray-300 mb-2">Day Time Acceleration</label>
-              <input 
-                type="number" 
+              <CustomNumberInput 
                 value={serverTimeAcceleration}
-                onChange={e => setServerTimeAcceleration(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
-                min="0"
-                max="24"
+                onChange={setServerTimeAcceleration}
+                min={0}
+                max={24}
               />
               <p className="text-xs text-gray-500 mt-1">Multiplier for daylight passing.</p>
             </div>
             <div>
               <label className="block text-sm font-bold text-gray-300 mb-2">Night Time Acceleration</label>
-              <input 
-                type="number" 
+              <CustomNumberInput 
                 value={serverNightTimeAcceleration}
-                onChange={e => setServerNightTimeAcceleration(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-brand transition-colors"
-                min="0"
-                max="24"
+                onChange={setServerNightTimeAcceleration}
+                min={0}
+                max={24}
               />
               <p className="text-xs text-gray-500 mt-1">Multiplier for night time passing.</p>
             </div>
@@ -260,7 +330,8 @@ export const DayzOptionsTab: React.FC<DayzOptionsTabProps> = ({ activeServerId }
           </div>
         </div>
 
-      </div>
+        </div>
+      </OverlayScrollbarsComponent>
     </div>
   );
 };
