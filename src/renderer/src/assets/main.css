@@ -36,11 +36,14 @@ body {
   --os-handle-border-active: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-@keyframes glass-shine {
-  0% { transform: translateX(-200%) skewX(-15deg); }
-  25% { transform: translateX(200%) skewX(-15deg); }
-  100% { transform: translateX(200%) skewX(-15deg); }
+/* DayZ specific scrollbar overrides */
+.dayz-scrollbars .os-theme-dark {
+  --os-handle-bg: rgba(239, 68, 68, 0.3);
+  --os-handle-bg-hover: rgba(239, 68, 68, 0.7);
+  --os-handle-bg-active: rgba(239, 68, 68, 0.9);
 }
+
+
 
 .glass-panel {
   @apply bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
@@ -48,22 +51,7 @@ body {
   overflow: hidden;
 }
 
-.glass-panel::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  background: linear-gradient(to right, transparent, rgba(76, 175, 80, 0.15), transparent);
-  transform: translateX(-200%) skewX(-15deg);
-  pointer-events: none;
-  z-index: 10;
-}
 
-.glass-panel:hover::before {
-  animation: glass-shine 6s ease-in-out infinite;
-}
 
 .logo-sweep {
   background-size: 200% 100%;

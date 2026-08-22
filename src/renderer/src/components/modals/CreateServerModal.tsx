@@ -101,6 +101,7 @@ export function CreateServerModal({ initialServerType, setShowCreateModal, setSe
                 setServers(data);
                 setActiveServerId(newId);
                 showToast("DayZ Server created successfully!");
+                return;
               }
             } catch (err: any) {
               if (err.message && err.message.includes('STEAM_GUARD_REQUIRED')) {
@@ -111,6 +112,7 @@ export function CreateServerModal({ initialServerType, setShowCreateModal, setSe
               } else {
                 alert('Failed to download DayZ Server via SteamCMD: ' + err.message);
               }
+              return;
             } finally {
               setIsCreatingServer(false);
               // @ts-ignore

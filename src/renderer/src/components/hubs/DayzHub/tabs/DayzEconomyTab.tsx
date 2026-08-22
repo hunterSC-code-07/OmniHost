@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 interface DayzEconomyTabProps {
   activeServerId: number;
@@ -104,7 +105,7 @@ export const DayzEconomyTab: React.FC<DayzEconomyTabProps> = ({ activeServerId }
     <div className="space-y-2">
       <div className="flex justify-between">
         <label className="text-sm font-bold text-gray-300">{label} Spawn Multiplier</label>
-        <span className="text-brand font-mono">{multipliers[category]?.toFixed(1)}x</span>
+        <span className="text-red-400 font-mono">{multipliers[category]?.toFixed(1)}x</span>
       </div>
       <input 
         type="range" 
@@ -113,29 +114,30 @@ export const DayzEconomyTab: React.FC<DayzEconomyTabProps> = ({ activeServerId }
         step="0.1" 
         value={multipliers[category]} 
         onChange={(e) => handleMultiplierChange(category, parseFloat(e.target.value))}
-        className="w-full accent-brand"
+        className="w-full accent-red-500"
       />
-      <div className="flex justify-between text-xs text-gray-500">
-        <span>0.1x (Rare)</span>
-        <span>1.0x (Vanilla)</span>
-        <span>5.0x (Abundant)</span>
+      <div className="relative h-4 text-[11px] text-gray-500 mt-1">
+        <span className="absolute left-0">0.1x</span>
+        <span className="absolute left-[18.4%] -translate-x-1/2">1.0x (Vanilla)</span>
+        <span className="absolute right-0">5.0x</span>
       </div>
     </div>
   );
 
   return (
-    <div className="flex-1 overflow-y-auto p-6 custom-scrollbar bg-[#050505]">
-      <div className="max-w-3xl mx-auto space-y-8 pb-10">
+    <div className="flex-1 min-h-0 bg-black/20 backdrop-blur-sm flex flex-col">
+      <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-6">
+        <div className="max-w-3xl mx-auto space-y-8 pb-10">
         
         <div className="flex justify-between items-end">
           <div>
             <h3 className="text-xl font-bold text-white mb-2">Central Economy</h3>
-            <p className="text-sm text-gray-400">Tweak loot spawns and item conditions. These changes overwrite your mission's <code className="text-brand">globals.xml</code> and <code className="text-brand">types.xml</code>.</p>
+            <p className="text-sm text-gray-400">Tweak loot spawns and item conditions. These changes overwrite your mission's <code className="text-red-400">globals.xml</code> and <code className="text-red-400">types.xml</code>.</p>
           </div>
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className="bg-brand hover:bg-green-600 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2 min-w-max"
+            className="bg-red-900/80 border border-red-500/50 hover:bg-red-800 hover:border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)] disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2 min-w-max"
           >
             {isSaving ? (
               <>
@@ -161,7 +163,7 @@ export const DayzEconomyTab: React.FC<DayzEconomyTabProps> = ({ activeServerId }
             </div>
             <button
               onClick={() => setPristineLoot(!pristineLoot)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${pristineLoot ? 'bg-brand' : 'bg-gray-700'}`}
+              className={`w-12 h-6 rounded-full transition-colors relative ${pristineLoot ? 'bg-red-600' : 'bg-gray-700'}`}
             >
               <div className={`absolute top-1 left-1 bg-white w-4 h-4 rounded-full transition-transform ${pristineLoot ? 'translate-x-6' : 'translate-x-0'}`} />
             </button>
@@ -172,7 +174,7 @@ export const DayzEconomyTab: React.FC<DayzEconomyTabProps> = ({ activeServerId }
           {/* Sliders */}
           <div>
             <h4 className="font-bold text-white mb-6 flex items-center gap-2">
-              <span className="material-symbols-outlined text-brand">category</span>
+              <span className="material-symbols-outlined text-red-400">category</span>
               Item Spawn Frequencies
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -196,7 +198,7 @@ export const DayzEconomyTab: React.FC<DayzEconomyTabProps> = ({ activeServerId }
             <div className="flex items-center justify-between p-4 bg-[#121212] rounded-lg border border-red-500/20">
               <div>
                 <h4 className="font-bold text-red-400">Wipe Spawned Loot</h4>
-                <p className="text-sm text-gray-400 mt-1">Deletes the <code className="text-brand">types.bin</code> storage file. On the next server restart, the economy will generate fresh loot across the entire map using your new settings. Player characters are NOT affected.</p>
+                <p className="text-sm text-gray-400 mt-1">Deletes the <code className="text-red-400">types.bin</code> storage file. On the next server restart, the economy will generate fresh loot across the entire map using your new settings. Player characters are NOT affected.</p>
               </div>
               <button
                 onClick={async () => {
@@ -227,7 +229,8 @@ export const DayzEconomyTab: React.FC<DayzEconomyTabProps> = ({ activeServerId }
 
         </div>
 
-      </div>
+        </div>
+      </OverlayScrollbarsComponent>
     </div>
   );
 };

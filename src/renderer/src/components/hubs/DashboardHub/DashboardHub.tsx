@@ -1,10 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { motion, AnimatePresence } from 'motion/react';
+
+const DayzModStatus = ({ serverId }: { serverId: number }) => {
+  const [modCount, setModCount] = useState<number | null>(null);
+  useEffect(() => {
+    // @ts-ignore
+    window.api.getDayzInstalledMods(serverId).then((mods: any[]) => {
+      setModCount(mods.length);
+    }).catch(() => setModCount(0));
+  }, [serverId]);
+
+  return (
+    <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
+      {modCount === null ? 'Checking...' : modCount > 0 ? `${modCount} Detected` : 'None'}
+    </span>
+  );
+};
 
 export function DashboardHub({ 
   servers, 
   activeGameHub, 
+
+  // ... (rest of props)
+
   hoveredGame, 
   setHoveredGame, 
   setActiveGameHub, 
@@ -161,9 +180,21 @@ export function DashboardHub({
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="font-body-md text-on-surface-variant">{server.type} {server.version}</span>
+                          {server.game === 'DayZ' ? (
+                            <span className="font-body-md text-on-surface-variant flex items-center gap-2">
+                              Mods: <DayzModStatus serverId={server.id} />
+                            </span>
+                          ) : (
+                            <span className="font-body-md text-on-surface-variant">{server.type} {server.version}</span>
+                          )}
                         </td>
-                        <td className="px-6 py-4 font-label-sm tracking-wider font-mono text-on-surface">{tunnelIp}:{server.port || 25565}</td>
+                        <td className="px-6 py-4 font-label-sm tracking-wider font-mono text-on-surface">
+                          {server.game === 'DayZ' ? (
+                            <span className="opacity-30">--</span>
+                          ) : (
+                            `${tunnelIp}:${server.port || 25565}`
+                          )}
+                        </td>
                         <td className="px-6 py-4 text-right">
                           <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                             {server.status === 'Offline' ? (
@@ -308,30 +339,44 @@ export function DashboardHub({
                             </div>
                             
                             <div className="flex flex-col gap-3 mt-4">
-                              <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
-                                <span className="material-symbols-outlined text-lg text-primary">cell_tower</span>
-                                <span className="font-mono text-on-surface tracking-wider">{tunnelIp}:{server.port || 25565}</span>
-                              </div>
+                              {server.game !== 'DayZ' && (
+                                <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
+                                  <span className="material-symbols-outlined text-lg text-primary">cell_tower</span>
+                                  <span className="font-mono text-on-surface tracking-wider">{tunnelIp}:{server.port || 25565}</span>
+                                </div>
+                              )}
                               
                               <div className="flex flex-col gap-1.5 pt-2 border-t border-surface-container-high/60">
-                                <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-base opacity-70">memory</span>
-                                    Software:
-                                  </span>
-                                  <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
-                                    {server.type || 'Vanilla'}
-                                  </span>
-                                </div>
-                                <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
-                                  <span className="flex items-center gap-1.5">
-                                    <span className="material-symbols-outlined text-base opacity-70">tag</span>
-                                    Version:
-                                  </span>
-                                  <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
-                                    {server.version || '1.20.4'}{server.loaderVersion ? ` (${server.loaderVersion})` : ''}
-                                  </span>
-                                </div>
+                                {server.game === 'DayZ' ? (
+                                  <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="material-symbols-outlined text-base opacity-70">extension</span>
+                                      Mods:
+                                    </span>
+                                    <DayzModStatus serverId={server.id} />
+                                  </div>
+                                ) : (
+                                  <>
+                                    <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
+                                      <span className="flex items-center gap-1.5">
+                                        <span className="material-symbols-outlined text-base opacity-70">memory</span>
+                                        Software:
+                                      </span>
+                                      <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
+                                        {server.type || 'Vanilla'}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
+                                      <span className="flex items-center gap-1.5">
+                                        <span className="material-symbols-outlined text-base opacity-70">tag</span>
+                                        Version:
+                                      </span>
+                                      <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
+                                        {server.version || '1.20.4'}{server.loaderVersion ? ` (${server.loaderVersion})` : ''}
+                                      </span>
+                                    </div>
+                                  </>
+                                )}
                               </div>
                             </div>
                             
