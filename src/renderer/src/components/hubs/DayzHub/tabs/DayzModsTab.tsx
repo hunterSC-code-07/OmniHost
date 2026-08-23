@@ -18,7 +18,15 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
   const [loading, setLoading] = useState(false);
   const loadMoreRef = React.useRef(null);
   const [downloadProgress, setDownloadProgress] = useState<{ [id: string]: { percent: number, msg: string } }>({});
-  const [steamCreds, setSteamCreds] = useState({ username: '', password: '', steamGuard: '' });
+  const [steamCreds, setSteamCreds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('omnihost_steam_creds');
+      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };
+    } catch {
+      return { username: '', password: '', steamGuard: '' };
+    }
+  });
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));
   const [showCreds, setShowCreds] = useState(false);
   const [installingMod, setInstallingMod] = useState<string | null>(null);
   const [viewingMod, setViewingMod] = useState<any | null>(null);
@@ -154,28 +162,30 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
         }
       }
 
-      for (const m of modsToInstall) {
-        setInstallingMod(m.id);
-        setDownloadProgress(prev => ({
-          ...prev,
-          [m.id]: { percent: 0, msg: `Starting download: ${m.title}...` }
-        }));
+      setInstallingMod(mod.id);
+      setDownloadProgress(prev => ({
+        ...prev,
+        [mod.id]: { percent: 0, msg: `Starting batch download for ${modsToInstall.length} mods...` }
+      }));
 
-        await window.api.installDayzMod(
-          activeServerId,
-          m.id,
-          m.title,
-          steamCreds.username,
-          steamCreds.password,
-          steamCreds.steamGuard || undefined
-        );
-        
-        setDownloadProgress(prev => {
-          const next = { ...prev };
-          delete next[m.id];
-          return next;
-        });
-      }
+      const batchMods = modsToInstall.map((m: any) => ({
+        modId: m.id || m.publishedfileid,
+        modTitle: m.title
+      }));
+
+      await window.api.installDayzMods(
+        activeServerId,
+        batchMods,
+        steamCreds.username,
+        steamCreds.password,
+        steamCreds.steamGuard || undefined
+      );
+
+      setDownloadProgress(prev => {
+        const next = { ...prev };
+        delete next[mod.id];
+        return next;
+      });
       
       // Clear steam guard code after use since it's a one-time thing
       setSteamCreds(prev => ({ ...prev, steamGuard: '' }));
@@ -190,7 +200,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
         alert(`SteamCMD Login Failed:\n${e.message}\n\nPlease check your credentials. Note: You MUST own DayZ on this Steam account to download mods!`);
         setShowCreds(true);
       } else {
-        alert(`Failed to install mod: ${e.message}`);
+        alert(`Failed to batch install mods: ${e.message}`);
       }
     } finally {
       setInstallingMod(null);
@@ -296,18 +306,38 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
             <input type="text" placeholder="Username" value={steamCreds.username} onChange={e => setSteamCreds({...steamCreds, username: e.target.value})} className="bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm flex-1 min-w-[200px] text-white outline-none focus:border-red-500/50" />
             <input type="password" placeholder="Password" value={steamCreds.password} onChange={e => setSteamCreds({...steamCreds, password: e.target.value})} className="bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm flex-1 min-w-[200px] text-white outline-none focus:border-red-500/50" />
             <input type="text" placeholder="Steam Guard (if needed)" value={steamCreds.steamGuard} onChange={e => setSteamCreds({...steamCreds, steamGuard: e.target.value})} className="bg-black/40 border border-white/10 rounded-lg px-4 py-2.5 text-sm w-48 text-white outline-none focus:border-red-500/50" />
-            <button 
-              onClick={() => {
-                if (steamCreds.username && steamCreds.password) {
-                  setShowCreds(false);
-                } else {
-                  alert('Username and password are required.');
-                }
-              }} 
-              className="bg-red-500 text-black border border-red-400 px-6 py-2.5 rounded-lg hover:bg-red-400 hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] text-sm font-bold transition-all"
-            >
-              Save Credentials
-            </button>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer hover:text-white transition-colors">
+                <input 
+                  type="checkbox" 
+                  checked={rememberMe} 
+                  onChange={e => setRememberMe(e.target.checked)} 
+                  className="rounded border-white/10 bg-surface-container-highest text-primary focus:ring-primary focus:ring-offset-surface-container-high" 
+                />
+                Remember Me
+              </label>
+              <button 
+                onClick={() => {
+                  if (steamCreds.username && steamCreds.password) {
+                    if (rememberMe) {
+                      localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));
+                    } else {
+                      localStorage.removeItem('omnihost_steam_creds');
+                    }
+                    setShowCreds(false);
+                    if (installingMod) {
+                      const mod = viewingMod || results.find(r => r.id === installingMod);
+                      if (mod) executeInstall(mod);
+                    }
+                  } else {
+                    alert('Username and password are required.');
+                  }
+                }} 
+                className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
+              >
+                Start Download
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -384,7 +414,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ activeServerId }) => {
           <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1">
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {results.map(mod => {
-              const isInstalled = installedMods.find(m => m.id === mod.id);
+              const isInstalled = installedMods.find(m => String(m.id) === String(mod.id));
               const progress = downloadProgress[mod.id];
 
               return (

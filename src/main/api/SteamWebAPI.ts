@@ -1,6 +1,5 @@
 import axios from 'axios';
 
-const STEAM_API_KEY = '16C3DEE97F2D656EC9DF78A131565B37';
 
 export class SteamWebAPI {
   static async searchWorkshop(query: string, appId: number = 221100, page: number = 1, queryType: number = 9, requiredTags: string[] = []) {
@@ -29,9 +28,12 @@ export class SteamWebAPI {
       
       // Fetch details using the non-key endpoint
       return await this.getWorkshopItemDetails(uniqueIds);
-    } catch (e) {
+    } catch (e: any) {
       console.error('SteamWebAPI searchWorkshop error:', e);
-      return [];
+      if (e.response && e.response.status === 429) {
+        throw new Error('Steam is rate-limiting your requests. Please wait a few minutes before searching again.');
+      }
+      throw e;
     }
   }
 
@@ -40,48 +42,73 @@ export class SteamWebAPI {
       const url = `https://steamcommunity.com/sharedfiles/filedetails/?id=${modId}`;
       const response = await axios.get(url);
       const html = response.data;
-      const regex = /class="requiredItemsContainer"[\s\S]*?<\/div>/;
-      const containerMatch = html.match(regex);
-      if (containerMatch) {
+      
+      const parts = html.split('class="requiredItemsContainer"');
+      if (parts.length > 1) {
+        let block = parts[1];
+        // Ensure we don't accidentally match items from 'More from this author' section
+        const endPart = block.indexOf('class="rightDetailsBlock"');
+        if (endPart !== -1) {
+            block = block.substring(0, endPart);
+        }
+        
         const idRegex = /filedetails\/\?id=(\d+)/g;
-        const ids = [...containerMatch[0].matchAll(idRegex)].map(m => m[1]);
+        const ids = [...block.matchAll(idRegex)].map(m => m[1]);
         return [...new Set(ids)];
       }
       return [];
-    } catch (e) {
+    } catch (e: any) {
       console.error(`SteamWebAPI getModDependencies error for ${modId}:`, e);
-      return [];
+      if (e.response && e.response.status === 429) {
+        throw new Error('Steam is rate-limiting your requests. Please wait a few minutes before checking dependencies again.');
+      }
+      throw e;
     }
   }
 
   static async getWorkshopItemDetails(modIds: string[]) {
     try {
-      // Create x-www-form-urlencoded body for the request
-      const params = new URLSearchParams();
-      params.append('itemcount', modIds.length.toString());
-      modIds.forEach((id, index) => {
-        params.append(`publishedfileids[${index}]`, id);
-      });
-
-      const response = await axios.post(`https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/`, params.toString(), {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      });
+      modIds = modIds.filter(id => id && String(id) !== '0' && /^\d+$/.test(String(id)));
+      if (modIds.length === 0) return [];
       
-      const details = response.data?.response?.publishedfiledetails || [];
-      return details.map((mod: any) => ({
-        id: mod.publishedfileid,
-        title: mod.title,
-        description: mod.description,
-        author: mod.creator,
-        subscriptions: mod.subscriptions || 0,
-        thumbnail: mod.preview_url || '',
-        updated: mod.time_updated
-      }));
-    } catch (e) {
+      const BATCH_SIZE = 25;
+      let allDetails: any[] = [];
+
+      for (let i = 0; i < modIds.length; i += BATCH_SIZE) {
+        const batch = modIds.slice(i, i + BATCH_SIZE);
+        let paramsStr = `itemcount=${batch.length}`;
+        batch.forEach((id, index) => {
+          paramsStr += `&publishedfileids[${index}]=${id}`;
+        });
+
+        const response = await axios.post(`https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/`, paramsStr, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+        
+        const details = (response.data?.response?.publishedfiledetails || []).filter((mod: any) => mod.result === 1);
+        allDetails = allDetails.concat(details.map((mod: any) => ({
+          id: mod.publishedfileid,
+          publishedfileid: mod.publishedfileid,
+          title: mod.title,
+          description: mod.description,
+          author: mod.creator,
+          subscriptions: mod.subscriptions || 0,
+          thumbnail: mod.preview_url || '',
+          preview_url: mod.preview_url || '',
+          updated: mod.time_updated,
+          file_size: mod.file_size,
+          tags: mod.tags
+        })));
+      }
+      return allDetails;
+    } catch (e: any) {
       console.error('SteamWebAPI getWorkshopItemDetails error:', e);
-      return [];
+      if (e.response && e.response.status === 429) {
+        throw new Error('Steam API is rate-limiting your requests. Please wait a few minutes before trying again.');
+      }
+      throw e;
     }
   }
 }

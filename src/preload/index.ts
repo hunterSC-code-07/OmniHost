@@ -111,6 +111,7 @@ const api = {
   getWorkshopItemDetails: (modIds: string[]) => ipcRenderer.invoke('get-workshop-item-details', modIds),
   getDayzInstalledMods: (id: number) => ipcRenderer.invoke('get-dayz-installed-mods', id),
   installDayzMod: (id: number, modId: string, title: string, user?: string, pass?: string, guard?: string) => ipcRenderer.invoke('install-dayz-mod', id, modId, title, user, pass, guard),
+  installDayzMods: (id: number, modsToInstall: { modId: string, modTitle: string }[], user?: string, pass?: string, guard?: string) => ipcRenderer.invoke('install-dayz-mods', id, modsToInstall, user, pass, guard),
   uninstallDayzMod: (id: number, modIdOrFolder: string) => ipcRenderer.invoke('uninstall-dayz-mod', id, modIdOrFolder),
   toggleDayzMapMod: (id: number, folderName: string, isMap: boolean) => ipcRenderer.invoke('toggle-dayz-map-mod', id, folderName, isMap),
   toggleDayzModStatus: (id: number, folderName: string, isDisabled: boolean) => ipcRenderer.invoke('toggle-dayz-mod-status', id, folderName, isDisabled),

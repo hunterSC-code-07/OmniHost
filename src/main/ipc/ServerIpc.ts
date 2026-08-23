@@ -492,9 +492,23 @@ export function registerServerIpc(
         if (fs.existsSync(modIdPath)) {
           const content = fs.readFileSync(modIdPath, 'utf-8').trim();
           const parts = content.split(':');
-          if (parts.length === 2) {
-            idStr = parts[0];
-            title = parts[1];
+          if (parts.length >= 2) {
+            idStr = parts.shift() || '';
+            title = parts.join(':');
+          }
+        } else {
+          // Fallback to meta.cpp for locally imported mods
+          const metaPath = join(modDir, 'meta.cpp');
+          if (fs.existsSync(metaPath)) {
+            const metaContent = fs.readFileSync(metaPath, 'utf-8');
+            const idMatch = metaContent.match(/publishedid\s*=\s*(\d+)/i);
+            if (idMatch && idMatch[1]) {
+              idStr = idMatch[1];
+            }
+            const nameMatch = metaContent.match(/name\s*=\s*"([^"]+)"/i);
+            if (nameMatch && nameMatch[1]) {
+              title = nameMatch[1];
+            }
           }
         }
 
@@ -784,6 +798,77 @@ export function registerServerIpc(
     }
   });
 
+  ipcMain.handle('install-dayz-mods', async (_, id, modsToInstall, username, password, steamGuardCode) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      const appId = 221100;
+      
+      const modIds = modsToInstall.map((m: any) => m.modId);
+      
+      // 1. Download via SteamCMD
+      await SteamCMDManager.downloadWorkshopItems(id, appId, modIds, username, password, steamGuardCode);
+
+      // 2. Copy mod folders from SteamCMD cache to server dir
+      const steamCmdDir = SteamCMDManager.getSteamCMDDir();
+
+      for (const m of modsToInstall) {
+        const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), m.modId);
+        
+        if (!(await exists(workshopModDir))) {
+          console.warn(`Mod folder not found after download for ${m.modTitle} (${m.modId})`);
+          continue;
+        }
+
+        // Safe folder name (e.g. @CF)
+        const safeTitle = m.modTitle.replace(/[^a-zA-Z0-9]/g, '');
+        const folderName = `@${safeTitle || m.modId}`;
+        const targetModDir = join(serverDir, folderName);
+
+        try {
+          await fsPromises.lstat(targetModDir);
+          // If lstat succeeds, it exists (even as a broken symlink)
+          await fsPromises.rm(targetModDir, { recursive: true, force: true });
+        } catch (e) {
+          // Does not exist, safe to proceed
+        }
+
+        SteamCMDManager.sendLog(id, 100, `Copying ${folderName} to server...`);
+        await fsPromises.cp(workshopModDir, targetModDir, { recursive: true });
+
+        // Save mod ID and title for reference
+        await fsPromises.writeFile(join(targetModDir, 'modid.txt'), `${m.modId}:${m.modTitle}`);
+
+        // 3. Copy .bikey files to server keys directory
+        const keysDir = join(serverDir, 'keys');
+        if (!(await exists(keysDir))) await fsPromises.mkdir(keysDir, { recursive: true });
+
+        const modKeysDir = join(targetModDir, 'keys');
+        if (await exists(modKeysDir)) {
+          const keyFiles = await fsPromises.readdir(modKeysDir);
+          for (const file of keyFiles) {
+            if (file.endsWith('.bikey')) {
+              await fsPromises.copyFile(join(modKeysDir, file), join(keysDir, file));
+            }
+          }
+        }
+
+        // We might also need to check the root of the mod directory for .bikey files
+        const rootFiles = await fsPromises.readdir(targetModDir);
+        for (const file of rootFiles) {
+          if (file.endsWith('.bikey')) {
+            await fsPromises.copyFile(join(targetModDir, file), join(keysDir, file));
+          }
+        }
+      }
+
+      SteamCMDManager.sendLog(id, 100, 'All mods installed and setup successfully!');
+      return true;
+    } catch (e: any) {
+      console.error('Failed to install DayZ mods', e);
+      throw e;
+    }
+  });
+
   ipcMain.handle('install-dayz-mod', async (_, id, modId, modTitle, username, password, steamGuardCode) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString());
@@ -804,6 +889,14 @@ export function registerServerIpc(
       const safeTitle = modTitle.replace(/[^a-zA-Z0-9]/g, '');
       const folderName = `@${safeTitle || modId}`;
       const targetModDir = join(serverDir, folderName);
+
+      try {
+        await fsPromises.lstat(targetModDir);
+        // If lstat succeeds, it exists (even as a broken symlink)
+        await fsPromises.rm(targetModDir, { recursive: true, force: true });
+      } catch (e) {
+        // Does not exist, safe to proceed
+      }
 
       SteamCMDManager.sendLog(id, 100, `Copying ${folderName} to server...`);
       await fsPromises.cp(workshopModDir, targetModDir, { recursive: true });

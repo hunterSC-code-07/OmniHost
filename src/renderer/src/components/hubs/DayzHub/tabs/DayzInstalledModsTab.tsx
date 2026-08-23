@@ -10,11 +10,21 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
   const [loading, setLoading] = useState(true);
   const [downloadingMission, setDownloadingMission] = useState<string | null>(null);
 
-  const [steamCreds, setSteamCreds] = useState({ username: '', password: '', steamGuard: '' });
+  const [steamCreds, setSteamCreds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('omnihost_steam_creds');
+      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };
+    } catch {
+      return { username: '', password: '', steamGuard: '' };
+    }
+  });
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));
   const [showCreds, setShowCreds] = useState(false);
   const [pendingDeps, setPendingDeps] = useState<any[]>([]);
   const [installingDep, setInstallingDep] = useState<string | null>(null);
   const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);
+  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);
+  const [dependencyResult, setDependencyResult] = useState<{modTitle: string, deps: any[]} | null>(null);
 
   useEffect(() => {
     window.api.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {
@@ -99,41 +109,69 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
             // Optional: alert(`Automatically enabled ${enabledCount} installed dependencies.`);
           }
         }
-      } catch (e) {
-        console.error("Failed to process dependencies", e);
+      } catch (e: any) {
+        alert('Failed to process missing dependencies: ' + e.message);
       }
     }
     
     loadInstalledMods();
   };
 
+  const handleCheckDependencies = async (mod: any) => {
+    setCheckingDeps(mod.id);
+    try {
+      const depIds = await window.api.getModDependencies(mod.id);
+      if (!depIds || depIds.length === 0) {
+        alert('No dependencies required for this mod.');
+        setCheckingDeps(null);
+        return;
+      }
+      
+      const details = await window.api.getWorkshopItemDetails(depIds);
+      
+      const results = details.map((d: any) => {
+        const localMod = mods.find(m => String(m.id) === String(d.id));
+        return {
+          id: d.id,
+          title: d.title,
+          isInstalled: !!localMod,
+          isDisabled: localMod ? localMod.isDisabled : false
+        };
+      });
+      
+      setDependencyResult({ modTitle: mod.title, deps: results });
+    } catch (e: any) {
+      alert('Failed to check dependencies: ' + e.message);
+    } finally {
+      setCheckingDeps(null);
+    }
+  };
+
   const handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {
     setShowCreds(false);
-    for (const m of depsToInstall) {
-      setInstallingDep(m.id);
-      setDepProgress({ percent: 0, msg: `Starting download: ${m.title}...` });
+    setInstallingDep('batch');
+    setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });
 
-      try {
-        await window.api.installDayzMod(
-          activeServerId,
-          m.id,
-          m.title,
-          steamCreds.username,
-          steamCreds.password,
-          steamCreds.steamGuard || undefined
-        );
-      } catch (e: any) {
-        if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
-          alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
-          setShowCreds(true);
-          return;
-        } else if (e.message && e.message.includes('LOGIN_REQUIRED')) {
-          alert(`SteamCMD Login Failed:\n${e.message}\n\nPlease check your credentials.`);
-          setShowCreds(true);
-          return;
-        } else {
-          alert(`Failed to install dependency ${m.title}: ${e.message}`);
-        }
+    try {
+      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));
+      await window.api.installDayzMods(
+        activeServerId,
+        modsToInstall,
+        steamCreds.username,
+        steamCreds.password,
+        steamCreds.steamGuard || undefined
+      );
+    } catch (e: any) {
+      if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
+        alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
+        setShowCreds(true);
+        return;
+      } else if (e.message && e.message.includes('LOGIN_REQUIRED')) {
+        alert(`SteamCMD Login Failed:\n${e.message}\n\nPlease check your credentials.`);
+        setShowCreds(true);
+        return;
+      } else {
+        alert(`Failed to batch install dependencies: ${e.message}`);
       }
     }
     
@@ -155,7 +193,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
       
       // Fetch rich details from Steam API for mods that have a Workshop ID
       const workshopIds = basicMods
-        .filter((m: any) => m.id && /^\d+$/.test(m.id))
+        .filter((m: any) => m.id && /^\d+$/.test(m.id) && String(m.id) !== '0')
         .map((m: any) => m.id);
 
       let detailedMods: any[] = [];
@@ -239,18 +277,34 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
             <input type="text" placeholder="Username" value={steamCreds.username} onChange={e => setSteamCreds({...steamCreds, username: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50" />
             <input type="password" placeholder="Password" value={steamCreds.password} onChange={e => setSteamCreds({...steamCreds, password: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50" />
             <input type="text" placeholder="Steam Guard Code (if prompted)" value={steamCreds.steamGuard} onChange={e => setSteamCreds({...steamCreds, steamGuard: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm w-48 text-on-surface outline-none focus:border-primary/50" />
-            <button 
-              onClick={() => {
-                if (steamCreds.username && steamCreds.password) {
-                  handleInstallDependencies();
-                } else {
-                  alert('Username and password are required.');
-                }
-              }} 
-              className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
-            >
-              Continue Installation
-            </button>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer hover:text-white transition-colors">
+                <input 
+                  type="checkbox" 
+                  checked={rememberMe} 
+                  onChange={e => setRememberMe(e.target.checked)} 
+                  className="rounded border-white/10 bg-surface-container-highest text-primary focus:ring-primary focus:ring-offset-surface-container-high" 
+                />
+                Remember Me
+              </label>
+              <button 
+                onClick={() => {
+                  if (steamCreds.username && steamCreds.password) {
+                    if (rememberMe) {
+                      localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));
+                    } else {
+                      localStorage.removeItem('omnihost_steam_creds');
+                    }
+                    handleInstallDependencies();
+                  } else {
+                    alert('Username and password are required.');
+                  }
+                }} 
+                className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
+              >
+                Continue Installation
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -358,6 +412,18 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                     
                     <div className="flex gap-2">
                       <button 
+                        onClick={() => handleCheckDependencies(mod)}
+                        disabled={checkingDeps === mod.id}
+                        className="text-[10px] font-bold text-gray-300 hover:text-red-400 transition-colors flex items-center gap-1 bg-white/5 hover:bg-red-500/10 px-2 py-1 rounded border border-white/10 hover:border-red-500/30 disabled:opacity-50"
+                      >
+                        {checkingDeps === mod.id ? (
+                          <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-red-500"></div>
+                        ) : (
+                          <span className="material-symbols-outlined text-[14px]">account_tree</span>
+                        )}
+                        CHECK DEPS
+                      </button>
+                      <button 
                         onClick={() => openWorkshopPage(mod.id)}
                         className="text-[10px] font-bold text-gray-300 hover:text-red-400 transition-colors flex items-center gap-1 bg-white/5 hover:bg-red-500/10 px-2 py-1 rounded border border-white/10 hover:border-red-500/30"
                       >
@@ -372,6 +438,55 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
           </div>
         )}
       </OverlayScrollbarsComponent>
+
+      {dependencyResult && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212] border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-2xl max-h-full flex flex-col overflow-hidden">
+            <div className="flex justify-between items-center p-6 border-b border-white/5 shrink-0">
+              <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                <span className="material-symbols-outlined text-red-500">account_tree</span>
+                Dependencies for {dependencyResult.modTitle}
+              </h2>
+              <button onClick={() => setDependencyResult(null)} className="text-gray-400 hover:text-white transition-colors">
+                <span className="material-symbols-outlined text-[24px]">close</span>
+              </button>
+            </div>
+            
+            <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1 p-6">
+              <div className="flex flex-col gap-3">
+                {dependencyResult.deps.map(dep => (
+                  <div key={dep.id} className="bg-white/5 border border-white/10 rounded-lg p-3 flex justify-between items-center">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-white">{dep.title}</span>
+                      <span className="text-xs text-gray-500">ID: {dep.id}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      {dep.isInstalled ? (
+                        dep.isDisabled ? (
+                          <span className="px-2 py-1 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded text-[10px] font-bold flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">warning</span>
+                            INSTALLED (DISABLED)
+                          </span>
+                        ) : (
+                          <span className="px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded text-[10px] font-bold flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                            INSTALLED & ENABLED
+                          </span>
+                        )
+                      ) : (
+                        <span className="px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded text-[10px] font-bold flex items-center gap-1">
+                          <span className="material-symbols-outlined text-[12px]">cancel</span>
+                          NOT INSTALLED
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </OverlayScrollbarsComponent>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

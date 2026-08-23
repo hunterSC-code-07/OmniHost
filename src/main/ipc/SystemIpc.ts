@@ -90,7 +90,7 @@ export function registerSystemIpc(
     // Fallback if omnihost.json is missing or missing type
     if (!meta || !meta.type) {
        // getServers is already imported at the top of the file now
-       const servers = getServers()
+       const servers = getServers() as any[]
        const srv = servers.find((s: any) => s.id === id)
        if (srv) {
           if (!meta) meta = {}
