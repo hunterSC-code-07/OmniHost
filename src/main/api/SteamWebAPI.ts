@@ -39,23 +39,39 @@ export class SteamWebAPI {
 
   static async getModDependencies(modId: string): Promise<string[]> {
     try {
+      console.log(`[getModDependencies] Fetching for modId: ${modId}`);
       const url = `https://steamcommunity.com/sharedfiles/filedetails/?id=${modId}`;
-      const response = await axios.get(url);
+      const response = await axios.get(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Cookie': 'birthtime=283993201; lastagecheckage=1-January-1979'
+        }
+      });
       const html = response.data;
       
+      if (!html || typeof html !== 'string') {
+        console.log(`[getModDependencies] HTML is empty for ${modId}`);
+        return [];
+      }
+
       const parts = html.split('class="requiredItemsContainer"');
       if (parts.length > 1) {
         let block = parts[1];
         // Ensure we don't accidentally match items from 'More from this author' section
-        const endPart = block.indexOf('class="rightDetailsBlock"');
+        const endPart = block.indexOf('</div>'); // Actually requiredItemsContainer ends shortly, but regex matching filedetails is robust
         if (endPart !== -1) {
-            block = block.substring(0, endPart);
+            block = block.substring(0, 5000); // 5000 chars is plenty for all immediate dependencies
         }
         
         const idRegex = /filedetails\/\?id=(\d+)/g;
-        const ids = [...block.matchAll(idRegex)].map(m => m[1]);
-        return [...new Set(ids)];
+        const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];
+        console.log(`[getModDependencies] Found direct deps for ${modId}:`, ids);
+        
+        // Return only direct dependencies! Recursive fetching causes 429 Rate Limits and is unnecessary 
+        // since Topological sort will work as long as every mod knows its immediate dependencies.
+        return ids;
       }
+      console.log(`[getModDependencies] No requiredItemsContainer for ${modId}`);
       return [];
     } catch (e: any) {
       console.error(`SteamWebAPI getModDependencies error for ${modId}:`, e);

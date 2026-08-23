@@ -115,11 +115,94 @@ class Missions
     // Load mods
     try {
       const folders = fs.readdirSync(this.serverDir, { withFileTypes: true });
-      const mods = folders
+      let mods = folders
         .filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'))
         .filter(f => !fs.existsSync(join(this.serverDir, f.name, 'disabled.txt')))
-        .map(f => f.name)
-        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+        .map(f => f.name);
+
+      const depsPath = join(this.serverDir, 'mod_dependencies.json');
+      let modDeps: Record<string, string[]> = {};
+      if (fs.existsSync(depsPath)) {
+        try { modDeps = JSON.parse(fs.readFileSync(depsPath, 'utf8')); } catch (e) {}
+      }
+
+      // Map folder names to mod IDs
+      const folderToId: Record<string, string> = {};
+      const idToFolder: Record<string, string> = {};
+      for (const folder of mods) {
+        const modIdPath = join(this.serverDir, folder, 'modid.txt');
+        if (fs.existsSync(modIdPath)) {
+          const content = fs.readFileSync(modIdPath, 'utf-8');
+          const modId = content.trim().split(':')[0];
+          if (modId) {
+            folderToId[folder] = modId;
+            idToFolder[modId] = folder;
+          }
+        }
+      }
+
+      // Build graph
+      const graph: Record<string, string[]> = {};
+      const inDegree: Record<string, number> = {};
+      
+      mods.forEach(m => {
+        graph[m] = [];
+        inDegree[m] = 0;
+      });
+
+      mods.forEach(folder => {
+        const modId = folderToId[folder];
+        if (modId && modDeps[modId]) {
+          modDeps[modId].forEach(depId => {
+            const depFolder = idToFolder[depId];
+            // If the dependency is installed and enabled, add an edge: depFolder -> folder
+            if (depFolder && mods.includes(depFolder)) {
+              graph[depFolder].push(folder);
+              inDegree[folder]++;
+            }
+          });
+        }
+      });
+
+      // Kahn's Algorithm
+      const queue: string[] = [];
+      
+      // Force critical base mods to have precedence in queue if inDegree is 0
+      const baseMods = ['@CF', '@CommunityOnlineTools', '@DabsFramework'];
+      
+      // Sort initial queue so base mods are processed first if they have 0 inDegree
+      const initialZero = mods.filter(m => inDegree[m] === 0);
+      initialZero.sort((a, b) => {
+        const aIndex = baseMods.indexOf(a);
+        const bIndex = baseMods.indexOf(b);
+        if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+        if (aIndex !== -1) return -1;
+        if (bIndex !== -1) return 1;
+        return a.localeCompare(b, undefined, { sensitivity: 'base' });
+      });
+      queue.push(...initialZero);
+
+      const sortedMods: string[] = [];
+      while (queue.length > 0) {
+        const current = queue.shift()!;
+        sortedMods.push(current);
+        
+        for (const neighbor of graph[current]) {
+          inDegree[neighbor]--;
+          if (inDegree[neighbor] === 0) {
+            queue.push(neighbor);
+          }
+        }
+      }
+
+      // If there's a cycle, some mods won't be in sortedMods. Just append them alphabetically.
+      if (sortedMods.length < mods.length) {
+        const remaining = mods.filter(m => !sortedMods.includes(m));
+        remaining.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+        sortedMods.push(...remaining);
+      }
+
+      mods = sortedMods;
       
       if (mods.length > 0) {
         args.push(`"-mod=${mods.join(';')}"`);
@@ -131,7 +214,7 @@ class Missions
 
     this.startTime = Date.now() - 5000; // Buffer of 5 seconds
 
-    this.process = spawn(exePath, args, { cwd: this.serverDir, shell: true });
+    this.process = spawn(`"${exePath}"`, args, { cwd: this.serverDir, shell: true });
 
     this.process.stdout?.on('data', (data) => {
       this.sendLog(`[DayZ] ${data.toString().trim()}`);
@@ -147,6 +230,8 @@ class Missions
       this.sendLog(`[System] DayZ Server stopped (Code: ${code})`);
       this.cleanupLogWatcher();
       this.process = null;
+      this.onlinePlayers = [];
+      this.sendPlayerUpdate();
     });
 
     this.process.on('error', (err) => {
@@ -157,11 +242,19 @@ class Missions
   stop() {
     if (this.process) {
       this.sendLog('[System] Stopping DayZ Server...');
-      // DayZ servers should ideally be stopped via RCon, but kill works for basic.
-      this.process.kill();
+      if (this.process.pid) {
+        if (process.platform === 'win32') {
+          spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t']);
+        } else {
+          this.process.kill();
+        }
+      }
       this.process = null;
       this.cleanupLogWatcher();
     }
+    
+    this.onlinePlayers = [];
+    this.sendPlayerUpdate();
   }
 
   private setupLogWatcher() {

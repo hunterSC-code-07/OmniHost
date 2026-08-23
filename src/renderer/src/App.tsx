@@ -96,7 +96,7 @@ export default function App() {
 
     // @ts-ignore
     window.api.onConsoleLog((data: any) => {
-      const msgs = data.msg.split('\n').filter((l: string) => l.trim() !== '');
+      const msgs = data.msg ? data.msg.split('\n').filter((l: string) => l.trim() !== '') : [];
       setLogs(prev => {
         const newLogs = [...prev, ...msgs.map((m: string) => ({ 
           id: data.id.toString(), 

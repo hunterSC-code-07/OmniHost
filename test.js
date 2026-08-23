@@ -1,36 +1,33 @@
-const { spawn } = require("child_process");
-const ps = spawn("powershell", ["-NoProfile", "-Command", "-"]);
-let out = "";
-ps.stdout.on("data", (data) => out += data.toString());
-ps.stderr.on("data", (data) => console.error("ERR:", data.toString()));
-ps.on("close", () => { console.log("OUT:", out); });
-const script = `
-$all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name
-$target = 33336
-$children = @{}
-foreach ($p in $all) {
-    if (-not $children.ContainsKey($p.ParentProcessId)) {
-        $children[$p.ParentProcessId] = @()
-    }
-    $children[$p.ParentProcessId] += $p
-}
-$queue = [System.Collections.Generic.Queue[int]]::new()
-$queue.Enqueue($target)
-$found = 0
-while ($queue.Count -gt 0) {
-    $curr = $queue.Dequeue()
-    if ($children.ContainsKey($curr)) {
-        foreach ($c in $children[$curr]) {
-            if ($c.Name -match "java") {
-                $found = $c.ProcessId
-                break
-            }
-            $queue.Enqueue($c.ProcessId)
+const fs = require('fs');
+
+async function getModDependencies(modId, visited = new Set()) {
+    if (visited.has(modId)) return [];
+    visited.add(modId);
+    try {
+      const r = await fetch('https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId);
+      const html = await r.text();
+      const parts = html.split('class="requiredItemsContainer"');
+      if (parts.length > 1) {
+        let block = parts[1];
+        const endPart = block.indexOf('class="rightDetailsBlock"');
+        if (endPart !== -1) {
+            block = block.substring(0, endPart);
         }
+        const idRegex = /filedetails\/\?id=(\d+)/g;
+        const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];
+        console.log(`MOD ${modId} parsed ids:`, ids);
+        let allDeps = [...ids];
+        for (const id of ids) {
+          const subDeps = await getModDependencies(id, visited);
+          allDeps = allDeps.concat(subDeps);
+        }
+        return [...new Set(allDeps)];
+      }
+      return [];
+    } catch (e) {
+      console.error(e.message);
+      return [];
     }
-    if ($found -ne 0) { break }
 }
-Write-Output $found
-`;
-ps.stdin.write(script);
-ps.stdin.end();
+
+getModDependencies('1932611410').then(res => console.log('FINAL DEPS:', res));
