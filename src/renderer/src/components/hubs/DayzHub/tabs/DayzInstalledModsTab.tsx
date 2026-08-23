@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import { PendingDownload } from '../DayzHub';
 
 interface DayzInstalledModsTabProps {
   activeServerId: number;
+  pendingDownloads?: Record<string, PendingDownload>;
 }
 
-export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ activeServerId }) => {
+export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ activeServerId, pendingDownloads }) => {
   const [mods, setMods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingMission, setDownloadingMission] = useState<string | null>(null);
@@ -24,19 +26,8 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
   const [installingDep, setInstallingDep] = useState<string | null>(null);
   const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);
   const [checkingDeps, setCheckingDeps] = useState<string | null>(null);
-  const [dependencyResult, setDependencyResult] = useState<{modTitle: string, deps: any[]} | null>(null);
-
-  useEffect(() => {
-    window.api.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {
-      setDepProgress(prev => {
-        if (installingDep) {
-          return { percent, msg: msg || '' };
-        }
-        return prev;
-      });
-    });
-    return () => {};
-  }, [activeServerId, installingDep]);
+  const [isRebuilding, setIsRebuilding] = useState(false);
+  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);
 
   const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {
     await window.api.toggleDayzMapMod(activeServerId, folderName, !currentIsMap);
@@ -80,7 +71,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
         if (dependencies && dependencies.length > 0) {
           const installedDeps = mods.filter(m => dependencies.includes(m.id));
           const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));
-          
+
           let enabledCount = 0;
           for (const installedDep of installedDeps) {
             if (installedDep.isDisabled) {
@@ -101,19 +92,17 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                 } else {
                   handleInstallDependencies(depDetails);
                 }
-                // Return early so we don't reload installed mods yet
                 return;
               }
             }
           } else if (enabledCount > 0) {
-            // Optional: alert(`Automatically enabled ${enabledCount} installed dependencies.`);
           }
         }
       } catch (e: any) {
         alert('Failed to process missing dependencies: ' + e.message);
       }
     }
-    
+
     loadInstalledMods();
   };
 
@@ -126,9 +115,9 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
         setCheckingDeps(null);
         return;
       }
-      
+
       const details = await window.api.getWorkshopItemDetails(depIds);
-      
+
       const results = details.map((d: any) => {
         const localMod = mods.find(m => String(m.id) === String(d.id));
         return {
@@ -138,7 +127,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
           isDisabled: localMod ? localMod.isDisabled : false
         };
       });
-      
+
       setDependencyResult({ modTitle: mod.title, deps: results });
     } catch (e: any) {
       alert('Failed to check dependencies: ' + e.message);
@@ -149,8 +138,20 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
 
   const handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {
     setShowCreds(false);
-    setInstallingDep('batch');
-    setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });
+
+    if (pendingDownloads) {
+      depsToInstall.forEach(dep => {
+        pendingDownloads({
+          id: dep.id,
+          title: dep.title,
+          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,
+          tags: []
+        });
+      });
+    } else {
+      setInstallingDep('batch');
+      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });
+    }
 
     try {
       const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));
@@ -166,15 +167,18 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
         alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
         setShowCreds(true);
         return;
-      } else if (e.message && e.message.includes('LOGIN_REQUIRED')) {
+      } else if (e.message?.includes('LOGIN_REQUIRED')) {
         alert(`SteamCMD Login Failed:\n${e.message}\n\nPlease check your credentials.`);
         setShowCreds(true);
+        return;
+      } else if (e.message?.includes('ENOSPC')) {
+        alert("Installation failed: Your hard drive has run out of space.\n\nDayZ mods require significant storage. Please free up some space on your disk and try again. The installation will instantly resume where it left off!");
         return;
       } else {
         alert(`Failed to batch install dependencies: ${e.message}`);
       }
     }
-    
+
     setSteamCreds(prev => ({ ...prev, steamGuard: '' }));
     setInstallingDep(null);
     setDepProgress(null);
@@ -190,7 +194,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
     setLoading(true);
     try {
       const basicMods = await window.api.getDayzInstalledMods(activeServerId);
-      
+
       // Fetch rich details from Steam API for mods that have a Workshop ID
       const workshopIds = basicMods
         .filter((m: any) => m.id && /^\d+$/.test(m.id) && String(m.id) !== '0')
@@ -217,7 +221,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
         return basicMod;
       }).sort((a: any, b: any) => {
         if (a.isDisabled === b.isDisabled) {
-           return (a.title || a.folderName || '').localeCompare(b.title || b.folderName || '', undefined, { sensitivity: 'base' });
+          return (a.title || a.folderName || '').localeCompare(b.title || b.folderName || '', undefined, { sensitivity: 'base' });
         }
         return a.isDisabled ? 1 : -1;
       });
@@ -235,17 +239,79 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
     }
   };
 
+  const handleUninstall = async (modId: string, modName: string) => {
+    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {
+      try {
+        await window.api.uninstallDayzMod(activeServerId, modId);
+        await loadInstalledMods();
+      } catch (e: any) {
+        alert(`Failed to uninstall mod: ${e.message}`);
+      }
+    }
+  };
+
+  const handleUninstallAll = async () => {
+    if (mods.length === 0) return;
+    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\n\nAre you sure you want to proceed? This cannot be undone.`)) {
+      setLoading(true);
+      try {
+        for (const mod of mods) {
+          await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);
+        }
+        await loadInstalledMods();
+      } catch (e: any) {
+        alert(`Failed to uninstall some mods: ${e.message}`);
+        await loadInstalledMods();
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleRebuildLoadOrder = async () => {
+    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {
+      setIsRebuilding(true);
+      try {
+        await window.api.rebuildModDependencies(activeServerId);
+        alert('Successfully rebuilt load order dependency graph!');
+      } catch (e: any) {
+        alert('Failed to rebuild load order: ' + e.message);
+      }
+      setIsRebuilding(false);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full bg-transparent font-body text-white">
       <div className="p-4 border-b border-white/5 bg-black/20 backdrop-blur-md flex items-center justify-between shadow-sm">
         <h2 className="text-lg font-bold text-white">Installed Mods ({mods.length})</h2>
-        <button 
-          onClick={loadInstalledMods}
-          className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
-          title="Refresh"
-        >
-          <span className="material-symbols-outlined text-[20px] text-gray-300">refresh</span>
-        </button>
+        <div className="flex gap-2">
+          {mods.length > 0 && (
+            <button
+              onClick={handleUninstallAll}
+              className="p-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/40 transition-colors flex items-center gap-2 text-sm font-bold shadow"
+              title="Delete All Installed Mods"
+            >
+              <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
+              <span className="hidden sm:inline">Delete All</span>
+            </button>
+          )}
+          <button
+            onClick={handleRebuildLoadOrder}
+            disabled={isRebuilding}
+            className={`p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 transition-colors flex items-center gap-2 text-sm font-bold shadow ${isRebuilding ? 'opacity-50 cursor-not-allowed' : ''}`}
+            title="Fix Load Order (Rebuild Cache)"
+          >
+            <span className="material-symbols-outlined text-[20px]">{isRebuilding ? 'sync' : 'account_tree'}</span>
+            <span className="hidden sm:inline">{isRebuilding ? 'Rebuilding...' : 'Fix Load Order'}</span>
+          </button>
+          <button
+            onClick={loadInstalledMods}
+            className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors"
+            title="Refresh"
+          >
+            <span className="material-symbols-outlined text-[20px] text-gray-300">refresh</span>
+          </button>
+        </div>
       </div>
 
       {installingDep && depProgress && (
@@ -256,8 +322,8 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
           </div>
           <div className="text-xs text-on-surface-variant mb-2 truncate">{depProgress.msg}</div>
           <div className="h-2 w-full bg-surface-container-highest rounded-full overflow-hidden">
-            <div 
-              className="h-full bg-primary transition-all duration-300" 
+            <div
+              className="h-full bg-primary transition-all duration-300"
               style={{ width: `${depProgress.percent}%` }}
             ></div>
           </div>
@@ -274,20 +340,20 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
             Installing Workshop dependencies requires a Steam account that owns the game.
           </span>
           <div className="flex gap-2 items-center flex-wrap">
-            <input type="text" placeholder="Username" value={steamCreds.username} onChange={e => setSteamCreds({...steamCreds, username: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50" />
-            <input type="password" placeholder="Password" value={steamCreds.password} onChange={e => setSteamCreds({...steamCreds, password: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50" />
-            <input type="text" placeholder="Steam Guard Code (if prompted)" value={steamCreds.steamGuard} onChange={e => setSteamCreds({...steamCreds, steamGuard: e.target.value})} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm w-48 text-on-surface outline-none focus:border-primary/50" />
+            <input type="text" placeholder="Username" value={steamCreds.username} onChange={e => setSteamCreds({ ...steamCreds, username: e.target.value })} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50" />
+            <input type="password" placeholder="Password" value={steamCreds.password} onChange={e => setSteamCreds({ ...steamCreds, password: e.target.value })} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50" />
+            <input type="text" placeholder="Steam Guard Code (if prompted)" value={steamCreds.steamGuard} onChange={e => setSteamCreds({ ...steamCreds, steamGuard: e.target.value })} className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm w-48 text-on-surface outline-none focus:border-primary/50" />
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-sm text-on-surface-variant cursor-pointer hover:text-white transition-colors">
-                <input 
-                  type="checkbox" 
-                  checked={rememberMe} 
-                  onChange={e => setRememberMe(e.target.checked)} 
-                  className="rounded border-white/10 bg-surface-container-highest text-primary focus:ring-primary focus:ring-offset-surface-container-high" 
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={e => setRememberMe(e.target.checked)}
+                  className="rounded border-white/10 bg-surface-container-highest text-primary focus:ring-primary focus:ring-offset-surface-container-high"
                 />
                 Remember Me
               </label>
-              <button 
+              <button
                 onClick={() => {
                   if (steamCreds.username && steamCreds.password) {
                     if (rememberMe) {
@@ -299,7 +365,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                   } else {
                     alert('Username and password are required.');
                   }
-                }} 
+                }}
                 className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
               >
                 Continue Installation
@@ -314,7 +380,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
           <div className="flex items-center justify-center h-40">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-red-500"></div>
           </div>
-        ) : mods.length === 0 ? (
+        ) : mods.length === 0 && (!pendingDownloads || Object.keys(pendingDownloads).length === 0) ? (
           <div className="flex flex-col items-center justify-center h-40 text-gray-400 text-center">
             <span className="material-symbols-outlined text-[48px] opacity-50 mb-4 text-red-500/50">folder_off</span>
             <p className="font-bold text-lg text-white">No mods installed</p>
@@ -322,11 +388,66 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {pendingDownloads && Object.values(pendingDownloads).map((pending) => {
+              const mod = pending.mod || pending;
+              const isInstalled = mods.some(m => String(m.id) === String(mod.id || mod.publishedfileid));
+              if (isInstalled) return null; // Prevent duplicate rendering if installed list is updated early
+
+              return (
+                <div key={mod.id || mod.publishedfileid} className="bg-black/30 backdrop-blur-sm rounded-xl overflow-hidden border border-blue-500/50 flex flex-col group transition-all relative shadow-lg shadow-blue-500/10">
+                  <div className="absolute top-2 right-2 z-10 flex items-center bg-black/60 rounded-full px-2 py-1 gap-2 border border-blue-500/30 animate-pulse">
+                    <span className="text-[10px] font-bold text-blue-400">
+                      DOWNLOADING...
+                    </span>
+                  </div>
+
+                  {mod.preview_url || mod.thumbnail ? (
+                    <div
+                      className="h-32 bg-cover bg-center border-b border-white/5 opacity-70"
+                      style={{ backgroundImage: `url(${mod.preview_url || mod.thumbnail})` }}
+                    />
+                  ) : (
+                    <div className="h-32 bg-black/40 border-b border-white/5 flex items-center justify-center opacity-70">
+                      <span className="material-symbols-outlined text-[48px] text-gray-500 opacity-30">extension</span>
+                    </div>
+                  )}
+                  <div className="p-4 flex flex-col flex-1 relative z-10 bg-inherit">
+                    <h3 className="font-bold text-white text-sm truncate mb-3" title={mod.title}>{mod.title}</h3>
+                    {mod.id && String(mod.id) !== '0' && (
+                      <div className="text-[11px] text-gray-500 font-mono truncate bg-black/40 inline-block px-2 py-0.5 rounded border border-white/5 w-fit mb-3" title={`Mod ID: ${mod.id}`}>ID: {mod.id}</div>
+                    )}
+                    
+                    <div className="w-full mt-auto mb-2">
+                      <div className="flex justify-between items-center mb-1">
+                        <div className="text-[10px] text-blue-400 font-bold truncate">{pending.msg}</div>
+                        <button 
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            if (pendingDownloads) pendingDownloads(mod.id || mod.publishedfileid); 
+                          }}
+                          className="text-red-400 hover:text-red-300 ml-2 flex-shrink-0"
+                          title="Clear stuck download"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">close</span>
+                        </button>
+                      </div>
+                      <div className="h-1.5 w-full bg-blue-900/30 rounded-full overflow-hidden border border-blue-500/20">
+                        <div
+                          className="h-full bg-blue-500 transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.5)]"
+                          style={{ width: `${pending.progress || 0}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+
             {mods.map((mod, i) => (
               <div key={i} className={`bg-black/30 backdrop-blur-sm rounded-xl overflow-hidden border flex flex-col group transition-all relative shadow-lg ${mod.isDisabled ? 'border-red-500/30 opacity-75 grayscale-[50%]' : 'border-white/5 hover:border-red-500/30 hover:bg-black/50'}`}>
                 {/* Mod Status Toggle (Top Right) */}
                 <div className="absolute top-2 right-2 z-10 flex items-center bg-black/60 rounded-full pr-2 pl-1 py-1 gap-2">
-                  <div 
+                  <div
                     onClick={() => handleToggleModStatus(mod)}
                     className={`w-8 h-4 rounded-full p-0.5 cursor-pointer transition-colors ${mod.isDisabled ? 'bg-surface-container-highest' : 'bg-primary'}`}
                   >
@@ -343,8 +464,8 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                   </div>
                 )}
                 {mod.preview_url ? (
-                  <div 
-                    className="h-32 bg-cover bg-center border-b border-white/5 group-hover:scale-105 transition-transform origin-bottom" 
+                  <div
+                    className="h-32 bg-cover bg-center border-b border-white/5 group-hover:scale-105 transition-transform origin-bottom"
                     style={{ backgroundImage: `url(${mod.preview_url})` }}
                   />
                 ) : (
@@ -354,8 +475,13 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                 )}
                 <div className="p-4 flex flex-col flex-1 relative z-10 bg-inherit">
                   <h3 className="font-bold text-white text-sm truncate mb-1 group-hover:text-red-300 transition-colors" title={mod.title}>{mod.title}</h3>
-                  <div className="text-[11px] text-gray-500 font-mono truncate mb-3 bg-black/40 inline-block px-2 py-0.5 rounded border border-white/5 w-fit" title={mod.folderName}>{mod.folderName}</div>
-                  
+                  <div className="flex flex-wrap gap-2 mb-3">
+                    <div className="text-[11px] text-gray-500 font-mono truncate bg-black/40 inline-block px-2 py-0.5 rounded border border-white/5" title={mod.folderName}>{mod.folderName}</div>
+                    {mod.id && String(mod.id) !== '0' && (
+                      <div className="text-[11px] text-gray-500 font-mono truncate bg-black/40 inline-block px-2 py-0.5 rounded border border-white/5" title={`Mod ID: ${mod.id}`}>ID: {mod.id}</div>
+                    )}
+                  </div>
+
                   <div className="flex flex-wrap gap-1.5 mb-4">
                     {mod.tags && mod.tags.slice(0, 3).map((tag: any, idx: number) => (
                       <span key={idx} className="px-1.5 py-0.5 bg-red-900/20 border border-red-500/20 text-red-300 rounded text-[10px] uppercase font-bold">
@@ -365,15 +491,15 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                   </div>
 
                   <div className="flex flex-col gap-2 mt-auto mb-3">
-                    <button 
+                    <button
                       onClick={() => handleToggleMap(mod.folderName, mod.isMap)}
                       className={`text-xs py-1.5 px-3 rounded-lg border transition-colors ${mod.isMap ? 'border-primary text-primary bg-primary/10 hover:bg-primary/20' : 'border-white/10 text-on-surface-variant hover:bg-white/5'}`}
                     >
                       {mod.isMap ? 'Unmark as Map' : 'Mark as Map'}
                     </button>
-                    
-                    {mod.isMap && ['2289456201', '1602372402', '2699824632'].includes(mod.id) && (
-                      <button 
+
+                    {mod.isMap && ['2289456201', '1602372402', '2699824632', '2938009193'].includes(mod.id) && (
+                      <button
                         onClick={() => handleDownloadMission(mod.id)}
                         disabled={downloadingMission === mod.id}
                         className="text-xs py-1.5 px-3 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -388,7 +514,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                     )}
 
                     {mod.isMap && mod.hasLocalMissions && (
-                      <button 
+                      <button
                         onClick={() => handleExtractLocalMission(mod.id, mod.localMissionsPath)}
                         disabled={downloadingMission === mod.id}
                         className="text-xs py-1.5 px-3 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border border-primary/30 text-primary"
@@ -409,9 +535,9 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                         {(parseInt(mod.file_size) / 1024 / 1024).toFixed(1)} MB
                       </span>
                     )}
-                    
+
                     <div className="flex gap-2">
-                      <button 
+                      <button
                         onClick={() => handleCheckDependencies(mod)}
                         disabled={checkingDeps === mod.id}
                         className="text-[10px] font-bold text-gray-300 hover:text-red-400 transition-colors flex items-center gap-1 bg-white/5 hover:bg-red-500/10 px-2 py-1 rounded border border-white/10 hover:border-red-500/30 disabled:opacity-50"
@@ -423,12 +549,20 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                         )}
                         CHECK DEPS
                       </button>
-                      <button 
+                      <button
                         onClick={() => openWorkshopPage(mod.id)}
                         className="text-[10px] font-bold text-gray-300 hover:text-red-400 transition-colors flex items-center gap-1 bg-white/5 hover:bg-red-500/10 px-2 py-1 rounded border border-white/10 hover:border-red-500/30"
                       >
                         <span className="material-symbols-outlined text-[14px]">open_in_new</span>
                         WORKSHOP
+                      </button>
+                      <button
+                        onClick={() => handleUninstall(mod.folderName || mod.id, mod.title || mod.folderName || 'this mod')}
+                        className="text-[10px] font-bold text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 bg-red-500/10 hover:bg-red-500/20 px-2 py-1 rounded border border-red-500/20 hover:border-red-500/40"
+                        title="Uninstall Mod"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">delete</span>
+                        DELETE
                       </button>
                     </div>
                   </div>
@@ -451,7 +585,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                 <span className="material-symbols-outlined text-[24px]">close</span>
               </button>
             </div>
-            
+
             <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1 p-6">
               <div className="flex flex-col gap-3">
                 {dependencyResult.deps.map(dep => (

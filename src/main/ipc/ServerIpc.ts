@@ -36,6 +36,11 @@ export const DAYZ_MAP_REPOS: Record<string, { name: string, repoZip: string, tem
     name: 'Banov',
     repoZip: 'https://github.com/KubeloLive/Banov/archive/refs/heads/main.zip',
     template: 'empty.banov'
+  },
+  '2938009193': { // Pripyat
+    name: 'Pripyat',
+    repoZip: 'https://github.com/FrenchiestFry15/PripyatMissionFiles/archive/refs/heads/main.zip',
+    template: 'serverMission.Pripyat'
   }
 };
 
@@ -470,6 +475,45 @@ export function registerServerIpc(
     return await SteamWebAPI.getModDependencies(modId);
   });
 
+  ipcMain.handle('rebuild-mod-dependencies', async (_, id) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
+      if (!(await exists(serverDir))) return;
+
+      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });
+      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));
+      
+      const depsPath = join(serverDir, 'mod_dependencies.json');
+      let modDeps: Record<string, string[]> = {};
+      if (fs.existsSync(depsPath)) {
+        try {
+          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));
+        } catch (e) {}
+      }
+
+      for (const f of mods) {
+        const modDir = join(serverDir, f.name);
+        const modIdPath = join(modDir, 'modid.txt');
+        if (fs.existsSync(modIdPath)) {
+          const content = await fsPromises.readFile(modIdPath, 'utf-8');
+          const modId = content.trim().split(':')[0];
+          if (modId) {
+            if (!modDeps[modId] || modDeps[modId].length === 0) {
+              console.log(`[Rebuild] Fetching deps for ${modId}`);
+              modDeps[modId] = await SteamWebAPI.getModDependencies(modId);
+            }
+          }
+        }
+      }
+
+      await fsPromises.writeFile(depsPath, JSON.stringify(modDeps, null, 2));
+      return modDeps;
+    } catch (e) {
+      console.error('rebuild-mod-dependencies error:', e);
+      throw e;
+    }
+  });
+
   ipcMain.handle('get-workshop-item-details', async (_, modIds) => {
     return await SteamWebAPI.getWorkshopItemDetails(modIds);
   });
@@ -861,6 +905,24 @@ export function registerServerIpc(
         }
       }
 
+      // Append new mods to mod_dependencies.json
+      try {
+        const depsPath = join(serverDir, 'mod_dependencies.json');
+        let modDeps: Record<string, string[]> = {};
+        if (fs.existsSync(depsPath)) {
+          try { modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8')); } catch (e) {}
+        }
+        for (const m of modsToInstall) {
+          if (!modDeps[m.modId] || modDeps[m.modId].length === 0) {
+            console.log(`[Install] Fetching deps for ${m.modId}`);
+            modDeps[m.modId] = await SteamWebAPI.getModDependencies(m.modId);
+          }
+        }
+        await fsPromises.writeFile(depsPath, JSON.stringify(modDeps, null, 2));
+      } catch (e) {
+        console.warn('Failed to update mod_dependencies.json during install', e);
+      }
+
       SteamCMDManager.sendLog(id, 100, 'All mods installed and setup successfully!');
       return true;
     } catch (e: any) {
@@ -1062,3 +1124,4 @@ export function registerServerIpc(
     }
   });
 }
+

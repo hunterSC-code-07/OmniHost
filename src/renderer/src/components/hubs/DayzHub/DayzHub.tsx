@@ -10,6 +10,12 @@ import { DayzFilesTab } from './tabs/DayzFilesTab';
 import { motion, AnimatePresence } from 'motion/react';
 import { DayzAnimatedBackground } from './DayzAnimatedBackground';
 
+export interface PendingDownload {
+  mod: any;
+  progress: number;
+  msg: string;
+}
+
 interface DayzHubProps {
   activeServerId: number;
   activeServer: any;
@@ -23,7 +29,7 @@ interface DayzHubProps {
   logs: any[];
   setLogs: React.Dispatch<React.SetStateAction<any[]>>;
   onlinePlayers: Record<string, string[]>;
-  statsHistory: Record<string, {cpu: number, ram: number}[]>;
+  statsHistory: Record<string, { cpu: number, ram: number }[]>;
 }
 
 export const DayzHub: React.FC<DayzHubProps> = ({
@@ -54,8 +60,81 @@ export const DayzHub: React.FC<DayzHubProps> = ({
     setActiveTab(newTab);
     setTimeout(() => setIsTabTransitioning(false), 350);
   };
-  
+
   const endOfLogsRef = useRef<HTMLDivElement>(null);
+
+  const [pendingDownloads, setPendingDownloads] = useState<Record<string, PendingDownload>>(() => {
+    try {
+      const stored = sessionStorage.getItem(`pendingDownloads_${activeServerId}`);
+      if (stored) return JSON.parse(stored);
+    } catch (e) {}
+    return {};
+  });
+
+  useEffect(() => {
+    sessionStorage.setItem(`pendingDownloads_${activeServerId}`, JSON.stringify(pendingDownloads));
+  }, [pendingDownloads, activeServerId]);
+
+  const addPendingDownload = (mod: any) => {
+    setPendingDownloads(prev => ({
+      ...prev,
+      [mod.id || mod.publishedfileid]: { ...mod, progress: 0, msg: 'Starting download...' }
+    }));
+    if (activeTab !== 'installed') {
+      handleTabChange('installed');
+    }
+  };
+
+  const removePendingDownload = (modId: string) => {
+    setPendingDownloads(prev => {
+      const next = { ...prev };
+      delete next[modId];
+      return next;
+    });
+  };
+
+  const updatePendingProgress = (modId: string, progress: number, msg: string) => {
+    setPendingDownloads(prev => {
+      if (!prev[modId]) return prev;
+      return {
+        ...prev,
+        [modId]: { ...prev[modId], progress, msg }
+      };
+    });
+  };
+
+  useEffect(() => {
+    window.api.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {
+      let currentModId: string | null = null;
+      let cleanMsg = msg || '';
+      
+      const match = cleanMsg.match(/^\[MOD:(\d+)\]\s*(.*)$/);
+      if (match) {
+        currentModId = match[1];
+        cleanMsg = match[2];
+      }
+
+      if (currentModId) {
+        setPendingDownloads(prev => {
+          if (!prev[currentModId!]) return prev;
+          
+          if (cleanMsg.includes('already downloaded')) {
+            return {
+              ...prev,
+              [currentModId!]: { ...prev[currentModId!], progress: 100, msg: 'Cached, waiting for batch...' }
+            };
+          }
+          
+          return {
+            ...prev,
+            [currentModId!]: { ...prev[currentModId!], progress: percent, msg: cleanMsg }
+          };
+        });
+      }
+    });
+    
+    return () => { };
+  }, [activeServerId]);
 
   useEffect(() => {
     // Scroll to bottom when logs change
@@ -77,7 +156,7 @@ export const DayzHub: React.FC<DayzHubProps> = ({
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars">
       <DayzAnimatedBackground />
-      
+
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
@@ -87,7 +166,7 @@ export const DayzHub: React.FC<DayzHubProps> = ({
             <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
             <span className="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">DayZ</span>
           </div>
-          
+
           <div className="flex gap-3 items-center">
             <div className="flex glass-panel rounded-lg overflow-hidden transition-all duration-300 hover:border-white/30 hover:-translate-y-1 hover:scale-105">
               {radminIp && (
@@ -129,11 +208,10 @@ export const DayzHub: React.FC<DayzHubProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id as any)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${
-                    activeTab === tab.id 
-                    ? 'bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]' 
-                    : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
-                  }`}
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${activeTab === tab.id
+                      ? 'bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]'
+                      : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
+                    }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
                   {tab.label}
@@ -179,31 +257,42 @@ export const DayzHub: React.FC<DayzHubProps> = ({
               transition={{ duration: 0.3, ease: 'easeInOut' }}
               className="flex flex-col min-h-0 w-full h-full"
             >
-        {activeTab === 'console' && (
-          <DayzConsoleTab 
-            logs={activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : []}
-            endOfLogsRef={endOfLogsRef}
-            handleSendCommand={handleSendCommand}
-            handleClearLogs={handleClearLogs}
-            onlinePlayers={onlinePlayers[activeServerId] || []}
-            onPlayerClick={() => {}}
-          />
-        )}
-        {activeTab === 'options' && (
-          <DayzOptionsTab activeServerId={activeServerId} />
-        )}
-        {activeTab === 'economy' && (
-          <DayzEconomyTab activeServerId={activeServerId} />
-        )}
-        {activeTab === 'mods' && (
-          <DayzModsTab activeServerId={activeServerId} />
-        )}
-        {activeTab === 'installed' && (
-          <DayzInstalledModsTab activeServerId={activeServerId} />
-        )}
-        {activeTab === 'files' && (
-          <DayzFilesTab activeServerId={activeServerId} />
-        )}
+              {activeTab === 'console' && (
+                <DayzConsoleTab
+                  logs={activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : []}
+                  endOfLogsRef={endOfLogsRef}
+                  handleSendCommand={handleSendCommand}
+                  handleClearLogs={handleClearLogs}
+                  onlinePlayers={onlinePlayers[activeServerId] || []}
+                  onPlayerClick={() => { }}
+                />
+              )}
+              {activeTab === 'options' && (
+                <DayzOptionsTab activeServerId={activeServerId} />
+              )}
+              {activeTab === 'economy' && (
+                <DayzEconomyTab activeServerId={activeServerId} />
+              )}
+              {activeTab === 'mods' && (
+                <DayzModsTab 
+                  activeServerId={activeServerId} 
+                  pendingDownloads={pendingDownloads}
+                  addPendingDownload={addPendingDownload}
+                  removePendingDownload={removePendingDownload}
+                  updatePendingProgress={updatePendingProgress}
+                />
+              )}
+              {activeTab === 'installed' && (
+                <DayzInstalledModsTab 
+                  activeServerId={activeServerId} 
+                  pendingDownloads={pendingDownloads}
+                  addPendingDownload={addPendingDownload}
+                  removePendingDownload={removePendingDownload}
+                />
+              )}
+              {activeTab === 'files' && (
+                <DayzFilesTab activeServerId={activeServerId} />
+              )}
             </motion.div>
           </AnimatePresence>
         </div>

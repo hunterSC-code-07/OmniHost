@@ -108,6 +108,7 @@ const api = {
   // DayZ Mods
   searchSteamWorkshop: (query: string, queryType?: number, page?: number, requiredTags?: string[]) => ipcRenderer.invoke('search-steam-workshop', query, queryType, page, requiredTags),
   getModDependencies: (modId: string) => ipcRenderer.invoke('get-mod-dependencies', modId),
+  rebuildModDependencies: (id: number | string) => ipcRenderer.invoke('rebuild-mod-dependencies', id),
   getWorkshopItemDetails: (modIds: string[]) => ipcRenderer.invoke('get-workshop-item-details', modIds),
   getDayzInstalledMods: (id: number) => ipcRenderer.invoke('get-dayz-installed-mods', id),
   installDayzMod: (id: number, modId: string, title: string, user?: string, pass?: string, guard?: string) => ipcRenderer.invoke('install-dayz-mod', id, modId, title, user, pass, guard),
