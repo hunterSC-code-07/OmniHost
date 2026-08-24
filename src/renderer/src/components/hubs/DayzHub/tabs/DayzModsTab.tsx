@@ -106,6 +106,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
     { id: 9, label: 'Most Popular' },
     { id: 14, label: 'Most Subscribed' },
     { id: 1, label: 'New' },
+    { id: 99, label: 'Import Local Mods' },
   ];
 
   const modTypes = [
@@ -272,6 +273,21 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
             placeholder="Search Steam Workshop..."
             className="flex-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl px-4 py-2.5 text-white outline-none focus:border-red-500/50 shadow-inner"
           />
+          <select 
+            value={selectedTags.length > 0 ? selectedTags[0] : ''}
+            onChange={(e) => {
+              const val = e.target.value;
+              const newTags = val ? [val] : [];
+              setSelectedTags(newTags);
+              handleSearch(undefined, undefined, 1, newTags);
+            }}
+            className="bg-black/40 backdrop-blur-md border border-white/5 rounded-xl px-4 py-2.5 text-white outline-none focus:border-red-500/50 shadow-inner min-w-[200px] cursor-pointer"
+          >
+            <option value="" className="bg-[#1a1a1a] text-white">All Mod Types</option>
+            {modTypes.map(({ label, tag }) => (
+              <option key={tag} value={tag} className="bg-[#1a1a1a] text-white">{label}</option>
+            ))}
+          </select>
           <button
             onClick={() => handleSearch(undefined, undefined, 1, undefined)}
             disabled={loading}
@@ -354,75 +370,47 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
         </div>
       )}
 
-      {/* Local Workshop Import */}
-      <div className="bg-surface-container rounded-xl p-4 border border-white/5 flex flex-col gap-3 mx-4 mb-4">
-        <div>
-          <h3 className="text-on-surface font-medium">Import Local Mods</h3>
-          <p className="text-on-surface-variant text-sm mt-1">Select your DayZ game folder to automatically find and import your client mods.</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <input
-            type="text"
-            className="flex-1 bg-surface-container-high text-on-surface px-4 py-2 rounded-lg border border-white/10 outline-none focus:border-primary/50 text-sm"
-            placeholder="e.g. C:\Program Files (x86)\Steam\steamapps\common\DayZ"
-            value={workshopPath}
-            onChange={(e) => setWorkshopPath(e.target.value)}
-          />
-          <button
-            onClick={handleBrowseWorkshop}
-            className="px-4 py-2 bg-surface-container-highest hover:bg-surface-container-highest/80 text-on-surface rounded-lg transition-colors border border-white/10 text-sm font-medium"
-          >
-            Browse
-          </button>
-          <button
-            onClick={handleImportWorkshop}
-            disabled={!workshopPath || isImporting}
-            className="px-4 py-2 bg-primary hover:bg-primary/90 text-on-primary rounded-lg transition-colors text-sm font-medium disabled:opacity-50 flex items-center gap-2"
-          >
-            {isImporting ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-on-primary"></div>
-            ) : (
-              <span className="material-symbols-outlined text-[18px]">drive_folder_upload</span>
-            )}
-            Import All
-          </button>
-        </div>
-      </div>
-
-      <div className="flex-1 min-h-0 overflow-hidden flex flex-row">
-        {/* Sidebar */}
-        <div className="w-64 bg-black/20 backdrop-blur-md border-r border-white/5 flex flex-col hidden md:flex shrink-0">
-          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-6">
-            <h3 className="text-xs font-bold text-gray-500 mb-6 uppercase tracking-widest">Mod Type</h3>
-            <div className="flex flex-col gap-4">
-              {modTypes.map(({ label, tag }) => (
-                <label key={tag} className="flex items-center gap-3 cursor-pointer group">
-                  <div className="relative flex items-center justify-center">
-                    <input
-                      type="checkbox"
-                      className="w-5 h-5 rounded border-white/20 bg-black/40 text-red-500 focus:ring-red-500 focus:ring-offset-0 cursor-pointer appearance-none transition-all checked:bg-red-500/20 checked:border-red-500/50"
-                      checked={selectedTags.includes(tag)}
-                      onChange={(e) => {
-                        const newTags = e.target.checked
-                          ? [...selectedTags, tag]
-                          : selectedTags.filter(t => t !== tag);
-                        setSelectedTags(newTags);
-                        handleSearch(undefined, undefined, 1, newTags);
-                      }}
-                    />
-                    {selectedTags.includes(tag) && <span className="material-symbols-outlined absolute text-[14px] text-red-400 pointer-events-none">check</span>}
-                  </div>
-                  <span className="text-sm font-bold text-gray-400 group-hover:text-white transition-colors">
-                    {label}
-                  </span>
-                </label>
-              ))}
+      <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+        
+        
+        {activeCategory === 99 ? (
+          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 custom-scrollbar p-6">
+            <div className="bg-black/60 backdrop-blur-xl border border-red-500/30 rounded-xl p-8 flex flex-col gap-6 shadow-[0_0_30px_rgba(220,38,38,0.15)] max-w-4xl mx-auto mt-8">
+              <div>
+                <h3 className="text-xl font-bold text-white flex items-center gap-3"><span className="material-symbols-outlined text-red-500">drive_folder_upload</span> Import Local Mods</h3>
+                <p className="text-gray-400 text-sm mt-2">Select your DayZ game folder to automatically find and import your client mods. This is useful if you are moving a server or already have mods downloaded via the DayZ Launcher.</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  className="flex-1 bg-black/40 text-white px-4 py-3 rounded-lg border border-white/10 outline-none focus:border-red-500/50 text-sm shadow-inner"
+                  placeholder="e.g. C:\\Program Files (x86)\\Steam\\steamapps\\common\\DayZ"
+                  value={workshopPath}
+                  onChange={(e) => setWorkshopPath(e.target.value)}
+                />
+                <button
+                  onClick={handleBrowseWorkshop}
+                  className="px-6 py-3 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors border border-white/10 text-sm font-bold"
+                >
+                  Browse
+                </button>
+                <button
+                  onClick={handleImportWorkshop}
+                  disabled={!workshopPath || isImporting}
+                  className="px-6 py-3 bg-red-900/30 hover:bg-red-900/50 text-red-400 rounded-lg transition-colors border border-red-500/30 hover:border-red-400 text-sm font-bold disabled:opacity-50 flex items-center gap-2 shadow-[0_0_15px_rgba(220,38,38,0.15)]"
+                >
+                  {isImporting ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-red-400"></div>
+                  ) : (
+                    <span className="material-symbols-outlined text-[18px]">drive_folder_upload</span>
+                  )}
+                  Import All
+                </button>
+              </div>
             </div>
           </OverlayScrollbarsComponent>
-        </div>
-
-        {/* Main Content */}
-        <div className="flex-1 min-w-0 flex flex-col">
+        ) : (
+        <div className="flex-1 min-w-0 min-h-0 flex flex-col">
           <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1">
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {results.map(mod => {
@@ -507,7 +495,8 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
               )}
             </div>
           </OverlayScrollbarsComponent>
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Mod Details Modal */}
