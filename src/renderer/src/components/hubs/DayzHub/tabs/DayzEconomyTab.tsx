@@ -2,6 +2,7 @@ import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
 import { useDayzEconomy } from '../../../../hooks/useDayzEconomy';
+import { useServerStore } from '../../../../store/useServerStore';
 
 export const DayzEconomyTab: React.FC = () => {
   const {
@@ -12,9 +13,10 @@ export const DayzEconomyTab: React.FC = () => {
     multipliers,
     loadEconomy,
     handleMultiplierChange,
-    handleSave
+    handleSave,
+    template
   } = useDayzEconomy();
-
+  const { activeServerId } = useServerStore();
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -138,16 +140,17 @@ export const DayzEconomyTab: React.FC = () => {
             <div className="flex items-center justify-between p-4 bg-[#121212] rounded-lg border border-red-500/20">
               <div>
                 <h4 className="font-bold text-red-400">Wipe Spawned Loot</h4>
-                <p className="text-sm text-gray-400 mt-1">Deletes the <code className="text-red-400">types.bin</code> storage file. On the next server restart, the economy will generate fresh loot across the entire map using your new settings. Player characters are NOT affected.</p>
+                <p className="text-sm text-gray-400 mt-1">Deletes the storage files on the map ({template}). On the next server restart, the economy will generate fresh loot across the entire map using your new settings. You will have the option to keep or wipe player character data.</p>
               </div>
               <button
                 onClick={async () => {
-                  if (confirm('Are you sure you want to wipe all spawned items on the map? This will delete the types.bin file and cannot be undone.')) {
+                  if (confirm(`Are you sure you want to wipe all spawned items on ${template}? This will delete the storage files and cannot be undone.`)) {
+                    const wipePlayers = confirm('Do you want to wipe player data as well? Click OK to wipe player data, or Cancel to preserve player characters.');
                     try {
                       // @ts-ignore
-                      const success = await window.api.dayz.wipeLoot(activeServerId);
+                      const success = await window.api.dayz.wipeLoot(activeServerId, wipePlayers);
                       if (success) {
-                        alert('Loot storage successfully wiped! Restart the server to generate fresh loot.');
+                        alert(`Loot storage successfully wiped!${wipePlayers ? ' Player data was also wiped.' : ' Player data was preserved.'} Restart the server to generate fresh loot.`);
                       } else {
                         alert('Failed to wipe loot. Storage file may not exist yet or an error occurred.');
                       }

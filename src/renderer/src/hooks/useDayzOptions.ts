@@ -28,7 +28,7 @@ export function useDayzOptions() {
     if (!activeServerId) return;
     setIsLoading(true);
     try {
-      const config = await (window.api as any).readDayzConfig(activeServerId);
+      const config = await (window.api as any).dayz.readConfig(activeServerId);
       if (config) {
         setConfigText(config);
         parseConfig(config);
@@ -110,7 +110,7 @@ export function useDayzOptions() {
         newConfig = newConfig.replace(templateRegex, `$1"${template}"`);
       }
 
-      await (window.api as any).writeDayzConfig(activeServerId, newConfig);
+      await (window.api as any).dayz.writeConfig(activeServerId, newConfig);
       setConfigText(newConfig);
       alert('Settings saved successfully!');
     } catch (e) {

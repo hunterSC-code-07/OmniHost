@@ -9,6 +9,7 @@ export function useDayzEconomy() {
 
   // Economy State
   const [pristineLoot, setPristineLoot] = useState(false);
+  const [template, setTemplate] = useState<string>('dayzOffline.chernarusplus');
   
   // Default multipliers are 1
   const [multipliers, setMultipliers] = useState<Record<string, number>>({
@@ -28,9 +29,10 @@ export function useDayzEconomy() {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await (window.api as any).getDayzEconomy(activeServerId);
+      const data = await (window.api as any).dayz.getEconomy(activeServerId);
       if (data) {
         setPristineLoot(data.pristineLoot);
+        if (data.template) setTemplate(data.template);
       } else {
         setError('Could not read economy files. Make sure the server has been started at least once so the mission files exist.');
       }
@@ -57,7 +59,7 @@ export function useDayzEconomy() {
         multipliers
       };
       
-      const success = await (window.api as any).updateDayzEconomy(activeServerId, settings);
+      const success = await (window.api as any).dayz.updateEconomy(activeServerId, settings);
       if (success) {
         alert('Economy settings updated successfully! Original XML files were backed up.');
       } else {
@@ -79,6 +81,7 @@ export function useDayzEconomy() {
     multipliers,
     loadEconomy,
     handleMultiplierChange,
-    handleSave
+    handleSave,
+    template
   };
 }
