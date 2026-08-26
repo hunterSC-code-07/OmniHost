@@ -72,6 +72,7 @@ const api = {
     createBackup: (id: number, name: string) => ipcRenderer.invoke('create-backup', id, name),
     restoreBackup: (id: number, filename: string) => ipcRenderer.invoke('restore-backup', id, filename),
     deleteBackup: (id: number, filename: string) => ipcRenderer.invoke('delete-backup', id, filename),
+    deleteAllBackups: (id: number) => ipcRenderer.invoke('delete-all-backups', id),
   },
 
   minecraft: {
@@ -93,6 +94,7 @@ const api = {
     getInstalledMods: (id: number) => ipcRenderer.invoke('get-installed-mods', id),
     getInstalledModDependencies: (id: number) => ipcRenderer.invoke('get-installed-mod-dependencies', id),
     deleteMod: (id: number, fileName: string) => ipcRenderer.invoke('delete-mod', id, fileName),
+    deleteAllMods: (id: number) => ipcRenderer.invoke('delete-all-mods', id),
   },
 
   dayz: {
