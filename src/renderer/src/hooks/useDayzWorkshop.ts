@@ -25,6 +25,7 @@ export const useDayzWorkshop = () => {
   const [installingDep, setInstallingDep] = useState<string | null>(null);
   const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);
   const [checkingDeps, setCheckingDeps] = useState<string | null>(null);
+  const [modalState, setModalState] = useState<{ type: string | null, data?: any }>({ type: null });
   const [isRebuilding, setIsRebuilding] = useState(false);
   const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);
 
@@ -87,7 +88,7 @@ export const useDayzWorkshop = () => {
       await window.api.dayz.downloadMission(activeServerId, modId);
     } catch (e: any) {
       console.error(e);
-      alert('Failed to download mission files: ' + e.message);
+      setModalState({ type: 'INFO', data: { message: 'Failed to download mission files: ' + e.message } });
     } finally {
       setDownloadingMission(null);
     }
@@ -98,10 +99,10 @@ export const useDayzWorkshop = () => {
     setDownloadingMission(modId);
     try {
       await window.api.dayz.extractLocalMission(activeServerId, localMissionsPath);
-      alert('Mission files extracted and applied successfully!');
+      setModalState({ type: 'INFO', data: { message: 'Mission files extracted and applied successfully!' } });
     } catch (e: any) {
       console.error(e);
-      alert('Failed to extract mission files: ' + e.message);
+      setModalState({ type: 'INFO', data: { message: 'Failed to extract mission files: ' + e.message } });
     } finally {
       setDownloadingMission(null);
     }
@@ -158,6 +159,16 @@ export const useDayzWorkshop = () => {
     await loadInstalledMods();
   };
 
+    const executeMissingDepsInstall = (depDetails: any[]) => {
+    setModalState({ type: null });
+    setPendingDeps(depDetails);
+    if (!steamCreds.username || !steamCreds.password) {
+      setShowCreds(true);
+    } else {
+      handleInstallDependencies(depDetails);
+    }
+  };
+
   const handleToggleModStatus = async (mod: any) => {
     if (!activeServerId) return;
     const isEnabling = mod.isDisabled;
@@ -182,21 +193,13 @@ export const useDayzWorkshop = () => {
             const depDetails = await window.api.steam.getWorkshopItemDetails(missingDepIds);
             if (depDetails && depDetails.length > 0) {
               const depNames = depDetails.map((d: any) => d.title).join(', ');
-              const confirmInstall = confirm(`This mod requires the following missing dependencies:\n\n${depNames}\n\nDo you want to install them automatically?`);
-              if (confirmInstall) {
-                setPendingDeps(depDetails);
-                if (!steamCreds.username || !steamCreds.password) {
-                  setShowCreds(true);
-                } else {
-                  handleInstallDependencies(depDetails);
-                }
-                return;
-              }
+              setModalState({ type: 'MISSING_DEPS', data: { depNames, depDetails } });
+              return;
             }
           }
         }
       } catch (e: any) {
-        alert('Failed to process missing dependencies: ' + e.message);
+        setModalState({ type: 'INFO', data: { message: 'Failed to process missing dependencies: ' + e.message } });
       }
     }
 
@@ -208,7 +211,7 @@ export const useDayzWorkshop = () => {
     try {
       const depIds = await window.api.steam.getModDependencies(mod.id);
       if (!depIds || depIds.length === 0) {
-        alert('No dependencies required for this mod.');
+        setModalState({ type: 'INFO', data: { message: 'No dependencies required for this mod.' } });
         setCheckingDeps(null);
         return;
       }
@@ -227,53 +230,62 @@ export const useDayzWorkshop = () => {
 
       setDependencyResult({ modTitle: mod.title, deps: results });
     } catch (e: any) {
-      alert('Failed to check dependencies: ' + e.message);
+      setModalState({ type: 'INFO', data: { message: 'Failed to check dependencies: ' + e.message } });
     } finally {
       setCheckingDeps(null);
     }
   };
 
-  const handleUninstall = async (modId: string, modName: string) => {
+  const handleUninstall = (modId: string, modName: string) => {
     if (!activeServerId) return;
-    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {
-      try {
-        await window.api.dayz.uninstallMod(activeServerId, modId);
-        await loadInstalledMods();
-      } catch (e: any) {
-        alert(`Failed to uninstall mod: ${e.message}`);
-      }
+    setModalState({ type: 'UNINSTALL_SINGLE', data: { modId, modName } });
+  };
+  
+  const executeUninstall = async (modId: string) => {
+    try {
+      await window.api.dayz.uninstallMod(activeServerId!, modId);
+      await loadInstalledMods();
+      setModalState({ type: null });
+    } catch (e: any) {
+      setModalState({ type: 'INFO', data: { message: `Failed to uninstall mod: ${e.message}` } });
     }
   };
 
-  const handleUninstallAll = async () => {
+  const handleUninstallAll = () => {
     if (mods.length === 0 || !activeServerId) return;
-    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\n\nAre you sure you want to proceed? This cannot be undone.`)) {
-      setLoading(true);
-      try {
-        for (const mod of mods) {
-          await window.api.dayz.uninstallMod(activeServerId, mod.folderName || mod.id);
-        }
-        await loadInstalledMods();
-      } catch (e: any) {
-        alert(`Failed to uninstall some mods: ${e.message}`);
-        await loadInstalledMods();
-      }
-      setLoading(false);
-    }
+    setModalState({ type: 'UNINSTALL_ALL' });
   };
 
-  const handleRebuildLoadOrder = async () => {
-    if (!activeServerId) return;
-    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {
-      setIsRebuilding(true);
-      try {
-        await window.api.dayz.rebuildModDependencies(activeServerId);
-        alert('Successfully rebuilt load order dependency graph!');
-      } catch (e: any) {
-        alert('Failed to rebuild load order: ' + e.message);
+  const executeUninstallAll = async () => {
+    setLoading(true);
+    setModalState({ type: null });
+    try {
+      for (const mod of mods) {
+        await window.api.dayz.uninstallMod(activeServerId!, mod.folderName || mod.id);
       }
-      setIsRebuilding(false);
+      await loadInstalledMods();
+    } catch (e: any) {
+      setModalState({ type: 'INFO', data: { message: `Failed to uninstall some mods: ${e.message}` } });
+      await loadInstalledMods();
     }
+    setLoading(false);
+  };
+
+  const handleRebuildLoadOrder = () => {
+    if (!activeServerId) return;
+    setModalState({ type: 'REBUILD_CONFIRM' });
+  };
+
+  const executeRebuildLoadOrder = async () => {
+    setModalState({ type: null });
+    setIsRebuilding(true);
+    try {
+      await window.api.dayz.rebuildModDependencies(activeServerId!);
+      setModalState({ type: 'REBUILD_SUCCESS' });
+    } catch (e: any) {
+      setModalState({ type: 'INFO', data: { message: 'Failed to rebuild load order: ' + e.message } });
+    }
+    setIsRebuilding(false);
   };
 
   const saveCredentials = () => {
@@ -285,7 +297,7 @@ export const useDayzWorkshop = () => {
       }
       handleInstallDependencies();
     } else {
-      alert('Username and password are required.');
+      setModalState({ type: 'INFO', data: { message: 'Username and password are required.' } });
     }
   };
 
@@ -311,7 +323,7 @@ export const useDayzWorkshop = () => {
     handleToggleModStatus,
     handleCheckDependencies,
     handleUninstall,
-    handleUninstallAll,
+    handleUninstallAll, executeUninstallAll, executeUninstall, executeRebuildLoadOrder, executeMissingDepsInstall, modalState, setModalState,
     handleRebuildLoadOrder,
     saveCredentials,
     loadInstalledMods,
