@@ -38,7 +38,8 @@
     "prismarine-nbt": "^2.8.0",
     "react-icons": "^5.7.0",
     "semver": "^7.8.5",
-    "tailwind-merge": "^3.6.0"
+    "tailwind-merge": "^3.6.0",
+    "zustand": "^5.0.15"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",

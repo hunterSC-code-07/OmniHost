@@ -2,27 +2,35 @@ import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
+import { useServerStore } from '../../store/useServerStore';
+import { usePlayerStore } from '../../store/usePlayerStore';
+import { useLogStore } from '../../store/useLogStore';
+import { useStatsStore } from '../../store/useStatsStore';
+
 interface OverviewTabProps {
-  statsHistory: { cpu: number; ram: number }[];
-  serverStatus: 'Online' | 'Offline';
   serverVersion: string;
-  onlinePlayers: string[];
   maxPlayers?: number;
-  logs: string[];
   maxRam?: number;
   maxCpu?: number;
 }
 
 export const OverviewTab: React.FC<OverviewTabProps> = React.memo(({
-  statsHistory,
-  serverStatus,
   serverVersion,
-  onlinePlayers,
   maxPlayers = 20,
-  logs,
   maxRam = 4,
   maxCpu = 4
 }) => {
+  const { activeServerId, servers } = useServerStore();
+  const { onlinePlayers: allOnlinePlayers } = usePlayerStore();
+  const { logs: allLogs } = useLogStore();
+  const { statsHistory: allStatsHistory } = useStatsStore();
+
+  const currentServer = servers.find(s => s.id === activeServerId);
+  const serverStatus = currentServer?.status || 'Offline';
+  
+  const statsHistory = activeServerId ? (allStatsHistory[activeServerId.toString()] || []) : [];
+  const onlinePlayers = activeServerId ? (allOnlinePlayers[activeServerId.toString()] || []) : [];
+  const logs = activeServerId ? allLogs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
   
   // Helpers to generate smooth SVG paths
   const generatePath = (data: number[], max: number, decimals: number) => {

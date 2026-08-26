@@ -1,12 +1,13 @@
-import React from 'react';
 
-export function TunnelModal({
-  tempTunnelIp,
-  setTempTunnelIp,
-  setTunnelIp,
-  setShowTunnelModal,
-  showToast
-}: any) {
+
+import { useUiStore } from '../../store/useUiStore';
+import { useModalStore } from '../../store/useModalStore';
+import { useToastStore } from '../../store/useToastStore';
+
+export function TunnelModal() {
+  const { tempTunnelIp, setTempTunnelIp, setTunnelIp } = useUiStore();
+  const { setShowTunnelModal } = useModalStore();
+  const { showToast } = useToastStore();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">

@@ -2,37 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
+import { useServerStore } from '../../store/useServerStore';
+import { usePlayerStore } from '../../store/usePlayerStore';
+import { useMinecraftPlayers } from '../../hooks/useMinecraftPlayers';
+
 interface PlayersTabProps {
-  selectedPlayer: string | null;
-  setSelectedPlayer: React.Dispatch<React.SetStateAction<string | null>>;
-  playerListType: 'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips';
-  setPlayerListType: React.Dispatch<React.SetStateAction<'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>>;
-  newPlayerName: string;
-  setNewPlayerName: React.Dispatch<React.SetStateAction<string>>;
-  isProcessing: boolean;
-  onlinePlayers: string[];
-  playerData: any[];
-  handleAddPlayer: (e: React.FormEvent) => Promise<void>;
-  handleRemovePlayer: (targetName: string) => Promise<void>;
-  playerInventory: any[] | null;
-  sendPlayerCommand: (cmd: string, successMsg: string) => Promise<void>;
+  // empty for now
 }
 
-export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
-  selectedPlayer,
-  setSelectedPlayer,
-  playerListType,
-  setPlayerListType,
-  newPlayerName,
-  setNewPlayerName,
-  isProcessing,
-  onlinePlayers,
-  playerData,
-  handleAddPlayer,
-  handleRemovePlayer,
-  playerInventory,
-  sendPlayerCommand
-}) => {
+export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
+  const { activeServerId } = useServerStore();
+  const { onlinePlayers, playerListType, setPlayerListType } = usePlayerStore();
+  const activePlayers = activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : [];
+
+  const {
+    playerData,
+    newPlayerName, setNewPlayerName,
+    isProcessing,
+    selectedPlayer, setSelectedPlayer,
+    playerInventory,
+    handleAddPlayer, handleRemovePlayer, sendPlayerCommand
+  } = useMinecraftPlayers(activeServerId, 'players');
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
@@ -94,11 +84,11 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
             defer
           >
             <div className="w-full block px-8 pb-8">
-            {(playerListType === 'live' ? onlinePlayers : playerData).length === 0 ? (
+            {(playerListType === 'live' ? activePlayers : playerData).length === 0 ? (
               <div className="text-center text-gray-500 mt-12">No records found.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                {(playerListType === 'live' ? onlinePlayers : playerData).map((player: any, idx) => {
+                {(playerListType === 'live' ? activePlayers : playerData).map((player: any, idx) => {
                   const pName = typeof player === 'string' ? player : (player.username || player.name || player.ip);
                   const isIp = playerListType === 'banned-ips';
                   return (
@@ -139,8 +129,8 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
                   <div>
                     <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                       {selectedPlayer}
-                      <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase ${onlinePlayers.includes(selectedPlayer) ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
-                        {onlinePlayers.includes(selectedPlayer) ? 'Online' : 'Offline'}
+                      <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase ${activePlayers.includes(selectedPlayer) ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+                        {activePlayers.includes(selectedPlayer) ? 'Online' : 'Offline'}
                       </span>
                     </h2>
                     <p className="text-sm text-gray-400 font-mono mt-1">Player Profile details</p>
@@ -176,7 +166,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
                       if (!stats) return '0h 0m 0s';
                       
                       let livePlaytime = stats.totalPlaytime || 0;
-                      if (onlinePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
+                      if (activePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
                         livePlaytime += (now - stats.currentSessionStart);
                       }
 
@@ -203,7 +193,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
                     <p className="text-lg font-bold text-white">
                       {(() => {
                         const stats = playerData.find(p => p.username === selectedPlayer);
-                        if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
+                        if (activePlayers.includes(selectedPlayer)) return 'Currently Online';
                         return stats?.lastLeft ? new Date(stats.lastLeft).toLocaleString() : 'Unknown';
                       })()}
                     </p>
@@ -214,7 +204,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(({
                     <p className="text-lg font-bold text-white">
                       {(() => {
                         const stats = playerData.find(p => p.username === selectedPlayer);
-                        if (onlinePlayers.includes(selectedPlayer)) return 'Currently Online';
+                        if (activePlayers.includes(selectedPlayer)) return 'Currently Online';
                         if (stats?.logoffPosition) {
                           return `X: ${stats.logoffPosition.x}, Y: ${stats.logoffPosition.y}, Z: ${stats.logoffPosition.z}`;
                         }

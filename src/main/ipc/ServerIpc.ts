@@ -5,10 +5,10 @@ import fs from 'fs'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
 import { getServers, createServer, deleteServer, updateServerSoftware } from '../db'
 import { DayzAdapter } from '../adapters/DayzAdapter'
-import { MinecraftAdapter } from '../adapters/MinecraftAdapter'
+import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager'
 import { WakeProxy } from '../adapters/WakeProxy'
 import { SteamWebAPI } from '../api/SteamWebAPI'
-import { SteamCMDManager } from '../adapters/SteamCMDManager'
+import { SteamCMDManager } from '../steam/SteamCMDManager'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
 
@@ -182,7 +182,7 @@ export function registerServerIpc(
   ipcMain.handle('toggle-auto-start', async (_, id, enabled) => {
     try {
       if (enabled) {
-        if (!activeServers[id]) activeServers[id] = new MinecraftAdapter(id)
+        if (!activeServers[id]) activeServers[id] = new MinecraftProcessManager(id)
         const serverDir = join(app.getPath('userData'), 'servers', id.toString())
         const propsPath = join(serverDir, 'server.properties')
         let port = 25565
@@ -229,7 +229,7 @@ export function registerServerIpc(
       if (game === 'DayZ') {
         activeServers[id] = new DayzAdapter(id)
       } else {
-        activeServers[id] = new MinecraftAdapter(id)
+        activeServers[id] = new MinecraftProcessManager(id)
       }
     }
 

@@ -1,6 +1,6 @@
 import { app, ipcMain } from 'electron'
 import { join } from 'path'
-import { SteamCMDManager } from '../adapters/SteamCMDManager'
+import { SteamCMDManager } from '../steam/SteamCMDManager'
 
 
 export function registerSteamCMDIpc() {

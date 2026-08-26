@@ -1,6 +1,20 @@
 import { useState, useEffect } from "react";
 
-export function SteamLoginModal({ setShowSteamLoginModal, showToast, activeGameHub, steamLoginAction, steamUsername, setSteamUsername, steamPassword, setSteamPassword, isSteamGuardRequired, setIsSteamGuardRequired, steamGuardCode, setSteamGuardCode, setIsDayzCached, handleCreateServer }: any) {
+import { useUiStore } from '../../store/useUiStore';
+import { useModalStore } from '../../store/useModalStore';
+import { useToastStore } from '../../store/useToastStore';
+
+export function SteamLoginModal({ handleCreateServer }: any) {
+  const { activeGameHub, setIsDayzCached } = useUiStore();
+  const { showToast } = useToastStore();
+  const { 
+    setShowSteamLoginModal, steamLoginAction, 
+    steamUsername, setSteamUsername, 
+    steamPassword, setSteamPassword, 
+    isSteamGuardRequired, setIsSteamGuardRequired, 
+    steamGuardCode, setSteamGuardCode 
+  } = useModalStore();
+
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleUpdateSteamCache = async () => {
