@@ -32,7 +32,7 @@ export const useDayzWorkshop = () => {
     if (!activeServerId) return;
     setLoading(true);
     try {
-      const basicMods = await window.api.getDayzInstalledMods(activeServerId);
+      const basicMods = await window.api.dayz.getInstalledMods(activeServerId);
 
       const workshopIds = basicMods
         .filter((m: any) => m.id && /^\d+$/.test(m.id) && String(m.id) !== '0')
@@ -40,7 +40,7 @@ export const useDayzWorkshop = () => {
 
       let detailedMods: any[] = [];
       if (workshopIds.length > 0) {
-        detailedMods = await window.api.getWorkshopItemDetails(workshopIds);
+        detailedMods = await window.api.steam.getWorkshopItemDetails(workshopIds);
       }
 
       const mergedMods = basicMods.map((basicMod: any) => {
@@ -76,7 +76,7 @@ export const useDayzWorkshop = () => {
 
   const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {
     if (!activeServerId) return;
-    await window.api.toggleDayzMapMod(activeServerId, folderName, !currentIsMap);
+    await window.api.dayz.toggleMapMod(activeServerId, folderName, !currentIsMap);
     loadInstalledMods();
   };
 
@@ -84,7 +84,7 @@ export const useDayzWorkshop = () => {
     if (downloadingMission || !activeServerId) return;
     setDownloadingMission(modId);
     try {
-      await window.api.downloadDayzMission(activeServerId, modId);
+      await window.api.dayz.downloadMission(activeServerId, modId);
     } catch (e: any) {
       console.error(e);
       alert('Failed to download mission files: ' + e.message);
@@ -97,7 +97,7 @@ export const useDayzWorkshop = () => {
     if (downloadingMission || !activeServerId) return;
     setDownloadingMission(modId);
     try {
-      await window.api.extractDayzLocalMission(activeServerId, localMissionsPath);
+      await window.api.dayz.extractLocalMission(activeServerId, localMissionsPath);
       alert('Mission files extracted and applied successfully!');
     } catch (e: any) {
       console.error(e);
@@ -127,7 +127,7 @@ export const useDayzWorkshop = () => {
 
     try {
       const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));
-      await window.api.installDayzMods(
+      await window.api.dayz.installMods(
         activeServerId,
         modsToInstall,
         steamCreds.username,
@@ -161,11 +161,11 @@ export const useDayzWorkshop = () => {
   const handleToggleModStatus = async (mod: any) => {
     if (!activeServerId) return;
     const isEnabling = mod.isDisabled;
-    await window.api.toggleDayzModStatus(activeServerId, mod.folderName, !isEnabling);
+    await window.api.dayz.toggleModStatus(activeServerId, mod.folderName, !isEnabling);
 
     if (isEnabling && mod.id && /^\d+$/.test(mod.id)) {
       try {
-        const dependencies = await window.api.getModDependencies(mod.id);
+        const dependencies = await window.api.steam.getModDependencies(mod.id);
         if (dependencies && dependencies.length > 0) {
           const installedDeps = mods.filter(m => dependencies.includes(m.id));
           const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));
@@ -173,13 +173,13 @@ export const useDayzWorkshop = () => {
           let enabledCount = 0;
           for (const installedDep of installedDeps) {
             if (installedDep.isDisabled) {
-              await window.api.toggleDayzModStatus(activeServerId, installedDep.folderName, false);
+              await window.api.dayz.toggleModStatus(activeServerId, installedDep.folderName, false);
               enabledCount++;
             }
           }
 
           if (missingDepIds.length > 0) {
-            const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);
+            const depDetails = await window.api.steam.getWorkshopItemDetails(missingDepIds);
             if (depDetails && depDetails.length > 0) {
               const depNames = depDetails.map((d: any) => d.title).join(', ');
               const confirmInstall = confirm(`This mod requires the following missing dependencies:\n\n${depNames}\n\nDo you want to install them automatically?`);
@@ -206,14 +206,14 @@ export const useDayzWorkshop = () => {
   const handleCheckDependencies = async (mod: any) => {
     setCheckingDeps(mod.id);
     try {
-      const depIds = await window.api.getModDependencies(mod.id);
+      const depIds = await window.api.steam.getModDependencies(mod.id);
       if (!depIds || depIds.length === 0) {
         alert('No dependencies required for this mod.');
         setCheckingDeps(null);
         return;
       }
 
-      const details = await window.api.getWorkshopItemDetails(depIds);
+      const details = await window.api.steam.getWorkshopItemDetails(depIds);
 
       const results = details.map((d: any) => {
         const localMod = mods.find(m => String(m.id) === String(d.id));
@@ -237,7 +237,7 @@ export const useDayzWorkshop = () => {
     if (!activeServerId) return;
     if (confirm(`Are you sure you want to uninstall ${modName}?`)) {
       try {
-        await window.api.uninstallDayzMod(activeServerId, modId);
+        await window.api.dayz.uninstallMod(activeServerId, modId);
         await loadInstalledMods();
       } catch (e: any) {
         alert(`Failed to uninstall mod: ${e.message}`);
@@ -251,7 +251,7 @@ export const useDayzWorkshop = () => {
       setLoading(true);
       try {
         for (const mod of mods) {
-          await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);
+          await window.api.dayz.uninstallMod(activeServerId, mod.folderName || mod.id);
         }
         await loadInstalledMods();
       } catch (e: any) {
@@ -267,7 +267,7 @@ export const useDayzWorkshop = () => {
     if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {
       setIsRebuilding(true);
       try {
-        await window.api.rebuildModDependencies(activeServerId);
+        await window.api.dayz.rebuildModDependencies(activeServerId);
         alert('Successfully rebuilt load order dependency graph!');
       } catch (e: any) {
         alert('Failed to rebuild load order: ' + e.message);

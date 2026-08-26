@@ -130,17 +130,17 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
               
               try {
                 // @ts-ignore
-                window.api.onDownloadProgress(activeServerId, (progress: number, text?: string) => {
+                window.api.server.onDownloadProgress(activeServerId, (progress: number, text?: string) => {
                    setDownloadProgress(progress);
                    if (text) setDownloadText(text);
                 });
 
                 // @ts-ignore
-                await window.api.changeServerSoftware(activeServerId, editingSoftwareType, editingSoftwareVersion, editingLoaderVersion);
+                await window.api.minecraft.changeServerSoftware(activeServerId, editingSoftwareType, editingSoftwareVersion, editingLoaderVersion);
                 
                 // Re-download the jar
                 // @ts-ignore
-                await window.api.downloadServerJar(activeServerId, editingSoftwareType, editingSoftwareVersion, editingLoaderVersion);
+                await window.api.minecraft.downloadServerJar(activeServerId, editingSoftwareType, editingSoftwareVersion, editingLoaderVersion);
                 
                 // Show success
                 setDownloadText('Software updated successfully!');
@@ -151,7 +151,7 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
                   setIsChangingSoftware(false);
                   // Update the servers list globally
                   // @ts-ignore
-                  window.api.getServers().then(setServers);
+                  window.api.server.getServers().then(setServers);
                 }, 1500);
 
               } catch (err: any) {

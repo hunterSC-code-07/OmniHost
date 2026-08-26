@@ -16,7 +16,7 @@ export function useCreateServerData(newServerType: string, modpackSearch: string
         const typeStr = modpackLoaderFilter || 'Any';
         const versionStr = modpackVersionFilter || '';
         // @ts-ignore
-        const results = await window.api.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
+        const results = await window.api.minecraft.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
         setModpacks(results || []);
       } catch (e) {
         console.error(e);
@@ -36,15 +36,15 @@ export function useCreateServerData(newServerType: string, modpackSearch: string
     const fetchVersions = async () => {
       let versions: string[] = [];
       // @ts-ignore
-      if (newServerType === 'Vanilla') versions = await window.api.getVanillaVersions();
+      if (newServerType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions();
       // @ts-ignore
-      else if (newServerType === 'Paper') versions = await window.api.getPaperVersions();
+      else if (newServerType === 'Paper') versions = await window.api.minecraft.getPaperVersions();
       // @ts-ignore
-      else if (newServerType === 'Fabric') versions = await window.api.getFabricVersions();
+      else if (newServerType === 'Fabric') versions = await window.api.minecraft.getFabricVersions();
       // @ts-ignore
-      else if (newServerType === 'Forge') versions = await window.api.getForgeVersions();
+      else if (newServerType === 'Forge') versions = await window.api.minecraft.getForgeVersions();
       // @ts-ignore
-      else if (newServerType === 'NeoForge') versions = await window.api.getNeoForgeVersions();
+      else if (newServerType === 'NeoForge') versions = await window.api.minecraft.getNeoForgeVersions();
       
       setAvailableVersions(versions);
       if (versions.length > 0) {
@@ -65,7 +65,7 @@ export function useCreateServerData(newServerType: string, modpackSearch: string
       if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {
         setAvailableLoaderVersions([]);
         // @ts-ignore
-        const versions = await window.api.getLoaderVersions(newServerType, newServerVersion);
+        const versions = await window.api.minecraft.getLoaderVersions(newServerType, newServerVersion);
         setAvailableLoaderVersions(versions);
         if (versions && versions.length > 0) {
           setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);

@@ -23,15 +23,15 @@ export function useMinecraftSoftware(serverMeta: any, activeTab: string) {
       const fetchVersions = async () => {
         let versions: string[] = [];
         // @ts-ignore
-        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();
+        if (editingSoftwareType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions();
         // @ts-ignore
-        else if (editingSoftwareType === 'Paper') versions = await window.api.getPaperVersions();
+        else if (editingSoftwareType === 'Paper') versions = await window.api.minecraft.getPaperVersions();
         // @ts-ignore
-        else if (editingSoftwareType === 'Fabric') versions = await window.api.getFabricVersions();
+        else if (editingSoftwareType === 'Fabric') versions = await window.api.minecraft.getFabricVersions();
         // @ts-ignore
-        else if (editingSoftwareType === 'Forge') versions = await window.api.getForgeVersions();
+        else if (editingSoftwareType === 'Forge') versions = await window.api.minecraft.getForgeVersions();
         // @ts-ignore
-        else if (editingSoftwareType === 'NeoForge') versions = await window.api.getNeoForgeVersions();
+        else if (editingSoftwareType === 'NeoForge') versions = await window.api.minecraft.getNeoForgeVersions();
         
         setEditingAvailableVersions(versions);
         if (versions.length > 0) {
@@ -46,7 +46,7 @@ export function useMinecraftSoftware(serverMeta: any, activeTab: string) {
     if (activeTab === 'software' && ['Forge', 'Fabric', 'NeoForge'].includes(editingSoftwareType) && editingSoftwareVersion) {
       const fetchLoaderVersions = async () => {
         // @ts-ignore
-        const loaders = await window.api.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);
+        const loaders = await window.api.minecraft.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);
         setEditingAvailableLoaderVersions(loaders);
         if (serverMeta && serverMeta.loaderVersion && loaders.includes(serverMeta.loaderVersion)) {
            setEditingLoaderVersion(serverMeta.loaderVersion);

@@ -44,13 +44,13 @@ export const useServerStore = create<ServerStore>((set, get) => ({
   
   fetchServers: async () => {
     // @ts-ignore
-    const data = await window.api.getServers();
+    const data = await window.api.server.getServers();
     set({ servers: data });
   },
 
   startServer: async (id: number) => {
     // @ts-ignore
-    await window.api.startServer(id);
+    await window.api.server.startServer(id);
     set((state) => ({
       servers: state.servers.map(s => s.id === id ? { ...s, status: 'Online' } : s)
     }));
@@ -58,7 +58,7 @@ export const useServerStore = create<ServerStore>((set, get) => ({
 
   stopServer: async (id: number) => {
     // @ts-ignore
-    await window.api.stopServer(id);
+    await window.api.server.stopServer(id);
     set((state) => ({
       servers: state.servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s)
     }));
@@ -66,14 +66,14 @@ export const useServerStore = create<ServerStore>((set, get) => ({
 
   restartServer: async (id: number) => {
     // @ts-ignore
-    await window.api.stopServer(id);
+    await window.api.server.stopServer(id);
     set((state) => ({
       servers: state.servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s)
     }));
     
     setTimeout(async () => {
       // @ts-ignore
-      await window.api.startServer(id);
+      await window.api.server.startServer(id);
       set((state) => ({
         servers: state.servers.map(s => s.id === id ? { ...s, status: 'Online' } : s)
       }));
@@ -82,7 +82,7 @@ export const useServerStore = create<ServerStore>((set, get) => ({
 
   deleteServer: async (id: number) => {
     // @ts-ignore
-    await window.api.deleteServer(id);
+    await window.api.server.deleteServer(id);
     set((state) => ({
       activeServerId: state.activeServerId === id ? null : state.activeServerId
     }));

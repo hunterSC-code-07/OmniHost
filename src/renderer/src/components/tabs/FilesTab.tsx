@@ -36,7 +36,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
   const fetchFiles = useCallback(async () => {
     setLoading(true);
     try {
-      const result = await window.api.listDir(serverId, currentPath);
+      const result = await window.api.fs.listDir(serverId, currentPath);
       // Sort: Folders first, then alphabetically
       result.sort((a: FileInfo, b: FileInfo) => {
         if (a.isDirectory && !b.isDirectory) return -1;
@@ -76,7 +76,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
       const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
       if (exts.includes(ext) || !file.name.includes('.')) {
         setLoading(true);
-        const content = await window.api.readFile(serverId, relPath);
+        const content = await window.api.fs.readFile(serverId, relPath);
         setLoading(false);
         if (content !== null) {
           setEditingFile({ path: relPath, content });
@@ -90,7 +90,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
   const handleDelete = async (file: FileInfo) => {
     if (!confirm(`Are you sure you want to delete ${file.name}?`)) return;
     const relPath = currentPath ? `${currentPath}/${file.name}` : file.name;
-    const success = await window.api.deleteItem(serverId, relPath);
+    const success = await window.api.fs.deleteItem(serverId, relPath);
     if (success) {
       fetchFiles();
     } else {
@@ -101,7 +101,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
   const handleSaveFile = async () => {
     if (!editingFile) return;
     setSaving(true);
-    const success = await window.api.writeFile(serverId, editingFile.path, editingFile.content);
+    const success = await window.api.fs.writeFile(serverId, editingFile.path, editingFile.content);
     setSaving(false);
     if (success) {
       setEditingFile(null); // Close editor on save

@@ -19,7 +19,7 @@ export function useDayzFiles() {
   const fetchDir = useCallback(async (path: string) => {
     setLoading(true);
     try {
-      const res = await window.api.listDir(activeServerId, path);
+      const res = await window.api.fs.listDir(activeServerId, path);
       setFiles(res);
       setCurrentPath(path);
     } catch (e) {
@@ -53,7 +53,7 @@ export function useDayzFiles() {
       
       if (isEditable || file.size < 1024 * 1024) {
         try {
-          const content = await window.api.readFile(activeServerId, fullPath);
+          const content = await window.api.fs.readFile(activeServerId, fullPath);
           setEditingFile({ path: fullPath, content });
         } catch (e) {
           alert('Could not read file');
@@ -70,7 +70,7 @@ export function useDayzFiles() {
     
     const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;
     try {
-      await window.api.deleteItem(activeServerId, fullPath);
+      await window.api.fs.deleteItem(activeServerId, fullPath);
       fetchDir(currentPath);
     } catch (e) {
       alert('Failed to delete item');
@@ -80,7 +80,7 @@ export function useDayzFiles() {
   const handleSaveFile = async () => {
     if (!editingFile) return;
     try {
-      await window.api.writeFile(activeServerId, editingFile.path, editingFile.content);
+      await window.api.fs.writeFile(activeServerId, editingFile.path, editingFile.content);
       alert('File saved successfully!');
       setEditingFile(null);
     } catch (e) {
@@ -94,7 +94,7 @@ export function useDayzFiles() {
     
     const fullPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;
     try {
-      await window.api.createFolder(activeServerId, fullPath);
+      await window.api.fs.createFolder(activeServerId, fullPath);
       setNewFolderName(null);
       fetchDir(currentPath);
     } catch (e) {

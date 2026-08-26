@@ -145,7 +145,7 @@ export const DayzEconomyTab: React.FC = () => {
                   if (confirm('Are you sure you want to wipe all spawned items on the map? This will delete the types.bin file and cannot be undone.')) {
                     try {
                       // @ts-ignore
-                      const success = await window.api.wipeDayzLoot(activeServerId);
+                      const success = await window.api.dayz.wipeLoot(activeServerId);
                       if (success) {
                         alert('Loot storage successfully wiped! Restart the server to generate fresh loot.');
                       } else {

@@ -6,7 +6,7 @@ const DayzModStatus = ({ serverId }: { serverId: number }) => {
   const [modCount, setModCount] = useState<number | null>(null);
   useEffect(() => {
     // @ts-ignore
-    window.api.getDayzInstalledMods(serverId).then((mods: any[]) => {
+    window.api.dayz.getInstalledMods(serverId).then((mods: any[]) => {
       setModCount(mods.length);
     }).catch(() => setModCount(0));
   }, [serverId]);
@@ -285,7 +285,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                           onClick={async () => {
                             if (confirm("Are you sure you want to delete the cached DayZ base files?")) {
                                // @ts-ignore
-                               await window.api.deleteSteamCache(223350);
+                               await window.api.steam.deleteCache(223350);
                                setIsDayzCached(false);
                                showToast("DayZ Base Files Deleted.");
                             }

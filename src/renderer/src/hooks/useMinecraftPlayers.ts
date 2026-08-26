@@ -15,7 +15,7 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     if (selectedPlayer && activeServerId !== null) {
       const fetchInv = async () => {
         // @ts-ignore
-        const inv = await window.api.getInventory(activeServerId, selectedPlayer);
+        const inv = await window.api.server.getInventory(activeServerId, selectedPlayer);
         setPlayerInventory(inv);
       };
       fetchInv();
@@ -33,11 +33,11 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     }
     if (type === 'history') {
       // @ts-ignore
-      const stats = await window.api.getPlayerStats(id);
+      const stats = await window.api.server.getPlayerStats(id);
       setPlayerData(stats ? Object.values(stats) : []);
     } else {
       // @ts-ignore
-      const data = await window.api.readJson(id, type);
+      const data = await window.api.server.readJson(id, type);
       setPlayerData(data || []);
     }
   };
@@ -77,7 +77,7 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
       const updatedList = [...playerData, newEntry];
       setPlayerData(updatedList);
       // @ts-ignore
-      await window.api.writeJson(activeServerId, playerListType, updatedList);
+      await window.api.server.writeJson(activeServerId, playerListType, updatedList);
       showToast(`Added ${name} to ${playerListType}`);
     }
 
@@ -90,14 +90,14 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);
     setPlayerData(updatedList);
     // @ts-ignore
-    await window.api.writeJson(activeServerId, playerListType, updatedList);
+    await window.api.server.writeJson(activeServerId, playerListType, updatedList);
     showToast(`Removed ${targetName}`);
   };
 
   const sendPlayerCommand = async (cmd: string, successMsg: string) => {
     if (activeServerId !== null && selectedPlayer) {
       // @ts-ignore
-      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));
+      await window.api.server.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));
       showToast(successMsg.replace('{player}', selectedPlayer));
     }
   };

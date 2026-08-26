@@ -17,7 +17,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
   const fetchBackups = async () => {
     if (activeServerId === null) return;
     // @ts-ignore
-    const data = await window.api.getBackups(activeServerId);
+    const data = await window.api.backup.getBackups(activeServerId);
     setBackups(data);
   };
 
@@ -32,7 +32,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
     setProgressText('Creating backup (this may take a moment)...');
     try {
       // @ts-ignore
-      await window.api.createBackup(activeServerId, newBackupName);
+      await window.api.backup.createBackup(activeServerId, newBackupName);
       setNewBackupName('');
       await fetchBackups();
     } catch (e: any) {
@@ -51,7 +51,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
     setProgressText(`Restoring ${filename}...`);
     try {
       // @ts-ignore
-      await window.api.restoreBackup(activeServerId, filename);
+      await window.api.backup.restoreBackup(activeServerId, filename);
       alert('Backup restored successfully! Make sure to restart your server if it is running.');
     } catch (e: any) {
       alert('Failed to restore backup: ' + e.message);
@@ -68,7 +68,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
     setIsProcessing(true);
     try {
       // @ts-ignore
-      await window.api.deleteBackup(activeServerId, filename);
+      await window.api.backup.deleteBackup(activeServerId, filename);
       await fetchBackups();
     } catch (e: any) {
       alert('Failed to delete backup: ' + e.message);
