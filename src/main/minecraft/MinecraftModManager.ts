@@ -17,6 +17,11 @@ export class MinecraftModManager {
     classId: number = 6,
     sortField: number = 2
   ) {
+    // Shaders (6552) and Resource Packs (12) are universal and do not use modloaders
+    if (classId === 6552 || classId === 12) {
+      type = '';
+    }
+
     // 1. Try CurseForge if an API key is provided
     if (process.env.CURSEFORGE_API_KEY) {
       try {
@@ -64,6 +69,11 @@ export class MinecraftModManager {
     classId: number = 6,
     sortField: number = 2
   ) {
+    // Shaders (6552) and Resource Packs (12) are universal and do not use modloaders
+    if (classId === 6552 || classId === 12) {
+      type = '';
+    }
+
     // Map classId to Modrinth project_type
     const classToType: Record<number, string> = {
       6: 'mod',
@@ -245,8 +255,8 @@ export class MinecraftModManager {
   static async installCurseforgeMod(event: any, id: number, downloadUrl: string, fileName: string, classId: number = 6) {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      // 6 is Mods, 12 is Resource Packs, 17 is Worlds
-      const folderName = classId === 12 ? 'resourcepacks' : classId === 17 ? 'saves' : 'mods'
+      // 6 is Mods, 12 is Resource Packs, 17 is Worlds, 6552 is Shaders
+      const folderName = classId === 12 ? 'resourcepacks' : classId === 17 ? 'saves' : classId === 6552 ? 'shaderpacks' : 'mods'
       const targetDir = join(serverDir, folderName)
       
       await fsPromises.mkdir(targetDir, { recursive: true })

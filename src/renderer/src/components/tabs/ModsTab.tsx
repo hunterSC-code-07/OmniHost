@@ -11,7 +11,8 @@ import {
   Trash2, 
   Box, 
   ShieldCheck,
-  Search
+  Search,
+  ExternalLink
 } from 'lucide-react';
 
 import { useServerStore } from '../../store/useServerStore';
@@ -61,7 +62,12 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
     modpackSearchQuery, setModpackSearchQuery,
     modpackResults, isSearchingModpacks,
     installingModpackId, modpackProgressText,
-    handleSearchModpacks, handleInstallModpack
+    handleSearchModpacks, handleInstallModpack,
+
+    // Shaders
+    shaderSearchQuery, setShaderSearchQuery,
+    shaderResults, isSearchingShaders,
+    handleSearchShaders
   } = useMinecraftMods(activeServerId, serverMeta, 'mods');
 
   // Calculate dependency stats
@@ -137,6 +143,12 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                className={`px-3.5 py-1.5 rounded-md font-bold text-sm transition-all flex items-center gap-1.5 ${modViewType === 'modpacks' ? 'bg-brand text-black shadow-md' : 'text-gray-400 hover:text-white'}`}
              >
                <Download className="w-3.5 h-3.5" /> Modpacks
+             </button>
+             <button 
+               onClick={() => setModViewType('shaders')} 
+               className={`px-3.5 py-1.5 rounded-md font-bold text-sm transition-all flex items-center gap-1.5 ${modViewType === 'shaders' ? 'bg-brand text-black shadow-md' : 'text-gray-400 hover:text-white'}`}
+             >
+               <Box className="w-3.5 h-3.5" /> Shaders
              </button>
           </div>
         </div>
@@ -648,6 +660,129 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                               <Download className="w-4 h-4" />
                               {isInstalling ? 'Installing...' : 'Install Modpack'}
                             </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </OverlayScrollbarsComponent>
+            </div>
+          )}
+
+          {/* TAB 5: SHADERS */}
+          {modViewType === 'shaders' && (
+            <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
+              <form onSubmit={handleSearchShaders} className="flex gap-3 bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/5 mb-4 shrink-0 shadow-inner">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search shaders (e.g. Complementary, BSL, Iris...)"
+                    value={shaderSearchQuery}
+                    onChange={(e) => setShaderSearchQuery(e.target.value)}
+                    className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder:text-gray-500 focus:outline-none focus:border-brand/50 transition-colors"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  disabled={isSearchingShaders}
+                  className="px-6 py-2.5 bg-[#1a1a1a] hover:bg-[#252525] text-white font-bold rounded-lg border border-white/10 transition-colors disabled:opacity-50 whitespace-nowrap shadow-md"
+                >
+                  {isSearchingShaders ? 'Searching...' : 'Search Shaders'}
+                </button>
+              </form>
+
+              {/* Progress alert when installing shader */}
+              {installingModId !== null && (
+                <div className="bg-brand/10 border border-brand/30 rounded-xl p-4 mb-4 flex items-center gap-3 animate-pulse text-brand shrink-0">
+                  <Download className="w-5 h-5 animate-bounce" />
+                  <div className="flex-1">
+                    <p className="font-bold text-sm">Installing Shader...</p>
+                    <p className="text-xs text-brand/80">{installProgressText || 'Downloading and installing shaderpack...'}</p>
+                  </div>
+                </div>
+              )}
+
+              <OverlayScrollbarsComponent 
+                className="flex-1 min-h-0" 
+                options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+                defer
+              >
+                {isSearchingShaders ? (
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <RefreshCw className="w-8 h-8 text-brand animate-spin mb-3" />
+                    <p className="text-gray-400 text-sm">Searching shaders...</p>
+                  </div>
+                ) : shaderResults.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-20 text-center">
+                    <Box className="w-12 h-12 text-gray-600 mb-4 stroke-1" />
+                    <h4 className="text-lg font-bold text-gray-300">No Shaders Found</h4>
+                    <p className="text-gray-500 text-sm mt-1 max-w-sm">Try searching for popular shaders like Complementary, BSL, or MakeUp.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pb-6">
+                    {shaderResults.map((shader: any) => {
+                      const isInstalled = installedMods.some(m => m.id === shader.id);
+                      const isInstalling = installingModId === shader.id;
+
+                      return (
+                        <div 
+                          key={shader.id} 
+                          className="bg-black/30 backdrop-blur-sm border border-white/5 rounded-xl p-4 flex flex-col hover:bg-black/50 transition-all shadow-md group relative overflow-hidden"
+                        >
+                          {isInstalled && (
+                            <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
+                              <div className="absolute top-4 -right-5 bg-brand text-black text-[10px] font-bold py-0.5 px-6 rotate-45 shadow-sm">
+                                INSTALLED
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex items-start gap-4 mb-3">
+                            <img 
+                              src={shader.logo?.thumbnailUrl || 'https://via.placeholder.com/64'} 
+                              alt={shader.name} 
+                              className="w-14 h-14 rounded-lg shadow-md bg-black/60 object-cover shrink-0 border border-white/10" 
+                            />
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-base font-bold text-white truncate pr-6">{shader.name}</h4>
+                              <p className="text-xs text-brand font-medium truncate mb-1">
+                                By {shader.authors?.[0]?.name || 'Unknown'}
+                              </p>
+                              {shader.downloadCount && (
+                                <p className="text-xs text-gray-400 flex items-center gap-1">
+                                  <Download className="w-3 h-3" /> {(shader.downloadCount / 1000000).toFixed(1)}M
+                                </p>
+                              )}
+                            </div>
+                          </div>
+
+                          <p className="text-sm text-gray-400 line-clamp-2 mb-4 flex-1" dangerouslySetInnerHTML={{ __html: shader.summary || '' }}></p>
+
+                          <div className="mt-auto pt-4 border-t border-white/5 flex justify-between items-center">
+                            <button
+                              onClick={() => handleInstallMod(shader)}
+                              disabled={isInstalled || isInstalling || installingModId !== null}
+                              className={`px-4 py-2 text-sm font-bold rounded-lg transition-all flex items-center gap-2 ${
+                                isInstalled 
+                                  ? 'bg-white/10 text-white/50 cursor-not-allowed' 
+                                  : 'bg-brand hover:brightness-110 text-black shadow-[0_0_15px_rgba(76,175,80,0.25)]'
+                              }`}
+                            >
+                              {isInstalled ? (
+                                <><CheckCircle2 className="w-4 h-4" /> Installed</>
+                              ) : isInstalling ? (
+                                <><RefreshCw className="w-4 h-4 animate-spin" /> Installing...</>
+                              ) : (
+                                <><Download className="w-4 h-4" /> Install</>
+                              )}
+                            </button>
+                            {shader.links?.websiteUrl && (
+                              <a href={shader.links.websiteUrl} target="_blank" rel="noreferrer" className="p-2 hover:bg-white/10 rounded-lg transition-colors text-gray-400 hover:text-white">
+                                <ExternalLink className="w-4 h-4" />
+                              </a>
+                            )}
                           </div>
                         </div>
                       );
