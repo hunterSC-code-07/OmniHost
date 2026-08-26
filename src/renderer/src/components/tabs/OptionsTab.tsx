@@ -3,29 +3,29 @@ import { Settings, Save } from 'lucide-react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
+import { useMinecraftConfig } from '../../hooks/useMinecraftConfig';
+
 interface OptionsTabProps {
-  advancedMode: boolean;
-  setAdvancedMode: React.Dispatch<React.SetStateAction<boolean>>;
-  handleSaveConfig: () => void;
-  rawConfigText: string;
-  setRawConfigText: React.Dispatch<React.SetStateAction<string>>;
-  props: Record<string, string>;
-  setProps: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   serverId: number;
   onConfigSaved?: () => void;
 }
 
 export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
-  advancedMode,
-  setAdvancedMode,
-  handleSaveConfig,
-  rawConfigText,
-  setRawConfigText,
-  props,
-  setProps,
   serverId,
   onConfigSaved
 }) => {
+  const {
+    rawConfigText, setRawConfigText,
+    advancedMode, setAdvancedMode,
+    props, setProps,
+    loadConfig, handleSaveConfig
+  } = useMinecraftConfig(serverId);
+
+  useEffect(() => {
+    if (serverId) {
+      loadConfig(serverId);
+    }
+  }, [serverId]);
   const [ramLimit, setRamLimit] = useState(4);
   const [cpuLimit, setCpuLimit] = useState(4);
   const [autoStart, setAutoStart] = useState(false);

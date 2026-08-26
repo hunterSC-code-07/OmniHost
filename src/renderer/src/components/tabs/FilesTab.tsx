@@ -9,8 +9,10 @@ interface FileInfo {
   lastModified: number;
 }
 
+import { useServerStore } from '../../store/useServerStore';
+
 interface FilesTabProps {
-  serverId: number;
+  // empty for now
 }
 
 const formatSize = (bytes: number) => {
@@ -21,7 +23,10 @@ const formatSize = (bytes: number) => {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 };
 
-export const FilesTab: React.FC<FilesTabProps> = React.memo(({ serverId }) => {
+export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
+  const { activeServerId } = useServerStore();
+  const serverId = activeServerId as number; // Files tab is only rendered if activeServerId is not null
+
   const [currentPath, setCurrentPath] = useState('');
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [editingFile, setEditingFile] = useState<{ path: string, content: string } | null>(null);

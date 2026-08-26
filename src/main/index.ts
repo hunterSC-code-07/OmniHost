@@ -91,7 +91,7 @@ app.whenReady().then(() => {
   registerServerIpc(activeServers, activeProxies)
   registerSteamCMDIpc()
   registerSystemIpc(tunnelProvider, radminVpnProvider, activeServers)
-  registerMinecraftIpc(activeServers)
+  registerMinecraftIpc()
 })
 
 app.on('window-all-closed', () => {

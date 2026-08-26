@@ -1,12 +1,12 @@
 import net from 'net';
-import { MinecraftAdapter } from './MinecraftAdapter';
+import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager';
 
 export class WakeProxy {
   private server: net.Server | null = null;
-  private adapter: MinecraftAdapter;
+  private adapter: MinecraftProcessManager;
   private port: number;
 
-  constructor(adapter: MinecraftAdapter, port: number = 25565) {
+  constructor(adapter: MinecraftProcessManager, port: number = 25565) {
     this.adapter = adapter;
     this.port = port;
   }

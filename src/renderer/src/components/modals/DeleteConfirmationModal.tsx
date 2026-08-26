@@ -1,11 +1,16 @@
-import React from 'react';
+import { useServerStore } from '../../store/useServerStore';
+import { useModalStore } from '../../store/useModalStore';
 
-export function DeleteConfirmationModal({
-  serverToDelete,
-  setServerToDelete,
-  confirmDeleteServer,
-  servers
-}: any) {
+export function DeleteConfirmationModal() {
+  const { servers, deleteServer } = useServerStore();
+  const { serverToDelete, setServerToDelete } = useModalStore();
+
+  const confirmDeleteServer = () => {
+    if (serverToDelete !== null) {
+      deleteServer(serverToDelete);
+      setServerToDelete(null);
+    }
+  };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">

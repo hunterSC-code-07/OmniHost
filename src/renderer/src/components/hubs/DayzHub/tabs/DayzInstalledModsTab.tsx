@@ -1,291 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { PendingDownload } from '../DayzHub';
+import { useDayzWorkshop } from '../../../../hooks/useDayzWorkshop';
 
-interface DayzInstalledModsTabProps {
-  activeServerId: number;
-  pendingDownloads?: Record<string, PendingDownload>;
-}
-
-export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ activeServerId, pendingDownloads, removePendingDownload }) => {
-  const [mods, setMods] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [downloadingMission, setDownloadingMission] = useState<string | null>(null);
-
-  const [steamCreds, setSteamCreds] = useState(() => {
-    try {
-      const saved = localStorage.getItem('omnihost_steam_creds');
-      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };
-    } catch {
-      return { username: '', password: '', steamGuard: '' };
-    }
-  });
-  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));
-  const [showCreds, setShowCreds] = useState(false);
-  const [pendingDeps, setPendingDeps] = useState<any[]>([]);
-  const [installingDep, setInstallingDep] = useState<string | null>(null);
-  const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);
-  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);
-  const [isRebuilding, setIsRebuilding] = useState(false);
-  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);
-
-  const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {
-    await window.api.toggleDayzMapMod(activeServerId, folderName, !currentIsMap);
-    loadInstalledMods();
-  };
-
-  const handleDownloadMission = async (modId: string) => {
-    if (downloadingMission) return;
-    setDownloadingMission(modId);
-    try {
-      await window.api.downloadDayzMission(activeServerId, modId);
-    } catch (e: any) {
-      console.error(e);
-      alert('Failed to download mission files: ' + e.message);
-    } finally {
-      setDownloadingMission(null);
-    }
-  };
-
-  const handleExtractLocalMission = async (modId: string, localMissionsPath: string) => {
-    if (downloadingMission) return;
-    setDownloadingMission(modId);
-    try {
-      await window.api.extractDayzLocalMission(activeServerId, localMissionsPath);
-      alert('Mission files extracted and applied successfully!');
-    } catch (e: any) {
-      console.error(e);
-      alert('Failed to extract mission files: ' + e.message);
-    } finally {
-      setDownloadingMission(null);
-    }
-  };
-
-  const handleToggleModStatus = async (mod: any) => {
-    const isEnabling = mod.isDisabled;
-    await window.api.toggleDayzModStatus(activeServerId, mod.folderName, !isEnabling);
-
-    if (isEnabling && mod.id && /^\d+$/.test(mod.id)) {
-      try {
-        const dependencies = await window.api.getModDependencies(mod.id);
-        if (dependencies && dependencies.length > 0) {
-          const installedDeps = mods.filter(m => dependencies.includes(m.id));
-          const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));
-
-          let enabledCount = 0;
-          for (const installedDep of installedDeps) {
-            if (installedDep.isDisabled) {
-              await window.api.toggleDayzModStatus(activeServerId, installedDep.folderName, false);
-              enabledCount++;
-            }
-          }
-
-                      if (missingDepIds.length > 0) {
-              const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);
-              if (depDetails && depDetails.length > 0) {
-                setDepConfirmDetails(depDetails);
-                setShowDepConfirmModal(true);
-                return;
-              }
-            } else if (enabledCount > 0) {
-          }
-        }
-      } catch (e: any) {
-        alert('Failed to process missing dependencies: ' + e.message);
-      }
-    }
-
-    loadInstalledMods();
-  };
-
-  const handleCheckDependencies = async (mod: any) => {
-    setCheckingDeps(mod.id);
-    try {
-      const depIds = await window.api.getModDependencies(mod.id);
-      if (!depIds || depIds.length === 0) {
-        setInfoModal({ title: 'Check Complete', message: 'No dependencies required for this mod.' });
-        setCheckingDeps(null);
-        return;
-      }
-
-      const details = await window.api.getWorkshopItemDetails(depIds);
-
-      const results = details.map((d: any) => {
-        const localMod = mods.find(m => String(m.id) === String(d.id));
-        return {
-          id: d.id,
-          title: d.title,
-          isInstalled: !!localMod,
-          isDisabled: localMod ? localMod.isDisabled : false
-        };
-      });
-
-      setDependencyResult({ modTitle: mod.title, deps: results });
-    } catch (e: any) {
-      alert('Failed to check dependencies: ' + e.message);
-    } finally {
-      setCheckingDeps(null);
-    }
-  };
-
-  const handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {
-    setShowCreds(false);
-
-    if (pendingDownloads) {
-      depsToInstall.forEach(dep => {
-        pendingDownloads({
-          id: dep.id,
-          title: dep.title,
-          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,
-          tags: []
-        });
-      });
-    } else {
-      setInstallingDep('batch');
-      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });
-    }
-
-    try {
-      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));
-      await window.api.installDayzMods(
-        activeServerId,
-        modsToInstall,
-        steamCreds.username,
-        steamCreds.password,
-        steamCreds.steamGuard || undefined
-      );
-    } catch (e: any) {
-      if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
-        alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
-        setShowCreds(true);
-        return;
-      } else if (e.message?.includes('LOGIN_REQUIRED')) {
-        alert(`SteamCMD Login Failed:\n${e.message}\n\nPlease check your credentials.`);
-        setShowCreds(true);
-        return;
-      } else if (e.message?.includes('ENOSPC')) {
-        alert("Installation failed: Your hard drive has run out of space.\n\nDayZ mods require significant storage. Please free up some space on your disk and try again. The installation will instantly resume where it left off!");
-        return;
-      } else {
-        alert(`Failed to batch install dependencies: ${e.message}`);
-      }
-    }
-
-    setSteamCreds(prev => ({ ...prev, steamGuard: '' }));
-    setInstallingDep(null);
-    setDepProgress(null);
-    setPendingDeps([]);
-    await loadInstalledMods();
-  };
-
-  
-  const [showRebuildConfirm, setShowRebuildConfirm] = useState(false);
-  const [showRebuildSuccess, setShowRebuildSuccess] = useState(false);
-
-  const [showUninstallAllConfirm, setShowUninstallAllConfirm] = useState(false);
-
-  const [showDepConfirmModal, setShowDepConfirmModal] = useState(false);
-  const [depConfirmDetails, setDepConfirmDetails] = useState<any[]>([]);
-
-  const [infoModal, setInfoModal] = useState<{title: string, message: string} | null>(null);
-useEffect(() => {
-    loadInstalledMods();
-  }, [activeServerId]);
-
-  const loadInstalledMods = async () => {
-    setLoading(true);
-    try {
-      const basicMods = await window.api.getDayzInstalledMods(activeServerId);
-
-      // Fetch rich details from Steam API for mods that have a Workshop ID
-      const workshopIds = basicMods
-        .filter((m: any) => m.id && /^\d+$/.test(m.id) && String(m.id) !== '0')
-        .map((m: any) => m.id);
-
-      let detailedMods: any[] = [];
-      if (workshopIds.length > 0) {
-        detailedMods = await window.api.getWorkshopItemDetails(workshopIds);
-      }
-
-      // Merge basic details with rich details and sort: enabled first, then alphabetically
-      const mergedMods = basicMods.map((basicMod: any) => {
-        const detail = detailedMods.find((d: any) => d.publishedfileid === basicMod.id);
-        if (detail) {
-          return {
-            ...basicMod,
-            title: detail.title || basicMod.title,
-            preview_url: detail.preview_url,
-            file_size: detail.file_size,
-            tags: detail.tags,
-            description: detail.description
-          };
-        }
-        return basicMod;
-      }).sort((a: any, b: any) => {
-        if (a.isDisabled === b.isDisabled) {
-          return (a.title || a.folderName || '').localeCompare(b.title || b.folderName || '', undefined, { sensitivity: 'base' });
-        }
-        return a.isDisabled ? 1 : -1;
-      });
-
-      setMods(mergedMods);
-    } catch (e) {
-      console.error(e);
-    }
-    setLoading(false);
-  };
+export const DayzInstalledModsTab: React.FC = () => {
+  const {
+    mods,
+    loading,
+    downloadingMission,
+    steamCreds,
+    setSteamCreds,
+    rememberMe,
+    setRememberMe,
+    showCreds,
+    setShowCreds,
+    installingDep,
+    depProgress,
+    checkingDeps,
+    isRebuilding,
+    dependencyResult,
+    setDependencyResult,
+    handleToggleMap,
+    handleDownloadMission,
+    handleExtractLocalMission,
+    handleToggleModStatus,
+    handleCheckDependencies,
+    handleUninstall,
+    handleUninstallAll,
+    handleRebuildLoadOrder,
+    saveCredentials,
+    loadInstalledMods,
+    activeServerId,
+    pendingDownloads,
+    removePendingDownload
+  } = useDayzWorkshop();
 
   const openWorkshopPage = (id: string) => {
     if (/^\d+$/.test(id)) {
       window.open(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`, '_blank');
     }
-  };
-
-  const handleUninstall = async (modId: string, modName: string) => {
-    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {
-      try {
-        await window.api.uninstallDayzMod(activeServerId, modId);
-        await loadInstalledMods();
-      } catch (e: any) {
-        alert(`Failed to uninstall mod: ${e.message}`);
-      }
-    }
-  };
-
-  const handleUninstallAll = () => {
-    if (mods.length === 0) return;
-    setShowUninstallAllConfirm(true);
-  };
-
-  const executeUninstallAll = async () => {
-    setShowUninstallAllConfirm(false);
-    setLoading(true);
-    try {
-      for (const mod of mods) {
-        await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);
-      }
-      await loadInstalledMods();
-    } catch (e: any) {
-      alert(`Failed to uninstall some mods: ${e.message}`);
-      await loadInstalledMods();
-    }
-    setLoading(false);
-  };
-
-  const handleRebuildLoadOrder = () => {
-    setShowRebuildConfirm(true);
-  };
-
-  const executeRebuildLoadOrder = async () => {
-    setShowRebuildConfirm(false);
-    setIsRebuilding(true);
-    try {
-      await window.api.rebuildModDependencies(activeServerId);
-      setShowRebuildSuccess(true);
-    } catch (e: any) {
-      alert('Failed to rebuild load order: ' + e.message);
-    }
-    setIsRebuilding(false);
   };
 
   return (
@@ -362,18 +114,7 @@ useEffect(() => {
                 Remember Me
               </label>
               <button
-                onClick={() => {
-                  if (steamCreds.username && steamCreds.password) {
-                    if (rememberMe) {
-                      localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));
-                    } else {
-                      localStorage.removeItem('omnihost_steam_creds');
-                    }
-                    handleInstallDependencies();
-                  } else {
-                    alert('Username and password are required.');
-                  }
-                }}
+                onClick={saveCredentials}
                 className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
               >
                 Continue Installation
@@ -396,7 +137,7 @@ useEffect(() => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {pendingDownloads && Object.values(pendingDownloads).map((pending) => {
+            {activeServerId && pendingDownloads[activeServerId] && Object.values(pendingDownloads[activeServerId]).map((pending) => {
               const mod = pending.mod || pending;
               const isInstalled = mods.some(m => String(m.id) === String(mod.id || mod.publishedfileid));
               if (isInstalled) return null; // Prevent duplicate rendering if installed list is updated early
@@ -431,7 +172,7 @@ useEffect(() => {
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            if (removePendingDownload) removePendingDownload(mod.id || mod.publishedfileid); 
+                            if (removePendingDownload && activeServerId) removePendingDownload(activeServerId, mod.id || mod.publishedfileid); 
                           }}
                           className="text-red-400 hover:text-red-300 ml-2 flex-shrink-0"
                           title="Clear stuck download"
@@ -626,148 +367,6 @@ useEffect(() => {
                 ))}
               </div>
             </OverlayScrollbarsComponent>
-          </div>
-        </div>
-      )}
-
-      {/* Rebuild Confirm Modal */}
-      {showRebuildConfirm && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
-              <span className="material-symbols-outlined text-red-500 text-2xl">warning</span>
-              <h2 className="text-lg font-bold text-white">Rebuild Load Order</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={() => setShowRebuildConfirm(false)}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={executeRebuildLoadOrder}
-                className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Proceed
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Rebuild Success Modal */}
-      {showRebuildSuccess && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-green-900/10">
-              <span className="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
-              <h2 className="text-lg font-bold text-white">Success</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              Successfully rebuilt load order dependency graph!
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
-              <button
-                onClick={() => setShowRebuildSuccess(false)}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Uninstall All Confirm Modal */}
-      {showUninstallAllConfirm && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-red-500/50 shadow-[0_0_40px_rgba(220,38,38,0.2)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/20">
-              <span className="material-symbols-outlined text-red-500 text-2xl">delete_forever</span>
-              <h2 className="text-lg font-bold text-white">Delete All Mods</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              <span className="text-red-400 font-bold block mb-2">WARNING: You are about to uninstall ALL {mods.length} mods from this server.</span>
-              Are you sure you want to proceed? This cannot be undone.
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={() => setShowUninstallAllConfirm(false)}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={executeUninstallAll}
-                className="bg-red-900/30 text-red-400 border border-red-500/50 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.15)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Delete All
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Missing Dependencies Confirm Modal */}
-      {showDepConfirmModal && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-lg flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
-              <span className="material-symbols-outlined text-red-500 text-2xl">extension</span>
-              <h2 className="text-lg font-bold text-white">Missing Dependencies</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed max-h-64 overflow-y-auto custom-scrollbar">
-              <div className="mb-4">This mod requires the following missing dependencies:</div>
-              <div className="flex flex-wrap gap-2 mb-6">
-                {depConfirmDetails.map(dep => (
-                  <span key={dep.id} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs font-medium text-gray-200">
-                    {dep.title}
-                  </span>
-                ))}
-              </div>
-              <div className="font-bold text-white">Do you want to install them automatically?</div>
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={handleCancelDepInstall}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleProceedDepInstall}
-                className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Install
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Generic Info Modal */}
-      {infoModal && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.15)] rounded-xl w-full max-w-sm flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-blue-900/10">
-              <span className="material-symbols-outlined text-blue-400 text-2xl">info</span>
-              <h2 className="text-lg font-bold text-white">{infoModal.title}</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              {infoModal.message}
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
-              <button
-                onClick={() => setInfoModal(null)}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                OK
-              </button>
-            </div>
           </div>
         </div>
       )}

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
-interface BackupsTabProps {
-  activeServerId: number | null;
-}
+import { useServerStore } from '../../store/useServerStore';
 
-export const BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {
+interface BackupsTabProps {}
+
+export const BackupsTab: React.FC<BackupsTabProps> = () => {
+  const { activeServerId } = useServerStore();
+  
   const [backups, setBackups] = useState<any[]>([]);
   const [newBackupName, setNewBackupName] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);

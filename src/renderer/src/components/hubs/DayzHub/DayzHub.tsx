@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { DayzConsoleTab } from './tabs/DayzConsoleTab';
@@ -10,148 +10,27 @@ import { DayzFilesTab } from './tabs/DayzFilesTab';
 import { motion, AnimatePresence } from 'motion/react';
 import { DayzAnimatedBackground } from './DayzAnimatedBackground';
 
-export interface PendingDownload {
-  mod: any;
-  progress: number;
-  msg: string;
-}
+import { useServerStore } from '../../../store/useServerStore';
+import { useUiStore } from '../../../store/useUiStore';
+import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader';
+import { useModalStore } from '../../../store/useModalStore';
+import { DayzHubProvider, useDayzHubContext } from '../../../contexts/DayzHubContext';
 
-interface DayzHubProps {
-  activeServerId: number;
-  activeServer: any;
-  setActiveServerId: React.Dispatch<React.SetStateAction<number | null>>;
-  handleStart: (id: number) => void;
-  handleStop: (id: number) => void;
-  handleRestart: (id: number) => void;
-  handleDelete: (id: number) => void;
-  handleTunnel: () => void;
-  radminIp: string | null;
-  logs: any[];
-  setLogs: React.Dispatch<React.SetStateAction<any[]>>;
-  onlinePlayers: Record<string, string[]>;
-  statsHistory: Record<string, { cpu: number, ram: number }[]>;
-}
+const DayzHubContent: React.FC = () => {
+  const { activeServer, activeServerId, activeTab, tabDirection, handleTabChange } = useDayzHubContext();
+  
+  if (!activeServer) return null;
+  const { radminIp } = useUiStore();
+  const { setShowTunnelModal } = useModalStore();
+  const { setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  
+  const handleStart = startServer;
+  const handleStop = stopServer;
+  const handleRestart = restartServer;
+  const handleDelete = deleteServer;
 
-export const DayzHub: React.FC<DayzHubProps> = ({
-  activeServerId,
-  activeServer,
-  setActiveServerId,
-  handleStart,
-  handleStop,
-  handleRestart,
-  handleDelete,
-  handleTunnel,
-  radminIp,
-  logs,
-  setLogs,
-  onlinePlayers,
-  statsHistory,
-}) => {
-  const [activeTab, setActiveTab] = useState<'console' | 'options' | 'economy' | 'mods' | 'installed' | 'files'>('console');
-  const [tabDirection, setTabDirection] = useState(0);
-  const [isTabTransitioning, setIsTabTransitioning] = useState(false);
-  const handleTabChange = (newTab: typeof activeTab) => {
-    if (newTab === activeTab) return;
-    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];
-    const currentIndex = TABS.indexOf(activeTab);
-    const newIndex = TABS.indexOf(newTab);
-    setTabDirection(newIndex > currentIndex ? 1 : -1);
-    setIsTabTransitioning(true);
-    setActiveTab(newTab);
-    setTimeout(() => setIsTabTransitioning(false), 350);
-  };
-
-  const endOfLogsRef = useRef<HTMLDivElement>(null);
-
-  const [pendingDownloads, setPendingDownloads] = useState<Record<string, PendingDownload>>(() => {
-    try {
-      const stored = sessionStorage.getItem(`pendingDownloads_${activeServerId}`);
-      if (stored) return JSON.parse(stored);
-    } catch (e) {}
-    return {};
-  });
-
-  useEffect(() => {
-    sessionStorage.setItem(`pendingDownloads_${activeServerId}`, JSON.stringify(pendingDownloads));
-  }, [pendingDownloads, activeServerId]);
-
-  const addPendingDownload = (mod: any) => {
-    setPendingDownloads(prev => ({
-      ...prev,
-      [mod.id || mod.publishedfileid]: { ...mod, progress: 0, msg: 'Starting download...' }
-    }));
-    if (activeTab !== 'installed') {
-      handleTabChange('installed');
-    }
-  };
-
-  const removePendingDownload = (modId: string) => {
-    setPendingDownloads(prev => {
-      const next = { ...prev };
-      delete next[modId];
-      return next;
-    });
-  };
-
-  const updatePendingProgress = (modId: string, progress: number, msg: string) => {
-    setPendingDownloads(prev => {
-      if (!prev[modId]) return prev;
-      return {
-        ...prev,
-        [modId]: { ...prev[modId], progress, msg }
-      };
-    });
-  };
-
-  useEffect(() => {
-    window.api.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {
-      let currentModId: string | null = null;
-      let cleanMsg = msg || '';
-      
-      const match = cleanMsg.match(/^\[MOD:(\d+)\]\s*(.*)$/);
-      if (match) {
-        currentModId = match[1];
-        cleanMsg = match[2];
-      }
-
-      if (currentModId) {
-        setPendingDownloads(prev => {
-          if (!prev[currentModId!]) return prev;
-          
-          if (cleanMsg.includes('already downloaded')) {
-            return {
-              ...prev,
-              [currentModId!]: { ...prev[currentModId!], progress: 100, msg: 'Cached, waiting for batch...' }
-            };
-          }
-          
-          return {
-            ...prev,
-            [currentModId!]: { ...prev[currentModId!], progress: percent, msg: cleanMsg }
-          };
-        });
-      }
-    });
-    
-    return () => { };
-  }, [activeServerId]);
-
-  useEffect(() => {
-    // Scroll to bottom when logs change
-    if (activeTab === 'console') {
-      endOfLogsRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }
-  }, [logs, activeTab]);
-
-
-
-  const handleSendCommand = (cmd: string) => {
-    window.api.sendCommand(activeServerId, cmd);
-  };
-
-  const handleClearLogs = () => {
-    setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));
-  };
+  // Keep download listener active as long as Hub is mounted
+  useDayzModDownloader(activeServerId);
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars">
@@ -174,19 +53,19 @@ export const DayzHub: React.FC<DayzHubProps> = ({
                   IP: {radminIp}
                 </div>
               )}
-              <button onClick={handleTunnel} title="Open Radmin VPN" className="relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center text-brand hover:bg-brand/10">
+              <button onClick={() => setShowTunnelModal(true)} title="Open Radmin VPN" className="relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center text-brand hover:bg-brand/10">
                 <span className="material-symbols-outlined text-[20px] leading-none">lan</span>
               </button>
             </div>
-            <button onClick={() => handleDelete(activeServerId)} className="relative overflow-hidden group glass-panel px-6 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
+            <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group glass-panel px-6 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">DELETE</span>
             </button>
-            <button onClick={() => activeServer.status === 'Online' ? handleStop(activeServerId) : handleStart(activeServerId)} className={`relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 ${activeServer.status === 'Online' ? 'hover:border-red-500/60 text-red-400 hover:text-red-300 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2)]' : 'hover:border-green-500/60 text-green-400 hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]'}`}>
+            <button onClick={() => activeServer.status === 'Online' ? handleStop(activeServer.id) : handleStart(activeServer.id)} className={`relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 ${activeServer.status === 'Online' ? 'hover:border-red-500/60 text-red-400 hover:text-red-300 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2)]' : 'hover:border-green-500/60 text-green-400 hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]'}`}>
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">{activeServer.status === 'Online' ? 'STOP' : 'START'}</span>
             </button>
-            <button onClick={() => handleRestart(activeServerId)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-brand/60 text-brand hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]">
+            <button onClick={() => handleRestart(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-brand/60 text-brand hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">RESTART</span>
             </button>
@@ -258,45 +137,35 @@ export const DayzHub: React.FC<DayzHubProps> = ({
               className="flex flex-col min-h-0 w-full h-full"
             >
               {activeTab === 'console' && (
-                <DayzConsoleTab
-                  logs={activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : []}
-                  endOfLogsRef={endOfLogsRef}
-                  handleSendCommand={handleSendCommand}
-                  handleClearLogs={handleClearLogs}
-                  onlinePlayers={onlinePlayers[activeServerId] || []}
-                  onPlayerClick={() => { }}
-                />
+                <DayzConsoleTab />
               )}
               {activeTab === 'options' && (
-                <DayzOptionsTab activeServerId={activeServerId} />
+                <DayzOptionsTab />
               )}
               {activeTab === 'economy' && (
-                <DayzEconomyTab activeServerId={activeServerId} />
+                <DayzEconomyTab />
               )}
               {activeTab === 'mods' && (
-                <DayzModsTab 
-                  activeServerId={activeServerId} 
-                  pendingDownloads={pendingDownloads}
-                  addPendingDownload={addPendingDownload}
-                  removePendingDownload={removePendingDownload}
-                  updatePendingProgress={updatePendingProgress}
-                />
+                <DayzModsTab onNavigateToInstalled={() => handleTabChange('installed')} />
               )}
               {activeTab === 'installed' && (
-                <DayzInstalledModsTab 
-                  activeServerId={activeServerId} 
-                  pendingDownloads={pendingDownloads}
-                  addPendingDownload={addPendingDownload}
-                  removePendingDownload={removePendingDownload}
-                />
+                <DayzInstalledModsTab />
               )}
               {activeTab === 'files' && (
-                <DayzFilesTab activeServerId={activeServerId} />
+                <DayzFilesTab />
               )}
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
     </div>
+  );
+};
+
+export const DayzHub: React.FC = () => {
+  return (
+    <DayzHubProvider>
+      <DayzHubContent />
+    </DayzHubProvider>
   );
 };

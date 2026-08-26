@@ -9,7 +9,7 @@ export const DayzAnimatedBackground: React.FC = React.memo(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    const gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
     if (!gl) return;
 
     const vsSource = `

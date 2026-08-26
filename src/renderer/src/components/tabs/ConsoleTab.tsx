@@ -1,25 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
+import { useServerStore } from '../../store/useServerStore';
+import { useLogStore } from '../../store/useLogStore';
+import { usePlayerStore } from '../../store/usePlayerStore';
+import { useToastStore } from '../../store/useToastStore';
+
 interface ConsoleTabProps {
-  logs: string[];
-  endOfLogsRef: React.RefObject<HTMLDivElement | null>;
-  handleSendCommand: (command: string) => void;
-  handleClearLogs: () => void;
-  onlinePlayers: string[];
   onPlayerClick: (playerName: string) => void;
+  isActive: boolean;
 }
 
-export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
-  logs,
-  endOfLogsRef,
-  handleSendCommand,
-  handleClearLogs,
-  onlinePlayers,
-  onPlayerClick
-}) => {
+export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick, isActive }) => {
   const [consoleInput, setConsoleInput] = useState('');
+  const endOfLogsRef = useRef<HTMLDivElement>(null);
+  
+  const { activeServerId } = useServerStore();
+  const { logs, clearLogs } = useLogStore();
+  const { onlinePlayers } = usePlayerStore();
+  const { showToast } = useToastStore();
+
+  const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
+  const activePlayers = activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : [];
+
+  useEffect(() => {
+    if (isActive) {
+      endOfLogsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [activeLogs, isActive]);
+
+  const handleClearLogs = () => {
+    if (!activeServerId) return;
+    clearLogs(activeServerId.toString());
+    showToast('Logs cleared');
+  };
+
+  const handleSendCommand = (command: string) => {
+    if (!activeServerId) return;
+    // @ts-ignore
+    window.api.sendCommand(activeServerId, command);
+  };
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,8 +58,8 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
           defer
         >
           <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
-            {logs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
-            {logs.map((log, i) => (
+            {activeLogs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
+            {activeLogs.map((log, i) => (
               <div key={i} className="mb-1 leading-relaxed break-words">
                 {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
                 {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
@@ -68,7 +89,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
       <div className="w-72 bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex flex-col min-h-0 rounded-xl overflow-hidden">
         <div className="p-5 border-b border-surface-container-highest flex justify-between items-center bg-surface-container-highest/20">
           <h3 className="font-headline-md text-headline-md text-on-surface">Live Players</h3>
-          <div className="bg-[#4CAF50]/10 border border-[#4CAF50]/30 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(76,175,80,0.1)]">{onlinePlayers.length} Online</div>
+          <div className="bg-[#4CAF50]/10 border border-[#4CAF50]/30 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(76,175,80,0.1)]">{activePlayers.length} Online</div>
         </div>
         <OverlayScrollbarsComponent 
           className="flex-1 min-h-0" 
@@ -76,11 +97,11 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({
           defer
         >
           <div className="p-4 flex flex-col min-h-full">
-            {onlinePlayers.length === 0 ? (
+            {activePlayers.length === 0 ? (
               <div className="text-center text-on-surface-variant/50 font-label-md text-label-md mt-10">No one is online right now.</div>
             ) : (
               <div className="space-y-3">
-                {onlinePlayers.map((playerName, idx) => (
+                {activePlayers.map((playerName, idx) => (
                   <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-brand/50 hover:bg-surface-container-lowest/80 transition-colors group">
                     <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform" />
                     <span className="font-label-lg text-label-lg text-on-surface group-hover:text-brand transition-colors">{playerName}</span>

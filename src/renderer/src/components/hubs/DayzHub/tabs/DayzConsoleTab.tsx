@@ -2,23 +2,40 @@ import React, { useState } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
-interface DayzConsoleTabProps {
-  logs: string[];
-  endOfLogsRef: React.RefObject<HTMLDivElement | null>;
-  handleSendCommand: (command: string) => void;
-  handleClearLogs: () => void;
-  onlinePlayers: string[];
-  onPlayerClick: (playerName: string) => void;
-}
+import { useServerStore } from '../../../../store/useServerStore';
+import { useLogStore } from '../../../../store/useLogStore';
+import { usePlayerStore } from '../../../../store/usePlayerStore';
 
-export const DayzConsoleTab: React.FC<DayzConsoleTabProps> = React.memo(({
-  logs,
-  endOfLogsRef,
-  handleSendCommand,
-  handleClearLogs,
-  onlinePlayers,
-  onPlayerClick,
-}) => {
+export const DayzConsoleTab: React.FC = React.memo(() => {
+  const { activeServerId } = useServerStore();
+  const { logs: allLogs, clearLogs } = useLogStore();
+  const { onlinePlayers: allPlayers } = usePlayerStore();
+
+  const logs = activeServerId ? allLogs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
+  const onlinePlayers = activeServerId ? (allPlayers[activeServerId] || []) : [];
+  
+  const endOfLogsRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    endOfLogsRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [logs]);
+
+  const handleSendCommand = (cmd: string) => {
+    if (activeServerId) {
+      window.api.sendCommand(activeServerId, cmd);
+    }
+  };
+
+  const handleClearLogs = () => {
+    if (activeServerId) {
+      clearLogs(activeServerId.toString());
+      clearLogs('global');
+    }
+  };
+
+  const onPlayerClick = (_playerName: string) => {
+    // Optional context menu logic
+  };
   const [consoleInput, setConsoleInput] = useState('');
 
   const onSubmit = (e: React.FormEvent) => {

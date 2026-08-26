@@ -1,0 +1,322 @@
+import { useState, useEffect } from 'react';
+import { useServerStore } from '../store/useServerStore';
+import { useDayzModStore } from '../store/useDayzModStore';
+
+export const useDayzWorkshop = () => {
+  const { activeServerId } = useServerStore();
+  const { pendingDownloads, addPendingDownload, removePendingDownload } = useDayzModStore();
+
+  const [mods, setMods] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [downloadingMission, setDownloadingMission] = useState<string | null>(null);
+
+  const [steamCreds, setSteamCreds] = useState(() => {
+    try {
+      const saved = localStorage.getItem('omnihost_steam_creds');
+      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };
+    } catch {
+      return { username: '', password: '', steamGuard: '' };
+    }
+  });
+  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));
+  const [showCreds, setShowCreds] = useState(false);
+  
+  const [pendingDeps, setPendingDeps] = useState<any[]>([]);
+  const [installingDep, setInstallingDep] = useState<string | null>(null);
+  const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);
+  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);
+  const [isRebuilding, setIsRebuilding] = useState(false);
+  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);
+
+  const loadInstalledMods = async () => {
+    if (!activeServerId) return;
+    setLoading(true);
+    try {
+      const basicMods = await window.api.getDayzInstalledMods(activeServerId);
+
+      const workshopIds = basicMods
+        .filter((m: any) => m.id && /^\d+$/.test(m.id) && String(m.id) !== '0')
+        .map((m: any) => m.id);
+
+      let detailedMods: any[] = [];
+      if (workshopIds.length > 0) {
+        detailedMods = await window.api.getWorkshopItemDetails(workshopIds);
+      }
+
+      const mergedMods = basicMods.map((basicMod: any) => {
+        const detail = detailedMods.find((d: any) => d.publishedfileid === basicMod.id);
+        if (detail) {
+          return {
+            ...basicMod,
+            title: detail.title || basicMod.title,
+            preview_url: detail.preview_url,
+            file_size: detail.file_size,
+            tags: detail.tags,
+            description: detail.description
+          };
+        }
+        return basicMod;
+      }).sort((a: any, b: any) => {
+        if (a.isDisabled === b.isDisabled) {
+          return (a.title || a.folderName || '').localeCompare(b.title || b.folderName || '', undefined, { sensitivity: 'base' });
+        }
+        return a.isDisabled ? 1 : -1;
+      });
+
+      setMods(mergedMods);
+    } catch (e) {
+      console.error(e);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    loadInstalledMods();
+  }, [activeServerId]);
+
+  const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {
+    if (!activeServerId) return;
+    await window.api.toggleDayzMapMod(activeServerId, folderName, !currentIsMap);
+    loadInstalledMods();
+  };
+
+  const handleDownloadMission = async (modId: string) => {
+    if (downloadingMission || !activeServerId) return;
+    setDownloadingMission(modId);
+    try {
+      await window.api.downloadDayzMission(activeServerId, modId);
+    } catch (e: any) {
+      console.error(e);
+      alert('Failed to download mission files: ' + e.message);
+    } finally {
+      setDownloadingMission(null);
+    }
+  };
+
+  const handleExtractLocalMission = async (modId: string, localMissionsPath: string) => {
+    if (downloadingMission || !activeServerId) return;
+    setDownloadingMission(modId);
+    try {
+      await window.api.extractDayzLocalMission(activeServerId, localMissionsPath);
+      alert('Mission files extracted and applied successfully!');
+    } catch (e: any) {
+      console.error(e);
+      alert('Failed to extract mission files: ' + e.message);
+    } finally {
+      setDownloadingMission(null);
+    }
+  };
+
+  const handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {
+    if (!activeServerId) return;
+    setShowCreds(false);
+
+    if (addPendingDownload) {
+      depsToInstall.forEach(dep => {
+        addPendingDownload(activeServerId, {
+          id: dep.id,
+          title: dep.title,
+          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,
+          tags: []
+        });
+      });
+    } else {
+      setInstallingDep('batch');
+      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });
+    }
+
+    try {
+      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));
+      await window.api.installDayzMods(
+        activeServerId,
+        modsToInstall,
+        steamCreds.username,
+        steamCreds.password,
+        steamCreds.steamGuard || undefined
+      );
+    } catch (e: any) {
+      if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
+        alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
+        setShowCreds(true);
+        return;
+      } else if (e.message?.includes('LOGIN_REQUIRED')) {
+        alert(`SteamCMD Login Failed:\n${e.message}\n\nPlease check your credentials.`);
+        setShowCreds(true);
+        return;
+      } else if (e.message?.includes('ENOSPC')) {
+        alert("Installation failed: Your hard drive has run out of space.\n\nDayZ mods require significant storage. Please free up some space on your disk and try again. The installation will instantly resume where it left off!");
+        return;
+      } else {
+        alert(`Failed to batch install dependencies: ${e.message}`);
+      }
+    }
+
+    setSteamCreds(prev => ({ ...prev, steamGuard: '' }));
+    setInstallingDep(null);
+    setDepProgress(null);
+    setPendingDeps([]);
+    await loadInstalledMods();
+  };
+
+  const handleToggleModStatus = async (mod: any) => {
+    if (!activeServerId) return;
+    const isEnabling = mod.isDisabled;
+    await window.api.toggleDayzModStatus(activeServerId, mod.folderName, !isEnabling);
+
+    if (isEnabling && mod.id && /^\d+$/.test(mod.id)) {
+      try {
+        const dependencies = await window.api.getModDependencies(mod.id);
+        if (dependencies && dependencies.length > 0) {
+          const installedDeps = mods.filter(m => dependencies.includes(m.id));
+          const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));
+
+          let enabledCount = 0;
+          for (const installedDep of installedDeps) {
+            if (installedDep.isDisabled) {
+              await window.api.toggleDayzModStatus(activeServerId, installedDep.folderName, false);
+              enabledCount++;
+            }
+          }
+
+          if (missingDepIds.length > 0) {
+            const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);
+            if (depDetails && depDetails.length > 0) {
+              const depNames = depDetails.map((d: any) => d.title).join(', ');
+              const confirmInstall = confirm(`This mod requires the following missing dependencies:\n\n${depNames}\n\nDo you want to install them automatically?`);
+              if (confirmInstall) {
+                setPendingDeps(depDetails);
+                if (!steamCreds.username || !steamCreds.password) {
+                  setShowCreds(true);
+                } else {
+                  handleInstallDependencies(depDetails);
+                }
+                return;
+              }
+            }
+          }
+        }
+      } catch (e: any) {
+        alert('Failed to process missing dependencies: ' + e.message);
+      }
+    }
+
+    loadInstalledMods();
+  };
+
+  const handleCheckDependencies = async (mod: any) => {
+    setCheckingDeps(mod.id);
+    try {
+      const depIds = await window.api.getModDependencies(mod.id);
+      if (!depIds || depIds.length === 0) {
+        alert('No dependencies required for this mod.');
+        setCheckingDeps(null);
+        return;
+      }
+
+      const details = await window.api.getWorkshopItemDetails(depIds);
+
+      const results = details.map((d: any) => {
+        const localMod = mods.find(m => String(m.id) === String(d.id));
+        return {
+          id: d.id,
+          title: d.title,
+          isInstalled: !!localMod,
+          isDisabled: localMod ? localMod.isDisabled : false
+        };
+      });
+
+      setDependencyResult({ modTitle: mod.title, deps: results });
+    } catch (e: any) {
+      alert('Failed to check dependencies: ' + e.message);
+    } finally {
+      setCheckingDeps(null);
+    }
+  };
+
+  const handleUninstall = async (modId: string, modName: string) => {
+    if (!activeServerId) return;
+    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {
+      try {
+        await window.api.uninstallDayzMod(activeServerId, modId);
+        await loadInstalledMods();
+      } catch (e: any) {
+        alert(`Failed to uninstall mod: ${e.message}`);
+      }
+    }
+  };
+
+  const handleUninstallAll = async () => {
+    if (mods.length === 0 || !activeServerId) return;
+    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\n\nAre you sure you want to proceed? This cannot be undone.`)) {
+      setLoading(true);
+      try {
+        for (const mod of mods) {
+          await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);
+        }
+        await loadInstalledMods();
+      } catch (e: any) {
+        alert(`Failed to uninstall some mods: ${e.message}`);
+        await loadInstalledMods();
+      }
+      setLoading(false);
+    }
+  };
+
+  const handleRebuildLoadOrder = async () => {
+    if (!activeServerId) return;
+    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {
+      setIsRebuilding(true);
+      try {
+        await window.api.rebuildModDependencies(activeServerId);
+        alert('Successfully rebuilt load order dependency graph!');
+      } catch (e: any) {
+        alert('Failed to rebuild load order: ' + e.message);
+      }
+      setIsRebuilding(false);
+    }
+  };
+
+  const saveCredentials = () => {
+    if (steamCreds.username && steamCreds.password) {
+      if (rememberMe) {
+        localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));
+      } else {
+        localStorage.removeItem('omnihost_steam_creds');
+      }
+      handleInstallDependencies();
+    } else {
+      alert('Username and password are required.');
+    }
+  };
+
+  return {
+    mods,
+    loading,
+    downloadingMission,
+    steamCreds,
+    setSteamCreds,
+    rememberMe,
+    setRememberMe,
+    showCreds,
+    setShowCreds,
+    installingDep,
+    depProgress,
+    checkingDeps,
+    isRebuilding,
+    dependencyResult,
+    setDependencyResult,
+    handleToggleMap,
+    handleDownloadMission,
+    handleExtractLocalMission,
+    handleToggleModStatus,
+    handleCheckDependencies,
+    handleUninstall,
+    handleUninstallAll,
+    handleRebuildLoadOrder,
+    saveCredentials,
+    loadInstalledMods,
+    activeServerId,
+    pendingDownloads,
+    removePendingDownload
+  };
+};

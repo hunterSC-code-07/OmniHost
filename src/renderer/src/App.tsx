@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import 'overlayscrollbars/overlayscrollbars.css';
 import { motion, AnimatePresence } from 'motion/react';
 import { DayzHub } from './components/hubs/DayzHub/DayzHub'
@@ -12,6 +12,12 @@ import minecraftBg from './assets/minecraft-bg.png';
 import palworldBg from './assets/palworld-bg.jpg';
 import dayzBg from './assets/dayz-bg.jpg';
 import satisfactoryBg from './assets/satisfactory-bg.jpg';
+
+import { useIpcListeners } from './hooks/useIpcListeners';
+import { useServerStore } from './store/useServerStore';
+import { useToastStore } from './store/useToastStore';
+import { useUiStore } from './store/useUiStore';
+import { useModalStore } from './store/useModalStore';
 
 const supportedGameHubs = ['Minecraft', 'DayZ'];
 const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
@@ -35,195 +41,43 @@ const getGameThemeColor = (game: string | null) => {
 };
 
 export default function App() {
-  const [servers, setServers] = useState<any[]>([])
-  const [logs, setLogs] = useState<{id: string, msg: string}[]>([])
-  const [onlinePlayers, setOnlinePlayers] = useState<Record<string, string[]>>({})
-  const [statsHistory, setStatsHistory] = useState<Record<string, {cpu: number, ram: number}[]>>({})
-  const [tunnelStatus, setTunnelStatus] = useState('Offline')
+  useIpcListeners();
 
-  const [activeServerId, setActiveServerId] = useState<number | null>(null)
-  const [activeGameHub, setActiveGameHub] = useState<string | null>(null)
-  const [lastGameHub, setLastGameHub] = useState<string | null>(null)
+  const activeServerId = useServerStore(state => state.activeServerId);
+  const setActiveServerId = useServerStore(state => state.setActiveServerId);
+  const servers = useServerStore(state => state.servers);
+  
+  const currentServer = servers.find(s => s.id === activeServerId);
+  const prevServerRef = React.useRef(currentServer);
+  if (currentServer) {
+    prevServerRef.current = currentServer;
+  }
+  const activeServer = currentServer || prevServerRef.current;
+  
+  const { toasts, showToast } = useToastStore();
+  
+  const {
+    activeGameHub, lastGameHub, hoveredGame,
+    setActiveGameHub,
+    isClearingCache, setIsClearingCache,
+    cacheSize, setCacheSize
+  } = useUiStore();
 
-  useEffect(() => {
-    if (activeGameHub) {
-      setLastGameHub(activeGameHub)
-    }
-  }, [activeGameHub])
-  const [hoveredGame, setHoveredGame] = useState<string | null>(null)
-
-  const [tunnelIp, setTunnelIp] = useState(() => localStorage.getItem('tunnelIp') || '34.131.235.17')
-  const [showTunnelModal, setShowTunnelModal] = useState(false)
-  const [tempTunnelIp, setTempTunnelIp] = useState('')
-  const [radminIp, setRadminIp] = useState('')
-
-  const [toasts, setToasts] = useState<{ id: number, message: string }[]>([])
-  const [showCreateModal, setShowCreateModal] = useState(false)
-  const [initialCreateServerType, setInitialCreateServerType] = useState('Vanilla')
-  const [showSteamLoginModal, setShowSteamLoginModal] = useState(false)
-  const [steamLoginAction, setSteamLoginAction] = useState<'create' | 'cache'>('create')
-  const [steamUsername, setSteamUsername] = useState('')
-  const [steamPassword, setSteamPassword] = useState('')
-  const [steamGuardCode, setSteamGuardCode] = useState('')
-  const [isSteamGuardRequired, setIsSteamGuardRequired] = useState(false)
-  const [isDayzCached, setIsDayzCached] = useState<boolean | null>(null)
-
-  const [serverToDelete, setServerToDelete] = useState<number | null>(null)
-
-  const [isClearingCache, setIsClearingCache] = useState(false)
-  const [cacheSize, setCacheSize] = useState<number>(0)
+  const {
+    showCreateModal,
+    showSteamLoginModal,
+    serverToDelete,
+    showTunnelModal
+  } = useModalStore();
 
   useEffect(() => {
-    const fetchServers = async () => {
-      // @ts-ignore
-      const data = await window.api.getServers();
-      setServers(data);
-    };
-    fetchServers();
-
     const checkCache = async () => {
       // @ts-ignore
       const cached = await window.api.checkSteamCache(223350);
-      setIsDayzCached(cached);
+      useUiStore.getState().setIsDayzCached(cached);
     };
     checkCache();
-
-    // Listen to servers update
-    // @ts-ignore
-    window.api.onServersUpdate((data: any[]) => {
-      setServers(data)
-    });
-
-    // @ts-ignore
-    window.api.onConsoleLog((data: any) => {
-      const msgs = data.msg ? data.msg.split('\n').filter((l: string) => l.trim() !== '') : [];
-      setLogs(prev => {
-        const newLogs = [...prev, ...msgs.map((m: string) => ({ 
-          id: data.id.toString(), 
-          msg: m 
-        }))];
-        if (newLogs.length > 500) return newLogs.slice(newLogs.length - 500);
-        return newLogs;
-      });
-    });
-
-    // @ts-ignore
-    window.api.onOnlinePlayers((data: any) => {
-      setOnlinePlayers(prev => ({...prev, [data.id.toString()]: data.players}));
-    });
-
-    // @ts-ignore
-    window.api.onServerStats((data: any) => {
-      setStatsHistory(prev => {
-        const history = prev[data.id.toString()] || [];
-        const newHistory = [...history, {cpu: data.cpu, ram: data.ram}];
-        if (newHistory.length > 20) newHistory.shift();
-        return {...prev, [data.id.toString()]: newHistory};
-      });
-    });
   }, []);
-
-  const showToast = (message: string) => {
-    const id = Date.now() + Math.random();
-    setToasts(prev => [...prev, { id, message }]);
-    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
-  }
-
-  const handleTunnel = async () => {
-    if (activeServer?.game === 'DayZ') {
-      // @ts-ignore
-      const installed = await window.api.radminCheck();
-      if (!installed) {
-        showToast("Radmin VPN not found! Opening download page...");
-        // @ts-ignore
-        window.api.radminInstall();
-        return;
-      }
-      
-      showToast("Opening Radmin VPN...");
-      // @ts-ignore
-      await window.api.radminOpen();
-      
-      setTimeout(async () => {
-        // @ts-ignore
-        const ip = await window.api.radminGetIp();
-        if (ip) {
-          setRadminIp(ip);
-          showToast("Radmin VPN IP: " + ip);
-        }
-      }, 3000);
-    } else {
-      if (tunnelStatus === 'Offline') {
-        setTunnelStatus('Starting...');
-        // @ts-ignore
-        await window.api.startTunnel(tunnelIp);
-        setTunnelStatus('Online');
-        showToast("Tunnel connected!");
-      } else {
-        // @ts-ignore
-        await window.api.stopTunnel();
-        setTunnelStatus('Offline');
-        showToast("Tunnel disconnected.");
-      }
-    }
-  }
-
-  const handleDelete = (id: number) => {
-    setServerToDelete(id);
-  }
-
-  const confirmDeleteServer = async () => {
-    if (serverToDelete === null) return;
-    try {
-      // @ts-ignore
-      await window.api.deleteServer(serverToDelete);
-      if (activeServerId === serverToDelete) {
-        setActiveServerId(null);
-      }
-      // @ts-ignore
-      const data = await window.api.getServers();
-      setServers(data);
-    } catch (e: any) {
-      alert("Failed to delete server: " + e.message);
-    } finally {
-      setServerToDelete(null);
-    }
-  }
-
-  const handleStart = async (id: number) => {
-    try {
-      // @ts-ignore
-      await window.api.startServer(id);
-      setServers(servers.map(s => s.id === id ? { ...s, status: 'Online' } : s));
-      showToast("Server is starting...");
-    } catch (error) {
-      alert("Backend Error: " + error);
-    }
-  }
-
-  const handleStop = async (id: number) => {
-    // @ts-ignore
-    await window.api.stopServer(id);
-    setServers(servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s));
-    showToast("Server has been stopped.");
-  }
-
-  const handleRestart = async (id: number) => {
-    try {
-      // @ts-ignore
-      await window.api.stopServer(id);
-      setServers(servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s));
-      showToast("Server is restarting...");
-      
-      setTimeout(async () => {
-        // @ts-ignore
-        await window.api.startServer(id);
-        setServers(servers.map(s => s.id === id ? { ...s, status: 'Online' } : s));
-      }, 3000);
-    } catch (error) {
-      alert("Backend Error: " + error);
-    }
-  }
 
   const handleClearCache = async () => {
     setIsClearingCache(true);
@@ -247,8 +101,6 @@ export default function App() {
     const i = Math.floor(Math.log(bytes) / Math.log(k))
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
   }
-
-  const activeServer = servers.find(s => s.id === activeServerId);
 
   return (
     <div className="bg-gradient-to-b from-[#121212] to-[#050505] font-body-md text-on-background w-full h-screen flex flex-col overflow-hidden relative">
@@ -303,7 +155,6 @@ export default function App() {
       {/* MAIN CONTENT */}
       <main className="relative pt-20 bg-transparent flex-1 w-full flex flex-col min-h-0 overflow-hidden outline-none">
         <div className="flex flex-col w-full relative h-full">
-
           <AnimatePresence>
           {/* DASHBOARD VIEW */}
           {activeServerId === null && (
@@ -314,25 +165,7 @@ export default function App() {
               exit={{ opacity: 1, transition: { duration: 0.4 } }} 
               className="absolute inset-0 w-full h-full flex flex-col min-h-0"
             >
-              <DashboardHub 
-              servers={servers}
-              activeGameHub={activeGameHub}
-              hoveredGame={hoveredGame}
-              setHoveredGame={setHoveredGame}
-              setActiveGameHub={setActiveGameHub}
-              setActiveServerId={setActiveServerId}
-              handleStart={handleStart}
-              handleStop={handleStop}
-              handleRestart={handleRestart}
-              handleDelete={handleDelete}
-              handleTunnel={handleTunnel}
-              tunnelStatus={tunnelStatus}
-              tunnelIp={tunnelIp}
-              getGameImageUrl={getGameImageUrl}
-              setShowCreateModal={setShowCreateModal}
-              setShowSteamLoginModal={setShowSteamLoginModal}
-              isGameSupported={isGameSupported} isDayzCached={isDayzCached} setIsDayzCached={setIsDayzCached} setSteamLoginAction={setSteamLoginAction} showToast={showToast}
-              />
+              <DashboardHub getGameImageUrl={getGameImageUrl} isGameSupported={isGameSupported} />
             </motion.div>
           )}
 
@@ -347,48 +180,9 @@ export default function App() {
               className="absolute inset-0 w-full h-full flex flex-col overflow-hidden z-10 bg-[#050505]"
             >
               {activeServer.game === 'DayZ' ? (
-              <DayzHub 
-                activeServerId={activeServerId}
-                activeServer={activeServer}
-                setActiveServerId={setActiveServerId}
-                handleStart={handleStart}
-                handleStop={handleStop}
-                handleRestart={handleRestart}
-                handleDelete={handleDelete}
-                handleTunnel={handleTunnel}
-                radminIp={radminIp}
-                logs={logs}
-                setLogs={setLogs}
-                onlinePlayers={onlinePlayers}
-                statsHistory={statsHistory}
-              />
-            ) : (
-              <MinecraftHub 
-                activeServerId={activeServerId} 
-                activeServer={activeServer} 
-                servers={servers} 
-                setActiveServerId={setActiveServerId} 
-                handleStart={handleStart} 
-                handleStop={handleStop} 
-                handleRestart={handleRestart} 
-                handleDelete={handleDelete} 
-                handleTunnel={handleTunnel} 
-                tunnelStatus={tunnelStatus} 
-                radminIp={radminIp} 
-                tunnelIp={tunnelIp} 
-                setTempTunnelIp={setTempTunnelIp} 
-                setShowTunnelModal={setShowTunnelModal} 
-                showToast={showToast}
-                logs={logs}
-                setLogs={setLogs}
-                onlinePlayers={onlinePlayers}
-                statsHistory={statsHistory}
-                onRedirectToCreateModpack={() => {
-                  setInitialCreateServerType('CurseForge Modpack');
-                  setActiveServerId(null);
-                  setShowCreateModal(true);
-                }}
-                />
+                <DayzHub />
+              ) : (
+                <MinecraftHub />
               )}
             </motion.div>
           )}
@@ -406,38 +200,10 @@ export default function App() {
       </div>
 
       {/* MODALS */}
-        {showCreateModal && (
-          <CreateServerModal 
-            initialServerType={initialCreateServerType}
-            setShowCreateModal={setShowCreateModal}
-            servers={servers} 
-            setServers={setServers} 
-            activeGameHub={activeGameHub} 
-            showToast={showToast} 
-            setSteamLoginAction={setSteamLoginAction} 
-            setShowSteamLoginModal={setShowSteamLoginModal}
-            steamUsername={steamUsername}
-            steamPassword={steamPassword}
-            setSteamPassword={setSteamPassword}
-            steamGuardCode={steamGuardCode}
-            setSteamGuardCode={setSteamGuardCode}
-            isSteamGuardRequired={isSteamGuardRequired}
-            setIsSteamGuardRequired={setIsSteamGuardRequired}
-            setActiveServerId={setActiveServerId}
-          />
-        )}
-
-      {showSteamLoginModal && (
-        <SteamLoginModal setShowSteamLoginModal={setShowSteamLoginModal} showToast={showToast} activeGameHub={activeGameHub} steamLoginAction={steamLoginAction} steamUsername={steamUsername} setSteamUsername={setSteamUsername} steamPassword={steamPassword} setSteamPassword={setSteamPassword} isSteamGuardRequired={isSteamGuardRequired} setIsSteamGuardRequired={setIsSteamGuardRequired} steamGuardCode={steamGuardCode} setSteamGuardCode={setSteamGuardCode} setIsDayzCached={setIsDayzCached} isDayzCached={isDayzCached} />
-      )}
-
-      {serverToDelete !== null && (
-        <DeleteConfirmationModal serverToDelete={serverToDelete} setServerToDelete={setServerToDelete} confirmDeleteServer={confirmDeleteServer} servers={servers} />
-      )}
-
-      {showTunnelModal && activeServer?.game !== 'DayZ' && (
-        <TunnelModal tempTunnelIp={tempTunnelIp} setTempTunnelIp={setTempTunnelIp} setTunnelIp={setTunnelIp} setShowTunnelModal={setShowTunnelModal} showToast={showToast} />
-      )}
+      {showCreateModal && <CreateServerModal />}
+      {showSteamLoginModal && <SteamLoginModal />}
+      {serverToDelete !== null && <DeleteConfirmationModal />}
+      {showTunnelModal && activeServer?.game !== 'DayZ' && <TunnelModal />}
     </div>
   )
 }

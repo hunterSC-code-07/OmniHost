@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -18,34 +18,23 @@ const DayzModStatus = ({ serverId }: { serverId: number }) => {
   );
 };
 
-export function DashboardHub({ 
-  servers, 
-  activeGameHub, 
+import { useServerStore } from '../../../store/useServerStore';
+import { useUiStore } from '../../../store/useUiStore';
+import { useModalStore } from '../../../store/useModalStore';
+import { useToastStore } from '../../../store/useToastStore';
 
-  // ... (rest of props)
+export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
+  const { servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached } = useUiStore();
+  const { setShowCreateModal, setShowSteamLoginModal, setSteamLoginAction } = useModalStore();
+  const { showToast } = useToastStore();
 
-  hoveredGame, 
-  setHoveredGame, 
-  setActiveGameHub, 
-  setActiveServerId, 
-  handleStart, 
-  handleStop, 
-  handleRestart, 
-  handleDelete, 
-  handleTunnel, 
-  tunnelStatus, 
-  tunnelIp, 
-  getGameImageUrl,
-  setShowCreateModal,
-  setShowSteamLoginModal,
-  isGameSupported,
-  isDayzCached,
-  setIsDayzCached,
-  setSteamLoginAction,
-  showToast
-}: any) {
-
+  const handleStart = startServer;
+  const handleStop = stopServer;
+  const handleRestart = restartServer;
+  const handleDelete = deleteServer;
   return (
+
     <div className="relative w-full h-full flex-1 min-h-0">
       <AnimatePresence>
         {activeGameHub === null ? (
