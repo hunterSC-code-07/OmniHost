@@ -36,10 +36,13 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.webContents.on('console-message', (event: any) => {
-    const msg = typeof event === 'object' && event !== null && 'message' in event ? event.message : event;
+  mainWindow.webContents.on('console-message', (event: any, details?: any, legacyMessage?: string) => {
+    // Handle both modern `(event)` with properties, `(event, details)`, and legacy `(event, level, message)`
+    const msg = event?.message ?? details?.message ?? legacyMessage ?? String(event);
+    
     if (typeof msg === 'string') {
-      if (msg.includes('net_error -100') || msg.includes('fonts.gstatic.com') || msg.includes('materialsymbolsoutlined')) {
+      // Suppress benign network handshakes, font timeouts, and React DevTools noise
+      if (msg.includes('net_error -100') || msg.includes('fonts.gstatic.com') || msg.includes('React DevTools') || msg.includes('ERR_CONNECTION_CLOSED')) {
         return;
       }
     }
