@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
@@ -9,6 +9,104 @@ import { useMinecraftPlayers } from '../../hooks/useMinecraftPlayers';
 interface PlayersTabProps {
   // empty for now
 }
+
+const EquippedSkinCard = ({ playerName }: { playerName: string }) => (
+  <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center">
+    <div className="w-full flex items-center justify-between mb-4">
+      <h3 className="font-bold text-lg text-white flex items-center gap-2">
+        <svg className="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+        Equipped Skin
+      </h3>
+      <span className="text-xs font-mono text-gray-400 uppercase tracking-wider">Player Model</span>
+    </div>
+    <div className="relative group p-6 flex flex-col items-center justify-center bg-gradient-to-b from-black/60 to-black/30 rounded-xl border border-white/5 shadow-inner w-full overflow-hidden">
+      <div className="absolute inset-0 bg-radial-gradient from-brand/10 to-transparent pointer-events-none opacity-50"></div>
+      <img 
+        src={`https://crafthead.net/armor/body/${playerName}`}
+        alt={`${playerName}'s equipped skin`}
+        className="h-64 object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.9)] transition-all duration-300 group-hover:scale-105"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = `https://minotar.net/armor/body/${playerName}/300.png`;
+        }}
+      />
+      <span className="text-xs text-gray-300 font-mono mt-3 font-semibold tracking-wide">
+        {playerName}
+      </span>
+    </div>
+  </div>
+);
+
+const itemImageCache = new Map<string, string>();
+
+const getItemImageUrl = (itemId: string): string => {
+  if (itemImageCache.has(itemId)) {
+    return itemImageCache.get(itemId)!;
+  }
+  if (itemId.endsWith('_spawn_egg') || itemId.includes('spawn_egg')) {
+    const titleCased = itemId.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
+    const url = `https://minecraft.wiki/wiki/Special:FilePath/${titleCased}.png`;
+    itemImageCache.set(itemId, url);
+    return url;
+  }
+  return `https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.2/items/${itemId}.png`;
+};
+
+interface MinecraftSlotProps {
+  item?: { slot: number; id: string; count: number };
+}
+
+const MinecraftSlot: React.FC<MinecraftSlotProps> = React.memo(({ item }) => {
+  const [imgSrc, setImgSrc] = useState<string>(() => {
+    if (!item) return '';
+    return getItemImageUrl(item.id);
+  });
+
+  useEffect(() => {
+    if (item) {
+      setImgSrc(getItemImageUrl(item.id));
+    }
+  }, [item?.id]);
+
+  const handleImageError = () => {
+    if (!item) return;
+    const titleCasedId = item.id.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
+    const wikiUrl = `https://minecraft.wiki/wiki/Special:FilePath/${titleCasedId}.png`;
+    if (imgSrc !== wikiUrl) {
+      itemImageCache.set(item.id, wikiUrl);
+      setImgSrc(wikiUrl);
+    } else {
+      setImgSrc('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjYzg3ZTI1Ii8+PC9zdmc+');
+    }
+  };
+
+  return (
+    <div className="w-10 h-10 bg-[#8b8b8b] border-t-2 border-l-2 border-[#373737] border-b-2 border-r-2 border-[#ffffff] relative flex items-center justify-center group shadow-inner cursor-help hover:bg-[#a0a0a0] transition-colors select-none">
+      {item ? (
+        <>
+          <img 
+            src={imgSrc} 
+            alt={item.id} 
+            className="w-8 h-8 object-contain drop-shadow-md z-10 pointer-events-none" 
+            onError={handleImageError} 
+          />
+          {item.count > 1 && (
+            <span className="absolute -bottom-1 -right-1 text-white font-black text-[11px] z-20 drop-shadow-[0_1px_2px_rgba(0,0,0,1)] bg-black/60 px-1 rounded leading-none pointer-events-none font-mono">
+              {item.count}
+            </span>
+          )}
+          <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2.5 py-1 bg-[#120412] text-white text-xs rounded border border-[#3b123b] shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none capitalize flex items-center gap-2">
+            <img src={imgSrc} alt={item.id} className="w-4 h-4 object-contain" />
+            <span className="font-semibold text-gray-200">
+              {item.count > 1 ? `${item.count}x ` : ''}{item.id.replace(/_/g, ' ')}
+            </span>
+          </div>
+        </>
+      ) : null}
+    </div>
+  );
+});
 
 export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
   const { activeServerId } = useServerStore();
@@ -29,35 +127,17 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
     return () => clearInterval(interval);
   }, []);
 
-  const handleImageError = (e: any, itemId: string) => {
-    const target = e.target as HTMLImageElement;
-    if (target.src.includes('/items/')) {
-      target.src = target.src.replace('/items/', '/blocks/');
-    } else if (target.src.includes('/blocks/')) {
-      const titleCasedId = itemId.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join('_');
-      target.src = `https://minecraft.wiki/wiki/Special:FilePath/${titleCasedId}.png`;
-    } else if (target.src.includes('minecraft.wiki')) {
-      target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiBmaWxsPSIjYzg3ZTI1Ii8+PC9zdmc+';
+  const inventoryMap = useMemo(() => {
+    const map = new Map<number, { slot: number; id: string; count: number }>();
+    if (playerInventory && Array.isArray(playerInventory)) {
+      for (const item of playerInventory) {
+        if (item && typeof item.slot === 'number') {
+          map.set(item.slot, item);
+        }
+      }
     }
-  };
-
-  const MinecraftSlot = ({ slotId }: { slotId: number }) => {
-    const item = playerInventory?.find(i => i.slot === slotId);
-    return (
-      <div className="w-10 h-10 bg-[#8b8b8b] border-t-2 border-l-2 border-[#373737] border-b-2 border-r-2 border-[#ffffff] relative flex items-center justify-center group shadow-inner cursor-help hover:bg-[#a0a0a0] transition-colors">
-        {item ? (
-          <>
-            <img src={`https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.2/items/${item.id}.png`} alt={item.id} className="w-8 h-8 object-contain drop-shadow-md z-10" onError={(e) => handleImageError(e, item.id)} />
-            {item.count > 1 && <span className="absolute -bottom-1 -right-1 text-white font-black text-[11px] z-20 drop-shadow-[0_1px_1px_rgba(0,0,0,1)]">{item.count}</span>}
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-max px-2 py-1 bg-[#120412] text-white text-xs rounded border border-[#3b123b] shadow-xl opacity-0 group-hover:opacity-100 transition-opacity z-50 pointer-events-none capitalize flex items-center gap-2">
-              <img src={`https://raw.githubusercontent.com/PrismarineJS/minecraft-assets/master/data/1.20.2/items/${item.id}.png`} alt={item.id} className="w-4 h-4 object-contain" onError={(e) => handleImageError(e, item.id)} />
-              <span>{item.id.replace(/_/g, ' ')}</span>
-            </div>
-          </>
-        ) : null}
-      </div>
-    );
-  }
+    return map;
+  }, [playerInventory]);
 
   return (
     <div className="absolute inset-0 flex flex-col min-h-0 overflow-hidden outline-none">
@@ -97,7 +177,14 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                         {isIp ? (
                           <div className="w-10 h-10 bg-red-900/30 rounded flex items-center justify-center text-red-500 font-bold border border-red-500/30">IP</div>
                         ) : (
-                          <img src={`https://mc-heads.net/avatar/${pName}/32`} alt="face" className="w-10 h-10 rounded-md shadow-sm bg-gray-900" />
+                          <img 
+                            src={`https://crafthead.net/avatar/${pName}`} 
+                            alt={pName} 
+                            className="w-10 h-10 rounded-md shadow-sm bg-gray-900 border border-white/5" 
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = `https://minotar.net/helm/${pName}/32.png`;
+                            }}
+                          />
                         )}
                         <div>
                           <h4 className="font-bold text-gray-200">{pName}</h4>
@@ -125,18 +212,28 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
             <div className="w-full block p-8">
               <div className="flex items-center justify-between bg-darkCard p-6 rounded-xl border border-gray-800 mb-6 shadow-md shrink-0">
                 <div className="flex items-center gap-5">
-                  <img src={`https://mc-heads.net/avatar/${selectedPlayer}/64`} alt="face" className="w-16 h-16 rounded-lg shadow-lg bg-gray-900" />
+                  <div className="relative group">
+                    <img 
+                      src={`https://crafthead.net/avatar/${selectedPlayer}`} 
+                      alt={`${selectedPlayer}'s face`} 
+                      className="w-16 h-16 rounded-xl shadow-lg bg-gray-900 border border-white/10 object-cover" 
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://minotar.net/helm/${selectedPlayer}/64.png`;
+                      }}
+                    />
+                    <div className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-darkCard ${activePlayers.includes(selectedPlayer) ? 'bg-green-500' : 'bg-gray-600'}`}></div>
+                  </div>
                   <div>
                     <h2 className="text-3xl font-bold text-white flex items-center gap-3">
                       {selectedPlayer}
-                      <span className={`text-xs px-2 py-1 rounded-md font-bold uppercase ${activePlayers.includes(selectedPlayer) ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-400'}`}>
+                      <span className={`text-xs px-2.5 py-1 rounded-md font-bold uppercase tracking-wider ${activePlayers.includes(selectedPlayer) ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-gray-800 text-gray-400 border border-gray-700'}`}>
                         {activePlayers.includes(selectedPlayer) ? 'Online' : 'Offline'}
                       </span>
                     </h2>
                     <p className="text-sm text-gray-400 font-mono mt-1">Player Profile details</p>
                   </div>
                 </div>
-                <button onClick={() => setSelectedPlayer(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all">&larr; Back</button>
+                <button onClick={() => setSelectedPlayer(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all text-white">&larr; Back</button>
               </div>
           {playerListType === 'history' ? (
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -148,16 +245,17 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                   </h3>
                   <div className="bg-[#c6c6c6] p-6 rounded-lg border-[4px] border-[#555555] inline-block shadow-2xl mx-auto w-full max-w-[480px]">
                     <div className="grid grid-cols-9 gap-1 mb-4 bg-[#c6c6c6]">
-                      {Array.from({ length: 27 }).map((_, i) => <MinecraftSlot key={`main-${i}`} slotId={i + 9} />)}
+                      {Array.from({ length: 27 }).map((_, i) => <MinecraftSlot key={`main-${i + 9}`} item={inventoryMap.get(i + 9)} />)}
                     </div>
                     <div className="grid grid-cols-9 gap-1 mt-6">
-                      {Array.from({ length: 9 }).map((_, i) => <MinecraftSlot key={`hotbar-${i}`} slotId={i} />)}
+                      {Array.from({ length: 9 }).map((_, i) => <MinecraftSlot key={`hotbar-${i}`} item={inventoryMap.get(i)} />)}
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-6">
+                <EquippedSkinCard playerName={selectedPlayer} />
                 <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-6">
                   <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">Total Playtime</h3>
                   <p className="text-3xl font-black text-brand">
@@ -225,10 +323,10 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                 </h3>
                 <div className="bg-[#c6c6c6] p-6 rounded-lg border-[4px] border-[#555555] inline-block shadow-2xl mx-auto w-full max-w-[480px]">
                   <div className="grid grid-cols-9 gap-1 mb-4 bg-[#c6c6c6]">
-                    {Array.from({ length: 27 }).map((_, i) => <MinecraftSlot key={`main-${i}`} slotId={i + 9} />)}
+                    {Array.from({ length: 27 }).map((_, i) => <MinecraftSlot key={`main-${i + 9}`} item={inventoryMap.get(i + 9)} />)}
                   </div>
                   <div className="grid grid-cols-9 gap-1 mt-6">
-                    {Array.from({ length: 9 }).map((_, i) => <MinecraftSlot key={`hotbar-${i}`} slotId={i} />)}
+                    {Array.from({ length: 9 }).map((_, i) => <MinecraftSlot key={`hotbar-${i}`} item={inventoryMap.get(i)} />)}
                   </div>
                 </div>
               </div>
@@ -245,6 +343,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
             </div>
 
             <div className="space-y-6">
+              <EquippedSkinCard playerName={selectedPlayer} />
               <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
                 <h3 className="font-bold text-lg mb-4 text-white">Control Panel</h3>
                 <div className="space-y-3">

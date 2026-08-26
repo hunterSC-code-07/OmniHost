@@ -11,6 +11,7 @@ import { SteamWebAPI } from '../api/SteamWebAPI'
 import { DayzModInstaller } from '../dayz/DayzModInstaller'
 import { DayzMissionManager } from '../dayz/DayzMissionManager'
 import { DayzModStatusManager } from '../dayz/DayzModStatusManager'
+import { MinecraftConfigManager } from '../minecraft/MinecraftConfigManager'
 
 async function exists(path: string) {
   try {
@@ -109,6 +110,9 @@ export function registerServerIpc(
       join(serverDir, 'omnihost.json'),
       JSON.stringify({ game, type, version, loaderVersion })
     )
+    if (game === 'Minecraft') {
+      await MinecraftConfigManager.init(serverDir)
+    }
     // DayZ downloading is now handled by the install-steam-app IPC handler
 
     return id

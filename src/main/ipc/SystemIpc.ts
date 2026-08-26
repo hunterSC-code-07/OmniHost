@@ -7,6 +7,7 @@ import { CacheManager } from '../CacheManager'
 import { FrpAdapter } from '../adapters/FrpAdapter'
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
 import { getServers } from '../db'
+import { MinecraftConfigManager } from '../minecraft/MinecraftConfigManager'
 
 async function exists(path: string) {
   try {
@@ -71,6 +72,62 @@ export function registerSystemIpc(
       }
     }
     return {}
+  })
+
+  ipcMain.handle('get-inventory', async (_, id, playerName) => {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const cachePath = join(serverDir, 'usercache.json')
+      let uuid = ''
+      if (fs.existsSync(cachePath)) {
+        try {
+          const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'))
+          const entry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase())
+          if (entry && entry.uuid) uuid = entry.uuid
+        } catch {}
+      }
+
+      const candidatePaths: string[] = []
+      if (uuid) {
+        const dashedUuid = uuid.includes('-') ? uuid : uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5')
+        const plainUuid = uuid.replace(/-/g, '')
+        candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${dashedUuid}.dat`))
+        candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${plainUuid}.dat`))
+        candidatePaths.push(join(serverDir, 'world', 'playerdata', `${dashedUuid}.dat`))
+        candidatePaths.push(join(serverDir, 'world', 'playerdata', `${plainUuid}.dat`))
+      }
+      const playerdataDir = join(serverDir, 'world', 'playerdata')
+      const playersDataDir = join(serverDir, 'world', 'players', 'data')
+      if (fs.existsSync(playerdataDir)) {
+        const files = fs.readdirSync(playerdataDir).filter(f => f.endsWith('.dat'))
+        if (!uuid && files.length === 1) {
+          candidatePaths.push(join(playerdataDir, files[0]))
+        }
+      }
+      if (fs.existsSync(playersDataDir)) {
+        const files = fs.readdirSync(playersDataDir).filter(f => f.endsWith('.dat'))
+        if (!uuid && files.length === 1) {
+          candidatePaths.push(join(playersDataDir, files[0]))
+        }
+      }
+
+      for (const p of candidatePaths) {
+        if (fs.existsSync(p)) {
+          const buffer = fs.readFileSync(p)
+          const nbt = require('prismarine-nbt')
+          const { parsed } = await nbt.parse(buffer)
+          const inv = parsed.value.Inventory?.value?.value || []
+          return inv.map((item: any) => ({
+            slot: item.Slot?.value ?? item.slot?.value ?? 0,
+            id: (item.id?.value || item.id || '').replace('minecraft:', ''),
+            count: item.count?.value ?? item.Count?.value ?? 1
+          }))
+        }
+      }
+      return null
+    } catch (e) {
+      return null
+    }
   })
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
@@ -201,6 +258,10 @@ export function registerSystemIpc(
 
     const configPath = join(serverDir, configName)
     if (await exists(configPath)) return await fsPromises.readFile(configPath, 'utf-8')
+    if (configName === 'server.properties') {
+      await MinecraftConfigManager.init(serverDir)
+      if (await exists(configPath)) return await fsPromises.readFile(configPath, 'utf-8')
+    }
     return `# No ${configName} found.\n# Start the server once to generate this file automatically!`
   })
 
