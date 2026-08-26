@@ -22,7 +22,7 @@ export const DayzConsoleTab: React.FC = React.memo(() => {
 
   const handleSendCommand = (cmd: string) => {
     if (activeServerId) {
-      window.api.sendCommand(activeServerId, cmd);
+      window.api.server.sendCommand(activeServerId, cmd);
     }
   };
 

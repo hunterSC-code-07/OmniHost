@@ -55,7 +55,7 @@ export function MinecraftHub() {
   const fetchServerMeta = async () => {
     if (activeServerId === null) return;
     // @ts-ignore
-    const meta = await window.api.getServerMeta(activeServerId);
+    const meta = await window.api.server.getServerMeta(activeServerId);
     setServerMeta(meta);
   };
 

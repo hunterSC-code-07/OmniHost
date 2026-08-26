@@ -9,7 +9,7 @@ export function useMinecraftConfig(activeServerId: number | null) {
 
   const loadConfig = async (id: number) => {
     // @ts-ignore
-    const data = await window.api.readConfig(id);
+    const data = await window.api.server.readConfig(id);
     setRawConfigText(data);
     const parsed: Record<string, string> = {};
     data.split('\n').forEach((line: string) => {
@@ -33,7 +33,7 @@ export function useMinecraftConfig(activeServerId: number | null) {
         }
       });
       // @ts-ignore
-      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);
+      await window.api.server.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);
       showToast("Settings saved! Restart server to apply.");
     }
   };

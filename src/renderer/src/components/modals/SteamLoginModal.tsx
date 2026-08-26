@@ -21,7 +21,7 @@ export function SteamLoginModal({ handleCreateServer }: any) {
         try {
           setIsUpdating(true);
           // @ts-ignore
-          await window.api.updateSteamCache(0, 223350, steamUsername, steamPassword, steamGuardCode);
+          await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);
           showToast("DayZ Base Files Updated Successfully!");
           setIsDayzCached(true);
           setShowSteamLoginModal(false);
@@ -42,7 +42,7 @@ export function SteamLoginModal({ handleCreateServer }: any) {
     useEffect(() => {
         if (activeGameHub === 'DayZ') {
           // @ts-ignore
-          window.api.checkSteamCache(223350).then(setIsDayzCached);
+          window.api.steam.checkCache(223350).then(setIsDayzCached);
         }
       }, [activeGameHub]);
 

@@ -73,7 +73,7 @@ export default function App() {
   useEffect(() => {
     const checkCache = async () => {
       // @ts-ignore
-      const cached = await window.api.checkSteamCache(223350);
+      const cached = await window.api.steam.checkCache(223350);
       useUiStore.getState().setIsDayzCached(cached);
     };
     checkCache();
@@ -83,7 +83,7 @@ export default function App() {
     setIsClearingCache(true);
     try {
       // @ts-ignore
-      await window.api.clearCache();
+      await window.api.system.clearCache();
       setCacheSize(0);
       showToast('Cache successfully cleared!');
     } catch (e: any) {

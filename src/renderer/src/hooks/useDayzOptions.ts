@@ -35,7 +35,7 @@ export function useDayzOptions() {
       }
       
       try {
-        const res = await window.api.listDir(activeServerId, 'mpmissions');
+        const res = await window.api.fs.listDir(activeServerId, 'mpmissions');
         if (res && res.length > 0) {
           const dirs = res.filter((entry: any) => entry.isDirectory).map((entry: any) => entry.name);
           if (dirs.length > 0) {

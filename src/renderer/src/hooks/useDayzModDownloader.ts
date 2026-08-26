@@ -8,7 +8,7 @@ export function useDayzModDownloader(activeServerId: number | null) {
     if (!activeServerId) return;
 
     // Listen to IPC events from main process regarding download progress
-    window.api.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {
+    window.api.server.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {
       let currentModId: string | null = null;
       let cleanMsg = msg || '';
       

@@ -53,29 +53,29 @@ export function CreateServerModal() {
       if (newServerType === 'CurseForge Modpack') {
         const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));
         // @ts-ignore
-        const newId = await window.api.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);
+        const newId = await window.api.server.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);
 
         // @ts-ignore
-        window.api.onDownloadProgress(newId, (progress: number, text?: string) => {
+        window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
           setDownloadProgress(progress)
           if (text) setDownloadText(text)
         });
 
         // @ts-ignore
-        const result = await window.api.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);
+        const result = await window.api.minecraft.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);
 
         if (result && result.isClientPack) {
           // @ts-ignore
-          window.api.onDownloadProgress(newId, (progress: number, text?: string) => {
+          window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
             setDownloadProgress(progress)
             if (text) setDownloadText(text)
           });
           // @ts-ignore
-          await window.api.downloadServerJar(newId, result.modloader, result.version);
+          await window.api.minecraft.downloadServerJar(newId, result.modloader, result.version);
         }
       } else if (activeGameHub === 'DayZ') {
         // @ts-ignore
-        const isCached = await window.api.checkSteamCache(223350);
+        const isCached = await window.api.steam.checkCache(223350);
 
         if (!isCached && (!steamUsername || !steamPassword)) {
           setSteamLoginAction('create');
@@ -85,10 +85,10 @@ export function CreateServerModal() {
 
         setIsCreatingServer(true);
         // @ts-ignore
-        const newId = await window.api.createServer(newServerName, 'DayZ', 'Vanilla', 'Latest');
+        const newId = await window.api.server.createServer(newServerName, 'DayZ', 'Vanilla', 'Latest');
 
         // @ts-ignore
-        window.api.onDownloadProgress(newId, (progress: number, text?: string) => {
+        window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
           setDownloadProgress(progress)
           if (text) setDownloadText(text)
         });
@@ -98,10 +98,10 @@ export function CreateServerModal() {
           if (isCached) {
             showToast("Server files found in cache! Copying...");
             // @ts-ignore
-            success = await window.api.copySteamCache(newId, 223350);
+            success = await window.api.steam.copyCache(newId, 223350);
           } else {
             // @ts-ignore
-            success = await window.api.installSteamApp(newId, 223350, steamUsername, steamPassword, steamGuardCode);
+            success = await window.api.steam.installApp(newId, 223350, steamUsername, steamPassword, steamGuardCode);
           }
 
           if (success) {
@@ -113,7 +113,7 @@ export function CreateServerModal() {
             setIsSteamGuardRequired(false);
             // Refresh list
             // @ts-ignore
-            const data = await window.api.getServers();
+            const data = await window.api.server.getServers();
             setServers(data);
             setActiveServerId(newId);
             showToast("DayZ Server created successfully!");
@@ -136,22 +136,22 @@ export function CreateServerModal() {
         }
       } else {
         // @ts-ignore
-        const newId = await window.api.createServer(newServerName, 'Minecraft', newServerType, newServerVersion, newServerLoaderVersion);
+        const newId = await window.api.server.createServer(newServerName, 'Minecraft', newServerType, newServerVersion, newServerLoaderVersion);
 
         // @ts-ignore
-        window.api.onDownloadProgress(newId, (progress: number, text?: string) => {
+        window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
           setDownloadProgress(progress)
           if (text) setDownloadText(text)
         });
 
         // @ts-ignore
-        await window.api.downloadServerJar(newId, newServerType, newServerVersion, newServerLoaderVersion);
+        await window.api.minecraft.downloadServerJar(newId, newServerType, newServerVersion, newServerLoaderVersion);
       }
 
       showToast('Server Created Successfully!');
       setShowCreateModal(false);
       // @ts-ignore
-      const data = await window.api.getServers();
+      const data = await window.api.server.getServers();
       setServers(data);
 
       setNewServerName('');
@@ -172,7 +172,7 @@ export function CreateServerModal() {
         const typeStr = modpackLoaderFilter || 'Any';
         const versionStr = modpackVersionFilter || '';
         // @ts-ignore
-        const results = await window.api.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
+        const results = await window.api.minecraft.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
         setModpacks(results || []);
       } catch (e) {
         console.error(e);
@@ -192,15 +192,15 @@ export function CreateServerModal() {
     const fetchVersions = async () => {
       let versions: string[] = []
       // @ts-ignore
-      if (newServerType === 'Vanilla') versions = await window.api.getVanillaVersions();
+      if (newServerType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions();
       // @ts-ignore
-      else if (newServerType === 'Paper') versions = await window.api.getPaperVersions();
+      else if (newServerType === 'Paper') versions = await window.api.minecraft.getPaperVersions();
       // @ts-ignore
-      else if (newServerType === 'Fabric') versions = await window.api.getFabricVersions();
+      else if (newServerType === 'Fabric') versions = await window.api.minecraft.getFabricVersions();
       // @ts-ignore
-      else if (newServerType === 'Forge') versions = await window.api.getForgeVersions();
+      else if (newServerType === 'Forge') versions = await window.api.minecraft.getForgeVersions();
       // @ts-ignore
-      else if (newServerType === 'NeoForge') versions = await window.api.getNeoForgeVersions();
+      else if (newServerType === 'NeoForge') versions = await window.api.minecraft.getNeoForgeVersions();
 
       setAvailableVersions(versions);
       if (versions.length > 0) {
@@ -221,7 +221,7 @@ export function CreateServerModal() {
       if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {
         setAvailableLoaderVersions([]);
         // @ts-ignore
-        const versions = await window.api.getLoaderVersions(newServerType, newServerVersion);
+        const versions = await window.api.minecraft.getLoaderVersions(newServerType, newServerVersion);
         setAvailableLoaderVersions(versions);
         if (versions && versions.length > 0) {
           setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);

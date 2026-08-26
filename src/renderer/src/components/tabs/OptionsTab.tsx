@@ -35,7 +35,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
 
   useEffect(() => {
     // Fetch System OS Info
-    window.api.getSystemInfo().then((info: any) => {
+    window.api.system.getSystemInfo().then((info: any) => {
       setSysInfo({
         totalMem: Math.max(2, Math.floor(info.totalMem / (1024 * 1024 * 1024))),
         cpus: info.cpus || 4
@@ -43,7 +43,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
     });
 
     // Fetch Meta
-    window.api.getServerMeta(serverId).then((meta: any) => {
+    window.api.server.getServerMeta(serverId).then((meta: any) => {
       if (meta) {
         if (meta.ram) setRamLimit(meta.ram);
         if (meta.cpu) setCpuLimit(meta.cpu);
@@ -55,14 +55,14 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
 
   const saveMetaAndConfig = async () => {
     setIsSavingMeta(true);
-    await window.api.updateServerMeta(serverId, {
+    await window.api.server.updateServerMeta(serverId, {
       ram: ramLimit,
       cpu: cpuLimit,
       autoStart,
       autoStop
     });
     // Also toggle the proxy listening state
-    await window.api.toggleAutoStart(serverId, autoStart);
+    await window.api.server.toggleAutoStart(serverId, autoStart);
     
     handleSaveConfig();
     if (onConfigSaved) onConfigSaved();

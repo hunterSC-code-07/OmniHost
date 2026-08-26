@@ -39,7 +39,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
   const handleSendCommand = (command: string) => {
     if (!activeServerId) return;
     // @ts-ignore
-    window.api.sendCommand(activeServerId, command);
+    window.api.server.sendCommand(activeServerId, command);
   };
 
   const onSubmit = (e: React.FormEvent) => {

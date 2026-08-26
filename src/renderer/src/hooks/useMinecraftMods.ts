@@ -23,7 +23,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     if (activeServerId === null || !serverMeta) return;
     
     // @ts-ignore
-    const installed = await window.api.getInstalledMods(activeServerId);
+    const installed = await window.api.minecraft.getInstalledMods(activeServerId);
     setInstalledMods(installed);
     
     let defaultClassId = 6; // Mods
@@ -34,7 +34,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
 
     setIsSearchingMods(true);
     // @ts-ignore
-    const results = await window.api.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);
+    const results = await window.api.minecraft.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);
     setModResults(results);
     setTotalModCount(results?.length > 0 ? 10000 : 0);
     setIsSearchingMods(false);
@@ -60,7 +60,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     const targetSortField = sField !== undefined ? sField : activeSortField;
     try {
       // @ts-ignore
-      const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);
+      const results = await window.api.minecraft.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);
       setModResults(results);
       setTotalModCount(results?.length > 0 ? 10000 : 0);
     } catch (error) {
@@ -89,7 +89,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
         if (fileIndex) {
            setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);
            // @ts-ignore
-           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);
+           targetFile = await window.api.minecraft.getCurseforgeFile(targetMod.id, fileIndex.fileId);
         }
       }
 
@@ -108,7 +108,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
         for (const dep of requiredDeps) {
            setInstallProgressText(`Installing Dependency (ID: ${dep.modId})...`);
            // @ts-ignore
-           const depMod = await window.api.getCurseforgeMod(dep.modId);
+           const depMod = await window.api.minecraft.getCurseforgeMod(dep.modId);
            if (depMod) {
               setInstallProgressText(`Installing ${depMod.name}...`);
               await installWithDeps(depMod, depth + 1);
@@ -118,7 +118,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
 
       setInstallProgressText(`Downloading ${targetMod.name}...`);
       // @ts-ignore
-      await window.api.installCurseforgeMod(activeServerId, targetFile.downloadUrl, targetFile.fileName, activeClassId);
+      await window.api.minecraft.installCurseforgeMod(activeServerId, targetFile.downloadUrl, targetFile.fileName, activeClassId);
     };
 
     await installWithDeps(mod);
@@ -126,7 +126,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     showToast(`Installed ${mod.name} and dependencies!`);
     fetchMods();
     // @ts-ignore
-    window.api.getCacheInfo().then(size => setCacheSize(size));
+    window.api.system.getCacheInfo().then(size => setCacheSize(size));
     setInstallingModId(null);
     setInstallProgressText('');
   };
@@ -134,7 +134,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const handleDeleteMod = async (fileName: string) => {
     if (activeServerId === null) return;
     // @ts-ignore
-    await window.api.deleteMod(activeServerId, fileName);
+    await window.api.minecraft.deleteMod(activeServerId, fileName);
     fetchMods();
   };
 

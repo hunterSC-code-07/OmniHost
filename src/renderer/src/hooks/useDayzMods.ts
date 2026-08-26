@@ -35,7 +35,7 @@ export function useDayzMods(onNavigateToInstalled: () => void) {
 
   const loadInstalledMods = async () => {
     if (!activeServerId) return;
-    const mods = await window.api.getDayzInstalledMods(activeServerId);
+    const mods = await window.api.dayz.getInstalledMods(activeServerId);
     if (mods) {
       setInstalledMods(mods);
     }
@@ -52,7 +52,7 @@ export function useDayzMods(onNavigateToInstalled: () => void) {
     }
 
     setLoading(true);
-    const res = await window.api.searchSteamWorkshop(queryToUse, categoryToUse, pageOverride, tagsToUse);
+    const res = await window.api.steam.searchWorkshop(queryToUse, categoryToUse, pageOverride, tagsToUse);
 
     if (res && res.length > 0) {
       if (pageOverride === 1) {
@@ -106,13 +106,13 @@ export function useDayzMods(onNavigateToInstalled: () => void) {
     let modsToInstall = [mod];
 
     try {
-      const dependencies = await window.api.getModDependencies(mod.id);
+      const dependencies = await window.api.steam.getModDependencies(mod.id);
 
       if (dependencies && dependencies.length > 0) {
         const missingDeps = dependencies.filter(depId => !installedMods.find(m => m.id === depId));
 
         if (missingDeps.length > 0) {
-          const depDetails = await window.api.getWorkshopItemDetails(missingDeps);
+          const depDetails = await window.api.steam.getWorkshopItemDetails(missingDeps);
           if (depDetails && depDetails.length > 0) {
             const depNames = depDetails.map((d: any) => d.title).join(', ');
             const confirmInstall = confirm(`This mod requires the following dependencies:\n\n${depNames}\n\nDo you want to install them automatically?`);
@@ -140,7 +140,7 @@ export function useDayzMods(onNavigateToInstalled: () => void) {
         modTitle: m.title
       }));
 
-      await window.api.installDayzMods(
+      await window.api.dayz.installMods(
         activeServerId,
         batchMods,
         steamCreds.username,
@@ -191,13 +191,13 @@ export function useDayzMods(onNavigateToInstalled: () => void) {
   const handleUninstall = async (modId: string) => {
     if (!activeServerId) return;
     if (confirm('Are you sure you want to uninstall this mod?')) {
-      await window.api.uninstallDayzMod(activeServerId, modId);
+      await window.api.dayz.uninstallMod(activeServerId, modId);
       await loadInstalledMods();
     }
   };
 
   const handleBrowseWorkshop = async () => {
-    const path = await window.api.selectWorkshopFolder();
+    const path = await window.api.steam.selectWorkshopFolder();
     if (path) {
       setWorkshopPath(path);
     }
@@ -207,7 +207,7 @@ export function useDayzMods(onNavigateToInstalled: () => void) {
     if (!workshopPath || !activeServerId) return;
     setIsImporting(true);
     try {
-      const count = await window.api.importLocalWorkshop(activeServerId, workshopPath);
+      const count = await window.api.dayz.importLocalWorkshop(activeServerId, workshopPath);
       alert(`Successfully imported ${count} mods from your !Workshop folder!\n\nNote: They have been marked as 'DISABLED' by default so your server doesn't crash on startup. Go to the 'Installed Mods' tab to enable the ones you want.`);
       loadInstalledMods();
     } catch (e: any) {
