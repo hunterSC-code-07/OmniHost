@@ -6,10 +6,11 @@ import { useServerStore } from '../../store/useServerStore';
 import { useMinecraftSoftware } from '../../hooks/useMinecraftSoftware';
 
 interface SoftwareTabProps {
-  // Add props if needed
+  serverMeta: any;
+  onSoftwareChanged?: () => void;
 }
 
-export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
+export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(({ serverMeta, onSoftwareChanged }) => {
   const { activeServerId, setServers } = useServerStore();
   const [downloadProgress, setDownloadProgress] = React.useState(0);
   const [downloadText, setDownloadText] = React.useState('');
@@ -20,7 +21,7 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
     editingAvailableLoaderVersions, isTypeMenuOpen, setIsTypeMenuOpen,
     isVersionMenuOpen, setIsVersionMenuOpen, isLoaderMenuOpen, setIsLoaderMenuOpen,
     isChangingSoftware, setIsChangingSoftware
-  } = useMinecraftSoftware(null, 'software');
+  } = useMinecraftSoftware(serverMeta, 'software');
 
   return (
     <div className="absolute inset-0 flex flex-col p-8 min-h-0 animate-in fade-in duration-300">
@@ -152,6 +153,7 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
                   // Update the servers list globally
                   // @ts-ignore
                   window.api.server.getServers().then(setServers);
+                  if (onSoftwareChanged) onSoftwareChanged();
                 }, 1500);
 
               } catch (err: any) {

@@ -19,7 +19,13 @@ import { useUiStore } from '../../../store/useUiStore';
 import { useModalStore } from '../../../store/useModalStore';
 
 export function MinecraftHub() {
-  const { activeServerId, setActiveServerId, servers, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  const activeServerId = useServerStore(s => s.activeServerId);
+  const servers = useServerStore(s => s.servers);
+  const startServer = useServerStore(s => s.startServer);
+  const stopServer = useServerStore(s => s.stopServer);
+  const restartServer = useServerStore(s => s.restartServer);
+  const deleteServer = useServerStore(s => s.deleteServer);
+  
   const currentServer = servers.find(s => s.id === activeServerId);
   const prevServerRef = useRef(currentServer);
   if (currentServer) {
@@ -28,8 +34,10 @@ export function MinecraftHub() {
   const activeServer = currentServer || prevServerRef.current;
   
   if (!activeServer) return null;
-  const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
-  const { setShowTunnelModal } = useModalStore();
+  const tunnelStatus = useUiStore(s => s.tunnelStatus);
+  const tunnelIp = useUiStore(s => s.tunnelIp);
+  const setTempTunnelIp = useUiStore(s => s.setTempTunnelIp);
+  const setShowTunnelModal = useModalStore(s => s.setShowTunnelModal);
   const handleStart = startServer;
   const handleStop = stopServer;
   const handleRestart = restartServer;
@@ -276,7 +284,10 @@ export function MinecraftHub() {
 
               {/* TAB: SOFTWARE */}
               {activeTab === 'software' && (
-                <SoftwareTab />
+                <SoftwareTab 
+                  serverMeta={serverMeta} 
+                  onSoftwareChanged={fetchServerMeta} 
+                />
               )}
                   </motion.div>
                 </AnimatePresence>
