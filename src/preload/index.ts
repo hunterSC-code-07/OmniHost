@@ -18,6 +18,8 @@ const api = {
     readJson: (id: number, filename: string) => ipcRenderer.invoke('read-json', id, filename),
     writeJson: (id: number, filename: string, data: any) => ipcRenderer.invoke('write-json', id, filename, data),
     getInventory: (id: number, playerName: string) => ipcRenderer.invoke('get-inventory', id, playerName),
+    getPlayerNbtStats: (id: number, playerName: string) => ipcRenderer.invoke('get-player-nbt-stats', id, playerName),
+    editPlayerNbt: (id: number, playerName: string, stats: any) => ipcRenderer.invoke('edit-player-nbt', id, playerName, stats),
     
     // Events
     onServersUpdate: (callback: (data: any[]) => void) => {
