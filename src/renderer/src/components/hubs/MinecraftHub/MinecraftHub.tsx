@@ -67,7 +67,11 @@ export function MinecraftHub() {
     }
   }, [activeServerId]);
 
-
+  useEffect(() => {
+    if (activeTab === 'mods' && serverMeta?.type === 'Vanilla') {
+      setActiveTab('overview');
+    }
+  }, [activeTab, serverMeta?.type]);
 
   return (
       <div className="flex-1 flex flex-col relative overflow-hidden">
@@ -165,20 +169,29 @@ export function MinecraftHub() {
                       { id: 'software', label: 'Software', icon: 'memory' },
                       { id: 'files', label: 'Files', icon: 'folder' },
                       { id: 'backups', label: 'Backups', icon: 'save' }
-                    ].map(tab => (
-                      <button
-                        key={tab.id}
-                        onClick={() => handleTabChange(tab.id as any)}
-                        className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${
-                          activeTab === tab.id 
-                          ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(76,175,80,0.1)]' 
-                          : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-                        {tab.label}
-                      </button>
-                    ))}
+                    ].map(tab => {
+                      const isModsTab = tab.id === 'mods';
+                      const isVanilla = serverMeta?.type === 'Vanilla';
+                      const isDisabled = isModsTab && isVanilla;
+
+                      return (
+                        <button
+                          key={tab.id}
+                          disabled={isDisabled}
+                          onClick={() => handleTabChange(tab.id as any)}
+                          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap ${
+                            isDisabled ? 'opacity-30 cursor-not-allowed' : 'hover:-translate-y-1 hover:scale-105'
+                          } ${
+                            activeTab === tab.id 
+                            ? 'bg-primary/10 text-primary border border-primary/30 shadow-[0_0_15px_rgba(76,175,80,0.1)]' 
+                            : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                          {tab.label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </OverlayScrollbarsComponent>
               </div>

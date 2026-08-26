@@ -339,6 +339,17 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     }
   };
 
+  const handleDeleteAllMods = async () => {
+    if (activeServerId === null) return;
+    if (!confirm('Are you sure you want to delete ALL installed mods, shaders, and resource packs?')) return;
+    // @ts-ignore
+    await window.api.minecraft.deleteAllMods(activeServerId);
+    await fetchMods();
+    if (modViewType === 'dependencies') {
+      await fetchModDependencies();
+    }
+  };
+
   return {
     modSearchQuery, setModSearchQuery,
     modResults, setModResults,
@@ -352,7 +363,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     isClassMenuOpen, setIsClassMenuOpen,
     isSortMenuOpen, setIsSortMenuOpen,
     totalModCount, setTotalModCount,
-    handleSearchMods, handleInstallMod, handleDeleteMod,
+    handleSearchMods, handleInstallMod, handleDeleteMod, handleDeleteAllMods,
 
     // Dependencies
     modDependencies, isLoadingDependencies, fetchModDependencies, handleInstallMissingDependency,

@@ -54,6 +54,10 @@ export function registerMinecraftIpc() {
     MinecraftModManager.deleteMod(id, fileName)
   )
   
+  ipcMain.handle('delete-all-mods', async (_, id: number) => 
+    MinecraftModManager.deleteAllMods(id)
+  )
+  
   ipcMain.handle('download-server-jar', async (event, id: number, type: string, version: string, loaderVersion: string) => 
     MinecraftDownloader.downloadServerJar(event, id, type, version, loaderVersion)
   )
