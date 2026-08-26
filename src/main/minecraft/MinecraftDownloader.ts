@@ -182,38 +182,7 @@ export class MinecraftDownloader {
       return []
     }  }
 
-  static async searchModpacks(query: string, version: string, modloader: string) {
-    try {
-      let url = `https://api.curseforge.com/v1/mods/search?gameId=432&classId=4471&sortField=2&sortOrder=desc`
-      if (query) url += `&searchFilter=${encodeURIComponent(query)}`
-      if (version) {
-        const cfVersion =
-          version.endsWith('.0') && version.split('.').length === 3 ? version.slice(0, -2) : version
-        url += `&gameVersion=${encodeURIComponent(cfVersion)}`
-      }
-      if (modloader) {
-        if (modloader === 'Forge') url += '&modLoaderType=1'
-        else if (modloader === 'Fabric') url += '&modLoaderType=4'
-        else if (modloader === 'NeoForge') url += '&modLoaderType=6'
-      }
 
-      const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } })
-      return res.data.data
-    } catch (e: any) {
-      console.error('Error searching modpacks:', e.message)
-      return []
-    }  }
-
-  static async getModpackDetails(modId: string) {
-    try {
-      const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {
-        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
-      })
-      return res.data.data
-    } catch (e: any) {
-      console.error(e.message)
-      return null
-    }  }
 
   static async downloadServerJar(event: any, id: number, type: string, version: string, loaderVersion: string) {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString())
