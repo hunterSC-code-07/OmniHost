@@ -116,6 +116,44 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     }
   };
 
+  const handleUpdatePlayerStats = async (playerName: string, updatedStats: any) => {
+    if (activeServerId === null) return;
+    try {
+      // @ts-ignore
+      const allStats = await window.api.server.readJson(activeServerId, 'player-stats') || {};
+      allStats[playerName] = { ...allStats[playerName], ...updatedStats, username: playerName };
+      // @ts-ignore
+      await window.api.server.writeJson(activeServerId, 'player-stats', allStats);
+      setPlayerData(Object.values(allStats));
+      showToast(`Updated stats for ${playerName}`);
+    } catch (err) {
+      showToast(`Failed to update stats: ${err}`);
+    }
+  };
+
+  const fetchPlayerNbtStats = async (playerName: string) => {
+    if (activeServerId === null) return null;
+    // @ts-ignore
+    return await window.api.server.getPlayerNbtStats(activeServerId, playerName);
+  };
+
+  const handleUpdatePlayerNbt = async (playerName: string, stats: any) => {
+    if (activeServerId === null) return false;
+    try {
+      // @ts-ignore
+      const success = await window.api.server.editPlayerNbt(activeServerId, playerName, stats);
+      if (success) {
+        showToast(`Updated in-game stats for ${playerName}`);
+        return true;
+      }
+      showToast(`Failed to update in-game stats. Player might not exist.`);
+      return false;
+    } catch (err) {
+      showToast(`Error updating NBT: ${err}`);
+      return false;
+    }
+  };
+
   return {
     playerListType, setPlayerListType,
     playerData, setPlayerData,
@@ -123,6 +161,7 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     isProcessing, setIsProcessing,
     selectedPlayer, setSelectedPlayer,
     playerInventory, setPlayerInventory,
-    handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers
+    handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers,
+    handleUpdatePlayerStats, fetchPlayerNbtStats, handleUpdatePlayerNbt
   };
 }

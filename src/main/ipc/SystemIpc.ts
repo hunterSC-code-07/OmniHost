@@ -74,59 +74,141 @@ export function registerSystemIpc(
     return {}
   })
 
+  const getDatPath = (id: number, playerName: string): string | null => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const cachePath = join(serverDir, 'usercache.json')
+    let uuid = ''
+    if (fs.existsSync(cachePath)) {
+      try {
+        const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'))
+        const entry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase())
+        if (entry && entry.uuid) uuid = entry.uuid
+      } catch {}
+    }
+
+    const candidatePaths: string[] = []
+    if (uuid) {
+      const dashedUuid = uuid.includes('-') ? uuid : uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5')
+      const plainUuid = uuid.replace(/-/g, '')
+      candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${dashedUuid}.dat`))
+      candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${plainUuid}.dat`))
+      candidatePaths.push(join(serverDir, 'world', 'playerdata', `${dashedUuid}.dat`))
+      candidatePaths.push(join(serverDir, 'world', 'playerdata', `${plainUuid}.dat`))
+    }
+    const playerdataDir = join(serverDir, 'world', 'playerdata')
+    const playersDataDir = join(serverDir, 'world', 'players', 'data')
+    if (fs.existsSync(playerdataDir)) {
+      const files = fs.readdirSync(playerdataDir).filter(f => f.endsWith('.dat'))
+      if (!uuid && files.length === 1) {
+        candidatePaths.push(join(playerdataDir, files[0]))
+      }
+    }
+    if (fs.existsSync(playersDataDir)) {
+      const files = fs.readdirSync(playersDataDir).filter(f => f.endsWith('.dat'))
+      if (!uuid && files.length === 1) {
+        candidatePaths.push(join(playersDataDir, files[0]))
+      }
+    }
+
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) return p
+    }
+    return null
+  }
+
   ipcMain.handle('get-inventory', async (_, id, playerName) => {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      const cachePath = join(serverDir, 'usercache.json')
-      let uuid = ''
-      if (fs.existsSync(cachePath)) {
-        try {
-          const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'))
-          const entry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase())
-          if (entry && entry.uuid) uuid = entry.uuid
-        } catch {}
-      }
-
-      const candidatePaths: string[] = []
-      if (uuid) {
-        const dashedUuid = uuid.includes('-') ? uuid : uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5')
-        const plainUuid = uuid.replace(/-/g, '')
-        candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${dashedUuid}.dat`))
-        candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${plainUuid}.dat`))
-        candidatePaths.push(join(serverDir, 'world', 'playerdata', `${dashedUuid}.dat`))
-        candidatePaths.push(join(serverDir, 'world', 'playerdata', `${plainUuid}.dat`))
-      }
-      const playerdataDir = join(serverDir, 'world', 'playerdata')
-      const playersDataDir = join(serverDir, 'world', 'players', 'data')
-      if (fs.existsSync(playerdataDir)) {
-        const files = fs.readdirSync(playerdataDir).filter(f => f.endsWith('.dat'))
-        if (!uuid && files.length === 1) {
-          candidatePaths.push(join(playerdataDir, files[0]))
-        }
-      }
-      if (fs.existsSync(playersDataDir)) {
-        const files = fs.readdirSync(playersDataDir).filter(f => f.endsWith('.dat'))
-        if (!uuid && files.length === 1) {
-          candidatePaths.push(join(playersDataDir, files[0]))
-        }
-      }
-
-      for (const p of candidatePaths) {
-        if (fs.existsSync(p)) {
-          const buffer = fs.readFileSync(p)
-          const nbt = require('prismarine-nbt')
-          const { parsed } = await nbt.parse(buffer)
-          const inv = parsed.value.Inventory?.value?.value || []
-          return inv.map((item: any) => ({
-            slot: item.Slot?.value ?? item.slot?.value ?? 0,
-            id: (item.id?.value || item.id || '').replace('minecraft:', ''),
-            count: item.count?.value ?? item.Count?.value ?? 1
-          }))
-        }
+      const p = getDatPath(id, playerName)
+      if (p) {
+        const buffer = fs.readFileSync(p)
+        const nbt = require('prismarine-nbt')
+        const { parsed } = await nbt.parse(buffer)
+        const inv = parsed.value.Inventory?.value?.value || []
+        return inv.map((item: any) => ({
+          slot: item.Slot?.value ?? item.slot?.value ?? 0,
+          id: (item.id?.value || item.id || '').replace('minecraft:', ''),
+          count: item.count?.value ?? item.Count?.value ?? 1
+        }))
       }
       return null
     } catch (e) {
       return null
+    }
+  })
+
+  ipcMain.handle('get-player-nbt-stats', async (_, id, playerName) => {
+    try {
+      const p = getDatPath(id, playerName)
+      if (!p) return null
+      
+      const buffer = fs.readFileSync(p)
+      const nbt = require('prismarine-nbt')
+      const { parsed } = await nbt.parse(buffer)
+      
+      const attributes = parsed.value.Attributes?.value?.value || []
+      
+      let hp = 20
+      let armor = 0
+      let atk = 1
+      
+      for (const attr of attributes) {
+        const name = attr.Name?.value
+        const base = attr.Base?.value
+        if (name === 'minecraft:generic.max_health') hp = base
+        if (name === 'minecraft:generic.armor') armor = base
+        if (name === 'minecraft:generic.attack_damage') atk = base
+      }
+      
+      return { hp, armor, atk }
+    } catch (e) {
+      return null
+    }
+  })
+
+  ipcMain.handle('edit-player-nbt', async (_, id, playerName, stats) => {
+    try {
+      const p = getDatPath(id, playerName)
+      if (!p) return false
+      
+      const buffer = fs.readFileSync(p)
+      const nbt = require('prismarine-nbt')
+      const zlib = require('zlib')
+      const { parsed } = await nbt.parse(buffer)
+      
+      let attributes = parsed.value.Attributes?.value?.value
+      if (!attributes) {
+         parsed.value.Attributes = { type: 'list', value: { type: 'compound', value: [] } }
+         attributes = parsed.value.Attributes.value.value
+      }
+
+      const setAttr = (name: string, val: number) => {
+        let attr = attributes.find((a: any) => a.Name?.value === name)
+        if (attr) {
+          if (attr.Base) attr.Base.value = val
+        } else {
+          attributes.push({
+            Name: { type: 'string', value: name },
+            Base: { type: 'double', value: val }
+          })
+        }
+      }
+
+      if (stats.hp !== undefined) {
+        setAttr('minecraft:generic.max_health', stats.hp)
+        if (parsed.value.Health) parsed.value.Health.value = stats.hp
+        else parsed.value.Health = { type: 'float', value: stats.hp }
+      }
+      
+      if (stats.armor !== undefined) setAttr('minecraft:generic.armor', stats.armor)
+      if (stats.atk !== undefined) setAttr('minecraft:generic.attack_damage', stats.atk)
+      
+      const outBuffer = zlib.gzipSync(nbt.writeUncompressed(parsed))
+      fs.writeFileSync(p, outBuffer)
+      
+      return true
+    } catch (e) {
+      console.error(e)
+      return false
     }
   })
 

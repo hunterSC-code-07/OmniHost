@@ -124,13 +124,40 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
     isProcessing,
     selectedPlayer, setSelectedPlayer,
     playerInventory,
-    handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers
+    handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers,
+    handleUpdatePlayerStats, fetchPlayerNbtStats, handleUpdatePlayerNbt
   } = useMinecraftPlayers(activeServerId, 'players');
   const [now, setNow] = useState(Date.now());
+  const [isEditingStats, setIsEditingStats] = useState(false);
+  const [editStatsForm, setEditStatsForm] = useState({
+    hp: 20, armor: 0, atk: 1
+  });
+
   useEffect(() => {
     const interval = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleStartEditStats = async () => {
+    setIsEditingStats(true);
+    const nbtStats = await fetchPlayerNbtStats(selectedPlayer);
+    if (nbtStats) {
+      setEditStatsForm({
+        hp: nbtStats.hp || 20,
+        armor: nbtStats.armor || 0,
+        atk: nbtStats.atk || 1
+      });
+    }
+  };
+
+  const handleSaveStats = async () => {
+    await handleUpdatePlayerNbt(selectedPlayer, {
+      hp: editStatsForm.hp,
+      armor: editStatsForm.armor,
+      atk: editStatsForm.atk
+    });
+    setIsEditingStats(false);
+  };
 
   const inventoryMap = useMemo(() => {
     const map = new Map<number, { slot: number; id: string; count: number }>();
@@ -260,7 +287,24 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                     <p className="text-sm text-gray-400 font-mono mt-1">Player Profile details</p>
                   </div>
                 </div>
-                <button onClick={() => setSelectedPlayer(null)} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all text-white">&larr; Back</button>
+                <div className="flex items-center gap-3">
+                  {playerListType === 'history' && (
+                    <button 
+                      onClick={() => {
+                        if (isEditingStats) {
+                           setIsEditingStats(false);
+                        } else {
+                           handleStartEditStats();
+                        }
+                      }} 
+                      className={`px-4 py-2 rounded-lg font-bold transition-all flex items-center gap-2 ${isEditingStats ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 hover:border-gray-500'}`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">{isEditingStats ? 'close' : 'tune'}</span>
+                      {isEditingStats ? 'Cancel Edit' : 'Advanced Options'}
+                    </button>
+                  )}
+                  <button onClick={() => { setSelectedPlayer(null); setIsEditingStats(false); }} className="px-6 py-2 bg-gray-800 hover:bg-gray-700 rounded-lg font-bold transition-all text-white">&larr; Back</button>
+                </div>
               </div>
           {playerListType === 'history' ? (
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
@@ -283,61 +327,94 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
 
               <div className="space-y-6">
                 <EquippedSkinCard playerName={selectedPlayer} />
-                <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-6">
-                  <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">Total Playtime</h3>
-                  <p className="text-3xl font-black text-brand">
-                    {(() => {
-                      const stats = playerData.find(p => p.username === selectedPlayer);
-                      if (!stats) return '0h 0m 0s';
-                      
-                      let livePlaytime = stats.totalPlaytime || 0;
-                      if (activePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
-                        livePlaytime += (now - stats.currentSessionStart);
-                      }
+                
+                {isEditingStats ? (
+                  <div className="bg-darkCard p-6 rounded-xl border border-brand/50 shadow-[0_0_20px_rgba(76,175,80,0.15)] flex flex-col gap-5 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
+                    <div className="flex items-center justify-between mb-2">
+                      <h3 className="font-bold text-lg text-white flex items-center gap-2">
+                        <span className="material-symbols-outlined text-brand">edit_square</span> Edit Player Stats
+                      </h3>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Max Health (HP)</label>
+                      <input type="number" min="1" step="1" value={editStatsForm.hp} onChange={e => setEditStatsForm(p => ({...p, hp: parseFloat(e.target.value) || 20}))} className="w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none" placeholder="20" />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Armor Base</label>
+                      <input type="number" min="0" step="1" value={editStatsForm.armor} onChange={e => setEditStatsForm(p => ({...p, armor: parseFloat(e.target.value) || 0}))} className="w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none" placeholder="0" />
+                    </div>
 
-                      const hrs = Math.floor(livePlaytime / (1000 * 60 * 60));
-                      const mins = Math.floor((livePlaytime / (1000 * 60)) % 60);
-                      const secs = Math.floor((livePlaytime / 1000) % 60);
-                      return `${hrs}h ${mins}m ${secs}s`;
-                    })()}
-                  </p>
-                </div>
-                <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
-                  <div>
-                    <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">First Joined</h3>
-                    <p className="text-lg font-bold text-white">
-                      {(() => {
-                        const stats = playerData.find(p => p.username === selectedPlayer);
-                        return stats?.firstJoin ? new Date(stats.firstJoin).toLocaleString() : 'Unknown';
-                      })()}
-                    </p>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Attack Damage</label>
+                      <input type="number" min="1" step="1" value={editStatsForm.atk} onChange={e => setEditStatsForm(p => ({...p, atk: parseFloat(e.target.value) || 1}))} className="w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none" placeholder="1" />
+                    </div>
+
+                    <button onClick={handleSaveStats} className="mt-2 w-full bg-brand hover:bg-green-500 text-black font-black py-3 rounded-lg shadow-lg hover:shadow-brand/30 transition-all active:scale-95 flex justify-center items-center gap-2 uppercase tracking-widest">
+                      <span className="material-symbols-outlined">save</span> Save Changes
+                    </button>
                   </div>
-                  <div className="h-[1px] w-full bg-gray-800"></div>
-                  <div>
-                    <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Last Seen</h3>
-                    <p className="text-lg font-bold text-white">
-                      {(() => {
-                        const stats = playerData.find(p => p.username === selectedPlayer);
-                        if (activePlayers.includes(selectedPlayer)) return 'Currently Online';
-                        return stats?.lastLeft ? new Date(stats.lastLeft).toLocaleString() : 'Unknown';
-                      })()}
-                    </p>
-                  </div>
-                  <div className="h-[1px] w-full bg-gray-800"></div>
-                  <div>
-                    <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Log off Position</h3>
-                    <p className="text-lg font-bold text-white">
-                      {(() => {
-                        const stats = playerData.find(p => p.username === selectedPlayer);
-                        if (activePlayers.includes(selectedPlayer)) return 'Currently Online';
-                        if (stats?.logoffPosition) {
-                          return `X: ${stats.logoffPosition.x}, Y: ${stats.logoffPosition.y}, Z: ${stats.logoffPosition.z}`;
-                        }
-                        return 'Unknown';
-                      })()}
-                    </p>
-                  </div>
-                </div>
+                ) : (
+                  <>
+                    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-6">
+                      <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">Total Playtime</h3>
+                      <p className="text-3xl font-black text-brand">
+                        {(() => {
+                          const stats = playerData.find(p => p.username === selectedPlayer);
+                          if (!stats) return '0h 0m 0s';
+                          
+                          let livePlaytime = stats.totalPlaytime || 0;
+                          if (activePlayers.includes(selectedPlayer) && stats.currentSessionStart) {
+                            livePlaytime += (now - stats.currentSessionStart);
+                          }
+
+                          const hrs = Math.floor(livePlaytime / (1000 * 60 * 60));
+                          const mins = Math.floor((livePlaytime / (1000 * 60)) % 60);
+                          const secs = Math.floor((livePlaytime / 1000) % 60);
+                          return `${hrs}h ${mins}m ${secs}s`;
+                        })()}
+                      </p>
+                    </div>
+                    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
+                      <div>
+                        <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">First Joined</h3>
+                        <p className="text-lg font-bold text-white">
+                          {(() => {
+                            const stats = playerData.find(p => p.username === selectedPlayer);
+                            return stats?.firstJoin ? new Date(stats.firstJoin).toLocaleString() : 'Unknown';
+                          })()}
+                        </p>
+                      </div>
+                      <div className="h-[1px] w-full bg-gray-800"></div>
+                      <div>
+                        <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Last Seen</h3>
+                        <p className="text-lg font-bold text-white">
+                          {(() => {
+                            const stats = playerData.find(p => p.username === selectedPlayer);
+                            if (activePlayers.includes(selectedPlayer)) return 'Currently Online';
+                            return stats?.lastLeft ? new Date(stats.lastLeft).toLocaleString() : 'Unknown';
+                          })()}
+                        </p>
+                      </div>
+                      <div className="h-[1px] w-full bg-gray-800"></div>
+                      <div>
+                        <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">Log off Position</h3>
+                        <p className="text-lg font-bold text-white">
+                          {(() => {
+                            const stats = playerData.find(p => p.username === selectedPlayer);
+                            if (activePlayers.includes(selectedPlayer)) return 'Currently Online';
+                            if (stats?.logoffPosition) {
+                              return `X: ${stats.logoffPosition.x}, Y: ${stats.logoffPosition.y}, Z: ${stats.logoffPosition.z}`;
+                            }
+                            return 'Unknown';
+                          })()}
+                        </p>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           ) : (
