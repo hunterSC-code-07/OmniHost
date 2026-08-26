@@ -36,8 +36,14 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.webContents.on('console-message', (_event, _level, message) => {
-    console.log('[Renderer Console]: ' + message);
+  mainWindow.webContents.on('console-message', (event: any) => {
+    const msg = typeof event === 'object' && event !== null && 'message' in event ? event.message : event;
+    if (typeof msg === 'string') {
+      if (msg.includes('net_error -100') || msg.includes('fonts.gstatic.com') || msg.includes('materialsymbolsoutlined')) {
+        return;
+      }
+    }
+    console.log('[Renderer Console]: ' + msg);
   });
 
   mainWindow.on('ready-to-show', () => {

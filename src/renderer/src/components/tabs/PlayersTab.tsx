@@ -10,8 +10,10 @@ interface PlayersTabProps {
   // empty for now
 }
 
-const EquippedSkinCard = ({ playerName }: { playerName: string }) => (
-  <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center">
+const EquippedSkinCard = ({ playerName }: { playerName: string }) => {
+  if (!playerName) return null;
+  return (
+    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center">
     <div className="w-full flex items-center justify-between mb-4">
       <h3 className="font-bold text-lg text-white flex items-center gap-2">
         <svg className="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,7 +38,8 @@ const EquippedSkinCard = ({ playerName }: { playerName: string }) => (
       </span>
     </div>
   </div>
-);
+  );
+};
 
 const itemImageCache = new Map<string, string>();
 
@@ -58,19 +61,21 @@ interface MinecraftSlotProps {
 }
 
 const MinecraftSlot: React.FC<MinecraftSlotProps> = React.memo(({ item }) => {
-  const [imgSrc, setImgSrc] = useState<string>(() => {
-    if (!item) return '';
+  const [imgSrc, setImgSrc] = useState<string | null>(() => {
+    if (!item?.id) return null;
     return getItemImageUrl(item.id);
   });
 
   useEffect(() => {
-    if (item) {
+    if (item?.id) {
       setImgSrc(getItemImageUrl(item.id));
+    } else {
+      setImgSrc(null);
     }
   }, [item?.id]);
 
   const handleImageError = () => {
-    if (!item) return;
+    if (!item?.id) return;
     const titleCasedId = item.id.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join('_');
     const wikiUrl = `https://minecraft.wiki/wiki/Special:FilePath/${titleCasedId}.png`;
     if (imgSrc !== wikiUrl) {
@@ -83,7 +88,7 @@ const MinecraftSlot: React.FC<MinecraftSlotProps> = React.memo(({ item }) => {
 
   return (
     <div className="w-10 h-10 bg-[#8b8b8b] border-t-2 border-l-2 border-[#373737] border-b-2 border-r-2 border-[#ffffff] relative flex items-center justify-center group shadow-inner cursor-help hover:bg-[#a0a0a0] transition-colors select-none">
-      {item ? (
+      {item && imgSrc ? (
         <>
           <img 
             src={imgSrc} 
