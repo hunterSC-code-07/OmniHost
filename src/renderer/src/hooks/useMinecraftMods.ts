@@ -9,7 +9,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const [installedMods, setInstalledMods] = useState<any[]>([]);
   const [installingModId, setInstallingModId] = useState<number | string | null>(null);
   const [installProgressText, setInstallProgressText] = useState<string>('');
-  const [modViewType, setModViewType] = useState<'browse' | 'installed' | 'dependencies' | 'modpacks' | 'shaders'>('browse');
+  const [modViewType, setModViewType] = useState<'browse' | 'installed' | 'dependencies' | 'modpacks' | 'shaders' | 'resourcepacks'>('browse');
   const [activeClassId, setActiveClassId] = useState<number>(6);
   const [activeSortField, setActiveSortField] = useState<number>(2);
   const [isClassMenuOpen, setIsClassMenuOpen] = useState(false);
@@ -33,6 +33,11 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const [shaderSearchQuery, setShaderSearchQuery] = useState('');
   const [shaderResults, setShaderResults] = useState<any[]>([]);
   const [isSearchingShaders, setIsSearchingShaders] = useState(false);
+
+  // Resource Packs state
+  const [resourcePackSearchQuery, setResourcePackSearchQuery] = useState('');
+  const [resourcePackResults, setResourcePackResults] = useState<any[]>([]);
+  const [isSearchingResourcePacks, setIsSearchingResourcePacks] = useState(false);
 
   const { showToast } = useToastStore();
   const { setCacheSize } = useUiStore();
@@ -141,6 +146,20 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     setIsSearchingShaders(false);
   };
 
+  const handleSearchResourcePacks = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!serverMeta) return;
+    setIsSearchingResourcePacks(true);
+    try {
+      // @ts-ignore
+      const results = await window.api.minecraft.searchCurseforgeMods(resourcePackSearchQuery, serverMeta.type, serverMeta.version, 0, 12, 2); // 12 is Resource Packs
+      setResourcePackResults(results || []);
+    } catch (error) {
+      console.error('[ERROR] handleSearchResourcePacks failed', error);
+    }
+    setIsSearchingResourcePacks(false);
+  };
+
   const handleInstallMod = async (mod: any) => {
     if (activeServerId === null || !serverMeta) return;
     if (installingModId !== null) return;
@@ -189,8 +208,13 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
       }
 
       setInstallProgressText(`Downloading ${targetMod.name}...`);
+      
+      let finalClassId = activeClassId;
+      if (modViewType === 'shaders') finalClassId = 6552;
+      else if (modViewType === 'resourcepacks') finalClassId = 12;
+
       // @ts-ignore
-      await window.api.minecraft.installCurseforgeMod(activeServerId, targetFile.downloadUrl, targetFile.fileName, modViewType === 'shaders' ? 6552 : activeClassId);
+      await window.api.minecraft.installCurseforgeMod(activeServerId, targetFile.downloadUrl, targetFile.fileName, finalClassId);
     };
 
     try {
@@ -345,5 +369,10 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     shaderSearchQuery, setShaderSearchQuery,
     shaderResults, setShaderResults,
     isSearchingShaders, handleSearchShaders,
+
+    // Resource Packs
+    resourcePackSearchQuery, setResourcePackSearchQuery,
+    resourcePackResults, setResourcePackResults,
+    isSearchingResourcePacks, handleSearchResourcePacks,
   };
 }
