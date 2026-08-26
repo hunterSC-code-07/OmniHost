@@ -26,11 +26,11 @@ export function registerMinecraftIpc() {
     MinecraftModManager.searchCurseforgeMods(search, type, version, page, classId, sortField)
   )
 
-  ipcMain.handle('get-curseforge-mod', async (_, modId: number) => 
+  ipcMain.handle('get-curseforge-mod', async (_, modId: number | string) => 
     MinecraftModManager.getCurseforgeMod(modId)
   )
 
-  ipcMain.handle('get-curseforge-file', async (_, modId: number, fileId: number) => 
+  ipcMain.handle('get-curseforge-file', async (_, modId: number | string, fileId: number | string) => 
     MinecraftModManager.getCurseforgeFile(modId, fileId)
   )
 
@@ -38,12 +38,16 @@ export function registerMinecraftIpc() {
     MinecraftModManager.installCurseforgeMod(event, id, downloadUrl, fileName, classId)
   )
 
-  ipcMain.handle('install-curseforge-modpack', async (event, id: number, modId: number, version: string) => 
+  ipcMain.handle('install-curseforge-modpack', async (event, id: number, modId: number | string, version: string) => 
     MinecraftModManager.installCurseforgeModpack(event, id, modId, version)
   )
 
   ipcMain.handle('get-installed-mods', async (_, id: number) => 
     MinecraftModManager.getInstalledMods(id)
+  )
+
+  ipcMain.handle('get-installed-mod-dependencies', async (_, id: number) => 
+    MinecraftModManager.getInstalledModDependencies(id)
   )
 
   ipcMain.handle('delete-mod', async (_, id: number, fileName: string) => 

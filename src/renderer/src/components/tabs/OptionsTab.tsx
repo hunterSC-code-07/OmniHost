@@ -3,7 +3,7 @@ import { Settings, Save } from 'lucide-react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
-import { useMinecraftConfig } from '../../hooks/useMinecraftConfig';
+import { useMinecraftConfig, DEFAULT_PROPS } from '../../hooks/useMinecraftConfig';
 
 interface OptionsTabProps {
   serverId: number;
@@ -70,7 +70,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
   };
 
   const ConfigToggle = ({ label, propKey, invert = false }: any) => {
-    const rawVal = props[propKey] === 'true';
+    const rawVal = (props[propKey] !== undefined ? props[propKey] : DEFAULT_PROPS[propKey]) === 'true';
     const isToggled = invert ? !rawVal : rawVal;
     
     return (
@@ -88,6 +88,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
 
   const ConfigSelect = ({ label, propKey, options }: any) => {
     const [isOpen, setIsOpen] = useState(false);
+    const currentVal = props[propKey] || DEFAULT_PROPS[propKey] || 'Select...';
     return (
       <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl relative" style={{ zIndex: isOpen ? 50 : 10 }}>
         <span className="font-label-md text-label-md text-on-surface">{label}</span>
@@ -96,7 +97,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
             onClick={() => setIsOpen(!isOpen)}
             className="flex items-center gap-2 bg-[#050505] border border-gray-800 rounded-lg px-4 py-1.5 text-white outline-none focus:border-brand shadow-inner font-bold w-40 justify-between capitalize"
           >
-            <span className="truncate">{props[propKey] || 'Select...'}</span>
+            <span className="truncate">{currentVal}</span>
             <svg className="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
           </button>
           
@@ -108,9 +109,9 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
                   <div 
                     key={opt} 
                     onClick={() => { setProps(prev => ({ ...prev, [propKey]: opt })); setIsOpen(false); }} 
-                    className={`px-4 py-2 cursor-pointer hover:bg-white/10 transition-colors capitalize ${props[propKey] === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                    className={`px-4 py-2 cursor-pointer hover:bg-white/10 transition-colors capitalize ${currentVal === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
                   >
-                    {opt} {props[propKey] === opt && <span className="float-right text-brand">✓</span>}
+                    {opt} {currentVal === opt && <span className="float-right text-brand">✓</span>}
                   </div>
                 ))}
               </div>
@@ -122,9 +123,10 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
   };
 
   const ConfigNumber = ({ label, propKey }: any) => {
-    const val = parseInt(props[propKey] || '0', 10);
+    const raw = props[propKey] !== undefined ? props[propKey] : (DEFAULT_PROPS[propKey] || '0');
+    const val = parseInt(raw || '0', 10);
     const inc = () => setProps(prev => ({ ...prev, [propKey]: (val + 1).toString() }));
-    const dec = () => setProps(prev => ({ ...prev, [propKey]: (val - 1).toString() }));
+    const dec = () => setProps(prev => ({ ...prev, [propKey]: (Math.max(0, val - 1)).toString() }));
     
     return (
       <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
@@ -133,7 +135,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
           <button type="button" onClick={dec} className="px-3 py-1.5 hover:bg-surface-container-highest hover:text-brand transition-colors text-on-surface-variant font-bold border-r border-surface-container-highest">-</button>
           <input 
             type="number" 
-            value={props[propKey] || 0} 
+            value={raw} 
             onChange={(e) => setProps(prev => ({ ...prev, [propKey]: e.target.value }))} 
             className="bg-transparent text-on-surface w-12 text-center outline-none font-label-md text-label-md [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
           />
@@ -283,7 +285,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({
               <ConfigSelect label="Difficulty" propKey="difficulty" options={['peaceful', 'easy', 'normal', 'hard']} />
               <ConfigToggle label="Commandblocks" propKey="enable-command-block" />
               <ConfigToggle label="Cracked" propKey="online-mode" invert={true} />
-              <ConfigToggle label="Monster" propKey="spawn-monsters" />
+              <ConfigToggle label="Monsters" propKey="spawn-monsters" />
               <ConfigToggle label="PVP" propKey="pvp" />
               <ConfigToggle label="Force Gamemode" propKey="force-gamemode" />
               <ConfigToggle label="Fly" propKey="allow-flight" />

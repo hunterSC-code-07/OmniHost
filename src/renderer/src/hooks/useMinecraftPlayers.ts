@@ -16,7 +16,12 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
       const fetchInv = async () => {
         // @ts-ignore
         const inv = await window.api.server.getInventory(activeServerId, selectedPlayer);
-        setPlayerInventory(inv);
+        if (inv !== null && Array.isArray(inv)) {
+          setPlayerInventory(prev => {
+            if (JSON.stringify(prev) === JSON.stringify(inv)) return prev;
+            return inv;
+          });
+        }
       };
       fetchInv();
       if (playerListType === 'live') {

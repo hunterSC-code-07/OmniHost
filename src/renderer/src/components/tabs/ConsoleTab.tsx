@@ -103,7 +103,14 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
               <div className="space-y-3">
                 {activePlayers.map((playerName, idx) => (
                   <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-brand/50 hover:bg-surface-container-lowest/80 transition-colors group">
-                    <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform" />
+                    <img
+                      src={`https://crafthead.net/avatar/${playerName}`}
+                      alt={playerName}
+                      className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = `https://minotar.net/helm/${playerName}/32.png`;
+                      }}
+                    />
                     <span className="font-label-lg text-label-lg text-on-surface group-hover:text-brand transition-colors">{playerName}</span>
                   </div>
                 ))}
