@@ -42,7 +42,38 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
   const [installingMod, setInstallingMod] = useState<string | null>(null);
   const [viewingMod, setViewingMod] = useState<any | null>(null);
 
+  
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
   useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const modTypes = [
+    { label: 'Animation', tag: 'Animation' },
+    { label: 'Character', tag: 'Character' },
+    { label: 'Economy', tag: 'Economy' },
+    { label: 'Environment', tag: 'Environment' },
+    { label: 'Equipment', tag: 'Equipment' },
+    { label: 'Mechanics', tag: 'Mechanics' },
+    { label: 'Sound', tag: 'Sound' },
+    { label: 'Props', tag: 'Props' },
+    { label: 'Vehicle', tag: 'Vehicle' },
+    { label: 'Weapon', tag: 'Weapon' },
+    { label: 'Map / Terrain', tag: 'Terrain' }
+  ];
+
+    const currentTagLabel = selectedTags.length > 0 
+    ? modTypes.find(m => m.tag === selectedTags[0])?.label || 'All Mod Types'
+    : 'All Mod Types';
+useEffect(() => {
     // Load installed mods and popular mods only once on mount or when server changes
     loadInstalledMods();
     setPage(1);
@@ -109,21 +140,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
     { id: 99, label: 'Import Local Mods' },
   ];
 
-  const modTypes = [
-    { label: 'Animation', tag: 'Animation' },
-    { label: 'Character', tag: 'Character' },
-    { label: 'Economy', tag: 'Economy' },
-    { label: 'Environment', tag: 'Environment' },
-    { label: 'Equipment', tag: 'Equipment' },
-    { label: 'Mechanics', tag: 'Mechanics' },
-    { label: 'Sound', tag: 'Sound' },
-    { label: 'Props', tag: 'Props' },
-    { label: 'Vehicle', tag: 'Vehicle' },
-    { label: 'Weapon', tag: 'Weapon' },
-    { label: 'Map / Terrain', tag: 'Terrain' }
-  ];
-
-  const handleInstall = async (mod: any) => {
+const handleInstall = async (mod: any) => {
     if (!steamCreds.username || !steamCreds.password) {
       setShowCreds(true);
       return;
@@ -273,21 +290,45 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({
             placeholder="Search Steam Workshop..."
             className="flex-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl px-4 py-2.5 text-white outline-none focus:border-red-500/50 shadow-inner"
           />
-          <select 
-            value={selectedTags.length > 0 ? selectedTags[0] : ''}
-            onChange={(e) => {
-              const val = e.target.value;
-              const newTags = val ? [val] : [];
-              setSelectedTags(newTags);
-              handleSearch(undefined, undefined, 1, newTags);
-            }}
-            className="bg-black/40 backdrop-blur-md border border-white/5 rounded-xl px-4 py-2.5 text-white outline-none focus:border-red-500/50 shadow-inner min-w-[200px] cursor-pointer"
-          >
-            <option value="" className="bg-[#1a1a1a] text-white">All Mod Types</option>
-            {modTypes.map(({ label, tag }) => (
-              <option key={tag} value={tag} className="bg-[#1a1a1a] text-white">{label}</option>
-            ))}
-          </select>
+          <div className="relative min-w-[200px]" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className="w-full flex items-center justify-between bg-black/40 backdrop-blur-md border border-white/5 hover:border-white/10 rounded-xl px-4 py-2.5 text-white outline-none focus:border-red-500/50 shadow-inner cursor-pointer transition-all"
+            >
+              <span className="font-medium text-sm">{currentTagLabel}</span>
+              <span className="material-symbols-outlined text-[20px] text-gray-400 transition-transform duration-200" style={{ transform: isDropdownOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>expand_more</span>
+            </button>
+            
+            {isDropdownOpen && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-[#121212]/95 backdrop-blur-xl border border-red-500/30 rounded-xl shadow-[0_0_30px_rgba(220,38,38,0.2)] overflow-hidden z-[100] flex flex-col">
+                <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="max-h-[300px] flex flex-col">
+                  <button
+                    onClick={() => {
+                      setSelectedTags([]);
+                      setIsDropdownOpen(false);
+                      handleSearch(undefined, undefined, 1, []);
+                    }}
+                    className={`w-full text-left px-4 py-3 text-sm transition-colors border-b border-white/5 ${selectedTags.length === 0 ? 'bg-red-500/20 text-red-400 font-bold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}
+                  >
+                    All Mod Types
+                  </button>
+                  {modTypes.map(({ label, tag }) => (
+                    <button
+                      key={tag}
+                      onClick={() => {
+                        setSelectedTags([tag]);
+                        setIsDropdownOpen(false);
+                        handleSearch(undefined, undefined, 1, [tag]);
+                      }}
+                      className={`w-full text-left px-4 py-3 text-sm transition-colors border-b border-white/5 last:border-b-0 ${selectedTags.includes(tag) ? 'bg-red-500/20 text-red-400 font-bold' : 'text-gray-300 hover:bg-white/5 hover:text-white'}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </OverlayScrollbarsComponent>
+              </div>
+            )}
+          </div>
           <button
             onClick={() => handleSearch(undefined, undefined, 1, undefined)}
             disabled={loading}

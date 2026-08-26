@@ -7,7 +7,7 @@ interface DayzInstalledModsTabProps {
   pendingDownloads?: Record<string, PendingDownload>;
 }
 
-export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ activeServerId, pendingDownloads }) => {
+export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ activeServerId, pendingDownloads, removePendingDownload }) => {
   const [mods, setMods] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingMission, setDownloadingMission] = useState<string | null>(null);
@@ -80,22 +80,14 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
             }
           }
 
-          if (missingDepIds.length > 0) {
-            const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);
-            if (depDetails && depDetails.length > 0) {
-              const depNames = depDetails.map((d: any) => d.title).join(', ');
-              const confirmInstall = confirm(`This mod requires the following missing dependencies:\n\n${depNames}\n\nDo you want to install them automatically?`);
-              if (confirmInstall) {
-                setPendingDeps(depDetails);
-                if (!steamCreds.username || !steamCreds.password) {
-                  setShowCreds(true);
-                } else {
-                  handleInstallDependencies(depDetails);
-                }
+                      if (missingDepIds.length > 0) {
+              const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);
+              if (depDetails && depDetails.length > 0) {
+                setDepConfirmDetails(depDetails);
+                setShowDepConfirmModal(true);
                 return;
               }
-            }
-          } else if (enabledCount > 0) {
+            } else if (enabledCount > 0) {
           }
         }
       } catch (e: any) {
@@ -111,7 +103,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
     try {
       const depIds = await window.api.getModDependencies(mod.id);
       if (!depIds || depIds.length === 0) {
-        alert('No dependencies required for this mod.');
+        setInfoModal({ title: 'Check Complete', message: 'No dependencies required for this mod.' });
         setCheckingDeps(null);
         return;
       }
@@ -186,7 +178,17 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
     await loadInstalledMods();
   };
 
-  useEffect(() => {
+  
+  const [showRebuildConfirm, setShowRebuildConfirm] = useState(false);
+  const [showRebuildSuccess, setShowRebuildSuccess] = useState(false);
+
+  const [showUninstallAllConfirm, setShowUninstallAllConfirm] = useState(false);
+
+  const [showDepConfirmModal, setShowDepConfirmModal] = useState(false);
+  const [depConfirmDetails, setDepConfirmDetails] = useState<any[]>([]);
+
+  const [infoModal, setInfoModal] = useState<{title: string, message: string} | null>(null);
+useEffect(() => {
     loadInstalledMods();
   }, [activeServerId]);
 
@@ -250,34 +252,40 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
     }
   };
 
-  const handleUninstallAll = async () => {
+  const handleUninstallAll = () => {
     if (mods.length === 0) return;
-    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\n\nAre you sure you want to proceed? This cannot be undone.`)) {
-      setLoading(true);
-      try {
-        for (const mod of mods) {
-          await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);
-        }
-        await loadInstalledMods();
-      } catch (e: any) {
-        alert(`Failed to uninstall some mods: ${e.message}`);
-        await loadInstalledMods();
-      }
-      setLoading(false);
-    }
+    setShowUninstallAllConfirm(true);
   };
 
-  const handleRebuildLoadOrder = async () => {
-    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {
-      setIsRebuilding(true);
-      try {
-        await window.api.rebuildModDependencies(activeServerId);
-        alert('Successfully rebuilt load order dependency graph!');
-      } catch (e: any) {
-        alert('Failed to rebuild load order: ' + e.message);
+  const executeUninstallAll = async () => {
+    setShowUninstallAllConfirm(false);
+    setLoading(true);
+    try {
+      for (const mod of mods) {
+        await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);
       }
-      setIsRebuilding(false);
+      await loadInstalledMods();
+    } catch (e: any) {
+      alert(`Failed to uninstall some mods: ${e.message}`);
+      await loadInstalledMods();
     }
+    setLoading(false);
+  };
+
+  const handleRebuildLoadOrder = () => {
+    setShowRebuildConfirm(true);
+  };
+
+  const executeRebuildLoadOrder = async () => {
+    setShowRebuildConfirm(false);
+    setIsRebuilding(true);
+    try {
+      await window.api.rebuildModDependencies(activeServerId);
+      setShowRebuildSuccess(true);
+    } catch (e: any) {
+      alert('Failed to rebuild load order: ' + e.message);
+    }
+    setIsRebuilding(false);
   };
 
   return (
@@ -423,7 +431,7 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                         <button 
                           onClick={(e) => { 
                             e.stopPropagation(); 
-                            if (pendingDownloads) pendingDownloads(mod.id || mod.publishedfileid); 
+                            if (removePendingDownload) removePendingDownload(mod.id || mod.publishedfileid); 
                           }}
                           className="text-red-400 hover:text-red-300 ml-2 flex-shrink-0"
                           title="Clear stuck download"
@@ -618,6 +626,148 @@ export const DayzInstalledModsTab: React.FC<DayzInstalledModsTabProps> = ({ acti
                 ))}
               </div>
             </OverlayScrollbarsComponent>
+          </div>
+        </div>
+      )}
+
+      {/* Rebuild Confirm Modal */}
+      {showRebuildConfirm && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
+            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
+              <span className="material-symbols-outlined text-red-500 text-2xl">warning</span>
+              <h2 className="text-lg font-bold text-white">Rebuild Load Order</h2>
+            </div>
+            <div className="p-6 text-gray-300 text-sm leading-relaxed">
+              This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?
+            </div>
+            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
+              <button
+                onClick={() => setShowRebuildConfirm(false)}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeRebuildLoadOrder}
+                className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
+              >
+                Proceed
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Rebuild Success Modal */}
+      {showRebuildSuccess && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212]/80 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
+            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-green-900/10">
+              <span className="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
+              <h2 className="text-lg font-bold text-white">Success</h2>
+            </div>
+            <div className="p-6 text-gray-300 text-sm leading-relaxed">
+              Successfully rebuilt load order dependency graph!
+            </div>
+            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
+              <button
+                onClick={() => setShowRebuildSuccess(false)}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Uninstall All Confirm Modal */}
+      {showUninstallAllConfirm && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212]/80 border border-red-500/50 shadow-[0_0_40px_rgba(220,38,38,0.2)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
+            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/20">
+              <span className="material-symbols-outlined text-red-500 text-2xl">delete_forever</span>
+              <h2 className="text-lg font-bold text-white">Delete All Mods</h2>
+            </div>
+            <div className="p-6 text-gray-300 text-sm leading-relaxed">
+              <span className="text-red-400 font-bold block mb-2">WARNING: You are about to uninstall ALL {mods.length} mods from this server.</span>
+              Are you sure you want to proceed? This cannot be undone.
+            </div>
+            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
+              <button
+                onClick={() => setShowUninstallAllConfirm(false)}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={executeUninstallAll}
+                className="bg-red-900/30 text-red-400 border border-red-500/50 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.15)] px-6 py-2.5 rounded-lg font-bold transition-all"
+              >
+                Delete All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Missing Dependencies Confirm Modal */}
+      {showDepConfirmModal && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-lg flex flex-col overflow-hidden backdrop-blur-xl">
+            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
+              <span className="material-symbols-outlined text-red-500 text-2xl">extension</span>
+              <h2 className="text-lg font-bold text-white">Missing Dependencies</h2>
+            </div>
+            <div className="p-6 text-gray-300 text-sm leading-relaxed max-h-64 overflow-y-auto custom-scrollbar">
+              <div className="mb-4">This mod requires the following missing dependencies:</div>
+              <div className="flex flex-wrap gap-2 mb-6">
+                {depConfirmDetails.map(dep => (
+                  <span key={dep.id} className="px-2 py-1 bg-white/5 border border-white/10 rounded text-xs font-medium text-gray-200">
+                    {dep.title}
+                  </span>
+                ))}
+              </div>
+              <div className="font-bold text-white">Do you want to install them automatically?</div>
+            </div>
+            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
+              <button
+                onClick={handleCancelDepInstall}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleProceedDepInstall}
+                className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
+              >
+                Install
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Generic Info Modal */}
+      {infoModal && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
+          <div className="bg-[#121212]/80 border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.15)] rounded-xl w-full max-w-sm flex flex-col overflow-hidden backdrop-blur-xl">
+            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-blue-900/10">
+              <span className="material-symbols-outlined text-blue-400 text-2xl">info</span>
+              <h2 className="text-lg font-bold text-white">{infoModal.title}</h2>
+            </div>
+            <div className="p-6 text-gray-300 text-sm leading-relaxed">
+              {infoModal.message}
+            </div>
+            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
+              <button
+                onClick={() => setInfoModal(null)}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
+              >
+                OK
+              </button>
+            </div>
           </div>
         </div>
       )}
