@@ -35,12 +35,12 @@ export class MinecraftModManager {
             : version
           url += `&gameVersion=${encodeURIComponent(cfVersion)}`
         }
-        
         if (type) {
-          if (type === 'Forge') url += '&modLoaderType=1'
-          else if (type === 'Fabric') url += '&modLoaderType=4'
-          else if (type === 'NeoForge') url += '&modLoaderType=6'
-          else if (type === 'Quilt') url += '&modLoaderType=5'
+          const lowerType = type.toLowerCase()
+          if (lowerType === 'forge') url += '&modLoaderType=1'
+          else if (lowerType === 'fabric') url += '&modLoaderType=4'
+          else if (lowerType === 'neoforge') url += '&modLoaderType=6'
+          else if (lowerType === 'quilt') url += '&modLoaderType=5'
         }
 
         const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY } })
@@ -294,9 +294,15 @@ export class MinecraftModManager {
             headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY }
           })
           const files = filesRes.data?.data || []
-          const selectedFile = (version && version !== 'latest')
-            ? files.find((f: any) => f.id === Number(version) || f.displayName === version) || files[0]
-            : files[0]
+          let selectedFile = files[0];
+          
+          if (version && version !== 'latest') {
+             selectedFile = files.find((f: any) => f.id === Number(version) || f.displayName === version)
+             if (!selectedFile) {
+                selectedFile = files.find((f: any) => f.gameVersions?.includes(version)) || files[0];
+             }
+          }
+          
           if (selectedFile) {
             downloadUrl = selectedFile.downloadUrl
             fileName = selectedFile.fileName
@@ -313,9 +319,16 @@ export class MinecraftModManager {
             headers: { 'User-Agent': MODRINTH_USER_AGENT }
           })
           const versions = versionsRes.data || []
-          const selectedVer = (version && version !== 'latest')
-            ? versions.find((v: any) => v.id === version || v.version_number === version) || versions[0]
-            : versions[0]
+          let selectedVer = versions[0];
+          
+          if (version && version !== 'latest') {
+             // Try exact match first
+             selectedVer = versions.find((v: any) => v.id === version || v.version_number === version)
+             // Fallback to finding by game version
+             if (!selectedVer) {
+                selectedVer = versions.find((v: any) => v.game_versions?.includes(version)) || versions[0];
+             }
+          }
 
           if (selectedVer && selectedVer.files) {
             const primary = selectedVer.files.find((f: any) => f.primary) || selectedVer.files[0]

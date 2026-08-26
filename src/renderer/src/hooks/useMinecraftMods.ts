@@ -172,9 +172,10 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
       
       if (!targetFile && targetMod.latestFilesIndexes) {
         let expectedModLoader = 0;
-        if (serverMeta.type === 'Forge') expectedModLoader = 1;
-        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;
-        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;
+        const lowerType = serverMeta.type.toLowerCase();
+        if (lowerType === 'forge') expectedModLoader = 1;
+        else if (lowerType === 'fabric') expectedModLoader = 4;
+        else if (lowerType === 'neoforge') expectedModLoader = 6;
         
         const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));
         if (fileIndex) {
@@ -317,7 +318,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
 
     try {
       // @ts-ignore
-      await window.api.minecraft.installCurseforgeModpack(activeServerId, modpack.id, 'latest');
+      await window.api.minecraft.installCurseforgeModpack(activeServerId, modpack.id, serverMeta.version);
       showToast(`Modpack ${modpack.name} installed successfully!`);
       await fetchMods();
       await fetchModDependencies();

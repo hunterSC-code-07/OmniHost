@@ -12,16 +12,29 @@ interface ConsoleTabProps {
   isActive: boolean;
 }
 
+const LogLine = React.memo(({ log }: { log: string }) => (
+  <div className="mb-1 leading-relaxed break-words">
+    {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
+    {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
+    {log.includes('ERROR') ? <span className="text-red-400 font-bold">ERROR </span> : ''}
+    {log.startsWith('>') ? <span className="text-brand font-bold"> </span> : ''}
+    <span className={log.includes('joined the game') ? 'text-green-400 font-bold' : log.includes('left the game') ? 'text-gray-500' : log.startsWith('>') ? 'text-brand font-bold' : ''}>
+      {log.replace(/(INFO|WARN|ERROR)/, '')}
+    </span>
+  </div>
+));
+
 export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick, isActive }) => {
   const [consoleInput, setConsoleInput] = useState('');
   const endOfLogsRef = useRef<HTMLDivElement>(null);
   
-  const { activeServerId } = useServerStore();
-  const { logs, clearLogs } = useLogStore();
-  const { onlinePlayers } = usePlayerStore();
-  const { showToast } = useToastStore();
+  const activeServerId = useServerStore(s => s.activeServerId);
+  const logs = useLogStore(s => s.logs);
+  const clearLogs = useLogStore(s => s.clearLogs);
+  const onlinePlayers = usePlayerStore(s => s.onlinePlayers);
+  const showToast = useToastStore(s => s.showToast);
 
-  const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
+  const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global') : [];
   const activePlayers = activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : [];
 
   useEffect(() => {
@@ -59,16 +72,8 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
         >
           <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
             {activeLogs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
-            {activeLogs.map((log, i) => (
-              <div key={i} className="mb-1 leading-relaxed break-words">
-                {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
-                {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
-                {log.includes('ERROR') ? <span className="text-red-400 font-bold">ERROR </span> : ''}
-                {log.startsWith('>') ? <span className="text-brand font-bold"> </span> : ''}
-                <span className={log.includes('joined the game') ? 'text-green-400 font-bold' : log.includes('left the game') ? 'text-gray-500' : log.startsWith('>') ? 'text-brand font-bold' : ''}>
-                  {log.replace(/(INFO|WARN|ERROR)/, '')}
-                </span>
-              </div>
+            {activeLogs.map((logObj) => (
+              <LogLine key={logObj.uid} log={logObj.msg} />
             ))}
             <div ref={endOfLogsRef} />
           </div>
