@@ -99,6 +99,15 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     showToast(`Removed ${targetName}`);
   };
 
+  const handleDeleteAllPlayers = async () => {
+    if (activeServerId === null) return;
+    if (!confirm(`Are you sure you want to delete ALL entries in ${playerListType}?`)) return;
+    setPlayerData([]);
+    // @ts-ignore
+    await window.api.server.writeJson(activeServerId, playerListType, []);
+    showToast(`Cleared ${playerListType}`);
+  };
+
   const sendPlayerCommand = async (cmd: string, successMsg: string) => {
     if (activeServerId !== null && selectedPlayer) {
       // @ts-ignore
@@ -114,6 +123,6 @@ export function useMinecraftPlayers(activeServerId: number | null, activeTab: st
     isProcessing, setIsProcessing,
     selectedPlayer, setSelectedPlayer,
     playerInventory, setPlayerInventory,
-    handleAddPlayer, handleRemovePlayer, sendPlayerCommand
+    handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers
   };
 }

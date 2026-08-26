@@ -61,6 +61,24 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
     }
   };
 
+  const handleDeleteAllBackups = async () => {
+    if (activeServerId === null) return;
+    if (!confirm('Are you sure you want to delete ALL backups? This cannot be undone!')) return;
+
+    setIsProcessing(true);
+    setProgressText('Deleting all backups...');
+    try {
+      // @ts-ignore
+      await window.api.backup.deleteAllBackups(activeServerId);
+      await fetchBackups();
+    } catch (e: any) {
+      alert('Failed to delete all backups: ' + e.message);
+    } finally {
+      setIsProcessing(false);
+      setProgressText('');
+    }
+  };
+
   const handleDelete = async (filename: string) => {
     if (activeServerId === null) return;
     if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
@@ -112,7 +130,18 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
       <div className="flex-1 bg-surface/40 backdrop-blur-md rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col shadow-md mx-8 mb-8">
         <div className="p-4 border-b border-outline-variant/30 bg-surface/60 flex justify-between items-center shrink-0">
           <h3 className="font-headline-sm text-headline-sm text-on-surface">Available Backups</h3>
-          <span className="text-sm text-on-surface-variant font-mono">{backups.length} backups</span>
+          <div className="flex items-center gap-4">
+            {backups.length > 0 && (
+              <button 
+                onClick={handleDeleteAllBackups} 
+                disabled={isProcessing}
+                className="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-bold rounded text-sm transition-colors border border-red-900/50 disabled:opacity-50"
+              >
+                Delete All
+              </button>
+            )}
+            <span className="text-sm text-on-surface-variant font-mono">{backups.length} backups</span>
+          </div>
         </div>
         
         <OverlayScrollbarsComponent 

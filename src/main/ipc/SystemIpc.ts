@@ -592,6 +592,21 @@ export function registerSystemIpc(
     return false
   })
 
+  ipcMain.handle('delete-all-backups', async (_, id) => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const backupsDir = join(serverDir, 'backups')
+    if (fs.existsSync(backupsDir)) {
+      const files = await fsPromises.readdir(backupsDir)
+      for (const f of files) {
+        if (f.endsWith('.zip')) {
+          await fsPromises.unlink(join(backupsDir, f))
+        }
+      }
+      return true
+    }
+    return false
+  })
+
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database

@@ -124,7 +124,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
     isProcessing,
     selectedPlayer, setSelectedPlayer,
     playerInventory,
-    handleAddPlayer, handleRemovePlayer, sendPlayerCommand
+    handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers
   } = useMinecraftPlayers(activeServerId, 'players');
   const [now, setNow] = useState(Date.now());
   useEffect(() => {
@@ -158,8 +158,30 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
 
           {(playerListType !== 'live' && playerListType !== 'history') && (
             <form onSubmit={handleAddPlayer} className="mb-6 flex gap-3 shrink-0 mx-8">
-              <input type="text" placeholder="Enter Username/IP..." value={newPlayerName} onChange={(e) => setNewPlayerName(e.target.value)} className="flex-1 bg-darkCard border border-gray-800 rounded-lg px-4 py-3 text-white outline-none focus:border-brand" disabled={isProcessing} />
-              <button type="submit" disabled={isProcessing} className="px-8 bg-brand hover:bg-yellow-600 rounded-lg font-bold transition-all disabled:opacity-50">{isProcessing ? 'Adding...' : 'Add'}</button>
+              <input
+                type="text"
+                placeholder={playerListType === 'banned-ips' ? "Enter IP Address" : "Enter Minecraft Username"}
+                value={newPlayerName}
+                onChange={e => setNewPlayerName(e.target.value)}
+                className="flex-1 bg-surface-container-highest border border-outline-variant/30 rounded-lg px-4 py-2 text-on-surface focus:outline-none focus:border-brand/50 transition-colors placeholder:text-on-surface-variant/50"
+              />
+              <button 
+                type="submit"
+                disabled={isProcessing}
+                className="px-6 py-2 bg-brand text-black hover:brightness-110 font-bold rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-[18px]">add</span> Add
+              </button>
+              {playerData.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleDeleteAllPlayers}
+                  disabled={isProcessing}
+                  className="px-4 py-2 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-bold rounded-lg text-sm transition-colors border border-red-900/50 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ml-2"
+                >
+                  Delete All
+                </button>
+              )}
             </form>
           )}
 

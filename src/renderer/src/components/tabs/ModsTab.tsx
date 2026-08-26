@@ -53,7 +53,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
     installedMods, installingModId, installProgressText,
     modViewType, setModViewType, activeClassId, setActiveClassId, activeSortField, setActiveSortField,
     isClassMenuOpen, setIsClassMenuOpen, isSortMenuOpen, setIsSortMenuOpen, totalModCount,
-    handleSearchMods, handleInstallMod, handleDeleteMod,
+    handleSearchMods, handleInstallMod, handleDeleteMod, handleDeleteAllMods,
 
     // Dependencies
     modDependencies, isLoadingDependencies, fetchModDependencies, handleInstallMissingDependency,
@@ -296,8 +296,21 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                   <p className="text-gray-500 text-sm mt-1 max-w-sm">Browse mods in the Browse tab or install a modpack to get started.</p>
                 </div>
               ) : (
-                <div className="bg-black/30 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-lg">
-                  <table className="w-full text-left text-sm text-gray-300">
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-end px-1 pt-2 shrink-0">
+                    <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                      <Package className="w-5 h-5 text-gray-400" />
+                      Installed Items <span className="text-sm font-normal text-gray-500">({installedMods.length})</span>
+                    </h4>
+                    <button 
+                      onClick={handleDeleteAllMods} 
+                      className="px-3 py-1.5 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-bold rounded-lg text-sm transition-colors border border-red-900/50 flex items-center gap-1.5"
+                    >
+                      <Trash2 className="w-4 h-4" /> Delete All
+                    </button>
+                  </div>
+                  <div className="bg-black/30 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-lg">
+                    <table className="w-full text-left text-sm text-gray-300">
                     <thead className="bg-black/40 border-b border-white/5 text-gray-400 uppercase font-bold text-xs">
                       <tr>
                         <th className="px-6 py-4">File Name</th>
@@ -319,6 +332,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               )}
               </OverlayScrollbarsComponent>

@@ -771,12 +771,37 @@ export class MinecraftModManager {
   static async deleteMod(id: number, fileName: string) {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      const modPath = join(serverDir, 'mods', fileName)
-      
-      await fsPromises.unlink(modPath)
-      return true
+      const dirs = ['mods', 'shaderpacks', 'resourcepacks', 'datapacks']
+      for (const d of dirs) {
+        const modPath = join(serverDir, d, fileName)
+        if (fs.existsSync(modPath)) {
+          await fsPromises.unlink(modPath)
+          return true
+        }
+      }
+      throw new Error('File not found in any mod directory')
     } catch (e: any) {
       console.error('Error deleting mod:', e.message)
+      throw new Error(e.message)
+    }
+  }
+
+  static async deleteAllMods(id: number) {
+    try {
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const dirs = ['mods', 'shaderpacks', 'resourcepacks', 'datapacks']
+      for (const d of dirs) {
+        const dirPath = join(serverDir, d)
+        if (fs.existsSync(dirPath)) {
+          const files = await fsPromises.readdir(dirPath)
+          for (const f of files) {
+            await fsPromises.unlink(join(dirPath, f))
+          }
+        }
+      }
+      return true
+    } catch (e: any) {
+      console.error('Error deleting all mods:', e.message)
       throw new Error(e.message)
     }
   }
