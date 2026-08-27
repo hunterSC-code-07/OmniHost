@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { join } from 'path'
+import { join, dirname } from 'path'
 import semver from 'semver'
 import { JavaManager } from '../adapters/JavaManager'
 
@@ -131,10 +131,9 @@ export class MinecraftCommandBuilder {
     let env = { ...process.env };
 
     if (javaPath !== 'java') {
-      const pathModule = require('path');
-      const javaBinDir = pathModule.dirname(javaPath);
+      const javaBinDir = dirname(javaPath);
       env.PATH = `${javaBinDir};${process.env.PATH}`;
-      env.JAVA_HOME = pathModule.dirname(javaBinDir);
+      env.JAVA_HOME = dirname(javaBinDir);
     }
 
     const batPath = fs.existsSync(runBatPath) ? runBatPath : fs.existsSync(startBatPath) ? startBatPath : null;
