@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: #050505;
+  --color-surface: #111111;
+  --color-cyan: #00F0FF;
+  --color-orange: #FF5500;
+  --color-text-main: #FFFFFF;
+  --color-text-muted: #888888;
+  --font-sans: Inter, sans-serif;
+  --font-display: Anton, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  cursor: default; /* We will implement a custom cursor effect later if needed, or leave it for the user */
+}
+
+/* Utility for outlined text */
+@utility text-outline {
+  -webkit-text-stroke: 1px var(--color-text-muted);
+  color: transparent;
+}
+@utility text-outline-cyan {
+  -webkit-text-stroke: 2px var(--color-cyan);
+  color: transparent;
+}
+@utility text-outline-white {
+  -webkit-text-stroke: 2px white;
+  color: transparent;
+}
