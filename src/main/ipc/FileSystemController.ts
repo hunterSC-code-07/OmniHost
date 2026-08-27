@@ -1,7 +1,6 @@
 import { app, ipcMain } from 'electron';
 import { join } from 'path';
 import fsPromises from 'fs/promises';
-import fs from 'fs';
 
 async function exists(path: string) {
   try {
