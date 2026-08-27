@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { DashboardHub } from '../hubs/DashboardHub/DashboardHub';
 import { DayzHub } from '../hubs/DayzHub/DayzHub';
 import { MinecraftHub } from '../hubs/MinecraftHub/MinecraftHub';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useServerStore } from '../../store/useServerStore';
 import minecraftBg from '../../assets/minecraft-bg.png';
 import palworldBg from '../../assets/palworld-bg.jpg';
@@ -56,11 +57,13 @@ export const HubRouter: React.FC = () => {
             transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             className="absolute inset-0 w-full h-full flex flex-col overflow-hidden z-10 bg-[#050505]"
           >
-            {activeServer.game === 'DayZ' ? (
-              <DayzHub />
-            ) : (
-              <MinecraftHub />
-            )}
+            <ErrorBoundary>
+              {activeServer.game === 'DayZ' ? (
+                <DayzHub />
+              ) : (
+                <MinecraftHub />
+              )}
+            </ErrorBoundary>
           </motion.div>
         )}
       </AnimatePresence>

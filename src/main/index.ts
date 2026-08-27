@@ -2,6 +2,10 @@ import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import { initializeLogger } from './utils/logger'
+
+// Initialize centralized logger
+const log = initializeLogger();
 
 // Import our custom modules
 import { WakeProxy } from './adapters/WakeProxy'
@@ -16,6 +20,7 @@ import { registerSystemIpc } from './ipc/SystemIpc'
 import { registerMinecraftIpc } from './ipc/MinecraftIpc'
 import { registerCacheIpc } from './ipc/CacheIpc'
 import { getServers } from './db'
+import { registerLogIpc } from './ipc/LogIpc'
 
 dotenv.config()
 
@@ -67,7 +72,7 @@ app.whenReady().then(() => {
   })
 
   // --- 1. INITIALIZE SYSTEMS ---
-  const activeServers: Record<number, any> = {}
+  let activeServers: Record<number, any> = {}
   const activeProxies: Record<number, WakeProxy> = {}
   const tunnelProvider = new FrpAdapter()
   const radminVpnProvider = new RadminVpnAdapter()
@@ -90,6 +95,8 @@ app.whenReady().then(() => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  // Register IPCs
+  registerLogIpc()
   registerServerIpc(activeServers, activeProxies)
   registerSteamCMDIpc()
   registerCacheIpc()

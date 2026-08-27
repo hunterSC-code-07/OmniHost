@@ -2,6 +2,8 @@ import React from 'react';
 import { useServerStore } from '../../store/useServerStore';
 import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
+import { SettingsModal } from '../modals/SettingsModal';
+import { useState } from 'react';
 
 const getGameThemeColor = (game: string | null) => {
   if (!game) return { omni: '#ffffff', host: '#cccccc' };
@@ -34,6 +36,7 @@ export const TopNavbar: React.FC = () => {
     setCacheSize 
   } = useUiStore();
   const { showToast } = useToastStore();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleClearCache = async () => {
     setIsClearingCache(true);
@@ -76,6 +79,13 @@ export const TopNavbar: React.FC = () => {
           </nav>
         </div>
         <div className="flex items-center gap-6">
+          <button onClick={() => setIsSettingsOpen(true)} className="relative overflow-hidden group px-2.5 py-2 rounded-lg border bg-surface/40 border-outline-variant/30 text-on-surface-variant hover:text-primary hover:border-primary/50 transition-all flex items-center justify-center">
+            <span className="material-symbols-outlined text-[20px]">settings</span>
+            <span className="max-w-0 overflow-hidden group-hover:max-w-[100px] transition-all duration-300 ease-out whitespace-nowrap ml-0 group-hover:ml-2 text-sm font-semibold opacity-0 group-hover:opacity-100">
+              Settings
+            </span>
+          </button>
+          
           {activeServerId === null && activeGameHub === null && (
             <button onClick={handleClearCache} disabled={isClearingCache} className="relative overflow-hidden group px-2.5 py-2 rounded-lg border bg-surface/40 border-outline-variant/30 text-on-surface-variant hover:text-red-400 hover:border-red-500/50 transition-all flex items-center justify-center">
               <span className={`material-symbols-outlined text-[20px] ${isClearingCache ? 'animate-spin' : ''}`}>
@@ -88,6 +98,8 @@ export const TopNavbar: React.FC = () => {
           )}
         </div>
       </div>
+      
+      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
     </header>
   );
 };
