@@ -127,6 +127,14 @@ const api = {
       ipcRenderer.removeAllListeners('steam-guard-prompt')
       ipcRenderer.on('steam-guard-prompt', (_, message) => callback(message))
     }
+  },
+
+  log: {
+    info: (...args: any[]) => ipcRenderer.invoke('log-message', 'info', ...args),
+    warn: (...args: any[]) => ipcRenderer.invoke('log-message', 'warn', ...args),
+    error: (...args: any[]) => ipcRenderer.invoke('log-message', 'error', ...args),
+    getLogs: () => ipcRenderer.invoke('get-logs'),
+    getLogPath: () => ipcRenderer.invoke('get-log-path')
   }
 }
 
