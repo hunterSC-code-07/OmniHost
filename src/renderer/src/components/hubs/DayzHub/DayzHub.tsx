@@ -7,6 +7,7 @@ import { DayzEconomyTab } from './tabs/DayzEconomyTab';
 import { DayzModsTab } from './tabs/DayzModsTab';
 import { DayzInstalledModsTab } from './tabs/DayzInstalledModsTab';
 import { DayzFilesTab } from './tabs/DayzFilesTab';
+import { DayzVppAdminTab } from './tabs/DayzVppAdminTab';
 import { motion, AnimatePresence } from 'motion/react';
 import { DayzAnimatedBackground } from './DayzAnimatedBackground';
 
@@ -84,6 +85,7 @@ const DayzHubContent: React.FC = () => {
                 { id: 'mods', label: 'Workshop', icon: 'extension' },
                 { id: 'installed', label: 'Installed Mods', icon: 'inventory_2' },
                 { id: 'files', label: 'Files', icon: 'folder' },
+                { id: 'vppadmin', label: 'VPP Admin', icon: 'admin_panel_settings' },
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -154,6 +156,9 @@ const DayzHubContent: React.FC = () => {
               )}
               {activeTab === 'files' && (
                 <DayzFilesTab />
+              )}
+              {activeTab === 'vppadmin' && (
+                <DayzVppAdminTab />
               )}
             </motion.div>
           </AnimatePresence>
