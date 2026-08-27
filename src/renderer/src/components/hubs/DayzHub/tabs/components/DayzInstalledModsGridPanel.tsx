@@ -1,23 +1,39 @@
 import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { useDayzInstalledMods } from '../../../../../hooks/useDayzInstalledMods';
-import { useDayzModStore } from '../../../../../store/useDayzModStore';
-import { useDayzMissions } from '../../../../../hooks/useDayzMissions';
-import { useDayzModDependencies } from '../../../../../hooks/useDayzModDependencies';
-import { useDayzModStatus } from '../../../../../hooks/useDayzModStatus';
-import { useDayzModUninstall } from '../../../../../hooks/useDayzModUninstall';
 import { DayzPendingDownloadCard } from './DayzPendingDownloadCard';
 import { DayzInstalledModCard } from './DayzInstalledModCard';
 
-export const DayzInstalledModsGridPanel: React.FC = () => {
-  const { mods, loading, activeServerId, loadInstalledMods, setLoading } = useDayzInstalledMods();
-  const { pendingDownloads, removePendingDownload } = useDayzModStore();
+interface DayzInstalledModsGridPanelProps {
+  mods: any[];
+  loading: boolean;
+  activeServerId: number | null;
+  pendingDownloads: Record<number, Record<string, any>>;
+  removePendingDownload: (serverId: number, modId: string) => void;
+  downloadingMission: string | null;
+  handleDownloadMission: (modId: string) => Promise<void> | void;
+  handleExtractLocalMission: (modId: string, localMissionsPath: string) => Promise<void> | void;
+  checkingDeps: string | null;
+  handleCheckDependencies: (mod: any) => Promise<void> | void;
+  handleToggleMap: (folderName: string, isMap: boolean) => Promise<void> | void;
+  handleToggleModStatus: (mod: any) => Promise<void> | void;
+  handleUninstall: (modId: string, modName: string) => void;
+}
 
-  const { downloadingMission, handleDownloadMission, handleExtractLocalMission } = useDayzMissions(activeServerId);
-  const { checkingDeps, handleCheckDependencies, executeMissingDepsInstall } = useDayzModDependencies(activeServerId, loadInstalledMods, mods);
-  const { handleToggleMap, handleToggleModStatus } = useDayzModStatus(activeServerId, mods, loadInstalledMods, executeMissingDepsInstall);
-  const { handleUninstall } = useDayzModUninstall(activeServerId, mods, loadInstalledMods, setLoading);
-
+export const DayzInstalledModsGridPanel: React.FC<DayzInstalledModsGridPanelProps> = ({
+  mods,
+  loading,
+  activeServerId,
+  pendingDownloads,
+  removePendingDownload,
+  downloadingMission,
+  handleDownloadMission,
+  handleExtractLocalMission,
+  checkingDeps,
+  handleCheckDependencies,
+  handleToggleMap,
+  handleToggleModStatus,
+  handleUninstall
+}) => {
   const openWorkshopPage = (id: string) => {
     if (/^\d+$/.test(id)) {
       window.open(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`, '_blank');

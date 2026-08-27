@@ -4,7 +4,7 @@ export const useDayzModUninstall = (
   activeServerId: number | null,
   mods: any[],
   loadInstalledMods: () => Promise<void>,
-  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  setLoading: (loading: boolean) => void
 ) => {
   const { openDayzUninstallSingleModal, openDayzUninstallAllModal, openDayzInfoModal } = useModalStore.getState();
 
