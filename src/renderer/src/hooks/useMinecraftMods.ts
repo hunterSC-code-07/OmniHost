@@ -17,12 +17,12 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const [totalModCount, setTotalModCount] = useState<number>(0);
 
   // Dependencies
-  const [modDependencies, setModDependencies] = useState<any[]>([]);
-  const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
-  const [isInstallingAllDeps, setIsInstallingAllDeps] = useState(false);
-  const [installAllProgress, setInstallAllProgress] = useState({ current: 0, total: 0, text: '' });
+  const [_modDependencies, _setModDependencies] = useState<any[]>([]);
+  const [_isLoadingDependencies, _setIsLoadingDependencies] = useState(false);
+  const [_isInstallingAllDeps, _setIsInstallingAllDeps] = useState(false);
+  const [_installAllProgress, _setInstallAllProgress] = useState({ current: 0, total: 0, text: '' });
   const fetchModDependencies = async () => {};
-  const handleInstallMissingDependency = async (id: string) => {};
+  const handleInstallMissingDependency = async (_id: string) => {};
   const handleInstallAllMissingDependencies = async () => {};
 
   // Modpacks
@@ -32,7 +32,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const [installingModpackId, setInstallingModpackId] = useState<number | null>(null);
   const [modpackProgressText, setModpackProgressText] = useState<string>('');
   const handleSearchModpacks = async (e?: React.FormEvent) => { if(e) e.preventDefault(); };
-  const handleInstallModpack = async (pack: any) => {};
+  const handleInstallModpack = async (_pack: any) => {};
 
   // Shaders
   const [shaderSearchQuery, setShaderSearchQuery] = useState('');
@@ -168,6 +168,13 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     fetchMods();
   };
 
+  const handleDeleteAllMods = async () => {
+    if (activeServerId === null) return;
+    // @ts-ignore
+    await window.api.minecraft.deleteAllMods(activeServerId);
+    fetchMods();
+  };
+
   return {
     modSearchQuery, setModSearchQuery,
     modResults, setModResults,
@@ -181,11 +188,11 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     isClassMenuOpen, setIsClassMenuOpen,
     isSortMenuOpen, setIsSortMenuOpen,
     totalModCount, setTotalModCount,
-    handleSearchMods, handleInstallMod, handleDeleteMod,
+    handleSearchMods, handleInstallMod, handleDeleteMod, handleDeleteAllMods,
 
-    modDependencies, isLoadingDependencies, fetchModDependencies,
-    handleInstallMissingDependency, isInstallingAllDeps,
-    installAllProgress, handleInstallAllMissingDependencies,
+    modDependencies: _modDependencies, isLoadingDependencies: _isLoadingDependencies, fetchModDependencies,
+    handleInstallMissingDependency, isInstallingAllDeps: _isInstallingAllDeps,
+    installAllProgress: _installAllProgress, handleInstallAllMissingDependencies,
 
     modpackSearchQuery, setModpackSearchQuery,
     modpackResults, setModpackResults,
