@@ -1,11 +1,12 @@
 import { spawn, ChildProcess } from 'child_process'
 import { join } from 'path'
-import { app, BrowserWindow } from 'electron'
+import { app } from 'electron'
 import fs from 'fs'
 import { MinecraftCommandBuilder } from './MinecraftCommandBuilder'
 import pidusage from 'pidusage'
 import { MinecraftConfigManager } from './MinecraftConfigManager'
 import { MinecraftPlayerManager } from './MinecraftPlayerManager'
+import { minecraftEventBus } from './MinecraftEventBus'
 
 export class MinecraftProcessManager {
   serverId: number;
@@ -40,9 +41,7 @@ export class MinecraftProcessManager {
         this.logFlushTimer = null;
         if (msgs.length > 0) {
           const batchedMsg = msgs.join('\n');
-          BrowserWindow.getAllWindows().forEach(win => {
-            if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg: batchedMsg });
-          });
+          minecraftEventBus.emit('console-log', this.serverId, batchedMsg);
         }
       }, 50);
     }
@@ -147,13 +146,7 @@ export class MinecraftProcessManager {
           const actualPid = await this.getActualPid();
           if (actualPid === 0) return;
           const stats = await pidusage(actualPid);
-          BrowserWindow.getAllWindows().forEach(win => {
-            if (!win.isDestroyed()) win.webContents.send('server-stats', {
-              id: this.serverId,
-              cpu: stats.cpu,
-              ram: stats.memory
-            });
-          });
+          minecraftEventBus.emit('server-stats', this.serverId, stats.cpu, stats.memory);
         } catch (e: any) {
           // PID might not exist anymore (e.g. temporary java check process finished)
           this.sendLog(`[System Error Debug] Stats error: ${e.message}`);
@@ -197,14 +190,8 @@ export class MinecraftProcessManager {
       this.process = null;
       this.javaPid = null;
       this.playerManager.handleServerStop();
-      
-      BrowserWindow.getAllWindows().forEach(win => {
-        if (!win.isDestroyed()) win.webContents.send('server-stats', {
-          id: this.serverId,
-          cpu: 0,
-          ram: 0
-        });
-      });
+      minecraftEventBus.emit('server-stopped', this.serverId);
+      minecraftEventBus.emit('server-stats', this.serverId, 0, 0);
     });
   }
 
