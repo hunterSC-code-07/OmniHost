@@ -17,14 +17,20 @@ import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 
 import { useModalStore } from '../../../store/useModalStore';
+import { useShallow } from 'zustand/react/shallow';
 
 export function MinecraftHub() {
   const activeServerId = useServerStore(s => s.activeServerId);
   const servers = useServerStore(s => s.servers);
-  const startServer = useServerStore(s => s.startServer);
-  const stopServer = useServerStore(s => s.stopServer);
-  const restartServer = useServerStore(s => s.restartServer);
-  const deleteServer = useServerStore(s => s.deleteServer);
+  const { startServer, stopServer, restartServer, deleteServer, setActiveServerId } = useServerStore(
+    useShallow(s => ({
+      startServer: s.startServer,
+      stopServer: s.stopServer,
+      restartServer: s.restartServer,
+      deleteServer: s.deleteServer,
+      setActiveServerId: s.setActiveServerId
+    }))
+  );
   
   const currentServer = servers.find(s => s.id === activeServerId);
   const prevServerRef = useRef(currentServer);

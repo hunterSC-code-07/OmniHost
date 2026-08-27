@@ -54,10 +54,27 @@ export class SteamDownloader {
         console.error(`[SteamCMD App ${appId} Error]:`, data.toString().trim());
       });
 
-      proc.on('close', (code) => {
+      proc.on('close', async (code) => {
         this.activeProcess = null;
-        if (code === 0 || code === 7) {
+        if (code === 0) {
+          try {
+            const buggyDir = require('path').join(cacheDir, 'steamapps', 'downloading', appId.toString());
+            if (fs.existsSync(buggyDir)) {
+              fs.cpSync(buggyDir, cacheDir, { recursive: true });
+              fs.rmSync(require('path').join(cacheDir, 'steamapps'), { recursive: true, force: true });
+            }
+          } catch (e) {
+            console.error('Error cleaning up SteamCMD buggy downloading dir:', e);
+          }
           resolve(true);
+        } else if (code === 7) {
+          SteamCMDSetup.sendLog(serverId, 0, 'SteamCMD updated itself, restarting download...');
+          try {
+            const success = await this.updateCache(serverId, appId, username, password, steamGuardCode);
+            resolve(success);
+          } catch (e) {
+            reject(e);
+          }
         } else if (code === 5 && steamGuardRequested) {
           reject(new Error('STEAM_GUARD_REQUIRED'));
         } else {

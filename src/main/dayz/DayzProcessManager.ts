@@ -11,6 +11,8 @@ export class DayzProcessManager {
   serverDir: string;
   process: ChildProcess | null = null;
   onlinePlayers: string[] = [];
+  logHistory: string[] = [];
+  omnihostMeta: any = {};
   
   private logParser: DayzLogParser | null = null;
 
@@ -21,6 +23,8 @@ export class DayzProcessManager {
 
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output!
+    this.logHistory.push(msg);
+    if (this.logHistory.length > 2000) this.logHistory.shift();
     BrowserWindow.getAllWindows().forEach(win => {
       if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
     });

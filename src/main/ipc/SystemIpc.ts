@@ -28,9 +28,21 @@ export function registerSystemIpc(
   // Database
   // Versions & Downloads
   ipcMain.handle('get-system-info', () => {
+    const interfaces = os.networkInterfaces();
+    let localIp = '127.0.0.1';
+    for (const name of Object.keys(interfaces)) {
+      for (const iface of interfaces[name] || []) {
+        if (iface.family === 'IPv4' && !iface.internal) {
+          localIp = iface.address;
+          break;
+        }
+      }
+    }
+    
     return {
       totalMem: os.totalmem(),
-      cpus: os.cpus().length
+      cpus: os.cpus().length,
+      localIp
     }
   })
 
@@ -550,6 +562,12 @@ export function registerSystemIpc(
   ipcMain.handle('create-backup', async (_, id, name) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const metaPath = join(serverDir, 'omnihost.json')
+      let serverType = 'minecraft'
+      if (fs.existsSync(metaPath)) {
+        try { serverType = JSON.parse(fs.readFileSync(metaPath, 'utf8')).type || 'minecraft' } catch(e){}
+      }
+
       const backupsDir = join(serverDir, 'backups')
       if (!fs.existsSync(backupsDir)) {
         await fsPromises.mkdir(backupsDir, { recursive: true })
@@ -562,10 +580,18 @@ export function registerSystemIpc(
 
       const AdmZip = require('adm-zip')
       const zip = new AdmZip()
-      const worldFolders = ['world', 'world_nether', 'world_the_end']
+      
+      let foldersToBackup: string[] = []
+      if (serverType === 'minecraft') {
+        foldersToBackup = ['world', 'world_nether', 'world_the_end']
+      } else if (serverType === 'palworld') {
+        foldersToBackup = ['Pal/Saved/SaveGames']
+      } else if (serverType === 'dayz') {
+        foldersToBackup = ['mpmissions']
+      }
 
       let addedSomething = false
-      for (const folder of worldFolders) {
+      for (const folder of foldersToBackup) {
         const folderPath = join(serverDir, folder)
         if (fs.existsSync(folderPath)) {
           zip.addLocalFolder(folderPath, folder)
@@ -635,8 +661,22 @@ export function registerSystemIpc(
 
       if (!fs.existsSync(backupPath)) throw new Error('Backup file not found')
 
-      const worldFolders = ['world', 'world_nether', 'world_the_end']
-      for (const folder of worldFolders) {
+      const metaPath = join(serverDir, 'omnihost.json')
+      let serverType = 'minecraft'
+      if (fs.existsSync(metaPath)) {
+        try { serverType = JSON.parse(fs.readFileSync(metaPath, 'utf8')).type || 'minecraft' } catch(e){}
+      }
+
+      let foldersToBackup: string[] = []
+      if (serverType === 'minecraft') {
+        foldersToBackup = ['world', 'world_nether', 'world_the_end']
+      } else if (serverType === 'palworld') {
+        foldersToBackup = ['Pal/Saved/SaveGames']
+      } else if (serverType === 'dayz') {
+        foldersToBackup = ['mpmissions']
+      }
+
+      for (const folder of foldersToBackup) {
         const folderPath = join(serverDir, folder)
         if (fs.existsSync(folderPath)) {
           await fsPromises.rm(folderPath, { recursive: true, force: true })

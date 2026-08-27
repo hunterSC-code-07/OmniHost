@@ -6,6 +6,7 @@ import { useServerStore } from '../../store/useServerStore';
 import { usePlayerStore } from '../../store/usePlayerStore';
 import { useLogStore } from '../../store/useLogStore';
 import { useStatsStore } from '../../store/useStatsStore';
+import { useUiStore } from '../../store/useUiStore';
 
 interface OverviewTabProps {
   serverVersion: string;
@@ -24,6 +25,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(({
   const { onlinePlayers: allOnlinePlayers } = usePlayerStore();
   const { logs: allLogs } = useLogStore();
   const { statsHistory: allStatsHistory } = useStatsStore();
+
+  const [sysInfo, setSysInfo] = React.useState<any>({});
+  const tunnelStatus = useUiStore(s => s.tunnelStatus);
+  const tunnelIp = useUiStore(s => s.tunnelIp);
+
+  React.useEffect(() => {
+    window.api.system.getSystemInfo().then(setSysInfo);
+  }, []);
 
   const currentServer = servers.find(s => s.id === activeServerId);
   const serverStatus = currentServer?.status || 'Offline';
@@ -85,6 +94,34 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(({
             <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Server Overview</h1>
             <p className="font-body-md text-body-md text-on-surface-variant">Real-time performance and status</p>
           </div>
+          
+          {serverStatus === 'Online' && (
+            <div className="flex flex-col gap-2 bg-surface-container/50 border border-brand/20 p-4 rounded-xl items-end">
+              <span className="text-sm font-bold text-brand uppercase tracking-widest flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-brand animate-pulse"></span>
+                Connection Info
+              </span>
+              <div className="flex gap-4 items-center">
+                <div className="flex flex-col text-right">
+                  <span className="text-xs text-on-surface-variant uppercase">Local Network</span>
+                  <span className="font-mono text-white text-lg select-all bg-black/40 px-2 py-0.5 rounded cursor-copy border border-white/5 hover:border-brand/40 transition-colors">
+                    {sysInfo.localIp}:{currentServer?.game === 'Palworld' ? '8211' : currentServer?.game === 'DayZ' ? '2302' : '25565'}
+                  </span>
+                </div>
+                {tunnelStatus === 'Online' && tunnelIp && (
+                  <>
+                    <div className="w-px h-8 bg-white/10 mx-2"></div>
+                    <div className="flex flex-col text-right">
+                      <span className="text-xs text-brand uppercase">Public Tunnel</span>
+                      <span className="font-mono text-brand font-bold text-lg select-all bg-brand/10 px-2 py-0.5 rounded cursor-copy border border-brand/20 hover:border-brand transition-colors">
+                        {tunnelIp}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Performance Metrics */}
