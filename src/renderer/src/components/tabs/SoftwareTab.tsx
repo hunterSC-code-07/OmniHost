@@ -11,10 +11,11 @@ interface SoftwareTabProps {
 }
 
 export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
-  const { activeServerId, setServers } = useServerStore();
+  const { activeServerId, setServers, setActiveServerId } = useServerStore();
   const { openCreateServerModal } = useModalStore();
   const [downloadProgress, setDownloadProgress] = React.useState(0);
   const [downloadText, setDownloadText] = React.useState('');
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = React.useState(false);
 
   const {
     editingSoftwareType, setEditingSoftwareType, editingSoftwareVersion, setEditingSoftwareVersion,
@@ -26,6 +27,47 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
 
   return (
     <div className="absolute inset-0 flex flex-col p-8 min-h-0 animate-in fade-in duration-300">
+      
+      {isConfirmModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-[#0a0a0a] border border-[#4CAF50]/30 rounded-xl max-w-md w-full shadow-[0_0_40px_rgba(76,175,80,0.1)] overflow-hidden">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-yellow-500/20 flex items-center justify-center shrink-0">
+                  <svg className="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white">Warning: Modpack Compatibility</h3>
+              </div>
+              <p className="text-gray-300 leading-relaxed text-sm">
+                Changing an existing server to a CurseForge modpack is not recommended as it may cause severe compatibility issues or corruption.
+                <br/><br/>
+                It is highly recommended to create a new server for the modpack instead. Do you want to go to the Create Server screen now?
+              </p>
+            </div>
+            <div className="p-4 border-t border-white/5 flex justify-end gap-3 bg-black/20">
+              <button
+                onClick={() => setIsConfirmModalOpen(false)}
+                className="px-4 py-2 rounded font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsConfirmModalOpen(false);
+                  setActiveServerId(null);
+                  openCreateServerModal('CurseForge Modpack');
+                }}
+                className="bg-[#4CAF50] hover:bg-[#45a049] text-black px-6 py-2 rounded font-bold shadow-lg transition-colors"
+              >
+                Go to Create Server
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h3 className="text-2xl font-bold text-[#4CAF50] mb-6 shrink-0">Change Software</h3>
       <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-xl min-h-0">
         <OverlayScrollbarsComponent 
@@ -62,9 +104,7 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
                 {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge', 'CurseForge Modpack'].map(opt => (
                   <div key={opt} onClick={() => { 
                       if (opt === 'CurseForge Modpack') {
-                          if (confirm('Warning: Changing an existing server to a CurseForge modpack is not recommended as it may cause severe compatibility issues or corruption. It is highly recommended to create a new server for the modpack instead. Do you want to go to the Create Server screen now?')) {
-                              openCreateServerModal();
-                          }
+                          setIsConfirmModalOpen(true);
                       } else {
                           setEditingSoftwareType(opt); 
                       }

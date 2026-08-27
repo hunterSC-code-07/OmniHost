@@ -9,25 +9,33 @@ export const DayzDependencyResultModal: React.FC = () => {
   if (!dayzDependencyResultModal.isOpen) return null;
 
   return (
-    <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-      <div className="bg-[#121212] border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-2xl max-h-full flex flex-col overflow-hidden">
-        <div className="flex justify-between items-center p-6 border-b border-white/5 shrink-0">
-          <h2 className="text-xl font-bold text-white flex items-center gap-3">
-            <span className="material-symbols-outlined text-red-500">account_tree</span>
-            Dependencies for {dayzDependencyResultModal.modTitle}
-          </h2>
-          <button onClick={closeDayzDependencyResultModal} className="text-gray-400 hover:text-white transition-colors">
-            <span className="material-symbols-outlined text-[24px]">close</span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+      <div className="bg-surface/95 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-2xl max-h-[80vh] flex flex-col overflow-hidden relative">
+        <div className="p-6 border-b border-outline-variant/30 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="bg-primary/10 w-12 h-12 flex items-center justify-center rounded-xl border border-primary/30">
+              <span className="material-symbols-outlined text-primary text-2xl">account_tree</span>
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white mb-1">Mod Dependencies</h2>
+              <p className="text-sm text-on-surface-variant">Dependencies for {dayzDependencyResultModal.modTitle}</p>
+            </div>
+          </div>
+          <button 
+            onClick={closeDayzDependencyResultModal} 
+            className="w-10 h-10 rounded-full hover:bg-surface-bright/50 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors"
+          >
+            <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
         <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1 p-6">
           <div className="flex flex-col gap-3">
             {dayzDependencyResultModal.deps.map((dep: any) => (
-              <div key={dep.id} className="bg-white/5 border border-white/10 rounded-lg p-3 flex justify-between items-center">
+              <div key={dep.id} className="bg-surface-bright/20 border border-outline-variant/30 rounded-xl p-4 flex justify-between items-center hover:bg-surface-bright/40 transition-colors">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-white">{dep.title}</span>
-                  <span className="text-xs text-gray-500">ID: {dep.id}</span>
+                  <span className="text-xs text-on-surface-variant">ID: {dep.id}</span>
                 </div>
                 <div className="flex gap-2">
                   {dep.isInstalled ? (

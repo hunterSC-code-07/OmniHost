@@ -11,12 +11,16 @@ export const DayzVppAdminTab: React.FC = () => {
 
   // Check if VPPAdminTools is installed and enabled
   const vppAdminMod = useMemo(() => {
-    return mods.find(
-      (m) =>
+    return mods.find((m) => {
+      const normalizedTitle = m.title?.toLowerCase().replace(/\s+/g, '') || '';
+      const normalizedFolder = m.folderName?.toLowerCase().replace(/\s+/g, '') || '';
+      
+      return (
         m.id === '1820430124' ||
-        m.folderName?.toLowerCase() === '@vppadmintools' ||
-        m.title?.toLowerCase().includes('vppadmintools')
-    );
+        normalizedFolder.includes('@vppadmintools') ||
+        normalizedTitle.includes('vppadmintools')
+      );
+    });
   }, [mods]);
 
   const isVppInstalledAndEnabled = !!vppAdminMod && !vppAdminMod.isDisabled;

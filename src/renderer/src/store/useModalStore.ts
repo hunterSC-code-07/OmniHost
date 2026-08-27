@@ -3,6 +3,7 @@ import { create } from 'zustand';
 interface ModalStore {
   // Existing Dashboard Modals
   isCreateServerModalOpen: boolean;
+  createServerDefaultType: string | null;
   serverToDeleteId: number | null;
   steamLoginModalConfig: {
     isOpen: boolean;
@@ -10,7 +11,7 @@ interface ModalStore {
     callback?: (credentials: any) => void;
   };
   
-  openCreateServerModal: () => void;
+  openCreateServerModal: (defaultType?: string) => void;
   closeCreateServerModal: () => void;
   
   openDeleteModal: (serverId: number) => void;
@@ -24,8 +25,8 @@ interface ModalStore {
   openDayzInfoModal: (message: string) => void;
   closeDayzInfoModal: () => void;
 
-  dayzMissingDepsModal: { isOpen: boolean; depDetails: any[]; onConfirm?: (deps: any[]) => void };
-  openDayzMissingDepsModal: (depDetails: any[], onConfirm: (deps: any[]) => void) => void;
+  dayzMissingDepsModal: { isOpen: boolean; depDetails: any[]; onConfirm?: (deps: any[]) => void; onCancel?: () => void };
+  openDayzMissingDepsModal: (depDetails: any[], onConfirm: (deps: any[]) => void, onCancel?: () => void) => void;
   closeDayzMissingDepsModal: () => void;
 
   dayzUninstallSingleModal: { isOpen: boolean; modId: string; modName: string; onConfirm?: (modId: string) => void };
@@ -52,14 +53,15 @@ interface ModalStore {
 export const useModalStore = create<ModalStore>((set) => ({
   // Existing Dashboard Modals
   isCreateServerModalOpen: false,
+  createServerDefaultType: null as string | null,
   serverToDeleteId: null,
   steamLoginModalConfig: {
     isOpen: false,
     action: 'create'
   },
 
-  openCreateServerModal: () => set({ isCreateServerModalOpen: true }),
-  closeCreateServerModal: () => set({ isCreateServerModalOpen: false }),
+  openCreateServerModal: (defaultType?: string) => set({ isCreateServerModalOpen: true, createServerDefaultType: defaultType || null }),
+  closeCreateServerModal: () => set({ isCreateServerModalOpen: false, createServerDefaultType: null }),
 
   openDeleteModal: (serverId) => set({ serverToDeleteId: serverId }),
   closeDeleteModal: () => set({ serverToDeleteId: null }),
@@ -77,8 +79,8 @@ export const useModalStore = create<ModalStore>((set) => ({
   closeDayzInfoModal: () => set((state) => ({ dayzInfoModal: { ...state.dayzInfoModal, isOpen: false } })),
 
   dayzMissingDepsModal: { isOpen: false, depDetails: [] },
-  openDayzMissingDepsModal: (depDetails, onConfirm) => set({ dayzMissingDepsModal: { isOpen: true, depDetails, onConfirm } }),
-  closeDayzMissingDepsModal: () => set((state) => ({ dayzMissingDepsModal: { ...state.dayzMissingDepsModal, isOpen: false, onConfirm: undefined } })),
+  openDayzMissingDepsModal: (depDetails, onConfirm, onCancel) => set({ dayzMissingDepsModal: { isOpen: true, depDetails, onConfirm, onCancel } }),
+  closeDayzMissingDepsModal: () => set((state) => ({ dayzMissingDepsModal: { ...state.dayzMissingDepsModal, isOpen: false, onConfirm: undefined, onCancel: undefined } })),
 
   dayzUninstallSingleModal: { isOpen: false, modId: '', modName: '' },
   openDayzUninstallSingleModal: (modId, modName, onConfirm) => set({ dayzUninstallSingleModal: { isOpen: true, modId, modName, onConfirm } }),
