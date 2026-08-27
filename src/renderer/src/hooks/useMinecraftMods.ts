@@ -9,12 +9,42 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const [installedMods, setInstalledMods] = useState<any[]>([]);
   const [installingModId, setInstallingModId] = useState<number | null>(null);
   const [installProgressText, setInstallProgressText] = useState<string>('');
-  const [modViewType, setModViewType] = useState<'browse' | 'installed'>('browse');
+  const [modViewType, setModViewType] = useState<'browse' | 'installed' | 'dependencies' | 'modpacks' | 'shaders' | 'resourcepacks'>('browse');
   const [activeClassId, setActiveClassId] = useState<number>(6);
   const [activeSortField, setActiveSortField] = useState<number>(2);
   const [isClassMenuOpen, setIsClassMenuOpen] = useState(false);
   const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);
   const [totalModCount, setTotalModCount] = useState<number>(0);
+
+  // Dependencies
+  const [modDependencies, setModDependencies] = useState<any[]>([]);
+  const [isLoadingDependencies, setIsLoadingDependencies] = useState(false);
+  const [isInstallingAllDeps, setIsInstallingAllDeps] = useState(false);
+  const [installAllProgress, setInstallAllProgress] = useState({ current: 0, total: 0, text: '' });
+  const fetchModDependencies = async () => {};
+  const handleInstallMissingDependency = async (id: string) => {};
+  const handleInstallAllMissingDependencies = async () => {};
+
+  // Modpacks
+  const [modpackSearchQuery, setModpackSearchQuery] = useState('');
+  const [modpackResults, setModpackResults] = useState<any[]>([]);
+  const [isSearchingModpacks, setIsSearchingModpacks] = useState(false);
+  const [installingModpackId, setInstallingModpackId] = useState<number | null>(null);
+  const [modpackProgressText, setModpackProgressText] = useState<string>('');
+  const handleSearchModpacks = async (e?: React.FormEvent) => { if(e) e.preventDefault(); };
+  const handleInstallModpack = async (pack: any) => {};
+
+  // Shaders
+  const [shaderSearchQuery, setShaderSearchQuery] = useState('');
+  const [shaderResults, setShaderResults] = useState<any[]>([]);
+  const [isSearchingShaders, setIsSearchingShaders] = useState(false);
+  const handleSearchShaders = async (e?: React.FormEvent) => { if(e) e.preventDefault(); };
+
+  // Resource Packs
+  const [resourcePackSearchQuery, setResourcePackSearchQuery] = useState('');
+  const [resourcePackResults, setResourcePackResults] = useState<any[]>([]);
+  const [isSearchingResourcePacks, setIsSearchingResourcePacks] = useState(false);
+  const handleSearchResourcePacks = async (e?: React.FormEvent) => { if(e) e.preventDefault(); };
 
   const { showToast } = useToastStore();
   const { setCacheSizes } = useUiStore();
@@ -151,6 +181,27 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     isClassMenuOpen, setIsClassMenuOpen,
     isSortMenuOpen, setIsSortMenuOpen,
     totalModCount, setTotalModCount,
-    handleSearchMods, handleInstallMod, handleDeleteMod
+    handleSearchMods, handleInstallMod, handleDeleteMod,
+
+    modDependencies, isLoadingDependencies, fetchModDependencies,
+    handleInstallMissingDependency, isInstallingAllDeps,
+    installAllProgress, handleInstallAllMissingDependencies,
+
+    modpackSearchQuery, setModpackSearchQuery,
+    modpackResults, setModpackResults,
+    isSearchingModpacks, setIsSearchingModpacks,
+    installingModpackId, setInstallingModpackId,
+    modpackProgressText, setModpackProgressText,
+    handleSearchModpacks, handleInstallModpack,
+
+    shaderSearchQuery, setShaderSearchQuery,
+    shaderResults, setShaderResults,
+    isSearchingShaders, setIsSearchingShaders,
+    handleSearchShaders,
+
+    resourcePackSearchQuery, setResourcePackSearchQuery,
+    resourcePackResults, setResourcePackResults,
+    isSearchingResourcePacks, setIsSearchingResourcePacks,
+    handleSearchResourcePacks
   };
 }
