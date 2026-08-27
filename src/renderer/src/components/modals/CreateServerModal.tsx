@@ -5,13 +5,13 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { useServerStore } from '../../store/useServerStore';
 import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
-import { useSteamLoginModal } from "../../hooks/useSteamLoginModal";
+import { useModalStore } from '../../store/useModalStore';
 
 export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const { setServers, setActiveServerId } = useServerStore();
   const { activeGameHub } = useUiStore();
   const { showToast } = useToastStore();
-  const { openSteamLoginModal, SteamLoginModal } = useSteamLoginModal();
+  const { openSteamLoginModal } = useModalStore();
 
   const [newServerName, setNewServerName] = useState('')
   const [newServerType, setNewServerType] = useState('Vanilla')
@@ -464,7 +464,6 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
-      {SteamLoginModal}
     </>
   );
 }
