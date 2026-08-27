@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
-import { useMinecraftHubContext } from '../../../contexts/MinecraftHubContext';
 import { TunnelModal } from '../../modals/TunnelModal';
 
 export const MinecraftHubHeader: React.FC = () => {
-  const { activeServer } = useMinecraftHubContext();
-  const { setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  const activeServer = servers.find(s => s.id === activeServerId);
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
+  
+  if (!activeServer) return null;
   
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
 

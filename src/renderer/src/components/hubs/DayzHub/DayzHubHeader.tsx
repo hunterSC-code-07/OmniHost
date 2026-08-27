@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
-import { useDayzHubContext } from '../../../contexts/DayzHubContext';
 export const DayzHubHeader: React.FC = () => {
-  const { activeServer } = useDayzHubContext();
   const { radminIp } = useUiStore();
-  const { setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  const { activeServerId, servers, startServer, stopServer, restartServer, deleteServer, setActiveServerId } = useServerStore();
+  const activeServer = servers.find(s => s.id === activeServerId);
 
   if (!activeServer) return null;
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useDayzHubContext } from '../../../contexts/DayzHubContext';
+import { useDayzHubStore } from '../../../store/useDayzHubStore';
 import { DayzConsoleTab } from './tabs/DayzConsoleTab';
 import { DayzOptionsTab } from './tabs/DayzOptionsTab';
 import { DayzEconomyTab } from './tabs/DayzEconomyTab';
@@ -10,7 +10,7 @@ import { DayzFilesTab } from './tabs/DayzFilesTab';
 import { DayzVppAdminTab } from './tabs/DayzVppAdminTab';
 
 export const DayzHubTabContent: React.FC = () => {
-  const { activeTab, tabDirection, handleTabChange } = useDayzHubContext();
+  const { activeTab, tabDirection, handleTabChange } = useDayzHubStore();
 
   return (
     <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">

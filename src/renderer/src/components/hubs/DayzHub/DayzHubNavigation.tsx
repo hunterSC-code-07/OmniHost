@@ -1,9 +1,9 @@
 import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { useDayzHubContext } from '../../../contexts/DayzHubContext';
+import { useDayzHubStore } from '../../../store/useDayzHubStore';
 
 export const DayzHubNavigation: React.FC = () => {
-  const { activeTab, handleTabChange } = useDayzHubContext();
+  const { activeTab, handleTabChange } = useDayzHubStore();
 
   return (
     <div className="w-full pb-1">

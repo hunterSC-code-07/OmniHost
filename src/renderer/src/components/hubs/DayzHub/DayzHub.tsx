@@ -1,14 +1,16 @@
 import React from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { DayzAnimatedBackground } from './DayzAnimatedBackground';
-import { useDayzHubContext, DayzHubProvider } from '../../../contexts/DayzHubContext';
+import { useServerStore } from '../../../store/useServerStore';
 import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader';
 import { DayzHubHeader } from './DayzHubHeader';
 import { DayzHubNavigation } from './DayzHubNavigation';
 import { DayzHubTabContent } from './DayzHubTabContent';
 
 const DayzHubContent: React.FC = () => {
-  const { activeServer, activeServerId } = useDayzHubContext();
+  const { activeServerId, servers } = useServerStore();
+  const currentServer = servers.find(s => s.id === activeServerId);
+  const activeServer = currentServer;
 
   // Keep download listener active as long as Hub is mounted
   useDayzModDownloader(activeServerId);
@@ -31,10 +33,4 @@ const DayzHubContent: React.FC = () => {
   );
 };
 
-export const DayzHub: React.FC = () => {
-  return (
-    <DayzHubProvider>
-      <DayzHubContent />
-    </DayzHubProvider>
-  );
-};
+export const DayzHub = DayzHubContent;
