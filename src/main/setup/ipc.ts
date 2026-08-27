@@ -11,6 +11,7 @@ import { registerMinecraftIpc } from '../ipc/MinecraftIpc';
 import { registerCacheIpc } from '../ipc/CacheIpc';
 import { registerLogIpc } from '../ipc/LogIpc';
 import { registerNetworkIpc } from '../ipc/NetworkIpc';
+import { registerPalworldIpc } from '../ipc/PalworldIpc';
 import { getServers } from '../db';
 
 export function registerAllIpcs(): void {
@@ -35,4 +36,5 @@ export function registerAllIpcs(): void {
   registerNetworkIpc(tunnelProvider, radminVpnProvider);
   registerSystemIpc(activeServers, getServers);
   registerMinecraftIpc();
+  registerPalworldIpc();
 }
