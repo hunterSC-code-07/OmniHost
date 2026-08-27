@@ -29,13 +29,76 @@ export class MinecraftProcessManager {
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output!
     this.logHistory.push(msg);
-    if (this.logHistory.length > 2000) this.logHistory.shift();
+    if (this.logHistory.length > 500) this.logHistory.shift();
     BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
+      if (!win.isDestroyed()) win.webContents.send('server-log', { id: this.serverId, msg });
     });
   }
 
+  sendCommand(cmd: string) {
+    if (this.process && this.process.stdin) {
+      this.process.stdin.write(cmd + '\n');
+      this.sendLog(`> ${cmd}`); 
+    } else {
+      this.sendLog(`[System] Cannot send command: Server is offline.`);
+    }
+  }
 
+  private getActualPid(): Promise<number> {
+    return new Promise((resolve) => {
+      const proc = this.process;
+      if (!proc || !proc.pid) return resolve(0);
+      if (this.javaPid) return resolve(this.javaPid);
+      if (process.platform !== 'win32') return resolve(proc.pid);
+
+      const { spawn } = require('child_process');
+      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);
+      
+      let out = '';
+      ps.stdout.on('data', (data: any) => out += data.toString());
+      
+      ps.on('close', () => {
+        const pid = parseInt(out.trim());
+        if (!isNaN(pid) && pid > 0) {
+          this.javaPid = pid;
+          resolve(pid);
+        } else {
+          resolve(proc.pid!);
+        }
+      });
+
+      const script = `
+        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name
+        $target = ${proc.pid}
+        $children = @{}
+        foreach ($p in $all) {
+            if (-not $children.ContainsKey($p.ParentProcessId)) {
+                $children[$p.ParentProcessId] = @()
+            }
+            $children[$p.ParentProcessId] += $p
+        }
+        $queue = [System.Collections.Generic.Queue[int]]::new()
+        $queue.Enqueue($target)
+        $found = 0
+        while ($queue.Count -gt 0) {
+            $curr = $queue.Dequeue()
+            if ($children.ContainsKey($curr)) {
+                foreach ($c in $children[$curr]) {
+                    if ($c.Name -match 'java') {
+                        $found = $c.ProcessId
+                        break
+                    }
+                    $queue.Enqueue($c.ProcessId)
+                }
+            }
+            if ($found -ne 0) { break }
+        }
+        Write-Output $found
+      `;
+      ps.stdin.write(script);
+      ps.stdin.end();
+    });
+  }
 
   /**
    * Parses a Forge/NeoForge run.bat or start.bat file to extract Java arguments.
