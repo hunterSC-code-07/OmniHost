@@ -11,6 +11,7 @@ interface UiStore {
   isClearingCache: boolean;
   cacheSize: number;
   isDayzCached: boolean | null;
+  isSevenDaysCached: boolean | null;
   
   setActiveGameHub: (hub: string | null) => void;
   setLastGameHub: (hub: string | null) => void;
@@ -22,6 +23,7 @@ interface UiStore {
   setIsClearingCache: (isClearing: boolean) => void;
   setCacheSize: (size: number) => void;
   setIsDayzCached: (isCached: boolean | null) => void;
+  setIsSevenDaysCached: (isCached: boolean | null) => void;
 }
 
 export const useUiStore = create<UiStore>((set) => ({
@@ -35,6 +37,7 @@ export const useUiStore = create<UiStore>((set) => ({
   isClearingCache: false,
   cacheSize: 0,
   isDayzCached: null,
+  isSevenDaysCached: null,
   
   setActiveGameHub: (hub) => set(() => {
     if (hub) return { activeGameHub: hub, lastGameHub: hub };
@@ -51,5 +54,6 @@ export const useUiStore = create<UiStore>((set) => ({
   setRadminIp: (ip) => set({ radminIp: ip }),
   setIsClearingCache: (isClearing) => set({ isClearingCache: isClearing }),
   setCacheSize: (size) => set({ cacheSize: size }),
-  setIsDayzCached: (isCached) => set({ isDayzCached: isCached })
+  setIsDayzCached: (isCached) => set({ isDayzCached: isCached }),
+  setIsSevenDaysCached: (isCached) => set({ isSevenDaysCached: isCached })
 }));

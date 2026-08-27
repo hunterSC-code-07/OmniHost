@@ -7,6 +7,7 @@ import { FrpAdapter } from '../adapters/FrpAdapter'
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
 
 async function exists(path: string) {
+  fs.writeFileSync('d:\\Goon3\\OmniHost\\userDataPath.txt', app.getPath('userData'));
   try {
     await fsPromises.access(path)
     return true

@@ -17,6 +17,12 @@ interface ModalStore {
   
   openSteamLoginModal: (action: 'create' | 'cache', callback?: (credentials: any) => void) => void;
   closeSteamLoginModal: () => void;
+  
+  // 7 Days to Die
+  isSevenDaysConfigModalOpen: boolean;
+  sevenDaysConfigServerId: number | null;
+  openSevenDaysConfigModal: (serverId: number) => void;
+  closeSevenDaysConfigModal: () => void;
 }
 
 export const useModalStore = create<ModalStore>((set) => ({
@@ -38,5 +44,11 @@ export const useModalStore = create<ModalStore>((set) => ({
   }),
   closeSteamLoginModal: () => set((state) => ({
     steamLoginModalConfig: { ...state.steamLoginModalConfig, isOpen: false, callback: undefined }
-  }))
+  })),
+
+  // 7 Days to Die
+  isSevenDaysConfigModalOpen: false,
+  sevenDaysConfigServerId: null,
+  openSevenDaysConfigModal: (serverId) => set({ isSevenDaysConfigModalOpen: true, sevenDaysConfigServerId: serverId }),
+  closeSevenDaysConfigModal: () => set({ isSevenDaysConfigModalOpen: false, sevenDaysConfigServerId: null }),
 }));

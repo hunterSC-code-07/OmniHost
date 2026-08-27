@@ -5,6 +5,7 @@ import fs from 'fs';
 import { getServers, createServer, deleteServer } from '../db';
 import { DayzAdapter } from '../adapters/DayzAdapter';
 import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager';
+import { SevenDaysAdapter } from '../adapters/SevenDaysAdapter';
 import { WakeProxy } from '../adapters/WakeProxy';
 
 async function exists(path: string) {
@@ -139,6 +140,8 @@ export class ServerLifecycleController {
 
         if (game === 'DayZ') {
           activeServers[id] = new DayzAdapter(id);
+        } else if (game === '7 Days to Die') {
+          activeServers[id] = new SevenDaysAdapter(id);
         } else {
           activeServers[id] = new MinecraftProcessManager(id);
         }

@@ -41,7 +41,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
     }
 
     if (!newServerName) return;
-    if (activeGameHub !== 'DayZ') {
+    if (!['DayZ', '7 Days to Die'].includes(activeGameHub || '')) {
       if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;
       if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;
     }
@@ -119,6 +119,59 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
             openSteamLoginModal('create', handleCreateServer);
           } else {
             alert('Failed to download DayZ Server via SteamCMD: ' + err.message);
+          }
+          return;
+        } finally {
+          setIsCreatingServer(false);
+          // @ts-ignore
+          window.api.removeDownloadProgressListener && window.api.removeDownloadProgressListener(newId);
+        }
+      } else if (activeGameHub === '7 Days to Die') {
+        // @ts-ignore
+        const isCached = await window.api.steam.checkCache(294420);
+
+        if (!isCached && !credentials) {
+          setIsCreatingServer(false);
+          openSteamLoginModal('create', handleCreateServer);
+          return;
+        }
+
+        // @ts-ignore
+        const newId = await window.api.server.createServer(newServerName, '7 Days to Die', 'Vanilla', 'Latest');
+
+        // @ts-ignore
+        window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
+          setDownloadProgress(progress)
+          if (text) setDownloadText(text)
+        });
+
+        try {
+          let success = false;
+          if (isCached) {
+            showToast("Server files found in cache! Copying...");
+            // @ts-ignore
+            success = await window.api.steam.copyCache(newId, 294420);
+          } else {
+            // @ts-ignore
+            success = await window.api.steam.installApp(newId, 294420, credentials.steamUsername, credentials.steamPassword, credentials.steamGuardCode);
+          }
+
+          if (success) {
+            // Refresh list
+            // @ts-ignore
+            const data = await window.api.server.getServers();
+            setServers(data);
+            setActiveServerId(newId);
+            showToast("7 Days to Die Server created successfully!");
+            onClose();
+            return;
+          }
+        } catch (err: any) {
+          if (err.message && err.message.includes('STEAM_GUARD_REQUIRED')) {
+            showToast("Steam Guard Code required!");
+            openSteamLoginModal('create', handleCreateServer);
+          } else {
+            alert('Failed to download 7 Days to Die Server via SteamCMD: ' + err.message);
           }
           return;
         } finally {
@@ -248,7 +301,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   />
                 </div>
 
-                {activeGameHub !== 'DayZ' && (
+                {!['DayZ', '7 Days to Die'].includes(activeGameHub || '') && (
                   <div className="relative z-50">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
                     <button
@@ -283,7 +336,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   </div>
                 )}
 
-                {activeGameHub !== 'DayZ' && newServerType !== 'CurseForge Modpack' && (
+                {!['DayZ', '7 Days to Die'].includes(activeGameHub || '') && newServerType !== 'CurseForge Modpack' && (
                   <div className="relative z-40">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
                     <button
@@ -306,7 +359,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
                 )}
-                {activeGameHub !== 'DayZ' && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
+                {!['DayZ', '7 Days to Die'].includes(activeGameHub || '') && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
                   <div className="relative z-30">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
                     <button
@@ -332,7 +385,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </div>
 
               {/* Right Column (Modpack Browser) */}
-              {activeGameHub !== 'DayZ' && newServerType === 'CurseForge Modpack' && (
+              {!['DayZ', '7 Days to Die'].includes(activeGameHub || '') && newServerType === 'CurseForge Modpack' && (
                 <div className="w-2/3 flex flex-col border-l border-gray-800/50 pl-8">
                   <div className="flex gap-4 mb-4">
                     <input
@@ -455,7 +508,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={handleCreateServer}
-                disabled={isCreatingServer || !newServerName || (activeGameHub !== 'DayZ' && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
+                disabled={isCreatingServer || !newServerName || (!['DayZ', '7 Days to Die'].includes(activeGameHub || '') && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
                 className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors"
               >
                 {isCreatingServer ? 'Creating...' : 'Create Server'}

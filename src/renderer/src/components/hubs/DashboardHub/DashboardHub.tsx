@@ -26,7 +26,7 @@ import { useModalStore } from '../../../store/useModalStore';
 
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { servers, setActiveServerId, startServer, stopServer, restartServer } = useServerStore();
-  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached } = useUiStore();
+  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached, isSevenDaysCached, setIsSevenDaysCached } = useUiStore();
   const { showToast } = useToastStore();
 
   const { openCreateServerModal, openDeleteModal, openSteamLoginModal } = useModalStore();
@@ -106,6 +106,16 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
               <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
                 <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
                 <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-[#fa9549] transition-colors drop-shadow-lg shadow-black">Satisfactory</h2>
+              </div>
+            </div>
+
+            {/* 7 Days to Die Hub */}
+            <div onMouseEnter={() => setHoveredGame('7 Days to Die')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('7 Days to Die')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(245,158,11,0.2)] ring-1 hover:ring-amber-500 cursor-pointer ring-surface-container-high">
+              <motion.div layoutId={`game-bg-7 Days to Die`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('7 Days to Die')}')`}}></motion.div>
+              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
+              <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
+                <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
+                <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-amber-500 transition-colors drop-shadow-lg shadow-black">7 Days to Die</h2>
               </div>
             </div>
 
@@ -289,6 +299,54 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                await window.api.steam.deleteCache(223350);
                                setIsDayzCached(false);
                                showToast("DayZ Base Files Deleted.");
+                            }
+                          }} 
+                          className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/20 font-bold transition-colors flex items-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                          Delete Base
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeGameHub === '7 Days to Die' && (
+                <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-surface-container p-6 rounded-xl border border-outline-variant/30">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-white text-lg">7 Days to Die Base Installation Cache</h3>
+                    <p className="text-sm text-gray-400 mt-1">Download and manage the base server files here. Future servers will copy these files to avoid re-downloading.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3 items-center ml-auto">
+                    {!isSevenDaysCached ? (
+                      <button 
+                        onClick={() => openSteamLoginModal('cache')} 
+                        className="px-5 py-2.5 bg-brand/10 text-brand border border-brand/30 rounded-lg hover:bg-brand/20 font-bold transition-colors flex items-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">download</span>
+                        Download Base
+                      </button>
+                    ) : (
+                      <>
+                        <div className="px-5 py-2.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg font-bold flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                          Downloaded
+                        </div>
+                        <button 
+                          onClick={() => openSteamLoginModal('cache')} 
+                          className="px-5 py-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 font-bold transition-colors flex items-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">sync</span>
+                          Update Base
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (confirm("Are you sure you want to delete the cached 7 Days to Die base files?")) {
+                               // @ts-ignore
+                               await window.api.steam.deleteCache(294420);
+                               setIsSevenDaysCached(false);
+                               showToast("7 Days to Die Base Files Deleted.");
                             }
                           }} 
                           className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/20 font-bold transition-colors flex items-center gap-2"

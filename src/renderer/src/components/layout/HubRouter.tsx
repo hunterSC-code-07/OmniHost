@@ -11,8 +11,9 @@ import satisfactoryBg from '../../assets/satisfactory-bg.jpg';
 // Lazy load the heavy game hubs so they aren't bundled into the initial payload
 const DayzHub = React.lazy(() => import('../hubs/DayzHub/DayzHub').then(m => ({ default: m.DayzHub })));
 const MinecraftHub = React.lazy(() => import('../hubs/MinecraftHub/MinecraftHub').then(m => ({ default: m.MinecraftHub })));
+const SevenDaysToDieHub = React.lazy(() => import('../hubs/SevenDaysToDieHub/SevenDaysToDieHub').then(m => ({ default: m.SevenDaysToDieHub })));
 
-const supportedGameHubs = ['Minecraft', 'DayZ'];
+const supportedGameHubs = ['Minecraft', 'DayZ', '7 Days to Die'];
 const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
 
 const getGameImageUrl = (game: string) => {
@@ -20,6 +21,7 @@ const getGameImageUrl = (game: string) => {
   if (game.toLowerCase().includes('palworld')) return palworldBg;
   if (game.toLowerCase().includes('dayz')) return dayzBg;
   if (game.toLowerCase().includes('satisfactory')) return satisfactoryBg;
+  if (game.toLowerCase().includes('7 days to die')) return 'https://images.unsplash.com/photo-1509315754593-9c869109eeeb?q=80&w=1000';
   return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';
 };
 
@@ -71,6 +73,8 @@ export const HubRouter: React.FC = () => {
               <Suspense fallback={<HubLoader />}>
                 {activeServer.game === 'DayZ' ? (
                   <DayzHub />
+                ) : activeServer.game === '7 Days to Die' ? (
+                  <SevenDaysToDieHub serverId={activeServer.id} />
                 ) : (
                   <MinecraftHub />
                 )}
