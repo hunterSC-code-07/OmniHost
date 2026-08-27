@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useRef } from 'react';
 import { useServerStore } from '../store/useServerStore';
 
-type TabType = 'console' | 'options' | 'economy' | 'mods' | 'installed' | 'files';
+type TabType = 'console' | 'options' | 'economy' | 'mods' | 'installed' | 'files' | 'vppadmin';
 
 interface DayzHubContextType {
   activeTab: TabType;
@@ -28,7 +28,7 @@ export const DayzHubProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const handleTabChange = (newTab: TabType) => {
     if (newTab === activeTab) return;
-    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];
+    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files', 'vppadmin'];
     const currentIndex = TABS.indexOf(activeTab);
     const newIndex = TABS.indexOf(newTab);
     setTabDirection(newIndex > currentIndex ? 1 : -1);
