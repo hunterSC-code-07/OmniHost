@@ -1,12 +1,20 @@
 import React from 'react';
-import { useDayzInstalledMods } from '../../../../../hooks/useDayzInstalledMods';
-import { useDayzModUninstall } from '../../../../../hooks/useDayzModUninstall';
-import { useDayzModRebuild } from '../../../../../hooks/useDayzModRebuild';
 
-export const DayzInstalledModsHeaderPanel: React.FC = () => {
-  const { mods, loadInstalledMods, activeServerId, setLoading } = useDayzInstalledMods();
-  const { handleUninstallAll } = useDayzModUninstall(activeServerId, mods, loadInstalledMods, setLoading);
-  const { isRebuilding, handleRebuildLoadOrder } = useDayzModRebuild(activeServerId);
+interface DayzInstalledModsHeaderPanelProps {
+  mods: any[];
+  loadInstalledMods: () => void;
+  isRebuilding: boolean;
+  handleRebuildLoadOrder: () => void;
+  handleUninstallAll: () => void;
+}
+
+export const DayzInstalledModsHeaderPanel: React.FC<DayzInstalledModsHeaderPanelProps> = ({
+  mods,
+  loadInstalledMods,
+  isRebuilding,
+  handleRebuildLoadOrder,
+  handleUninstallAll
+}) => {
 
   return (
     <div className="p-4 border-b border-white/5 bg-black/20 backdrop-blur-md flex items-center justify-between shadow-sm">
