@@ -15,8 +15,7 @@ import { SoftwareTab } from '../../tabs/SoftwareTab';
 
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
-
-import { useModalStore } from '../../../store/useModalStore';
+import { TunnelModal } from '../../modals/TunnelModal';
 
 export function MinecraftHub() {
   const { activeServerId, setActiveServerId, servers, startServer, stopServer, restartServer, deleteServer } = useServerStore();
@@ -29,7 +28,7 @@ export function MinecraftHub() {
   
   if (!activeServer) return null;
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
-  const { setShowTunnelModal } = useModalStore();
+  const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
   const handleStart = startServer;
   const handleStop = stopServer;
   const handleRestart = restartServer;
@@ -130,7 +129,7 @@ export function MinecraftHub() {
                     <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
                       <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
                     </button>
-                    <button onClick={() => { setTempTunnelIp(tunnelIp); setShowTunnelModal(true); }} className="px-3 border-l border-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center" title="Tunnel IP Settings">
+                    <button onClick={() => { setTempTunnelIp(tunnelIp); setIsTunnelModalOpen(true); }} className="px-3 border-l border-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center" title="Tunnel IP Settings">
                       <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
                     </button>
                   </div>
@@ -270,6 +269,7 @@ export function MinecraftHub() {
               </div>
 
             </div>
-              </div>
+            {isTunnelModalOpen && <TunnelModal onClose={() => setIsTunnelModalOpen(false)} />}
+          </div>
   );
 }

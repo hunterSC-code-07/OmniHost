@@ -3,10 +3,8 @@ import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
 import os from 'os'
-import { CacheManager } from '../CacheManager'
 import { FrpAdapter } from '../adapters/FrpAdapter'
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
-import { getServers } from '../db'
 
 async function exists(path: string) {
   try {
@@ -20,7 +18,8 @@ async function exists(path: string) {
 export function registerSystemIpc(
   tunnelProvider: FrpAdapter,
   radminVpnProvider: RadminVpnAdapter,
-  activeServers: Record<number, any>
+  activeServers: Record<number, any>,
+  getServers: () => any[]
 ) {
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
@@ -89,8 +88,7 @@ export function registerSystemIpc(
     
     // Fallback if omnihost.json is missing or missing type
     if (!meta || !meta.type) {
-       // getServers is already imported at the top of the file now
-       const servers = getServers() as any[]
+       const servers = getServers()
        const srv = servers.find((s: any) => s.id === id)
        if (srv) {
           if (!meta) meta = {}
@@ -529,38 +527,5 @@ export function registerSystemIpc(
       return true
     }
     return false
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  // Config Editor
-  // Player JSON Editor
-  // Live Commands & Inventory
-  // --- File Manager ---
-  // --- Backups ---
-  ipcMain.handle('get-cache-info', async () => {
-    return await CacheManager.getCacheSize()
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  // Config Editor
-  // Player JSON Editor
-  // Live Commands & Inventory
-  // --- File Manager ---
-  // --- Backups ---
-  ipcMain.handle('clear-cache', () => {
-    CacheManager.clearCache()
-    return true
   })
 }

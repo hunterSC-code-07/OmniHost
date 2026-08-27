@@ -4,6 +4,8 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { useServerStore } from '../../../../store/useServerStore';
 import { useDayzModStore } from '../../../../store/useDayzModStore';
 import { useDayzMods } from '../../../../hooks/useDayzMods';
+import { useDayzModInstallation } from '../../../../hooks/useDayzModInstallation';
+import { useSteamCredentials } from '../../../../hooks/useSteamCredentials';
 
 interface DayzModsTabProps {
   onNavigateToInstalled: () => void;
@@ -12,6 +14,8 @@ interface DayzModsTabProps {
 export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled }) => {
   const { activeServerId } = useServerStore();
   const { pendingDownloads, removePendingDownload } = useDayzModStore();
+
+  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentials();
 
   const {
     searchQuery, setSearchQuery,
@@ -24,20 +28,21 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
     isImporting,
     loading,
     loadMoreRef,
-    downloadProgress,
-    steamCreds, setSteamCreds,
-    rememberMe, setRememberMe,
-    showCreds, setShowCreds,
-    installingMod,
     viewingMod, setViewingMod,
     handleSearch,
     handleCategoryChange,
-    handleInstall,
-    handleUninstall,
     handleBrowseWorkshop,
     handleImportWorkshop,
-    stripBBCode
-  } = useDayzMods(onNavigateToInstalled);
+    stripBBCode,
+    loadInstalledMods
+  } = useDayzMods();
+
+  const { downloadProgress, installingMod, handleInstall, handleUninstall } = useDayzModInstallation(
+    activeServerId,
+    installedMods,
+    onNavigateToInstalled,
+    loadInstalledMods
+  );
 
   const categories = [
     { id: 9, label: 'Most Popular' },
@@ -186,22 +191,15 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
                 Remember Me
               </label>
               <button
-                onClick={() => {
-                  if (steamCreds.username && steamCreds.password) {
-                    if (rememberMe) {
-                      localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));
-                    } else {
-                      localStorage.removeItem('omnihost_steam_creds');
-                    }
-                    setShowCreds(false);
+                onClick={() => saveCredentials(
+                  () => {
                     if (installingMod) {
                       const mod = viewingMod || results.find(r => r.id === installingMod);
-                      if (mod) handleInstall(mod);
+                      if (mod) handleInstall(mod, steamCreds, () => setShowCreds(true), () => setShowCreds(true));
                     }
-                  } else {
-                    alert('Username and password are required.');
-                  }
-                }}
+                  }, 
+                  (msg) => alert(msg)
+                )}
                 className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
               >
                 Start Download
@@ -305,7 +303,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
                               <span className="material-symbols-outlined text-[16px]">info</span>
                             </button>
                             <button
-                              onClick={() => isInstalled ? handleUninstall(mod.id) : handleInstall(mod)}
+                              onClick={() => isInstalled ? handleUninstall(mod.id) : handleInstall(mod, steamCreds, () => setShowCreds(true), () => setShowCreds(true))}
                               disabled={installingMod !== null && installingMod !== mod.id}
                               className={`text-xs px-4 py-1.5 rounded-lg font-bold transition-all flex-1 text-center ${isInstalled
                                   ? 'bg-white/5 text-gray-400 hover:bg-red-500/20 hover:text-red-400 border border-white/10 hover:border-red-500/30'

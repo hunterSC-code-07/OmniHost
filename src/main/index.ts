@@ -14,6 +14,8 @@ import { registerServerIpc } from './ipc/ServerIpc'
 import { registerSteamCMDIpc } from './ipc/SteamCMDIpc'
 import { registerSystemIpc } from './ipc/SystemIpc'
 import { registerMinecraftIpc } from './ipc/MinecraftIpc'
+import { registerCacheIpc } from './ipc/CacheIpc'
+import { getServers } from './db'
 
 dotenv.config()
 
@@ -90,7 +92,8 @@ app.whenReady().then(() => {
 
   registerServerIpc(activeServers, activeProxies)
   registerSteamCMDIpc()
-  registerSystemIpc(tunnelProvider, radminVpnProvider, activeServers)
+  registerCacheIpc()
+  registerSystemIpc(tunnelProvider, radminVpnProvider, activeServers, getServers)
   registerMinecraftIpc()
 })
 

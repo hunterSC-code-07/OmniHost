@@ -98,7 +98,7 @@ export class DayzProcessManager {
       }
     );
     
-    this.logParser.setupLogWatcher(this.process);
+    this.logParser.setupLogWatcher();
 
     this.process.on('close', (code) => {
       this.sendLog(`[System] DayZ Server stopped (Code: ${code})`);

@@ -9,7 +9,7 @@ export class CacheManager {
     return path.join(app.getPath('userData'), 'omnihost-cache');
   }
 
-  static getCategoryDir(category: 'java' | 'jars' | 'mods' | 'modpacks') {
+  static getCategoryDir(category: string) {
     const dir = path.join(this.getCacheDir(), category);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -54,7 +54,7 @@ export class CacheManager {
    * Downloads a file to the cache if it doesn't exist, then returns the path to the cached file.
    */
   static async getOrDownload(
-    category: 'java' | 'jars' | 'mods' | 'modpacks',
+    category: string,
     downloadUrl: string,
     originalFilename: string,
     onProgress?: (progress: number, text?: string) => void,

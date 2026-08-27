@@ -1,50 +1,44 @@
 import { useState, useEffect } from "react";
 
 import { useUiStore } from '../../store/useUiStore';
-import { useModalStore } from '../../store/useModalStore';
 import { useToastStore } from '../../store/useToastStore';
 
-export function SteamLoginModal({ handleCreateServer }: any) {
+export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
   const { activeGameHub, setIsDayzCached } = useUiStore();
   const { showToast } = useToastStore();
-  const { 
-    setShowSteamLoginModal, steamLoginAction, 
-    steamUsername, setSteamUsername, 
-    steamPassword, setSteamPassword, 
-    isSteamGuardRequired, setIsSteamGuardRequired, 
-    steamGuardCode, setSteamGuardCode 
-  } = useModalStore();
+  
+  const [steamUsername, setSteamUsername] = useState("");
+  const [steamPassword, setSteamPassword] = useState("");
+  const [isSteamGuardRequired, setIsSteamGuardRequired] = useState(false);
+  const [steamGuardCode, setSteamGuardCode] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
 
-    const [isUpdating, setIsUpdating] = useState(false);
-
-    const handleUpdateSteamCache = async () => {
-        try {
-          setIsUpdating(true);
-          // @ts-ignore
-          await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);
-          showToast("DayZ Base Files Updated Successfully!");
-          setIsDayzCached(true);
-          setShowSteamLoginModal(false);
-          setSteamPassword('');
-          setSteamGuardCode('');
-          setIsSteamGuardRequired(false);
-        } catch (e: any) {
-          if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
-            setIsSteamGuardRequired(true);
-            showToast("Steam Guard Code required!");
-          } else {
-            alert("Failed to update cache: " + e.message);
-          }
-        } finally {
-          setIsUpdating(false);
+  const handleUpdateSteamCache = async () => {
+      try {
+        setIsUpdating(true);
+        // @ts-ignore
+        await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);
+        showToast("DayZ Base Files Updated Successfully!");
+        setIsDayzCached(true);
+        onClose();
+      } catch (e: any) {
+        if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
+          setIsSteamGuardRequired(true);
+          showToast("Steam Guard Code required!");
+        } else {
+          alert("Failed to update cache: " + e.message);
         }
-      };
-    useEffect(() => {
-        if (activeGameHub === 'DayZ') {
-          // @ts-ignore
-          window.api.steam.checkCache(223350).then(setIsDayzCached);
-        }
-      }, [activeGameHub]);
+      } finally {
+        setIsUpdating(false);
+      }
+    };
+    
+  useEffect(() => {
+      if (activeGameHub === 'DayZ') {
+        // @ts-ignore
+        window.api.steam.checkCache(223350).then(setIsDayzCached);
+      }
+    }, [activeGameHub, setIsDayzCached]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -94,7 +88,7 @@ export function SteamLoginModal({ handleCreateServer }: any) {
 
               <div className="flex justify-end gap-3 mt-8">
                 <button 
-                  onClick={() => setShowSteamLoginModal(false)}
+                  onClick={() => onClose()}
                   className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
                   disabled={isUpdating}
                 >
@@ -102,7 +96,9 @@ export function SteamLoginModal({ handleCreateServer }: any) {
                 </button>
                 <button 
                   onClick={() => {
-                    if (steamLoginAction === 'create') handleCreateServer();
+                    if (action === 'create' && handleCreateServer) {
+                      handleCreateServer({ steamUsername, steamPassword, steamGuardCode });
+                    }
                     else handleUpdateSteamCache();
                   }}
                   disabled={!steamUsername || !steamPassword || (isSteamGuardRequired && !steamGuardCode) || isUpdating}
@@ -114,7 +110,7 @@ export function SteamLoginModal({ handleCreateServer }: any) {
                       Updating...
                     </>
                   ) : (
-                    steamLoginAction === 'create' ? 'Login & Download' : 'Login & Update Cache'
+                    action === 'create' ? 'Login & Download' : 'Login & Update Cache'
                   )}
                 </button>
               </div>

@@ -13,15 +13,16 @@ import { DayzAnimatedBackground } from './DayzAnimatedBackground';
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader';
-import { useModalStore } from '../../../store/useModalStore';
 import { DayzHubProvider, useDayzHubContext } from '../../../contexts/DayzHubContext';
+import { TunnelModal } from '../../modals/TunnelModal';
+import { useState } from 'react';
 
 const DayzHubContent: React.FC = () => {
   const { activeServer, activeServerId, activeTab, tabDirection, handleTabChange } = useDayzHubContext();
   
   if (!activeServer) return null;
   const { radminIp } = useUiStore();
-  const { setShowTunnelModal } = useModalStore();
+  const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
   const { setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   
   const handleStart = startServer;
@@ -53,7 +54,7 @@ const DayzHubContent: React.FC = () => {
                   IP: {radminIp}
                 </div>
               )}
-              <button onClick={() => setShowTunnelModal(true)} title="Open Radmin VPN" className="relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center text-brand hover:bg-brand/10">
+              <button onClick={() => setIsTunnelModalOpen(true)} title="Open Radmin VPN" className="relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center text-brand hover:bg-brand/10">
                 <span className="material-symbols-outlined text-[20px] leading-none">lan</span>
               </button>
             </div>
@@ -158,6 +159,7 @@ const DayzHubContent: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+      {isTunnelModalOpen && <TunnelModal onClose={() => setIsTunnelModalOpen(false)} />}
     </div>
   );
 };

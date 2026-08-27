@@ -1,12 +1,10 @@
 
 
 import { useUiStore } from '../../store/useUiStore';
-import { useModalStore } from '../../store/useModalStore';
 import { useToastStore } from '../../store/useToastStore';
 
-export function TunnelModal() {
+export function TunnelModal({ onClose }: { onClose: () => void }) {
   const { tempTunnelIp, setTempTunnelIp, setTunnelIp } = useUiStore();
-  const { setShowTunnelModal } = useModalStore();
   const { showToast } = useToastStore();
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -38,7 +36,7 @@ export function TunnelModal() {
 
               <div className="flex justify-end gap-3">
                 <button 
-                  onClick={() => setShowTunnelModal(false)}
+                  onClick={() => onClose()}
                   className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
                 >
                   Cancel
@@ -47,7 +45,7 @@ export function TunnelModal() {
                   onClick={() => {
                     setTunnelIp(tempTunnelIp);
                     localStorage.setItem('tunnelIp', tempTunnelIp);
-                    setShowTunnelModal(false);
+                    onClose();
                     showToast("Tunnel IP updated!");
                   }}
                   className="bg-brand/10 border border-brand/50 text-brand shadow-[0_0_15px_rgba(255,215,0,0.2)] hover:bg-brand/20 px-6 py-2.5 rounded-lg font-bold transition-all uppercase tracking-wider text-sm"
