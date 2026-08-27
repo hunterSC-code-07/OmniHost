@@ -3,8 +3,6 @@ import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
 import os from 'os'
-import { FrpAdapter } from '../adapters/FrpAdapter'
-import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
 
 async function exists(path: string) {
   try {
@@ -16,8 +14,6 @@ async function exists(path: string) {
 }
 
 export function registerSystemIpc(
-  tunnelProvider: FrpAdapter,
-  radminVpnProvider: RadminVpnAdapter,
   activeServers: Record<number, any>,
   getServers: () => any[]
 ) {
@@ -106,80 +102,6 @@ export function registerSystemIpc(
   })
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  ipcMain.handle('start-tunnel', async (_, ip: string) => {
-    await tunnelProvider.start(ip)
-    return true
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  ipcMain.handle('stop-tunnel', async () => {
-    tunnelProvider.stop()
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  ipcMain.handle('get-tunnel-status', () => {
-    return tunnelProvider.process ? 'Online' : 'Offline'
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  ipcMain.handle('radmin-check', () => {
-    return radminVpnProvider.isInstalled()
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  ipcMain.handle('radmin-install', () => {
-    radminVpnProvider.install()
-    return true
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  ipcMain.handle('radmin-open', async () => {
-    return await radminVpnProvider.open()
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  ipcMain.handle('radmin-get-ip', async () => {
-    return await radminVpnProvider.getIp()
-  })
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
