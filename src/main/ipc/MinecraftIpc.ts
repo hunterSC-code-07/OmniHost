@@ -1,5 +1,6 @@
 import { MinecraftDownloader } from '../minecraft/MinecraftDownloader'
 import { MinecraftModManager } from '../minecraft/MinecraftModManager'
+import { CurseForgeApiClient } from '../minecraft/CurseForgeApiClient'
 import { ipcMain } from 'electron'
 
 export function registerMinecraftIpc() {
@@ -14,24 +15,24 @@ export function registerMinecraftIpc() {
   )
   
   ipcMain.handle('search-modpacks', async (_, query: string, version: string, modloader: string) => 
-    MinecraftModManager.searchModpacks(query, version, modloader) 
+    CurseForgeApiClient.searchModpacks(query, version, modloader) 
   )
   
   ipcMain.handle('get-modpack-details', async (_, modId: string) => 
-    MinecraftModManager.getModpackDetails(modId) 
+    CurseForgeApiClient.getModpackDetails(modId) 
   )
 
   // Mod Management (CurseForge)
   ipcMain.handle('search-curseforge-mods', async (_, search: string, type: string, version: string, page?: number, classId?: number, sortField?: number) => 
-    MinecraftModManager.searchCurseforgeMods(search, type, version, page, classId, sortField)
+    CurseForgeApiClient.searchCurseforgeMods(search, type, version, page, classId, sortField)
   )
 
   ipcMain.handle('get-curseforge-mod', async (_, modId: number) => 
-    MinecraftModManager.getCurseforgeMod(modId)
+    CurseForgeApiClient.getCurseforgeMod(modId)
   )
 
   ipcMain.handle('get-curseforge-file', async (_, modId: number, fileId: number) => 
-    MinecraftModManager.getCurseforgeFile(modId, fileId)
+    CurseForgeApiClient.getCurseforgeFile(modId, fileId)
   )
 
   ipcMain.handle('install-curseforge-mod', async (event, id: number, downloadUrl: string, fileName: string, classId?: number) => 

@@ -6,12 +6,13 @@ import semver from 'semver'
 import { JavaManager } from '../adapters/JavaManager'
 import pidusage from 'pidusage'
 import { MinecraftConfigManager } from './MinecraftConfigManager'
+import { MinecraftPlayerManager } from './MinecraftPlayerManager'
 
 export class MinecraftProcessManager {
   serverId: number;
   serverDir: string;
   process: ChildProcess | null = null;
-  onlinePlayers: string[] = [];
+  playerManager: MinecraftPlayerManager;
   autoStopTimer: NodeJS.Timeout | null = null;
   statsTimer: NodeJS.Timeout | null = null;
   omnihostMeta: any = {}; 
@@ -22,6 +23,7 @@ export class MinecraftProcessManager {
   constructor(serverId: number) {
     this.serverId = serverId;
     this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+    this.playerManager = new MinecraftPlayerManager(serverId, this.serverDir);
   }
 
   sendLog(msg: string) {
@@ -33,136 +35,7 @@ export class MinecraftProcessManager {
     });
   }
 
-  sendPlayerUpdate() {
-    BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });
-    });
-  }
 
-  sendCommand(cmd: string) {
-    if (this.process && this.process.stdin) {
-      this.process.stdin.write(cmd + '\n');
-      this.sendLog(`> ${cmd}`); 
-    } else {
-      this.sendLog(`[System] Cannot send command: Server is offline.`);
-    }
-  }
-
-  private getActualPid(): Promise<number> {
-    return new Promise((resolve) => {
-      const proc = this.process;
-      if (!proc || !proc.pid) return resolve(0);
-      if (this.javaPid) return resolve(this.javaPid);
-      if (process.platform !== 'win32') return resolve(proc.pid);
-
-      const { spawn } = require('child_process');
-      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);
-      
-      let out = '';
-      ps.stdout.on('data', (data: any) => out += data.toString());
-      
-      ps.on('close', () => {
-        const pid = parseInt(out.trim());
-        if (!isNaN(pid) && pid > 0) {
-          this.javaPid = pid;
-          resolve(pid);
-        } else {
-          resolve(proc.pid!);
-        }
-      });
-
-      const script = `
-        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name
-        $target = ${proc.pid}
-        $children = @{}
-        foreach ($p in $all) {
-            if (-not $children.ContainsKey($p.ParentProcessId)) {
-                $children[$p.ParentProcessId] = @()
-            }
-            $children[$p.ParentProcessId] += $p
-        }
-        $queue = [System.Collections.Generic.Queue[int]]::new()
-        $queue.Enqueue($target)
-        $found = 0
-        while ($queue.Count -gt 0) {
-            $curr = $queue.Dequeue()
-            if ($children.ContainsKey($curr)) {
-                foreach ($c in $children[$curr]) {
-                    if ($c.Name -match 'java') {
-                        $found = $c.ProcessId
-                        break
-                    }
-                    $queue.Enqueue($c.ProcessId)
-                }
-            }
-            if ($found -ne 0) { break }
-        }
-        Write-Output $found
-      `;
-      ps.stdin.write(script);
-      ps.stdin.end();
-    });
-  }
-
-
-  async updatePlayerStats(username: string, isJoin: boolean) {
-    const statsPath = join(this.serverDir, 'player-stats.json');
-    let stats: any = {};
-    if (fs.existsSync(statsPath)) {
-      try {
-        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));
-      } catch (e) {}
-    }
-    
-    if (!stats[username]) {
-      stats[username] = {
-        username,
-        firstJoin: Date.now(),
-        lastLeft: null,
-        totalPlaytime: 0
-      };
-    }
-
-    if (isJoin) {
-      stats[username].currentSessionStart = Date.now();
-      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');
-    } else {
-      const joinTime = stats[username].currentSessionStart;
-      if (joinTime) {
-        const duration = Date.now() - joinTime;
-        stats[username].totalPlaytime += duration;
-        stats[username].currentSessionStart = null;
-      }
-      stats[username].lastLeft = Date.now();
-
-      try {
-        const cachePath = join(this.serverDir, 'usercache.json');
-        if (fs.existsSync(cachePath)) {
-          const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
-          const playerEntry = cache.find((p: any) => p.name.toLowerCase() === username.toLowerCase());
-          if (playerEntry) {
-            let datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);
-            if (!fs.existsSync(datPath)) {
-              datPath = join(this.serverDir, 'world', 'players', 'data', `${playerEntry.uuid}.dat`);
-            }
-            if (fs.existsSync(datPath)) {
-              const buffer = fs.readFileSync(datPath);
-              const nbt = require('prismarine-nbt');
-              const { parsed } = await nbt.parse(buffer);
-              const pos = parsed.value.Pos?.value?.value || [];
-              if (pos.length === 3) {
-                 stats[username].logoffPosition = { x: Math.round(pos[0]), y: Math.round(pos[1]), z: Math.round(pos[2]) };
-              }
-            }
-          }
-        }
-      } catch (err) {
-        this.sendLog(`[System] Error getting position for ${username}: ${err}`);
-      }
-
-      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');
-    }
-  }
 
   /**
    * Parses a Forge/NeoForge run.bat or start.bat file to extract Java arguments.
@@ -225,10 +98,10 @@ export class MinecraftProcessManager {
 
   async start() {
     await MinecraftConfigManager.init(this.serverDir);
-    this.onlinePlayers = []; 
+    this.playerManager.clearOnlinePlayers(); 
     this.logHistory = [];
     this.isFullyStarted = false;
-    this.sendPlayerUpdate();
+    this.playerManager.sendPlayerUpdate();
     
     this.sendLog(`[System] Starting Server ${this.serverId}...`);
 
@@ -382,17 +255,11 @@ export class MinecraftProcessManager {
 
         const joinMatch = cleanText.match(/([a-zA-Z0-9_]{3,16}) joined the game/);
         if (joinMatch) {
-          if (!this.onlinePlayers.includes(joinMatch[1])) {
-            this.onlinePlayers.push(joinMatch[1]);
-            this.updatePlayerStats(joinMatch[1], true);
-            this.sendPlayerUpdate();
-          }
+          this.playerManager.handlePlayerJoin(joinMatch[1]);
         }
         const leaveMatch = cleanText.match(/([a-zA-Z0-9_]{3,16}) left the game/);
         if (leaveMatch) {
-          this.onlinePlayers = this.onlinePlayers.filter(p => p !== leaveMatch[1]);
-          this.updatePlayerStats(leaveMatch[1], false);
-          this.sendPlayerUpdate();
+          this.playerManager.handlePlayerLeave(leaveMatch[1]);
         }
       });
     }
@@ -400,7 +267,7 @@ export class MinecraftProcessManager {
   }
 
   async stop(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       if (!this.process) {
         resolve();
         return;
@@ -417,12 +284,7 @@ export class MinecraftProcessManager {
       this.statsTimer = null;
 
       // Update stats for all players before clearing them
-      for (const pName of this.onlinePlayers) {
-        this.updatePlayerStats(pName, false);
-      }
-      
-      this.onlinePlayers = []; 
-      this.sendPlayerUpdate();
+      await this.playerManager.handleServerStop();
 
       let isResolved = false;
 
