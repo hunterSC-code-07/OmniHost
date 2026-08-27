@@ -5,7 +5,7 @@ import { useServerStore } from '../../../../store/useServerStore';
 import { useDayzModStore } from '../../../../store/useDayzModStore';
 import { useDayzMods } from '../../../../hooks/useDayzMods';
 import { useDayzModInstallation } from '../../../../hooks/useDayzModInstallation';
-import { useSteamCredentials } from '../../../../hooks/useSteamCredentials';
+import { useSteamCredentialsStore } from '../../../../store/useSteamCredentialsStore';
 
 interface DayzModsTabProps {
   onNavigateToInstalled: () => void;
@@ -15,7 +15,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
   const { activeServerId } = useServerStore();
   const { pendingDownloads, removePendingDownload } = useDayzModStore();
 
-  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentials();
+  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentialsStore();
 
   const {
     searchQuery, setSearchQuery,

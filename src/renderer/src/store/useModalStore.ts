@@ -43,6 +43,10 @@ interface ModalStore {
   dayzRebuildSuccessModal: { isOpen: boolean };
   openDayzRebuildSuccessModal: () => void;
   closeDayzRebuildSuccessModal: () => void;
+
+  dayzDependencyResultModal: { isOpen: boolean; modTitle: string; deps: any[] };
+  openDayzDependencyResultModal: (modTitle: string, deps: any[]) => void;
+  closeDayzDependencyResultModal: () => void;
 }
 
 export const useModalStore = create<ModalStore>((set) => ({
@@ -90,5 +94,9 @@ export const useModalStore = create<ModalStore>((set) => ({
 
   dayzRebuildSuccessModal: { isOpen: false },
   openDayzRebuildSuccessModal: () => set({ dayzRebuildSuccessModal: { isOpen: true } }),
-  closeDayzRebuildSuccessModal: () => set({ dayzRebuildSuccessModal: { isOpen: false } })
+  closeDayzRebuildSuccessModal: () => set({ dayzRebuildSuccessModal: { isOpen: false } }),
+
+  dayzDependencyResultModal: { isOpen: false, modTitle: '', deps: [] },
+  openDayzDependencyResultModal: (modTitle, deps) => set({ dayzDependencyResultModal: { isOpen: true, modTitle, deps } }),
+  closeDayzDependencyResultModal: () => set((state) => ({ dayzDependencyResultModal: { ...state.dayzDependencyResultModal, isOpen: false } }))
 }));
