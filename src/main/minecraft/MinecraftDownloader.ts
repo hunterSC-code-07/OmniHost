@@ -32,7 +32,8 @@ export class MinecraftDownloader {
     } catch (e) {
       console.error(e)
       return []
-    }  }
+    }
+  }
 
   static async getPaperVersions() {
     try {
@@ -57,7 +58,8 @@ export class MinecraftDownloader {
     } catch (e) {
       console.error(e)
       return []
-    }  }
+    }
+  }
 
   static async getFabricVersions() {
     try {
@@ -66,7 +68,8 @@ export class MinecraftDownloader {
     } catch (e) {
       console.error(e)
       return []
-    }  }
+    }
+  }
 
   static async getForgeVersions() {
     try {
@@ -84,7 +87,8 @@ export class MinecraftDownloader {
     } catch (e) {
       console.error(e)
       return []
-    }  }
+    }
+  }
 
   static async getNeoForgeVersions() {
     try {
@@ -107,7 +111,8 @@ export class MinecraftDownloader {
     } catch (e) {
       console.error(e)
       return []
-    }  }
+    }
+  }
 
   static async getLoaderVersions(type: string, mcVersion: string) {
     try {
@@ -180,11 +185,16 @@ export class MinecraftDownloader {
     } catch (e: any) {
       console.error('Error fetching loader versions:', e.message)
       return []
-    }  }
+    }
+  }
 
-
-
-  static async downloadServerJar(event: any, id: number, type: string, version: string, loaderVersion: string) {
+  static async downloadServerJar(
+    event: any,
+    id: number,
+    type: string,
+    version: string,
+    loaderVersion: string
+  ) {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString())
     const jarPath = join(serverDir, 'server.jar')
     const installerPath = join(serverDir, 'installer.jar')
@@ -318,5 +328,6 @@ export class MinecraftDownloader {
     } catch (e: any) {
       console.error(e)
       throw new Error(e.message)
-    }  }
+    }
+  }
 }

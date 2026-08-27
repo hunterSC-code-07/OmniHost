@@ -1,43 +1,44 @@
-import { DayzProcessManager } from '../dayz/DayzProcessManager';
+import { DayzProcessManager } from '../dayz/DayzProcessManager'
+import { ChildProcess } from 'child_process'
 
 export class DayzAdapter {
-  serverId: number;
-  private processManager: DayzProcessManager;
+  serverId: number
+  private processManager: DayzProcessManager
 
   constructor(serverId: number) {
-    this.serverId = serverId;
-    this.processManager = new DayzProcessManager(serverId);
+    this.serverId = serverId
+    this.processManager = new DayzProcessManager(serverId)
   }
 
-  async start() {
-    await this.processManager.start();
+  async start(): Promise<void> {
+    await this.processManager.start()
   }
 
-  stop() {
-    this.processManager.stop();
+  stop(): void {
+    this.processManager.stop()
   }
 
-  sendCommand(cmd: string) {
-    this.processManager.sendCommand(cmd);
+  sendCommand(cmd: string): void {
+    this.processManager.sendCommand(cmd)
   }
 
-  get process() {
-    return this.processManager.process;
+  get process(): ChildProcess | null {
+    return this.processManager.process
   }
 
-  get logHistory() {
-    return this.processManager.logHistory;
+  get logHistory(): string[] {
+    return this.processManager.logHistory
   }
 
-  get onlinePlayers() {
-    return this.processManager.onlinePlayers;
+  get onlinePlayers(): string[] {
+    return this.processManager.onlinePlayers
   }
 
-  get omnihostMeta() {
-    return this.processManager.omnihostMeta;
+  get omnihostMeta(): Record<string, unknown> {
+    return this.processManager.omnihostMeta
   }
 
-  set omnihostMeta(meta: any) {
-    this.processManager.omnihostMeta = meta;
+  set omnihostMeta(meta: Record<string, unknown>) {
+    this.processManager.omnihostMeta = meta
   }
 }

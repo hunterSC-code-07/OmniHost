@@ -14,7 +14,7 @@ import { DayzMissionManager } from '../dayz/DayzMissionManager'
 import { DayzModStatusManager } from '../dayz/DayzModStatusManager'
 import { MinecraftConfigManager } from '../minecraft/MinecraftConfigManager'
 
-async function exists(path: string) {
+async function exists(path: string): Promise<boolean> {
   try {
     await fsPromises.access(path)
     return true
@@ -23,26 +23,27 @@ async function exists(path: string) {
   }
 }
 
-
 export function registerServerIpc(
-  activeServers: Record<number, any>,
+  activeServers: Record<number, unknown>,
   activeProxies: Record<number, WakeProxy>
-) {
+): void {
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database
   ipcMain.handle('get-servers', () => {
-    const list = getServers() as any[]
+    const list = getServers() as Record<string, unknown>[]
     const serversDir = join(app.getPath('userData'), 'servers')
     return list.map((srv) => {
-      let meta: any = {}
+      let meta: Record<string, unknown> = {}
       let port = 25565
       const srvDir = join(serversDir, srv.id.toString())
       const metaPath = join(srvDir, 'omnihost.json')
       if (fs.existsSync(metaPath)) {
         try {
           meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
-        } catch (e) {}
+        } catch {
+          /* ignore */
+        }
       }
       const propsPath = join(srvDir, 'server.properties')
       if (fs.existsSync(propsPath)) {
@@ -50,7 +51,9 @@ export function registerServerIpc(
           const props = fs.readFileSync(propsPath, 'utf-8')
           const match = props.match(/^server-port=(\d+)/m)
           if (match) port = parseInt(match[1], 10)
-        } catch (e) {}
+        } catch {
+          /* ignore */
+        }
       }
       let type = meta.type
       if (!type && srv.game) {
@@ -87,7 +90,7 @@ export function registerServerIpc(
         try {
           await fsPromises.rm(srvDir, { recursive: true, force: true })
           break
-        } catch (e: any) {
+        } catch (e: unknown) {
           if (e.code === 'EBUSY' && i < 4) {
             await new Promise((r) => setTimeout(r, 1000))
           } else {
@@ -186,7 +189,7 @@ export function registerServerIpc(
         }
       }
       return true
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('WakeProxy error:', e)
       return false
     }
@@ -207,7 +210,9 @@ export function registerServerIpc(
           const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
           if (meta.game) game = meta.game
         }
-      } catch (e) {}
+      } catch {
+        /* ignore */
+      }
 
       if (game === 'DayZ') {
         activeServers[id] = new DayzAdapter(id)
@@ -263,357 +268,393 @@ export function registerServerIpc(
   // --- DayZ Economy ---
   ipcMain.handle('get-dayz-economy', async (_, id) => {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
-      const cfgPath = join(serverDir, 'serverDZ.cfg');
-      if (!await exists(cfgPath)) return null;
-      
-      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');
-      const templateMatch = cfg.match(/template\s*=\s*"([^"]*)"/i);
-      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';
-      
-      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const cfgPath = join(serverDir, 'serverDZ.cfg')
+      if (!(await exists(cfgPath))) return null
 
-      let pristineLoot = false;
+      const cfg = await fsPromises.readFile(cfgPath, 'utf-8')
+      const templateMatch = cfg.match(/template\s*=\s*"([^"]*)"/i)
+      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus'
+
+      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml')
+
+      let pristineLoot = false
       if (await exists(globalsPath)) {
-        const parser = new XMLParser({ ignoreAttributes: false });
-        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));
-        
+        const parser = new XMLParser({ ignoreAttributes: false })
+        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'))
+
         // Find LootDamageMax
-        const vars = globalsData.variables?.var || [];
-        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');
+        const vars = globalsData.variables?.var || []
+        const damageMaxVar = vars.find(
+          (v: Record<string, unknown>) => v['@_name'] === 'LootDamageMax'
+        )
         if (damageMaxVar && damageMaxVar['@_value'] === '0.0') {
-          pristineLoot = true;
+          pristineLoot = true
         }
       }
 
-      // For multipliers, since modifying them directly overwrites original values, 
+      // For multipliers, since modifying them directly overwrites original values,
       // we can't reliably read the "multiplier" from the XML alone unless we track it.
       // So we'll just return the pristine state, and default multipliers will be 1 on frontend.
 
-      return { pristineLoot, template };
+      return { pristineLoot, template }
     } catch (e) {
-      console.error('Failed to get DayZ economy', e);
-      return null;
+      console.error('Failed to get DayZ economy', e)
+      return null
     }
-  });
+  })
 
-  ipcMain.handle('update-dayz-economy', async (_, id, settings: { pristineLoot: boolean, multipliers: Record<string, number> }) => {
-    try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
-      const cfgPath = join(serverDir, 'serverDZ.cfg');
-      if (!await exists(cfgPath)) return false;
-      
-      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');
-      const templateMatch = cfg.match(/template\s*=\s*"([^"]*)"/i);
-      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';
-      
-      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');
-      const typesPath = join(serverDir, 'mpmissions', template, 'db', 'types.xml');
+  ipcMain.handle(
+    'update-dayz-economy',
+    async (_, id, settings: { pristineLoot: boolean; multipliers: Record<string, number> }) => {
+      try {
+        const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+        const cfgPath = join(serverDir, 'serverDZ.cfg')
+        if (!(await exists(cfgPath))) return false
 
-      // 1. Update globals.xml
-      if (await exists(globalsPath)) {
-        // Backup
-        await fsPromises.copyFile(globalsPath, `${globalsPath}.bak_${Date.now()}`);
-        
-        const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false });
-        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));
-        
-        const vars = globalsData.variables?.var || [];
-        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');
-        const damageMinVar = vars.find((v: any) => v['@_name'] === 'LootDamageMin');
-        
-        if (damageMaxVar && damageMinVar) {
-          damageMaxVar['@_value'] = settings.pristineLoot ? '0.0' : '1.0';
-          damageMinVar['@_value'] = settings.pristineLoot ? '0.0' : '0.5';
-        }
-        
-        const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
-        const newGlobals = builder.build(globalsData);
-        await fsPromises.writeFile(globalsPath, newGlobals);
-      }
+        const cfg = await fsPromises.readFile(cfgPath, 'utf-8')
+        const templateMatch = cfg.match(/template\s*=\s*"([^"]*)"/i)
+        const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus'
 
-      // 2. Update types.xml
-      if (await exists(typesPath)) {
-        // Backup
-        await fsPromises.copyFile(typesPath, `${typesPath}.bak_${Date.now()}`);
-        
-        const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false });
-        let typesData = parser.parse(await fsPromises.readFile(typesPath, 'utf-8'));
-        
-        // Read original values from a pristine backup if we have one to avoid compounding multipliers
-        const originalBackup = `${typesPath}.original`;
-        if (!(await exists(originalBackup))) {
-          await fsPromises.copyFile(typesPath, originalBackup);
-        } else {
-          typesData = parser.parse(await fsPromises.readFile(originalBackup, 'utf-8'));
-        }
+        const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml')
+        const typesPath = join(serverDir, 'mpmissions', template, 'db', 'types.xml')
 
-        const items = typesData.types?.type || [];
-        
-        for (const item of items) {
-          const category = item.category?.['@_name'];
-          if (category && settings.multipliers[category] !== undefined) {
-            const mult = settings.multipliers[category];
-            if (item.nominal) {
-              item.nominal = Math.round(Number(item.nominal) * mult);
-            }
-            if (item.min) {
-              item.min = Math.round(Number(item.min) * mult);
-            }
-          }
-        }
-        
-        const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
-        // The builder sometimes omits the xml header, we should add it back manually just in case
-        let newTypes = builder.build(typesData);
-        if (!newTypes.startsWith('<?xml')) {
-            newTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + newTypes;
-        }
-        await fsPromises.writeFile(typesPath, newTypes);
-      }
-
-      // 3. Update cfgspawnabletypes.xml for Pristine Loot override
-      const possibleCfgPaths = [
-        join(serverDir, 'mpmissions', template, 'cfgspawnabletypes.xml'),
-        join(serverDir, 'mpmissions', template, 'db', 'cfgspawnabletypes.xml'),
-        join(serverDir, 'mpmissions', template, 'env', 'cfgspawnabletypes.xml')
-      ];
-      
-      for (const spawnablePath of possibleCfgPaths) {
-        if (await exists(spawnablePath)) {
+        // 1. Update globals.xml
+        if (await exists(globalsPath)) {
           // Backup
-          await fsPromises.copyFile(spawnablePath, `${spawnablePath}.bak_${Date.now()}`);
-          
-          const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false });
-          let spawnData = parser.parse(await fsPromises.readFile(spawnablePath, 'utf-8'));
-          
-          const originalBackup = `${spawnablePath}.original`;
-          if (!(await exists(originalBackup))) {
-            await fsPromises.copyFile(spawnablePath, originalBackup);
-          } else if (!settings.pristineLoot) {
-            // Only revert to original if pristineLoot is disabled
-            spawnData = parser.parse(await fsPromises.readFile(originalBackup, 'utf-8'));
+          await fsPromises.copyFile(globalsPath, `${globalsPath}.bak_${Date.now()}`)
+
+          const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false })
+          const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'))
+
+          const vars = globalsData.variables?.var || []
+          const damageMaxVar = vars.find(
+            (v: Record<string, unknown>) => v['@_name'] === 'LootDamageMax'
+          )
+          const damageMinVar = vars.find(
+            (v: Record<string, unknown>) => v['@_name'] === 'LootDamageMin'
+          )
+
+          if (damageMaxVar && damageMinVar) {
+            damageMaxVar['@_value'] = settings.pristineLoot ? '0.0' : '1.0'
+            damageMinVar['@_value'] = settings.pristineLoot ? '0.0' : '0.5'
           }
 
-          if (settings.pristineLoot) {
-            const types = spawnData.spawnabletypes?.type || [];
-            // Ensure types is an array (fast-xml-parser can make it an object if only one exists)
-            const typesArray = Array.isArray(types) ? types : [types];
+          const builder = new XMLBuilder({ ignoreAttributes: false, format: true })
+          const newGlobals = builder.build(globalsData)
+          await fsPromises.writeFile(globalsPath, newGlobals)
+        }
 
-            for (const type of typesArray) {
-              if (type.damage) {
-                // Delete the damage node entirely to rely on global config
-                delete type.damage;
+        // 2. Update types.xml
+        if (await exists(typesPath)) {
+          // Backup
+          await fsPromises.copyFile(typesPath, `${typesPath}.bak_${Date.now()}`)
+
+          const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false })
+          let typesData = parser.parse(await fsPromises.readFile(typesPath, 'utf-8'))
+
+          // Read original values from a pristine backup if we have one to avoid compounding multipliers
+          const originalBackup = `${typesPath}.original`
+          if (!(await exists(originalBackup))) {
+            await fsPromises.copyFile(typesPath, originalBackup)
+          } else {
+            typesData = parser.parse(await fsPromises.readFile(originalBackup, 'utf-8'))
+          }
+
+          const items = typesData.types?.type || []
+
+          for (const item of items) {
+            const category = item.category?.['@_name']
+            if (category && settings.multipliers[category] !== undefined) {
+              const mult = settings.multipliers[category]
+              if (item.nominal) {
+                item.nominal = Math.round(Number(item.nominal) * mult)
+              }
+              if (item.min) {
+                item.min = Math.round(Number(item.min) * mult)
               }
             }
           }
-          
-          const builder = new XMLBuilder({ ignoreAttributes: false, format: true });
-          let newSpawnData = builder.build(spawnData);
-          if (!newSpawnData.startsWith('<?xml')) {
-              newSpawnData = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + newSpawnData;
-          }
-          await fsPromises.writeFile(spawnablePath, newSpawnData);
-          break; // Found and updated, no need to check other path
-        }
-      }
 
-      return true;
-    } catch (e) {
-      console.error('Failed to update DayZ economy', e);
-      return false;
+          const builder = new XMLBuilder({ ignoreAttributes: false, format: true })
+          // The builder sometimes omits the xml header, we should add it back manually just in case
+          let newTypes = builder.build(typesData)
+          if (!newTypes.startsWith('<?xml')) {
+            newTypes = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + newTypes
+          }
+          await fsPromises.writeFile(typesPath, newTypes)
+        }
+
+        // 3. Update cfgspawnabletypes.xml for Pristine Loot override
+        const possibleCfgPaths = [
+          join(serverDir, 'mpmissions', template, 'cfgspawnabletypes.xml'),
+          join(serverDir, 'mpmissions', template, 'db', 'cfgspawnabletypes.xml'),
+          join(serverDir, 'mpmissions', template, 'env', 'cfgspawnabletypes.xml')
+        ]
+
+        for (const spawnablePath of possibleCfgPaths) {
+          if (await exists(spawnablePath)) {
+            // Backup
+            await fsPromises.copyFile(spawnablePath, `${spawnablePath}.bak_${Date.now()}`)
+
+            const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false })
+            let spawnData = parser.parse(await fsPromises.readFile(spawnablePath, 'utf-8'))
+
+            const originalBackup = `${spawnablePath}.original`
+            if (!(await exists(originalBackup))) {
+              await fsPromises.copyFile(spawnablePath, originalBackup)
+            } else if (!settings.pristineLoot) {
+              // Only revert to original if pristineLoot is disabled
+              spawnData = parser.parse(await fsPromises.readFile(originalBackup, 'utf-8'))
+            }
+
+            if (settings.pristineLoot) {
+              const types = spawnData.spawnabletypes?.type || []
+              // Ensure types is an array (fast-xml-parser can make it an object if only one exists)
+              const typesArray = Array.isArray(types) ? types : [types]
+
+              for (const type of typesArray) {
+                if (type.damage) {
+                  // Delete the damage node entirely to rely on global config
+                  delete type.damage
+                }
+              }
+            }
+
+            const builder = new XMLBuilder({ ignoreAttributes: false, format: true })
+            let newSpawnData = builder.build(spawnData)
+            if (!newSpawnData.startsWith('<?xml')) {
+              newSpawnData =
+                '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' + newSpawnData
+            }
+            await fsPromises.writeFile(spawnablePath, newSpawnData)
+            break // Found and updated, no need to check other path
+          }
+        }
+
+        return true
+      } catch (e) {
+        console.error('Failed to update DayZ economy', e)
+        return false
+      }
     }
-  });
+  )
 
   ipcMain.handle('wipe-dayz-loot', async (_, id, wipePlayers) => {
     try {
-      console.log(`[Wipe Loot Debug] Starting wipe for server ${id}, wipePlayers: ${wipePlayers}`);
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString());
-      const cfgPath = join(serverDir, 'serverDZ.cfg');
-      if (!await exists(cfgPath)) {
-        console.log(`[Wipe Loot Debug] cfgPath doesn't exist: ${cfgPath}`);
-        return true; // Already wiped or doesn't exist since server hasn't run
-      }
-      
-      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');
-      const templateMatch = cfg.match(/template\s*=\s*"([^"]*)"/i);
-      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';
-      console.log(`[Wipe Loot Debug] Template: ${template}`);
-      
-      const instanceIdMatch = cfg.match(/instanceId\s*=\s*(\d+)/i);
-      const instanceId = instanceIdMatch ? instanceIdMatch[1] : '1';
-      console.log(`[Wipe Loot Debug] Instance ID: ${instanceId}`);
-      
-      if (activeServers[id]) {
-        console.log(`[Wipe Loot Debug] Server is running! Throwing error.`);
-        throw new Error('SERVER_IS_RUNNING');
+      console.log(`[Wipe Loot Debug] Starting wipe for server ${id}, wipePlayers: ${wipePlayers}`)
+      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const cfgPath = join(serverDir, 'serverDZ.cfg')
+      if (!(await exists(cfgPath))) {
+        console.log(`[Wipe Loot Debug] cfgPath doesn't exist: ${cfgPath}`)
+        return true // Already wiped or doesn't exist since server hasn't run
       }
 
-      const storagePath = join(serverDir, 'mpmissions', template, `storage_${instanceId}`);
-      console.log(`[Wipe Loot Debug] Storage Path: ${storagePath}`);
+      const cfg = await fsPromises.readFile(cfgPath, 'utf-8')
+      const templateMatch = cfg.match(/template\s*=\s*"([^"]*)"/i)
+      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus'
+      console.log(`[Wipe Loot Debug] Template: ${template}`)
+
+      const instanceIdMatch = cfg.match(/instanceId\s*=\s*(\d+)/i)
+      const instanceId = instanceIdMatch ? instanceIdMatch[1] : '1'
+      console.log(`[Wipe Loot Debug] Instance ID: ${instanceId}`)
+
+      if (activeServers[id]) {
+        console.log(`[Wipe Loot Debug] Server is running! Throwing error.`)
+        throw new Error('SERVER_IS_RUNNING')
+      }
+
+      const storagePath = join(serverDir, 'mpmissions', template, `storage_${instanceId}`)
+      console.log(`[Wipe Loot Debug] Storage Path: ${storagePath}`)
       if (await exists(storagePath)) {
-        const entries = await fsPromises.readdir(storagePath);
-        console.log(`[Wipe Loot Debug] Entries found: ${entries.join(', ')}`);
+        const entries = await fsPromises.readdir(storagePath)
+        console.log(`[Wipe Loot Debug] Entries found: ${entries.join(', ')}`)
         for (const entry of entries) {
           if (!wipePlayers && entry === 'players.db') {
-            console.log(`[Wipe Loot Debug] Skipping players.db`);
-            continue; // Skip deleting player data
+            console.log(`[Wipe Loot Debug] Skipping players.db`)
+            continue // Skip deleting player data
           }
-          const entryPath = join(storagePath, entry);
-          console.log(`[Wipe Loot Debug] Deleting: ${entryPath}`);
-          await fsPromises.rm(entryPath, { recursive: true, force: true });
+          const entryPath = join(storagePath, entry)
+          console.log(`[Wipe Loot Debug] Deleting: ${entryPath}`)
+          await fsPromises.rm(entryPath, { recursive: true, force: true })
         }
       } else {
-        console.log(`[Wipe Loot Debug] Storage path doesn't exist`);
+        console.log(`[Wipe Loot Debug] Storage path doesn't exist`)
       }
-      console.log(`[Wipe Loot Debug] Finished successfully`);
-      return true;
-    } catch (e: any) {
-      console.error('Failed to wipe DayZ loot', e);
-      if (e.message === 'SERVER_IS_RUNNING') throw e;
-      return false;
+      console.log(`[Wipe Loot Debug] Finished successfully`)
+      return true
+    } catch (e: unknown) {
+      console.error('Failed to wipe DayZ loot', e)
+      if (e.message === 'SERVER_IS_RUNNING') throw e
+      return false
     }
-  });
+  })
 
   // --- DayZ Mods ---
   ipcMain.handle('search-steam-workshop', async (_, query, queryType, page, requiredTags) => {
-    return await SteamWebAPI.searchWorkshop(query, 221100, page || 1, queryType || 9, requiredTags || []);
-  });
+    return await SteamWebAPI.searchWorkshop(
+      query,
+      221100,
+      page || 1,
+      queryType || 9,
+      requiredTags || []
+    )
+  })
 
   ipcMain.handle('get-mod-dependencies', async (_, modId) => {
-    return await SteamWebAPI.getModDependencies(modId);
-  });
+    return await SteamWebAPI.getModDependencies(modId)
+  })
 
   ipcMain.handle('rebuild-mod-dependencies', async (_, id) => {
-    return await DayzModStatusManager.rebuildModDependencies(id);
-  });
+    return await DayzModStatusManager.rebuildModDependencies(id)
+  })
 
   ipcMain.handle('get-workshop-item-details', async (_, modIds) => {
-    return await SteamWebAPI.getWorkshopItemDetails(modIds);
-  });
+    return await SteamWebAPI.getWorkshopItemDetails(modIds)
+  })
 
   ipcMain.handle('get-dayz-installed-mods', async (_, id) => {
-    return await DayzModStatusManager.getInstalledMods(id);
-  });
+    return await DayzModStatusManager.getInstalledMods(id)
+  })
 
   ipcMain.handle('toggle-dayz-map-mod', async (_, id, folderName, isMap) => {
-    return await DayzModStatusManager.toggleMapMod(id, folderName, isMap);
-  });
+    return await DayzModStatusManager.toggleMapMod(id, folderName, isMap)
+  })
 
   ipcMain.handle('toggle-dayz-mod-status', async (_, id, folderName, isDisabled) => {
-    return await DayzModStatusManager.toggleModStatus(id, folderName, isDisabled);
-  });
+    return await DayzModStatusManager.toggleModStatus(id, folderName, isDisabled)
+  })
 
   ipcMain.handle('download-dayz-mission', async (_, id, modId) => {
-    return await DayzMissionManager.fetchDayzMission(id, modId);
-  });
+    return await DayzMissionManager.fetchDayzMission(id, modId)
+  })
 
   ipcMain.handle('extract-dayz-local-mission', async (_, id, localMissionsPath) => {
-    return await DayzMissionManager.extractLocalMission(id, localMissionsPath);
-  });
+    return await DayzMissionManager.extractLocalMission(id, localMissionsPath)
+  })
 
   ipcMain.handle('select-workshop-folder', async () => {
-    return await DayzModInstaller.selectWorkshopFolder();
-  });
+    return await DayzModInstaller.selectWorkshopFolder()
+  })
 
   ipcMain.handle('import-local-workshop', async (_, id, workshopPath) => {
-    return await DayzModInstaller.importLocalWorkshop(id, workshopPath);
-  });
+    return await DayzModInstaller.importLocalWorkshop(id, workshopPath)
+  })
 
-  ipcMain.handle('install-dayz-mods', async (_, id, modsToInstall, username, password, steamGuardCode) => {
-    return await DayzModInstaller.installMods(id, modsToInstall, username, password, steamGuardCode);
-  });
+  ipcMain.handle(
+    'install-dayz-mods',
+    async (_, id, modsToInstall, username, password, steamGuardCode) => {
+      return await DayzModInstaller.installMods(
+        id,
+        modsToInstall,
+        username,
+        password,
+        steamGuardCode
+      )
+    }
+  )
 
-  ipcMain.handle('install-dayz-mod', async (_, id, modId, modTitle, username, password, steamGuardCode) => {
-    return await DayzModInstaller.installMod(id, modId, modTitle, username, password, steamGuardCode);
-  });
+  ipcMain.handle(
+    'install-dayz-mod',
+    async (_, id, modId, modTitle, username, password, steamGuardCode) => {
+      return await DayzModInstaller.installMod(
+        id,
+        modId,
+        modTitle,
+        username,
+        password,
+        steamGuardCode
+      )
+    }
+  )
 
   ipcMain.handle('uninstall-dayz-mod', async (_, id, modIdOrFolder) => {
-    return await DayzModInstaller.uninstallMod(id, modIdOrFolder);
-  });
+    return await DayzModInstaller.uninstallMod(id, modIdOrFolder)
+  })
   // --- File System Operations ---
-  
-  const getServerPath = (serverId: number, relativePath: string) => {
-    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
-    const safePath = join(serverDir, relativePath);
+
+  const getServerPath = (serverId: number, relativePath: string): string => {
+    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())
+    const safePath = join(serverDir, relativePath)
     // Basic directory traversal protection
     if (!safePath.startsWith(serverDir)) {
-      throw new Error('Access denied');
+      throw new Error('Access denied')
     }
-    return safePath;
-  };
+    return safePath
+  }
 
   ipcMain.handle('fs-list-dir', async (_, serverId, dirPath) => {
     try {
-      const fullPath = getServerPath(serverId, dirPath || '');
-      if (!(await exists(fullPath))) return [];
+      const fullPath = getServerPath(serverId, dirPath || '')
+      if (!(await exists(fullPath))) return []
 
-      const entries = await fsPromises.readdir(fullPath, { withFileTypes: true });
-      const files = await Promise.all(entries.map(async (entry) => {
-        const entryPath = join(fullPath, entry.name);
-        const stats = await fsPromises.stat(entryPath);
-        return {
-          name: entry.name,
-          isDirectory: entry.isDirectory(),
-          size: stats.size,
-          mtime: stats.mtime.toISOString(),
-        };
-      }));
+      const entries = await fsPromises.readdir(fullPath, { withFileTypes: true })
+      const files = await Promise.all(
+        entries.map(async (entry) => {
+          const entryPath = join(fullPath, entry.name)
+          const stats = await fsPromises.stat(entryPath)
+          return {
+            name: entry.name,
+            isDirectory: entry.isDirectory(),
+            size: stats.size,
+            mtime: stats.mtime.toISOString()
+          }
+        })
+      )
 
       // Sort directories first, then alphabetically
       return files.sort((a, b) => {
         if (a.isDirectory === b.isDirectory) {
-          return a.name.localeCompare(b.name);
+          return a.name.localeCompare(b.name)
         }
-        return a.isDirectory ? -1 : 1;
-      });
+        return a.isDirectory ? -1 : 1
+      })
     } catch (e) {
-      console.error('Failed to list directory', e);
-      return [];
+      console.error('Failed to list directory', e)
+      return []
     }
-  });
+  })
 
   ipcMain.handle('fs-read-file', async (_, serverId, filePath) => {
     try {
-      const fullPath = getServerPath(serverId, filePath);
-      return await fsPromises.readFile(fullPath, 'utf-8');
+      const fullPath = getServerPath(serverId, filePath)
+      return await fsPromises.readFile(fullPath, 'utf-8')
     } catch (e) {
-      console.error('Failed to read file', e);
-      throw e;
+      console.error('Failed to read file', e)
+      throw e
     }
-  });
+  })
 
   ipcMain.handle('fs-write-file', async (_, serverId, filePath, content) => {
     try {
-      const fullPath = getServerPath(serverId, filePath);
-      await fsPromises.writeFile(fullPath, content, 'utf-8');
-      return true;
+      const fullPath = getServerPath(serverId, filePath)
+      await fsPromises.writeFile(fullPath, content, 'utf-8')
+      return true
     } catch (e) {
-      console.error('Failed to write file', e);
-      throw e;
+      console.error('Failed to write file', e)
+      throw e
     }
-  });
+  })
 
   ipcMain.handle('fs-delete', async (_, serverId, itemPath) => {
     try {
-      const fullPath = getServerPath(serverId, itemPath);
-      await fsPromises.rm(fullPath, { recursive: true, force: true });
-      return true;
+      const fullPath = getServerPath(serverId, itemPath)
+      await fsPromises.rm(fullPath, { recursive: true, force: true })
+      return true
     } catch (e) {
-      console.error('Failed to delete item', e);
-      throw e;
+      console.error('Failed to delete item', e)
+      throw e
     }
-  });
+  })
 
   ipcMain.handle('fs-create-folder', async (_, serverId, folderPath) => {
     try {
-      const fullPath = getServerPath(serverId, folderPath);
-      await fsPromises.mkdir(fullPath, { recursive: true });
-      return true;
+      const fullPath = getServerPath(serverId, folderPath)
+      await fsPromises.mkdir(fullPath, { recursive: true })
+      return true
     } catch (e) {
-      console.error('Failed to create folder', e);
-      throw e;
+      console.error('Failed to create folder', e)
+      throw e
     }
-  });
+  })
 }
-

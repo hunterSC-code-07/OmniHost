@@ -1,112 +1,119 @@
-import React, { useState, useEffect } from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import 'overlayscrollbars/overlayscrollbars.css';
+import React, { useState, useEffect } from 'react'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
+import 'overlayscrollbars/overlayscrollbars.css'
 
-import { useServerStore } from '../../store/useServerStore';
+import { useServerStore } from '../../store/useServerStore'
 
 interface BackupsTabProps {}
 
 export const BackupsTab: React.FC<BackupsTabProps> = () => {
-  const { activeServerId } = useServerStore();
-  
-  const [backups, setBackups] = useState<any[]>([]);
-  const [newBackupName, setNewBackupName] = useState('');
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progressText, setProgressText] = useState('');
+  const { activeServerId } = useServerStore()
+
+  const [backups, setBackups] = useState<any[]>([])
+  const [newBackupName, setNewBackupName] = useState('')
+  const [isProcessing, setIsProcessing] = useState(false)
+  const [progressText, setProgressText] = useState('')
 
   const fetchBackups = async () => {
-    if (activeServerId === null) return;
+    if (activeServerId === null) return
     // @ts-ignore
-    const data = await window.api.backup.getBackups(activeServerId);
-    setBackups(data);
-  };
+    const data = await window.api.backup.getBackups(activeServerId)
+    setBackups(data)
+  }
 
   useEffect(() => {
-    fetchBackups();
-  }, [activeServerId]);
+    fetchBackups()
+  }, [activeServerId])
 
   const handleCreate = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (activeServerId === null) return;
-    setIsProcessing(true);
-    setProgressText('Creating backup (this may take a moment)...');
+    e.preventDefault()
+    if (activeServerId === null) return
+    setIsProcessing(true)
+    setProgressText('Creating backup (this may take a moment)...')
     try {
       // @ts-ignore
-      await window.api.backup.createBackup(activeServerId, newBackupName);
-      setNewBackupName('');
-      await fetchBackups();
+      await window.api.backup.createBackup(activeServerId, newBackupName)
+      setNewBackupName('')
+      await fetchBackups()
     } catch (e: any) {
-      alert('Failed to create backup: ' + e.message);
+      alert('Failed to create backup: ' + e.message)
     } finally {
-      setIsProcessing(false);
-      setProgressText('');
+      setIsProcessing(false)
+      setProgressText('')
     }
-  };
+  }
 
   const handleRestore = async (filename: string) => {
-    if (activeServerId === null) return;
-    if (!confirm(`Are you sure you want to restore ${filename}? This will OVERWRITE your current world and cannot be undone!`)) return;
-    
-    setIsProcessing(true);
-    setProgressText(`Restoring ${filename}...`);
+    if (activeServerId === null) return
+    if (
+      !confirm(
+        `Are you sure you want to restore ${filename}? This will OVERWRITE your current world and cannot be undone!`
+      )
+    )
+      return
+
+    setIsProcessing(true)
+    setProgressText(`Restoring ${filename}...`)
     try {
       // @ts-ignore
-      await window.api.backup.restoreBackup(activeServerId, filename);
-      alert('Backup restored successfully! Make sure to restart your server if it is running.');
+      await window.api.backup.restoreBackup(activeServerId, filename)
+      alert('Backup restored successfully! Make sure to restart your server if it is running.')
     } catch (e: any) {
-      alert('Failed to restore backup: ' + e.message);
+      alert('Failed to restore backup: ' + e.message)
     } finally {
-      setIsProcessing(false);
-      setProgressText('');
+      setIsProcessing(false)
+      setProgressText('')
     }
-  };
+  }
 
   const handleDeleteAllBackups = async () => {
-    if (activeServerId === null) return;
-    if (!confirm('Are you sure you want to delete ALL backups? This cannot be undone!')) return;
+    if (activeServerId === null) return
+    if (!confirm('Are you sure you want to delete ALL backups? This cannot be undone!')) return
 
-    setIsProcessing(true);
-    setProgressText('Deleting all backups...');
+    setIsProcessing(true)
+    setProgressText('Deleting all backups...')
     try {
       // @ts-ignore
-      await window.api.backup.deleteAllBackups(activeServerId);
-      await fetchBackups();
+      await window.api.backup.deleteAllBackups(activeServerId)
+      await fetchBackups()
     } catch (e: any) {
-      alert('Failed to delete all backups: ' + e.message);
+      alert('Failed to delete all backups: ' + e.message)
     } finally {
-      setIsProcessing(false);
-      setProgressText('');
+      setIsProcessing(false)
+      setProgressText('')
     }
-  };
+  }
 
   const handleDelete = async (filename: string) => {
-    if (activeServerId === null) return;
-    if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
-    
-    setIsProcessing(true);
+    if (activeServerId === null) return
+    if (!confirm(`Are you sure you want to delete ${filename}?`)) return
+
+    setIsProcessing(true)
     try {
       // @ts-ignore
-      await window.api.backup.deleteBackup(activeServerId, filename);
-      await fetchBackups();
+      await window.api.backup.deleteBackup(activeServerId, filename)
+      await fetchBackups()
     } catch (e: any) {
-      alert('Failed to delete backup: ' + e.message);
+      alert('Failed to delete backup: ' + e.message)
     } finally {
-      setIsProcessing(false);
+      setIsProcessing(false)
     }
-  };
+  }
 
   const formatBytes = (bytes: number) => {
-    if (!+bytes) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
-  };
+    if (!+bytes) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`
+  }
 
   return (
     <div className="absolute inset-0 flex flex-col min-h-0">
       <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 p-6 rounded-xl shadow-md mb-8 mx-8 mt-8 shrink-0">
-        <h2 className="font-headline-md text-headline-md text-on-surface mb-4">Create World Backup</h2>
+        <h2 className="font-headline-md text-headline-md text-on-surface mb-4">
+          Create World Backup
+        </h2>
         <form onSubmit={handleCreate} className="flex gap-4">
           <input
             type="text"
@@ -124,7 +131,9 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
             {isProcessing && progressText.includes('Creat') ? 'Creating...' : 'Create Backup'}
           </button>
         </form>
-        {isProcessing && progressText && <p className="text-brand mt-4 text-sm font-mono animate-pulse">{progressText}</p>}
+        {isProcessing && progressText && (
+          <p className="text-brand mt-4 text-sm font-mono animate-pulse">{progressText}</p>
+        )}
       </div>
 
       <div className="flex-1 bg-surface/40 backdrop-blur-md rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col shadow-md mx-8 mb-8">
@@ -132,66 +141,77 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
           <h3 className="font-headline-sm text-headline-sm text-on-surface">Available Backups</h3>
           <div className="flex items-center gap-4">
             {backups.length > 0 && (
-              <button 
-                onClick={handleDeleteAllBackups} 
+              <button
+                onClick={handleDeleteAllBackups}
                 disabled={isProcessing}
                 className="px-3 py-1 bg-red-900/30 hover:bg-red-900/50 text-red-400 font-bold rounded text-sm transition-colors border border-red-900/50 disabled:opacity-50"
               >
                 Delete All
               </button>
             )}
-            <span className="text-sm text-on-surface-variant font-mono">{backups.length} backups</span>
+            <span className="text-sm text-on-surface-variant font-mono">
+              {backups.length} backups
+            </span>
           </div>
         </div>
-        
-        <OverlayScrollbarsComponent 
+
+        <OverlayScrollbarsComponent
           className="flex-1 min-h-0 w-full block"
-          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+          options={{
+            scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 }
+          }}
           defer
         >
           <div className="p-4 w-full block pb-8">
-          {backups.length === 0 ? (
-            <div className="h-full flex items-center justify-center text-gray-500 flex-col gap-2">
-              <span className="text-4xl">📦</span>
-              <p>No backups found.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {backups.map((b) => (
-                <div key={b.name} className="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl group hover:border-primary/50 transition-all flex flex-col">
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1 overflow-hidden">
-                      <h4 className="font-bold text-on-surface truncate text-lg" title={b.name}>{b.name}</h4>
-                      <p className="text-xs text-on-surface-variant font-mono mt-1">{new Date(b.date).toLocaleString()}</p>
+            {backups.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-gray-500 flex-col gap-2">
+                <span className="text-4xl">📦</span>
+                <p>No backups found.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {backups.map((b) => (
+                  <div
+                    key={b.name}
+                    className="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl group hover:border-primary/50 transition-all flex flex-col"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1 overflow-hidden">
+                        <h4 className="font-bold text-on-surface truncate text-lg" title={b.name}>
+                          {b.name}
+                        </h4>
+                        <p className="text-xs text-on-surface-variant font-mono mt-1">
+                          {new Date(b.date).toLocaleString()}
+                        </p>
+                      </div>
+                      <span className="text-xs bg-surface-container-high px-2 py-1 rounded text-on-surface font-mono whitespace-nowrap ml-2">
+                        {formatBytes(b.size)}
+                      </span>
                     </div>
-                    <span className="text-xs bg-surface-container-high px-2 py-1 rounded text-on-surface font-mono whitespace-nowrap ml-2">
-                      {formatBytes(b.size)}
-                    </span>
+
+                    <div className="mt-auto grid grid-cols-2 gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => handleRestore(b.name)}
+                        disabled={isProcessing}
+                        className="py-2 bg-green-900/40 hover:bg-green-600 text-green-400 hover:text-white rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
+                      >
+                        Restore
+                      </button>
+                      <button
+                        onClick={() => handleDelete(b.name)}
+                        disabled={isProcessing}
+                        className="py-2 bg-red-900/30 hover:bg-red-600 text-red-400 hover:text-white rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
-                  
-                  <div className="mt-auto grid grid-cols-2 gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button
-                      onClick={() => handleRestore(b.name)}
-                      disabled={isProcessing}
-                      className="py-2 bg-green-900/40 hover:bg-green-600 text-green-400 hover:text-white rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
-                    >
-                      Restore
-                    </button>
-                    <button
-                      onClick={() => handleDelete(b.name)}
-                      disabled={isProcessing}
-                      className="py-2 bg-red-900/30 hover:bg-red-600 text-red-400 hover:text-white rounded-lg font-bold transition-colors disabled:opacity-50 text-sm"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
           </div>
         </OverlayScrollbarsComponent>
       </div>
     </div>
-  );
-};
+  )
+}

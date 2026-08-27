@@ -9,7 +9,7 @@ import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
 import { getServers } from '../db'
 import { MinecraftConfigManager } from '../minecraft/MinecraftConfigManager'
 
-async function exists(path: string) {
+async function exists(path: string): Promise<boolean> {
   try {
     await fsPromises.access(path)
     return true
@@ -21,24 +21,24 @@ async function exists(path: string) {
 export function registerSystemIpc(
   tunnelProvider: FrpAdapter,
   radminVpnProvider: RadminVpnAdapter,
-  activeServers: Record<number, any>
-) {
+  activeServers: Record<number, unknown>
+): void {
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database
   // Versions & Downloads
   ipcMain.handle('get-system-info', () => {
-    const interfaces = os.networkInterfaces();
-    let localIp = '127.0.0.1';
+    const interfaces = os.networkInterfaces()
+    let localIp = '127.0.0.1'
     for (const name of Object.keys(interfaces)) {
       for (const iface of interfaces[name] || []) {
         if (iface.family === 'IPv4' && !iface.internal) {
-          localIp = iface.address;
-          break;
+          localIp = iface.address
+          break
         }
       }
     }
-    
+
     return {
       totalMem: os.totalmem(),
       cpus: os.cpus().length,
@@ -57,7 +57,9 @@ export function registerSystemIpc(
     if (fs.existsSync(metaPath)) {
       try {
         meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
-      } catch (e) {}
+      } catch {
+        /* ignore */
+      }
     }
     meta = { ...meta, ...changes }
     fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2))
@@ -79,7 +81,7 @@ export function registerSystemIpc(
     if (fs.existsSync(statsPath)) {
       try {
         return JSON.parse(fs.readFileSync(statsPath, 'utf-8'))
-      } catch (e) {
+      } catch {
         return {}
       }
     }
@@ -93,14 +95,20 @@ export function registerSystemIpc(
     if (fs.existsSync(cachePath)) {
       try {
         const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'))
-        const entry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase())
+        const entry = cache.find(
+          (p: Record<string, unknown>) => p.name.toLowerCase() === playerName.toLowerCase()
+        )
         if (entry && entry.uuid) uuid = entry.uuid
-      } catch {}
+      } catch {
+        // ignore
+      }
     }
 
     const candidatePaths: string[] = []
     if (uuid) {
-      const dashedUuid = uuid.includes('-') ? uuid : uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5')
+      const dashedUuid = uuid.includes('-')
+        ? uuid
+        : uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5')
       const plainUuid = uuid.replace(/-/g, '')
       candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${dashedUuid}.dat`))
       candidatePaths.push(join(serverDir, 'world', 'players', 'data', `${plainUuid}.dat`))
@@ -110,13 +118,13 @@ export function registerSystemIpc(
     const playerdataDir = join(serverDir, 'world', 'playerdata')
     const playersDataDir = join(serverDir, 'world', 'players', 'data')
     if (fs.existsSync(playerdataDir)) {
-      const files = fs.readdirSync(playerdataDir).filter(f => f.endsWith('.dat'))
+      const files = fs.readdirSync(playerdataDir).filter((f) => f.endsWith('.dat'))
       if (!uuid && files.length === 1) {
         candidatePaths.push(join(playerdataDir, files[0]))
       }
     }
     if (fs.existsSync(playersDataDir)) {
-      const files = fs.readdirSync(playersDataDir).filter(f => f.endsWith('.dat'))
+      const files = fs.readdirSync(playersDataDir).filter((f) => f.endsWith('.dat'))
       if (!uuid && files.length === 1) {
         candidatePaths.push(join(playersDataDir, files[0]))
       }
@@ -133,17 +141,18 @@ export function registerSystemIpc(
       const p = getDatPath(id, playerName)
       if (p) {
         const buffer = fs.readFileSync(p)
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
         const nbt = require('prismarine-nbt')
         const { parsed } = await nbt.parse(buffer)
         const inv = parsed.value.Inventory?.value?.value || []
-        return inv.map((item: any) => ({
+        return inv.map((item: Record<string, unknown>) => ({
           slot: item.Slot?.value ?? item.slot?.value ?? 0,
           id: (item.id?.value || item.id || '').replace('minecraft:', ''),
           count: item.count?.value ?? item.Count?.value ?? 1
         }))
       }
       return null
-    } catch (e) {
+    } catch {
       return null
     }
   })
@@ -152,17 +161,18 @@ export function registerSystemIpc(
     try {
       const p = getDatPath(id, playerName)
       if (!p) return null
-      
+
       const buffer = fs.readFileSync(p)
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const nbt = require('prismarine-nbt')
       const { parsed } = await nbt.parse(buffer)
-      
+
       const attributes = parsed.value.Attributes?.value?.value || []
-      
+
       let hp = 20
       let armor = 0
       let atk = 1
-      
+
       for (const attr of attributes) {
         const name = attr.Name?.value
         const base = attr.Base?.value
@@ -170,9 +180,9 @@ export function registerSystemIpc(
         if (name === 'minecraft:generic.armor') armor = base
         if (name === 'minecraft:generic.attack_damage') atk = base
       }
-      
+
       return { hp, armor, atk }
-    } catch (e) {
+    } catch {
       return null
     }
   })
@@ -181,20 +191,22 @@ export function registerSystemIpc(
     try {
       const p = getDatPath(id, playerName)
       if (!p) return false
-      
+
       const buffer = fs.readFileSync(p)
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const nbt = require('prismarine-nbt')
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const zlib = require('zlib')
       const { parsed } = await nbt.parse(buffer)
-      
+
       let attributes = parsed.value.Attributes?.value?.value
       if (!attributes) {
-         parsed.value.Attributes = { type: 'list', value: { type: 'compound', value: [] } }
-         attributes = parsed.value.Attributes.value.value
+        parsed.value.Attributes = { type: 'list', value: { type: 'compound', value: [] } }
+        attributes = parsed.value.Attributes.value.value
       }
 
-      const setAttr = (name: string, val: number) => {
-        let attr = attributes.find((a: any) => a.Name?.value === name)
+      const setAttr = (name: string, val: number): void => {
+        const attr = attributes.find((a: Record<string, unknown>) => a.Name?.value === name)
         if (attr) {
           if (attr.Base) attr.Base.value = val
         } else {
@@ -210,13 +222,13 @@ export function registerSystemIpc(
         if (parsed.value.Health) parsed.value.Health.value = stats.hp
         else parsed.value.Health = { type: 'float', value: stats.hp }
       }
-      
+
       if (stats.armor !== undefined) setAttr('minecraft:generic.armor', stats.armor)
       if (stats.atk !== undefined) setAttr('minecraft:generic.attack_damage', stats.atk)
-      
+
       const outBuffer = zlib.gzipSync(nbt.writeUncompressed(parsed))
       fs.writeFileSync(p, outBuffer)
-      
+
       return true
     } catch (e) {
       console.error(e)
@@ -231,29 +243,31 @@ export function registerSystemIpc(
   ipcMain.handle('get-server-meta', async (_, id) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString())
     const metaPath = join(serverDir, 'omnihost.json')
-    let meta: any = null
+    let meta: unknown = null
     if (await exists(metaPath)) {
       try {
         meta = JSON.parse(await fsPromises.readFile(metaPath, 'utf-8'))
-      } catch (e) {}
+      } catch {
+        /* ignore */
+      }
     }
-    
+
     // Fallback if omnihost.json is missing or missing type
     if (!meta || !meta.type) {
-       // getServers is already imported at the top of the file now
-       const servers = getServers() as any[]
-       const srv = servers.find((s: any) => s.id === id)
-       if (srv) {
-          if (!meta) meta = {}
-          meta.version = '1.20.4' // Default version if missing
-          if (srv.game) {
-             const typeMatch = srv.game.match(/\((.*?)\)/)
-             if (typeMatch) meta.type = typeMatch[1]
-             else meta.type = 'Vanilla'
-          } else {
-             meta.type = 'Vanilla'
-          }
-       }
+      // getServers is already imported at the top of the file now
+      const servers = getServers() as Record<string, unknown>[]
+      const srv = servers.find((s: Record<string, unknown>) => s.id === id)
+      if (srv) {
+        if (!meta) meta = {}
+        meta.version = '1.20.4' // Default version if missing
+        if (srv.game) {
+          const typeMatch = srv.game.match(/\((.*?)\)/)
+          if (typeMatch) meta.type = typeMatch[1]
+          else meta.type = 'Vanilla'
+        } else {
+          meta.type = 'Vanilla'
+        }
+      }
     }
     return meta
   })
@@ -348,7 +362,9 @@ export function registerSystemIpc(
     try {
       const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'))
       if (meta.game === 'DayZ') configName = 'serverDZ.cfg'
-    } catch (e) {}
+    } catch {
+      /* ignore */
+    }
 
     const configPath = join(serverDir, configName)
     if (await exists(configPath)) return await fsPromises.readFile(configPath, 'utf-8')
@@ -375,7 +391,9 @@ export function registerSystemIpc(
     try {
       const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'))
       if (meta.game === 'DayZ') configName = 'serverDZ.cfg'
-    } catch (e) {}
+    } catch {
+      /* ignore */
+    }
 
     await fsPromises.writeFile(join(serverDir, configName), data)
     return true
@@ -448,7 +466,7 @@ export function registerSystemIpc(
       if (!(await exists(targetPath))) return []
 
       const files = await fsPromises.readdir(targetPath)
-      const result: any[] = []
+      const result: Record<string, unknown>[] = []
       for (const f of files) {
         try {
           const stat = await fsPromises.stat(join(targetPath, f))
@@ -458,10 +476,12 @@ export function registerSystemIpc(
             size: stat.size,
             lastModified: stat.mtimeMs
           })
-        } catch (e) {}
+        } catch {
+          /* ignore */
+        }
       }
       return result
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e.message)
       return []
     }
@@ -491,7 +511,7 @@ export function registerSystemIpc(
         await fsPromises.unlink(targetPath)
       }
       return true
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e.message)
       return false
     }
@@ -516,7 +536,7 @@ export function registerSystemIpc(
 
       if (!(await exists(targetPath))) return null
       return await fsPromises.readFile(targetPath, 'utf-8')
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e.message)
       return null
     }
@@ -541,7 +561,7 @@ export function registerSystemIpc(
 
       await fsPromises.writeFile(targetPath, content)
       return true
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error(e.message)
       return false
     }
@@ -565,7 +585,11 @@ export function registerSystemIpc(
       const metaPath = join(serverDir, 'omnihost.json')
       let serverType = 'minecraft'
       if (fs.existsSync(metaPath)) {
-        try { serverType = JSON.parse(fs.readFileSync(metaPath, 'utf8')).type || 'minecraft' } catch(e){}
+        try {
+          serverType = JSON.parse(fs.readFileSync(metaPath, 'utf8')).type || 'minecraft'
+        } catch {
+          /* ignore */
+        }
       }
 
       const backupsDir = join(serverDir, 'backups')
@@ -578,9 +602,10 @@ export function registerSystemIpc(
       const backupName = `${safeName}_${timestamp}.zip`
       const backupPath = join(backupsDir, backupName)
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const AdmZip = require('adm-zip')
       const zip = new AdmZip()
-      
+
       let foldersToBackup: string[] = []
       if (serverType === 'minecraft') {
         foldersToBackup = ['world', 'world_nether', 'world_the_end']
@@ -604,9 +629,9 @@ export function registerSystemIpc(
         return true
       }
       return false
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Backup error:', e.message)
-      throw e instanceof Error ? e : new Error((e as any)?.message || String(e));
+      throw e instanceof Error ? e : new Error((e as Error)?.message || String(e))
     }
   })
 
@@ -628,7 +653,7 @@ export function registerSystemIpc(
     if (!fs.existsSync(backupsDir)) return []
 
     const files = await fsPromises.readdir(backupsDir)
-    const result: any[] = []
+    const result: Record<string, unknown>[] = []
     for (const f of files) {
       if (f.endsWith('.zip')) {
         const stat = await fsPromises.stat(join(backupsDir, f))
@@ -664,7 +689,11 @@ export function registerSystemIpc(
       const metaPath = join(serverDir, 'omnihost.json')
       let serverType = 'minecraft'
       if (fs.existsSync(metaPath)) {
-        try { serverType = JSON.parse(fs.readFileSync(metaPath, 'utf8')).type || 'minecraft' } catch(e){}
+        try {
+          serverType = JSON.parse(fs.readFileSync(metaPath, 'utf8')).type || 'minecraft'
+        } catch {
+          /* ignore */
+        }
       }
 
       let foldersToBackup: string[] = []
@@ -683,10 +712,11 @@ export function registerSystemIpc(
         }
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
       const extractZip = require('extract-zip')
       await extractZip(backupPath, { dir: serverDir })
       return true
-    } catch (e: any) {
+    } catch (e: unknown) {
       console.error('Restore error:', e.message)
       throw e
     }
