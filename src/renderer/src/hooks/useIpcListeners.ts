@@ -3,6 +3,7 @@ import { useServerStore } from '../store/useServerStore';
 import { useLogStore } from '../store/useLogStore';
 import { usePlayerStore } from '../store/usePlayerStore';
 import { useStatsStore } from '../store/useStatsStore';
+import { useUiStore } from '../store/useUiStore';
 
 export function useIpcListeners() {
   useEffect(() => {
@@ -33,5 +34,13 @@ export function useIpcListeners() {
     window.api.server.onServerStats((data: any) => {
       useStatsStore.getState().addStat(data.id.toString(), { cpu: data.cpu, ram: data.ram });
     });
+
+    const tunnelInterval = setInterval(async () => {
+      // @ts-ignore
+      const status = await window.api.system.getTunnelStatus();
+      useUiStore.getState().setTunnelStatus(status);
+    }, 2000);
+
+    return () => clearInterval(tunnelInterval);
   }, []);
 }

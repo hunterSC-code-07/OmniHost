@@ -10,16 +10,19 @@ import { HubRouter } from './components/layout/HubRouter';
 export default function App() {
   useIpcListeners();
   
-  const { setIsDayzCached } = useUiStore();
+  const { setIsDayzCached, setIsSatisfactoryCached } = useUiStore();
 
   useEffect(() => {
     const checkCache = async () => {
       // @ts-ignore
-      const cached = await window.api.steam.checkCache(223350);
-      setIsDayzCached(cached);
+      const dayzCached = await window.api.steam.checkCache(223350);
+      setIsDayzCached(dayzCached);
+      // @ts-ignore
+      const satisfactoryCached = await window.api.steam.checkCache(1690800);
+      setIsSatisfactoryCached(satisfactoryCached);
     };
     checkCache();
-  }, [setIsDayzCached]);
+  }, [setIsDayzCached, setIsSatisfactoryCached]);
 
   return (
     <MainLayout>

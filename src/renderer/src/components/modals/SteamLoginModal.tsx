@@ -4,7 +4,7 @@ import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
 
 export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
-  const { activeGameHub, setIsDayzCached } = useUiStore();
+  const { activeGameHub, setIsDayzCached, setIsSatisfactoryCached } = useUiStore();
   const { showToast } = useToastStore();
   
   const [steamUsername, setSteamUsername] = useState("");
@@ -16,10 +16,12 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
   const handleUpdateSteamCache = async () => {
       try {
         setIsUpdating(true);
+        const appId = activeGameHub === 'DayZ' ? 223350 : 1690800;
         // @ts-ignore
-        await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);
-        showToast("DayZ Base Files Updated Successfully!");
-        setIsDayzCached(true);
+        await window.api.steam.updateCache(0, appId, steamUsername, steamPassword, steamGuardCode);
+        showToast(`${activeGameHub} Base Files Updated Successfully!`);
+        if (activeGameHub === 'DayZ') setIsDayzCached(true);
+        if (activeGameHub === 'Satisfactory') setIsSatisfactoryCached(true);
         onClose();
       } catch (e: any) {
         if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
@@ -37,8 +39,11 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
       if (activeGameHub === 'DayZ') {
         // @ts-ignore
         window.api.steam.checkCache(223350).then(setIsDayzCached);
+      } else if (activeGameHub === 'Satisfactory') {
+        // @ts-ignore
+        window.api.steam.checkCache(1690800).then(setIsSatisfactoryCached);
       }
-    }, [activeGameHub, setIsDayzCached]);
+    }, [activeGameHub, setIsDayzCached, setIsSatisfactoryCached]);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
@@ -47,7 +52,7 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
             <div className="relative z-10">
               <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Steam Login Required</h2>
               <p className="text-sm text-gray-400 mb-6">
-                To download the DayZ Server files, you must log into SteamCMD. Your credentials are only sent securely to Steam's servers and are not stored.
+                To download the {activeGameHub} Server files, you must log into SteamCMD. Your credentials are only sent securely to Steam's servers and are not stored.
               </p>
               
               <div className="space-y-4">

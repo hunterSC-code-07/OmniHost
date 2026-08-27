@@ -10,8 +10,16 @@ export class SteamCache {
   static async isCached(appId: number): Promise<boolean> {
     const cacheDir = this.getCacheDir(appId);
     if (!fs.existsSync(cacheDir)) return false;
-    const files = fs.readdirSync(cacheDir);
-    return files.length > 0;
+    
+    if (appId === 223350 && fs.existsSync(join(cacheDir, 'DayZServer_x64.exe'))) {
+      return true;
+    }
+    
+    if (appId === 1690800 && fs.existsSync(join(cacheDir, 'FactoryServer.exe'))) {
+      return true;
+    }
+    
+    return false;
   }
 
   static async deleteCache(appId: number): Promise<boolean> {
