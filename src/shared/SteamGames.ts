@@ -11,5 +11,9 @@ export const STEAM_GAMES: Record<string, SteamGameConfig> = {
   Satisfactory: {
     appId: 1690800,
     executable: 'FactoryServer.exe'
+  },
+  Palworld: {
+    appId: 2394010,
+    executable: 'PalServer.exe'
   }
 };
