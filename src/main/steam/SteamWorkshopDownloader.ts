@@ -81,22 +81,25 @@ export class SteamWorkshopDownloader {
           const progressInterval = setInterval(async () => {
             if (totalSize > 0 && fs.existsSync(targetDir)) {
               let currentSize = 0;
-              const checkSize = async (dir: string) => {
-                if (!fs.existsSync(dir)) return;
+              const checkSize = async (dir: string): Promise<number> => {
+                if (!fs.existsSync(dir)) return 0;
+                let size = 0;
                 try {
                   const files = await fs.promises.readdir(dir, { withFileTypes: true });
-                  for (const file of files) {
+                  const sizes = await Promise.all(files.map(async (file) => {
                     const fullPath = join(dir, file.name);
                     if (file.isDirectory()) {
-                      await checkSize(fullPath);
+                      return await checkSize(fullPath);
                     } else {
                       const stats = await fs.promises.stat(fullPath);
-                      currentSize += stats.size;
+                      return stats.size;
                     }
-                  }
+                  }));
+                  size = sizes.reduce((a, b) => a + b, 0);
                 } catch (e) { /* ignore read errors during active download */ }
+                return size;
               };
-              await checkSize(targetDir);
+              currentSize = await checkSize(targetDir);
               const percent = Math.min((currentSize / totalSize) * 100, 99.9);
               SteamCMDSetup.sendLog(serverId, percent, `[MOD:${modId}] Downloading Mod Files (${percent.toFixed(1)}%)...`);
             } else if (totalSize === 0) {

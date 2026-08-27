@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { useServerStore } from '../../store/useServerStore';
 import { useLogStore } from '../../store/useLogStore';
@@ -14,7 +15,7 @@ interface ConsoleTabProps {
 
 export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick, isActive }) => {
   const [consoleInput, setConsoleInput] = useState('');
-  const endOfLogsRef = useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
   
   const { activeServerId } = useServerStore();
   const { logs, clearLogs } = useLogStore();
@@ -24,11 +25,18 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
   const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
   const activePlayers = activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : [];
 
+  const rowVirtualizer = useVirtualizer({
+    count: activeLogs.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 24,
+    overscan: 20,
+  });
+
   useEffect(() => {
-    if (isActive) {
-      endOfLogsRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (isActive && activeLogs.length > 0) {
+      rowVirtualizer.scrollToIndex(activeLogs.length - 1, { align: 'end' });
     }
-  }, [activeLogs, isActive]);
+  }, [activeLogs.length, isActive, rowVirtualizer]);
 
   const handleClearLogs = () => {
     if (!activeServerId) return;
@@ -52,27 +60,25 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
   return (
     <div className="absolute inset-0 flex gap-6 p-6 min-h-0 bg-transparent font-body">
       <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] min-h-0 min-w-0">
-        <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
-          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
-          defer
-        >
-          <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
+        <div ref={parentRef} className="flex-1 min-h-0 overflow-auto p-6" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}>
+          <div className="font-mono text-sm text-on-surface-variant shadow-inner w-full relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {activeLogs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
-            {activeLogs.map((log, i) => (
-              <div key={i} className="mb-1 leading-relaxed break-words">
-                {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
-                {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
-                {log.includes('ERROR') ? <span className="text-red-400 font-bold">ERROR </span> : ''}
-                {log.startsWith('>') ? <span className="text-brand font-bold"> </span> : ''}
-                <span className={log.includes('joined the game') ? 'text-green-400 font-bold' : log.includes('left the game') ? 'text-gray-500' : log.startsWith('>') ? 'text-brand font-bold' : ''}>
-                  {log.replace(/(INFO|WARN|ERROR)/, '')}
-                </span>
-              </div>
-            ))}
-            <div ref={endOfLogsRef} />
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+              const log = activeLogs[virtualItem.index];
+              return (
+                <div key={virtualItem.key} className="mb-1 leading-relaxed break-words absolute top-0 left-0 w-full" style={{ transform: `translateY(${virtualItem.start}px)` }}>
+                  {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
+                  {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
+                  {log.includes('ERROR') ? <span className="text-red-400 font-bold">ERROR </span> : ''}
+                  {log.startsWith('>') ? <span className="text-brand font-bold"> </span> : ''}
+                  <span className={log.includes('joined the game') ? 'text-green-400 font-bold' : log.includes('left the game') ? 'text-gray-500' : log.startsWith('>') ? 'text-brand font-bold' : ''}>
+                    {log.replace(/(INFO|WARN|ERROR)/, '')}
+                  </span>
+                </div>
+              );
+            })}
           </div>
-        </OverlayScrollbarsComponent>
+        </div>
 
         <form onSubmit={onSubmit} className="p-4 bg-transparent border-t border-surface-container-highest flex gap-3 items-center">
           <span className="text-on-surface-variant font-bold text-xl leading-none flex items-center">&gt;</span>
