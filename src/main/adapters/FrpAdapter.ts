@@ -25,7 +25,7 @@ export class FrpAdapter {
     }
   }
 
-  async start(ip: string = "34.131.235.17") {
+  async start(ip: string = "34.131.235.17", game: string = "minecraft") {
     if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });
 
     // 1. Download and Extract FRP from GitHub
@@ -65,10 +65,10 @@ export class FrpAdapter {
       }
     }
 
-    const tomlConfig = `
-serverAddr = "${ip}"
-serverPort = 7000
+    let proxyConfig = '';
 
+    if (game === 'minecraft') {
+      proxyConfig = `
 [[proxies]]
 name = "minecraft-${Date.now()}"
 type = "tcp"
@@ -82,7 +82,9 @@ type = "udp"
 localIP = "${localIp}"
 localPort = 25565
 remotePort = 25565
-
+`;
+    } else if (game === 'dayz') {
+      proxyConfig = `
 [[proxies]]
 name = "dayz-game"
 type = "udp"
@@ -131,6 +133,36 @@ type = "udp"
 localIP = "${localIp}"
 localPort = 27016
 remotePort = 27016
+`;
+    } else if (game === 'satisfactory') {
+      proxyConfig = `
+[[proxies]]
+name = "satisfactory-7777-udp"
+type = "udp"
+localIP = "${localIp}"
+localPort = 7777
+remotePort = 7777
+
+[[proxies]]
+name = "satisfactory-7777-tcp"
+type = "tcp"
+localIP = "${localIp}"
+localPort = 7777
+remotePort = 7777
+
+[[proxies]]
+name = "satisfactory-8888-tcp"
+type = "tcp"
+localIP = "${localIp}"
+localPort = 8888
+remotePort = 8888
+`;
+    }
+
+    const tomlConfig = `
+serverAddr = "${ip}"
+serverPort = 7000
+${proxyConfig}
 `;
     fs.writeFileSync(this.configPath, tomlConfig);
 

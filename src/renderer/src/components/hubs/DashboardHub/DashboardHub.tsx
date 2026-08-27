@@ -26,7 +26,7 @@ import { useModalStore } from '../../../store/useModalStore';
 
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { servers, setActiveServerId, startServer, stopServer, restartServer } = useServerStore();
-  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached } = useUiStore();
+  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached, isSatisfactoryCached, setIsSatisfactoryCached } = useUiStore();
   const { showToast } = useToastStore();
 
   const { openCreateServerModal, openDeleteModal, openSteamLoginModal } = useModalStore();
@@ -289,6 +289,54 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                await window.api.steam.deleteCache(223350);
                                setIsDayzCached(false);
                                showToast("DayZ Base Files Deleted.");
+                            }
+                          }} 
+                          className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/20 font-bold transition-colors flex items-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">delete</span>
+                          Delete Base
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeGameHub === 'Satisfactory' && (
+                <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-surface-container p-6 rounded-xl border border-outline-variant/30">
+                  <div className="flex-1">
+                    <h3 className="font-bold text-white text-lg">Satisfactory Base Installation Cache</h3>
+                    <p className="text-sm text-gray-400 mt-1">Download and manage the base server files here. Future servers will copy these files to avoid re-downloading.</p>
+                  </div>
+                  <div className="flex flex-wrap gap-3 items-center ml-auto">
+                    {!isSatisfactoryCached ? (
+                      <button 
+                        onClick={() => openSteamLoginModal('cache')} 
+                        className="px-5 py-2.5 bg-brand/10 text-brand border border-brand/30 rounded-lg hover:bg-brand/20 font-bold transition-colors flex items-center gap-2"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">download</span>
+                        Download Base
+                      </button>
+                    ) : (
+                      <>
+                        <div className="px-5 py-2.5 bg-green-500/10 text-green-400 border border-green-500/30 rounded-lg font-bold flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+                          Downloaded
+                        </div>
+                        <button 
+                          onClick={() => openSteamLoginModal('cache')} 
+                          className="px-5 py-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 font-bold transition-colors flex items-center gap-2"
+                        >
+                          <span className="material-symbols-outlined text-[18px]">sync</span>
+                          Update Base
+                        </button>
+                        <button 
+                          onClick={async () => {
+                            if (confirm("Are you sure you want to delete the cached Satisfactory base files?")) {
+                               // @ts-ignore
+                               await window.api.steam.deleteCache(1690800);
+                               setIsSatisfactoryCached(false);
+                               showToast("Satisfactory Base Files Deleted.");
                             }
                           }} 
                           className="px-5 py-2.5 bg-red-500/10 text-red-400 border border-red-500/30 rounded-lg hover:bg-red-500/20 font-bold transition-colors flex items-center gap-2"

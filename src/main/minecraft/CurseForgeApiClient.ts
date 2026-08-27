@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+const FALLBACK_CURSEFORGE_API_KEY = '$2a$10$WLjUD.aJlcjuSSdEOByujetqwwhUeTTfS2AsFhIOq31vLq./E1nRO';
+
 export class CurseForgeApiClient {
   static async searchCurseforgeMods(
     search: string,
@@ -11,7 +13,8 @@ export class CurseForgeApiClient {
   ) {
     try {
       require('dotenv').config();
-      if (!process.env.CURSEFORGE_API_KEY) {
+      const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY;
+      if (!apiKey) {
         console.error('Error searching Curseforge mods: API Key is missing from environment.');
       }
 
@@ -33,7 +36,7 @@ export class CurseForgeApiClient {
         else if (type === 'Quilt') url += '&modLoaderType=5'
       }
 
-      const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } })
+      const res = await axios.get(url, { headers: { 'x-api-key': apiKey } })
       return res.data.data
     } catch (e: any) {
       console.error('Error searching Curseforge mods:', e.message)
@@ -43,8 +46,10 @@ export class CurseForgeApiClient {
 
   static async getCurseforgeMod(modId: number) {
     try {
+      require('dotenv').config();
+      const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY;
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {
-        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
+        headers: { 'x-api-key': apiKey }
       })
       return res.data.data
     } catch (e: any) {
@@ -55,8 +60,10 @@ export class CurseForgeApiClient {
 
   static async getCurseforgeFile(modId: number, fileId: number) {
     try {
+      require('dotenv').config();
+      const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY;
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}/files/${fileId}`, {
-        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }
+        headers: { 'x-api-key': apiKey }
       })
       return res.data.data
     } catch (e: any) {

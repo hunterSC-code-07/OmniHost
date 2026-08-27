@@ -18,6 +18,8 @@ const api = {
     readJson: (id: number, filename: string) => ipcRenderer.invoke('read-json', id, filename),
     writeJson: (id: number, filename: string, data: any) => ipcRenderer.invoke('write-json', id, filename, data),
     getInventory: (id: number, playerName: string) => ipcRenderer.invoke('get-inventory', id, playerName),
+    getSatisfactoryToken: (id: number) => ipcRenderer.invoke('get-satisfactory-token', id),
+    saveSatisfactoryToken: (id: number, token: string) => ipcRenderer.invoke('save-satisfactory-token', id, token),
     
     // Events
     onServersUpdate: (callback: (data: any[]) => void) => {
@@ -50,7 +52,7 @@ const api = {
     getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
     getCacheInfo: () => ipcRenderer.invoke('get-cache-info'),
     clearCache: () => ipcRenderer.invoke('clear-cache'),
-    startTunnel: (ip: string) => ipcRenderer.invoke('start-tunnel', ip),
+    startTunnel: (ip: string, game: string) => ipcRenderer.invoke('start-tunnel', { ip, game }),
     stopTunnel: () => ipcRenderer.invoke('stop-tunnel'),
     getTunnelStatus: () => ipcRenderer.invoke('get-tunnel-status'),
     radminCheck: () => ipcRenderer.invoke('radmin-check'),
