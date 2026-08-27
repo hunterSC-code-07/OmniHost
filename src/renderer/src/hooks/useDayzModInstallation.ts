@@ -37,8 +37,18 @@ export const useDayzModInstallation = (
         if (missingDeps.length > 0) {
           const depDetails = await window.api.steam.getWorkshopItemDetails(missingDeps);
           if (depDetails && depDetails.length > 0) {
-            const depNames = depDetails.map((d: any) => d.title).join(', ');
-            const confirmInstall = confirm(`This mod requires the following dependencies:\n\n${depNames}\n\nDo you want to install them automatically?`);
+            const { useModalStore } = await import('../store/useModalStore');
+            const confirmInstall = await new Promise<boolean>((resolve) => {
+              useModalStore.getState().openDayzMissingDepsModal(
+                depDetails, 
+                () => {
+                  resolve(true);
+                }, 
+                () => {
+                  resolve(false);
+                }
+              );
+            });
             if (confirmInstall) {
               modsToInstall = [...depDetails, mod];
             }

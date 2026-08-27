@@ -11,10 +11,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const { setServers, setActiveServerId } = useServerStore();
   const { activeGameHub } = useUiStore();
   const { showToast } = useToastStore();
-  const { openSteamLoginModal } = useModalStore();
+  const { openSteamLoginModal, createServerDefaultType } = useModalStore();
 
   const [newServerName, setNewServerName] = useState('')
-  const [newServerType, setNewServerType] = useState('Vanilla')
+  const [newServerType, setNewServerType] = useState(createServerDefaultType || 'Vanilla')
   const [newServerVersion, setNewServerVersion] = useState('')
   const [availableVersions, setAvailableVersions] = useState<string[]>([])
   const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')
