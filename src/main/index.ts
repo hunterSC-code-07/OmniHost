@@ -4,6 +4,9 @@ import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { initializeLogger } from './utils/logger'
 
+// Set app data to be stored locally in the repo for full portability
+app.setPath('userData', join(process.cwd(), '.omnihost-data'))
+
 // Initialize centralized logger
 initializeLogger();
 
@@ -23,9 +26,6 @@ import { getServers } from './db'
 import { registerLogIpc } from './ipc/LogIpc'
 
 dotenv.config()
-
-// Set app data to be stored locally in the repo for full portability
-app.setPath('userData', join(process.cwd(), '.omnihost-data'))
 
 // Fix Windows UI freeze/hang issues with Framer Motion without disabling hardware acceleration entirely
 app.commandLine.appendSwitch('disable-features', 'CalculateNativeWinOcclusion')
