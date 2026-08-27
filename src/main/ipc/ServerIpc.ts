@@ -5,6 +5,7 @@ import fs from 'fs'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
 import { getServers, createServer, deleteServer, updateServerSoftware } from '../db'
 import { DayzAdapter } from '../adapters/DayzAdapter'
+import { PalworldAdapter } from '../adapters/PalworldAdapter'
 import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager'
 import { WakeProxy } from '../adapters/WakeProxy'
 import { SteamWebAPI } from '../api/SteamWebAPI'
@@ -210,6 +211,8 @@ export function registerServerIpc(
 
       if (game === 'DayZ') {
         activeServers[id] = new DayzAdapter(id)
+      } else if (game === 'Palworld') {
+        activeServers[id] = new PalworldAdapter(id)
       } else {
         activeServers[id] = new MinecraftProcessManager(id)
       }

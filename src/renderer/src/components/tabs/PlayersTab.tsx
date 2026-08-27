@@ -125,7 +125,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
     selectedPlayer, setSelectedPlayer,
     playerInventory,
     handleAddPlayer, handleRemovePlayer, sendPlayerCommand, handleDeleteAllPlayers,
-    handleUpdatePlayerStats, fetchPlayerNbtStats, handleUpdatePlayerNbt
+    fetchPlayerNbtStats, handleUpdatePlayerNbt
   } = useMinecraftPlayers(activeServerId, 'players');
   const [now, setNow] = useState(Date.now());
   const [isEditingStats, setIsEditingStats] = useState(false);
@@ -139,6 +139,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
   }, []);
 
   const handleStartEditStats = async () => {
+    if (!selectedPlayer) return;
     setIsEditingStats(true);
     const nbtStats = await fetchPlayerNbtStats(selectedPlayer);
     if (nbtStats) {
@@ -151,6 +152,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
   };
 
   const handleSaveStats = async () => {
+    if (!selectedPlayer) return;
     await handleUpdatePlayerNbt(selectedPlayer, {
       hp: editStatsForm.hp,
       armor: editStatsForm.armor,

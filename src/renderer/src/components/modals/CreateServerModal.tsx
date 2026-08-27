@@ -41,7 +41,7 @@ export function CreateServerModal() {
   const [modpackLoaderFilter, setModpackLoaderFilter] = useState('')
   const handleCreateServer = async () => {
     if (!newServerName) return;
-    if (activeGameHub !== 'DayZ') {
+    if (activeGameHub !== 'DayZ' && activeGameHub !== 'Palworld') {
       if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;
       if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;
     }
@@ -50,7 +50,49 @@ export function CreateServerModal() {
     setDownloadProgress(0);
 
     try {
-      if (newServerType === 'CurseForge Modpack') {
+      if (activeGameHub === 'Palworld') {
+        setIsCreatingServer(true);
+        // @ts-ignore
+        const newId = await window.api.server.createServer(newServerName, 'Palworld', 'Vanilla', 'Latest');
+
+        // @ts-ignore
+        window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
+          setDownloadProgress(progress)
+          if (text) setDownloadText(text)
+        });
+
+        try {
+          // @ts-ignore
+          const isCached = await window.api.steam.checkCache(2394010);
+          let success = false;
+          if (isCached) {
+            showToast("Server files found in cache! Copying...");
+            // @ts-ignore
+            success = await window.api.steam.copyCache(newId, 2394010);
+          } else {
+            // @ts-ignore
+            success = await window.api.steam.installApp(newId, 2394010); // Anonymous login
+          }
+
+          if (success) {
+            setShowCreateModal(false);
+            setNewServerName('');
+            // @ts-ignore
+            const data = await window.api.server.getServers();
+            setServers(data);
+            setActiveServerId(newId);
+            showToast("Palworld Server created successfully!");
+            return;
+          }
+        } catch (err: any) {
+          alert('Failed to download Palworld Server via SteamCMD: ' + err.message);
+          return;
+        } finally {
+          setIsCreatingServer(false);
+          // @ts-ignore
+          window.api.removeDownloadProgressListener && window.api.removeDownloadProgressListener(newId);
+        }
+      } else if (newServerType === 'CurseForge Modpack') {
         const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));
         // @ts-ignore
         const newId = await window.api.server.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);
@@ -258,7 +300,7 @@ export function CreateServerModal() {
                 />
               </div>
 
-              {activeGameHub !== 'DayZ' && (
+              {activeGameHub !== 'DayZ' && activeGameHub !== 'Palworld' && (
                 <div className="relative z-50">
                   <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
                   <button
@@ -293,7 +335,7 @@ export function CreateServerModal() {
                 </div>
               )}
 
-              {activeGameHub !== 'DayZ' && newServerType !== 'CurseForge Modpack' && (
+              {activeGameHub !== 'DayZ' && activeGameHub !== 'Palworld' && newServerType !== 'CurseForge Modpack' && (
                 <div className="relative z-40">
                   <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
                   <button
@@ -316,7 +358,7 @@ export function CreateServerModal() {
                   )}
                 </div>
               )}
-              {activeGameHub !== 'DayZ' && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
+              {activeGameHub !== 'DayZ' && activeGameHub !== 'Palworld' && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
                 <div className="relative z-30">
                   <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
                   <button
@@ -342,7 +384,7 @@ export function CreateServerModal() {
             </div>
 
             {/* Right Column (Modpack Browser) */}
-            {activeGameHub !== 'DayZ' && newServerType === 'CurseForge Modpack' && (
+            {activeGameHub !== 'DayZ' && activeGameHub !== 'Palworld' && newServerType === 'CurseForge Modpack' && (
               <div className="w-2/3 flex flex-col border-l border-gray-800/50 pl-8">
                 <div className="flex gap-4 mb-4">
                   <input
@@ -465,7 +507,7 @@ export function CreateServerModal() {
             </button>
             <button
               onClick={handleCreateServer}
-              disabled={isCreatingServer || !newServerName || (activeGameHub !== 'DayZ' && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
+              disabled={isCreatingServer || !newServerName || (activeGameHub !== 'DayZ' && activeGameHub !== 'Palworld' && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
               className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors"
             >
               {isCreatingServer ? 'Creating...' : 'Create Server'}

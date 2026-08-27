@@ -14,8 +14,13 @@ import { registerServerIpc } from './ipc/ServerIpc'
 import { registerSteamCMDIpc } from './ipc/SteamCMDIpc'
 import { registerSystemIpc } from './ipc/SystemIpc'
 import { registerMinecraftIpc } from './ipc/MinecraftIpc'
+import { registerPalworldIpc } from './ipc/PalworldIpc'
 
-dotenv.config()
+const dotenvPath = join(__dirname, '../../.env')
+const dotenvResult = dotenv.config({ path: dotenvPath })
+console.log('[DEBUG] dotenv path:', dotenvPath);
+console.log('[DEBUG] dotenv result:', dotenvResult);
+console.log('[DEBUG] CURSEFORGE_API_KEY:', process.env.CURSEFORGE_API_KEY);
 
 // Set app data to be stored locally in the repo for full portability
 app.setPath('userData', join(process.cwd(), '.omnihost-data'))
@@ -101,6 +106,7 @@ app.whenReady().then(() => {
   registerSteamCMDIpc()
   registerSystemIpc(tunnelProvider, radminVpnProvider, activeServers)
   registerMinecraftIpc()
+  registerPalworldIpc()
 })
 
 app.on('window-all-closed', () => {
