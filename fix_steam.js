@@ -1,5 +1,0 @@
-const fs = require('fs');
-let s = fs.readFileSync('src/main/ipc/ServerIpc.ts', 'utf8');
-s = s.replace(/from '\.\.\/adapters\/SteamCMDManager'/g, "from '../steam/SteamCMDManager'");
-fs.writeFileSync('src/main/ipc/ServerIpc.ts', s);
-console.log('Fixed SteamCMDManager import');

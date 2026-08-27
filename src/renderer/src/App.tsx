@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import 'overlayscrollbars/overlayscrollbars.css';
 
+import { GlobalModalManager } from './components/modals/GlobalModalManager';
 import { useIpcListeners } from './hooks/useIpcListeners';
 import { useUiStore } from './store/useUiStore';
 
@@ -27,6 +28,7 @@ export default function App() {
   return (
     <MainLayout>
       <HubRouter />
+      <GlobalModalManager />
     </MainLayout>
   )
 }

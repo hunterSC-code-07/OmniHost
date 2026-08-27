@@ -5,13 +5,13 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { useServerStore } from '../../store/useServerStore';
 import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
-import { useSteamLoginModal } from "../../hooks/useSteamLoginModal";
+import { useModalStore } from '../../store/useModalStore';
 
 export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const { setServers, setActiveServerId } = useServerStore();
   const { activeGameHub } = useUiStore();
   const { showToast } = useToastStore();
-  const { openSteamLoginModal, SteamLoginModal } = useSteamLoginModal();
+  const { openSteamLoginModal } = useModalStore();
 
   const [newServerName, setNewServerName] = useState('')
   const [newServerType, setNewServerType] = useState('Vanilla')
@@ -117,6 +117,9 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
         } catch (err: any) {
           if (err.message && err.message.includes('STEAM_GUARD_REQUIRED')) {
             showToast("Steam Guard Code required!");
+            openSteamLoginModal('create', handleCreateServer);
+          } else if (err.message && err.message.includes('INVALID_CREDENTIALS')) {
+            showToast("Invalid Username or Password!", "error");
             openSteamLoginModal('create', handleCreateServer);
           } else {
             alert('Failed to download DayZ Server via SteamCMD: ' + err.message);
@@ -465,7 +468,6 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           </div>
         </div>
       </div>
-      {SteamLoginModal}
     </>
   );
 }

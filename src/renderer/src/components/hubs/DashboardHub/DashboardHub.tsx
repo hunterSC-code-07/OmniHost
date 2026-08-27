@@ -22,18 +22,14 @@ import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 import { useToastStore } from '../../../store/useToastStore';
 
-import { useSteamLoginModal } from '../../../hooks/useSteamLoginModal';
-import { CreateServerModal } from '../../modals/CreateServerModal';
-import { DeleteConfirmationModal } from '../../modals/DeleteConfirmationModal';
+import { useModalStore } from '../../../store/useModalStore';
 
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { servers, setActiveServerId, startServer, stopServer, restartServer } = useServerStore();
   const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached, isSatisfactoryCached, setIsSatisfactoryCached } = useUiStore();
   const { showToast } = useToastStore();
 
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [serverToDelete, setServerToDelete] = useState<number | null>(null);
-  const { openSteamLoginModal, SteamLoginModal } = useSteamLoginModal();
+  const { openCreateServerModal, openDeleteModal, openSteamLoginModal } = useModalStore();
 
   const handleStart = startServer;
   const handleStop = stopServer;
@@ -205,7 +201,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                 </button>
                               </>
                             )}
-                            <button onClick={() => setServerToDelete(server.id)} className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors ml-2" title="Delete Server">
+                            <button onClick={() => openDeleteModal(server.id)} className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors ml-2" title="Delete Server">
                               <span className="material-symbols-outlined text-[18px]">delete</span>
                             </button>
                           </div>
@@ -252,7 +248,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                   <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
                   <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">Manage your available {activeGameHub} servers or create a new one.</p>
                 </div>
-                <button onClick={() => setIsCreateModalOpen(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
+                <button onClick={() => openCreateServerModal()} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
                   <span className="material-symbols-outlined">add_box</span>
                   NEW {activeGameHub.toUpperCase()} SERVER
                 </button>
@@ -496,15 +492,6 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
           </motion.div>
       )}
       </AnimatePresence>
-
-      {isCreateModalOpen && <CreateServerModal onClose={() => setIsCreateModalOpen(false)} />}
-      {serverToDelete !== null && (
-        <DeleteConfirmationModal
-          serverId={serverToDelete}
-          onClose={() => setServerToDelete(null)}
-        />
-      )}
-      {SteamLoginModal}
     </div>
   );
 }

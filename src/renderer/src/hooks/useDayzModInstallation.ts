@@ -14,12 +14,13 @@ export const useDayzModInstallation = (
   const [installingMod, setInstallingMod] = useState<string | null>(null);
 
   const handleInstall = async (mod: any, steamCreds: any, requestLogin: () => void, onSteamGuardRequired: () => void) => {
-    if (!steamCreds.username || !steamCreds.password) {
+    setInstallingMod(mod.id);
+
+    if (!steamCreds.username) {
       requestLogin();
       return;
     }
 
-    setInstallingMod(mod.id);
     setDownloadProgress(prev => ({
       ...prev,
       [mod.id]: { percent: 0, msg: 'Starting download...' }
@@ -66,7 +67,7 @@ export const useDayzModInstallation = (
         activeServerId!,
         batchMods,
         steamCreds.username,
-        steamCreds.password,
+        steamCreds.password || undefined,
         steamCreds.steamGuard || undefined
       );
 
@@ -85,6 +86,10 @@ export const useDayzModInstallation = (
       if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
         alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
         onSteamGuardRequired();
+      } else if (e.message && e.message.includes('INVALID_CREDENTIALS')) {
+        alert('Invalid Steam Username or Password. Please update your credentials.');
+        requestLogin();
+        return;
       } else if (e.message?.includes('LOGIN_REQUIRED')) {
         setInstallingMod(null);
         requestLogin();

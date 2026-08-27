@@ -5,6 +5,7 @@ import { app } from 'electron'
 // This saves the database file securely in your Windows AppData folder
 const dbPath = join(app.getPath('userData'), 'omnihost.db')
 const db = new Database(dbPath)
+db.pragma('journal_mode = WAL')
 
 // Create the servers table if it doesn't exist
 db.exec(`

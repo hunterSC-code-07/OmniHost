@@ -30,6 +30,7 @@ export class SteamDownloader {
       this.activeProcess = proc;
 
       let steamGuardRequested = false;
+      let invalidCredentials = false;
 
       proc.stdout?.on('data', (data) => {
         const output = data.toString().trim();
@@ -38,6 +39,12 @@ export class SteamDownloader {
           
           if (SteamAuth.isSteamGuardPrompt(output)) {
             steamGuardRequested = true;
+          }
+          if (SteamAuth.isInvalidPassword(output) || SteamAuth.isAccountLogonDenied(output)) {
+            invalidCredentials = true;
+          }
+          if (SteamAuth.isMobileAuthRequested(output)) {
+            SteamCMDSetup.sendLog(serverId, 50, 'Approve the login on your Steam Mobile App...');
           }
 
           const progressMatch = output.match(/progress:\s*([0-9.]+)/i);
@@ -58,6 +65,8 @@ export class SteamDownloader {
         this.activeProcess = null;
         if (code === 0 || code === 7) {
           resolve(true);
+        } else if (invalidCredentials) {
+          reject(new Error('INVALID_CREDENTIALS'));
         } else if (code === 5 && steamGuardRequested) {
           reject(new Error('STEAM_GUARD_REQUIRED'));
         } else {

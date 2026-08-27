@@ -1,17 +1,20 @@
 import { exec } from 'child_process'
 import fs from 'fs'
-import { shell, BrowserWindow } from 'electron'
+import { shell } from 'electron'
+import { IVpnAdapter } from './IVpnAdapter'
 
-export class RadminVpnAdapter {
+export type RadminLogCallback = (msg: string) => void;
+
+export class RadminVpnAdapter implements IVpnAdapter {
   private exePath: string = 'C:\\Program Files (x86)\\Radmin VPN\\RvRvpnGui.exe';
+  private onLog: RadminLogCallback;
 
-  constructor() {}
+  constructor(onLog?: RadminLogCallback) {
+    this.onLog = onLog || (() => {});
+  }
 
   private sendLog(msg: string) {
-    const windows = BrowserWindow.getAllWindows();
-    if (windows.length > 0) {
-      windows[0].webContents.send('console-log', msg);
-    }
+    this.onLog(msg);
   }
 
   public isInstalled(): boolean {

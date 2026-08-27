@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 import { useServerStore } from '../../../../store/useServerStore';
 import { useLogStore } from '../../../../store/useLogStore';
@@ -14,11 +15,20 @@ export const DayzConsoleTab: React.FC = React.memo(() => {
   const logs = activeServerId ? allLogs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
   const onlinePlayers = activeServerId ? (allPlayers[activeServerId] || []) : [];
   
-  const endOfLogsRef = React.useRef<HTMLDivElement>(null);
+  const parentRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    endOfLogsRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [logs]);
+  const rowVirtualizer = useVirtualizer({
+    count: logs.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 24,
+    overscan: 20,
+  });
+
+  useEffect(() => {
+    if (logs.length > 0) {
+      rowVirtualizer.scrollToIndex(logs.length - 1, { align: 'end' });
+    }
+  }, [logs.length, rowVirtualizer]);
 
   const handleSendCommand = (cmd: string) => {
     if (activeServerId) {
@@ -48,14 +58,11 @@ export const DayzConsoleTab: React.FC = React.memo(() => {
   return (
     <div className="absolute inset-0 flex gap-6 p-6 min-h-0 bg-transparent font-body">
       <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] min-h-0 min-w-0">
-        <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
-          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
-          defer
-        >
-          <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
+        <div ref={parentRef} className="flex-1 min-h-0 overflow-auto p-6" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}>
+          <div className="font-mono text-sm text-on-surface-variant shadow-inner w-full relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {logs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for DayZ server output... click Start to boot!</div>}
-            {logs.map((log, i) => {
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+              const log = logs[virtualItem.index];
               // Strip ANSI escape codes (e.g. \x1b[32m, \x1b[0m, \u001b[m, etc.)
               const cleanLog = log.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
               
@@ -75,7 +82,7 @@ export const DayzConsoleTab: React.FC = React.memo(() => {
               else if (isInfo) colorClass = 'text-on-surface-variant/90';
 
               return (
-                <div key={i} className={`mb-1 leading-relaxed break-words whitespace-pre-wrap ${colorClass}`}>
+                <div key={virtualItem.key} className={`mb-1 leading-relaxed break-words whitespace-pre-wrap absolute top-0 left-0 w-full ${colorClass}`} style={{ transform: `translateY(${virtualItem.start}px)` }}>
                   {isInfo && !isCommand && <span className="text-blue-400 font-bold mr-1">INFO</span>}
                   {isWarn && !isCommand && <span className="text-yellow-400 font-bold mr-1">WARN</span>}
                   {isError && !isCommand && <span className="text-red-400 font-bold mr-1">ERROR</span>}
@@ -86,9 +93,8 @@ export const DayzConsoleTab: React.FC = React.memo(() => {
                 </div>
               );
             })}
-            <div ref={endOfLogsRef} />
           </div>
-        </OverlayScrollbarsComponent>
+        </div>
 
         <form onSubmit={onSubmit} className="p-4 bg-transparent border-t border-surface-container-highest flex gap-3 items-center">
           <span className="text-on-surface-variant font-bold text-xl leading-none flex items-center">&gt;</span>

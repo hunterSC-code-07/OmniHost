@@ -11,6 +11,8 @@ export class DayzProcessManager {
   serverDir: string;
   process: ChildProcess | null = null;
   onlinePlayers: string[] = [];
+  logBuffer: string[] = [];
+  logFlushTimer: NodeJS.Timeout | null = null;
   
   private logParser: DayzLogParser | null = null;
 
@@ -21,9 +23,21 @@ export class DayzProcessManager {
 
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output!
-    BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
-    });
+    
+    this.logBuffer.push(msg);
+    if (!this.logFlushTimer) {
+      this.logFlushTimer = setTimeout(() => {
+        const msgs = [...this.logBuffer];
+        this.logBuffer = [];
+        this.logFlushTimer = null;
+        if (msgs.length > 0) {
+          const batchedMsg = msgs.join('\n');
+          BrowserWindow.getAllWindows().forEach(win => {
+            if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg: batchedMsg });
+          });
+        }
+      }, 50);
+    }
   }
 
   sendPlayerUpdate() {
