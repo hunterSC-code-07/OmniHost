@@ -37,7 +37,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
     loadInstalledMods
   } = useDayzMods();
 
-  const { downloadProgress, installingMod, handleInstall, handleUninstall } = useDayzModInstallation(
+  const { downloadProgress, installingMod, setInstallingMod, handleInstall, handleUninstall } = useDayzModInstallation(
     activeServerId,
     installedMods,
     onNavigateToInstalled,
@@ -169,7 +169,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
               <span className="material-symbols-outlined text-red-500">lock</span>
               <span className="text-white font-bold text-lg">Steam Login Required</span>
             </div>
-            <button onClick={() => setShowCreds(false)} className="text-gray-400 hover:text-white transition-colors">
+            <button onClick={() => { setShowCreds(false); setInstallingMod(null); }} className="text-gray-400 hover:text-white transition-colors">
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
           </div>
