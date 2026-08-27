@@ -18,6 +18,8 @@ export class MinecraftProcessManager {
   javaPid: number | null = null; 
   isFullyStarted: boolean = false; 
   logHistory: string[] = [];
+  logBuffer: string[] = [];
+  logFlushTimer: NodeJS.Timeout | null = null;
 
   constructor(serverId: number) {
     this.serverId = serverId;
@@ -29,9 +31,21 @@ export class MinecraftProcessManager {
     console.log(msg); // Guaranteed VS Code output!
     this.logHistory.push(msg);
     if (this.logHistory.length > 2000) this.logHistory.shift();
-    BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
-    });
+    
+    this.logBuffer.push(msg);
+    if (!this.logFlushTimer) {
+      this.logFlushTimer = setTimeout(() => {
+        const msgs = [...this.logBuffer];
+        this.logBuffer = [];
+        this.logFlushTimer = null;
+        if (msgs.length > 0) {
+          const batchedMsg = msgs.join('\n');
+          BrowserWindow.getAllWindows().forEach(win => {
+            if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg: batchedMsg });
+          });
+        }
+      }, 50);
+    }
   }
 
   sendCommand(cmd: string) {
@@ -173,6 +187,25 @@ export class MinecraftProcessManager {
       });
     }
     this.process.stderr?.on('data', (data) => this.sendLog(`[Minecraft Error]: ${data.toString().trim()}`));
+    
+    this.process.on('exit', () => {
+      this.sendLog(`[System] Server process exited.`);
+      if (this.autoStopTimer) clearTimeout(this.autoStopTimer);
+      if (this.statsTimer) clearInterval(this.statsTimer);
+      this.autoStopTimer = null;
+      this.statsTimer = null;
+      this.process = null;
+      this.javaPid = null;
+      this.playerManager.handleServerStop();
+      
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) win.webContents.send('server-stats', {
+          id: this.serverId,
+          cpu: 0,
+          ram: 0
+        });
+      });
+    });
   }
 
   async stop(): Promise<void> {
