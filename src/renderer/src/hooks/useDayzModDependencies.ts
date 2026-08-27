@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useDayzModStore } from '../store/useDayzModStore';
+import { useModalStore } from '../store/useModalStore';
 
 export const useDayzModDependencies = (
   activeServerId: number | null,
   steamCreds: any,
   setShowCreds: React.Dispatch<React.SetStateAction<boolean>>,
-  setModalState: React.Dispatch<React.SetStateAction<any>>,
   loadInstalledMods: () => Promise<void>,
   mods: any[]
 ) => {
@@ -68,7 +68,7 @@ export const useDayzModDependencies = (
   };
 
   const executeMissingDepsInstall = (depDetails: any[]) => {
-    setModalState({ type: null });
+    useModalStore.getState().closeDayzMissingDepsModal();
     setPendingDeps(depDetails);
     if (!steamCreds.username || !steamCreds.password) {
       setShowCreds(true);
@@ -82,7 +82,7 @@ export const useDayzModDependencies = (
     try {
       const depIds = await window.api.steam.getModDependencies(mod.id);
       if (!depIds || depIds.length === 0) {
-        setModalState({ type: 'INFO', data: { message: 'No dependencies required for this mod.' } });
+        useModalStore.getState().openDayzInfoModal('No dependencies required for this mod.');
         setCheckingDeps(null);
         return;
       }
@@ -101,7 +101,7 @@ export const useDayzModDependencies = (
 
       setDependencyResult({ modTitle: mod.title, deps: results });
     } catch (e: any) {
-      setModalState({ type: 'INFO', data: { message: 'Failed to check dependencies: ' + e.message } });
+      useModalStore.getState().openDayzInfoModal('Failed to check dependencies: ' + e.message);
     } finally {
       setCheckingDeps(null);
     }

@@ -1,30 +1,26 @@
 import React from 'react';
+import { useModalStore } from '../../store/useModalStore';
 
-interface DayzModModalsProps {
-  modalState: { type: string | null; data?: any };
-  setModalState: React.Dispatch<React.SetStateAction<{ type: string | null; data?: any }>>;
-  executeMissingDepsInstall: (deps: any[]) => void;
-  executeUninstall: (modId: string) => void;
-  executeRebuildLoadOrder: () => void;
-  executeUninstallAll: () => void;
-  modsCount: number;
-}
-
-export const DayzModModals: React.FC<DayzModModalsProps> = ({
-  modalState,
-  setModalState,
-  executeMissingDepsInstall,
-  executeUninstall,
-  executeRebuildLoadOrder,
-  executeUninstallAll,
-  modsCount,
-}) => {
-  if (!modalState.type) return null;
+export const DayzModals: React.FC = () => {
+  const {
+    dayzInfoModal,
+    closeDayzInfoModal,
+    dayzMissingDepsModal,
+    closeDayzMissingDepsModal,
+    dayzUninstallSingleModal,
+    closeDayzUninstallSingleModal,
+    dayzUninstallAllModal,
+    closeDayzUninstallAllModal,
+    dayzRebuildConfirmModal,
+    closeDayzRebuildConfirmModal,
+    dayzRebuildSuccessModal,
+    closeDayzRebuildSuccessModal
+  } = useModalStore();
 
   return (
     <>
       {/* INFO MODAL */}
-      {modalState.type === 'INFO' && (
+      {dayzInfoModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121212]/80 border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
             <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-blue-900/10">
@@ -32,11 +28,11 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
               <h2 className="text-lg font-bold text-white">Notice</h2>
             </div>
             <div className="p-6 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
-              {modalState.data?.message}
+              {dayzInfoModal.message}
             </div>
             <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
               <button
-                onClick={() => setModalState({ type: null })}
+                onClick={closeDayzInfoModal}
                 className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
               >
                 Close
@@ -47,7 +43,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
       )}
 
       {/* MISSING DEPS MODAL */}
-      {modalState.type === 'MISSING_DEPS' && (
+      {dayzMissingDepsModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121212]/80 border border-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
             <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-yellow-900/10">
@@ -57,7 +53,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
             <div className="p-6 text-gray-300 text-sm leading-relaxed">
               This mod requires the following missing dependencies:
               <div className="mt-4 flex flex-wrap gap-2">
-                {modalState.data?.depDetails?.map((dep: any) => (
+                {dayzMissingDepsModal.depDetails?.map((dep: any) => (
                   <span key={dep.id} className="px-2 py-1 bg-yellow-900/20 border border-yellow-500/20 text-yellow-300 rounded text-xs font-bold">
                     {dep.title}
                   </span>
@@ -67,13 +63,18 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
             </div>
             <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
               <button
-                onClick={() => setModalState({ type: null })}
+                onClick={closeDayzMissingDepsModal}
                 className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={() => executeMissingDepsInstall(modalState.data?.depDetails)}
+                onClick={() => {
+                  if (dayzMissingDepsModal.onConfirm) {
+                    dayzMissingDepsModal.onConfirm(dayzMissingDepsModal.depDetails);
+                  }
+                  closeDayzMissingDepsModal();
+                }}
                 className="bg-yellow-900/30 text-yellow-400 border border-yellow-500/50 hover:bg-yellow-900/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] px-6 py-2.5 rounded-lg font-bold transition-all"
               >
                 Install Automatically
@@ -84,7 +85,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
       )}
 
       {/* UNINSTALL SINGLE MODAL */}
-      {modalState.type === 'UNINSTALL_SINGLE' && (
+      {dayzUninstallSingleModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
             <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
@@ -92,17 +93,22 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
               <h2 className="text-lg font-bold text-white">Uninstall Mod</h2>
             </div>
             <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              Are you sure you want to uninstall <span className="text-white font-bold">{modalState.data?.modName}</span>?
+              Are you sure you want to uninstall <span className="text-white font-bold">{dayzUninstallSingleModal.modName}</span>?
             </div>
             <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
               <button
-                onClick={() => setModalState({ type: null })}
+                onClick={closeDayzUninstallSingleModal}
                 className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={() => executeUninstall(modalState.data?.modId)}
+                onClick={() => {
+                  if (dayzUninstallSingleModal.onConfirm) {
+                    dayzUninstallSingleModal.onConfirm(dayzUninstallSingleModal.modId);
+                  }
+                  closeDayzUninstallSingleModal();
+                }}
                 className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
               >
                 Uninstall
@@ -113,7 +119,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
       )}
 
       {/* REBUILD CONFIRM MODAL */}
-      {modalState.type === 'REBUILD_CONFIRM' && (
+      {dayzRebuildConfirmModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
             <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
@@ -125,13 +131,18 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
             </div>
             <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
               <button
-                onClick={() => setModalState({ type: null })}
+                onClick={closeDayzRebuildConfirmModal}
                 className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={executeRebuildLoadOrder}
+                onClick={() => {
+                  if (dayzRebuildConfirmModal.onConfirm) {
+                    dayzRebuildConfirmModal.onConfirm();
+                  }
+                  closeDayzRebuildConfirmModal();
+                }}
                 className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
               >
                 Proceed
@@ -142,7 +153,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
       )}
 
       {/* REBUILD SUCCESS MODAL */}
-      {modalState.type === 'REBUILD_SUCCESS' && (
+      {dayzRebuildSuccessModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121212]/80 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
             <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-green-900/10">
@@ -154,7 +165,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
             </div>
             <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
               <button
-                onClick={() => setModalState({ type: null })}
+                onClick={closeDayzRebuildSuccessModal}
                 className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
               >
                 Close
@@ -165,7 +176,7 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
       )}
 
       {/* UNINSTALL ALL CONFIRM MODAL */}
-      {modalState.type === 'UNINSTALL_ALL' && (
+      {dayzUninstallAllModal.isOpen && (
         <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
           <div className="bg-[#121212]/80 border border-red-500/50 shadow-[0_0_40px_rgba(220,38,38,0.2)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
             <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/20">
@@ -173,18 +184,23 @@ export const DayzModModals: React.FC<DayzModModalsProps> = ({
               <h2 className="text-lg font-bold text-white">Delete All Mods</h2>
             </div>
             <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              <span className="text-red-400 font-bold block mb-2">WARNING: You are about to uninstall ALL {modsCount} mods from this server.</span>
+              <span className="text-red-400 font-bold block mb-2">WARNING: You are about to uninstall ALL {dayzUninstallAllModal.modsCount} mods from this server.</span>
               Are you sure you want to proceed? This cannot be undone.
             </div>
             <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
               <button
-                onClick={() => setModalState({ type: null })}
+                onClick={closeDayzUninstallAllModal}
                 className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
               >
                 Cancel
               </button>
               <button
-                onClick={executeUninstallAll}
+                onClick={() => {
+                  if (dayzUninstallAllModal.onConfirm) {
+                    dayzUninstallAllModal.onConfirm();
+                  }
+                  closeDayzUninstallAllModal();
+                }}
                 className="bg-red-900/30 text-red-400 border border-red-500/50 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.15)] px-6 py-2.5 rounded-lg font-bold transition-all"
               >
                 Delete All

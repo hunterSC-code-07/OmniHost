@@ -1,4 +1,5 @@
 import React from 'react';
+import { useModalStore } from '../../../../../store/useModalStore';
 
 interface DayzSteamCredentialsFormProps {
   steamCreds: any;
@@ -8,7 +9,6 @@ interface DayzSteamCredentialsFormProps {
   setShowCreds: (show: boolean) => void;
   saveCredentials: (onSuccess: () => void, onError: (msg: string) => void) => void;
   handleInstallDependencies: () => void;
-  setModalState: (state: { type: string | null; data?: any }) => void;
 }
 
 export const DayzSteamCredentialsForm: React.FC<DayzSteamCredentialsFormProps> = ({
@@ -19,7 +19,6 @@ export const DayzSteamCredentialsForm: React.FC<DayzSteamCredentialsFormProps> =
   setShowCreds,
   saveCredentials,
   handleInstallDependencies,
-  setModalState,
 }) => {
   return (
     <div className="p-4 bg-surface-container-high border border-primary/30 mx-4 my-2 rounded-xl flex flex-col gap-3 shadow-lg">
@@ -65,7 +64,7 @@ export const DayzSteamCredentialsForm: React.FC<DayzSteamCredentialsFormProps> =
           <button
             onClick={() => saveCredentials(
               () => handleInstallDependencies(), 
-              (msg) => setModalState({ type: 'INFO', data: { message: msg } })
+              (msg) => useModalStore.getState().openDayzInfoModal(msg)
             )}
             className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
           >
