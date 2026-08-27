@@ -4,6 +4,7 @@ import 'overlayscrollbars/overlayscrollbars.css';
 
 import { useServerStore } from '../../store/useServerStore';
 import { useMinecraftSoftware } from '../../hooks/useMinecraftSoftware';
+import { useModalStore } from '../../store/useModalStore';
 
 interface SoftwareTabProps {
   // Add props if needed
@@ -11,6 +12,7 @@ interface SoftwareTabProps {
 
 export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
   const { activeServerId, setServers } = useServerStore();
+  const { openCreateServerModal } = useModalStore();
   const [downloadProgress, setDownloadProgress] = React.useState(0);
   const [downloadText, setDownloadText] = React.useState('');
 
@@ -57,9 +59,15 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
             {isTypeMenuOpen && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
                 <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge'].map(opt => (
+                {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge', 'CurseForge Modpack'].map(opt => (
                   <div key={opt} onClick={() => { 
-                      setEditingSoftwareType(opt); 
+                      if (opt === 'CurseForge Modpack') {
+                          if (confirm('Warning: Changing an existing server to a CurseForge modpack is not recommended as it may cause severe compatibility issues or corruption. It is highly recommended to create a new server for the modpack instead. Do you want to go to the Create Server screen now?')) {
+                              openCreateServerModal();
+                          }
+                      } else {
+                          setEditingSoftwareType(opt); 
+                      }
                       setIsTypeMenuOpen(false); 
                   }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingSoftwareType === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
                     {opt} {editingSoftwareType === opt && <span className="float-right text-brand">✓</span>}
