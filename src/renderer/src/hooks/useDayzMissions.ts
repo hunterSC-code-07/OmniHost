@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { useModalStore } from '../store/useModalStore';
 
-export const useDayzMissions = (activeServerId: number | null, setModalState: React.Dispatch<React.SetStateAction<any>>) => {
+export const useDayzMissions = (activeServerId: number | null) => {
   const [downloadingMission, setDownloadingMission] = useState<string | null>(null);
 
   const handleDownloadMission = async (modId: string) => {
@@ -10,7 +11,7 @@ export const useDayzMissions = (activeServerId: number | null, setModalState: Re
       await window.api.dayz.downloadMission(activeServerId, modId);
     } catch (e: any) {
       console.error(e);
-      setModalState({ type: 'INFO', data: { message: 'Failed to download mission files: ' + e.message } });
+      useModalStore.getState().openDayzInfoModal('Failed to download mission files: ' + e.message);
     } finally {
       setDownloadingMission(null);
     }
@@ -21,10 +22,10 @@ export const useDayzMissions = (activeServerId: number | null, setModalState: Re
     setDownloadingMission(modId);
     try {
       await window.api.dayz.extractLocalMission(activeServerId, localMissionsPath);
-      setModalState({ type: 'INFO', data: { message: 'Mission files extracted and applied successfully!' } });
+      useModalStore.getState().openDayzInfoModal('Mission files extracted and applied successfully!');
     } catch (e: any) {
       console.error(e);
-      setModalState({ type: 'INFO', data: { message: 'Failed to extract mission files: ' + e.message } });
+      useModalStore.getState().openDayzInfoModal('Failed to extract mission files: ' + e.message);
     } finally {
       setDownloadingMission(null);
     }

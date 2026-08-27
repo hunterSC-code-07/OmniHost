@@ -17,7 +17,7 @@ export const useLogStore = create<LogStore>((set) => ({
   setLogs: (logs) => set({ logs }),
   addLogs: (id, msgs) => set((state) => {
     const newLogs = [...state.logs, ...msgs.map(m => ({ id, msg: m }))];
-    if (newLogs.length > 500) return { logs: newLogs.slice(newLogs.length - 500) };
+    if (newLogs.length > 5000) return { logs: newLogs.slice(newLogs.length - 5000) };
     return { logs: newLogs };
   }),
   clearLogs: (id) => set((state) => {

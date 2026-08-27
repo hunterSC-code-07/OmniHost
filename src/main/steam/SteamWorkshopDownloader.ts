@@ -3,6 +3,7 @@ import { join } from 'path';
 import fs from 'fs';
 import axios from 'axios';
 import { SteamCMDSetup } from './SteamCMDSetup';
+import { SteamAuth } from './SteamAuth';
 
 export class SteamWorkshopDownloader {
   static activeProcess: ChildProcess | null = null;
@@ -47,19 +48,7 @@ export class SteamWorkshopDownloader {
           SteamCMDSetup.sendLog(serverId, 0, `Starting Workshop download for Mod ${modId}...`);
 
           const exePath = SteamCMDSetup.getExePath();
-
-          const loginArgs: string[] = [];
-          if (username && password) {
-            if (steamGuardCode) {
-              loginArgs.push('+login', username, password, steamGuardCode);
-            } else if (tryCached) {
-              loginArgs.push('+login', username);
-            } else {
-              loginArgs.push('+login', username, password);
-            }
-          } else {
-            loginArgs.push('+login', 'anonymous');
-          }
+          const loginArgs = SteamAuth.getLoginArgs(username, tryCached ? undefined : password, steamGuardCode);
 
           const args: string[] = [
             ...loginArgs,
@@ -72,6 +61,7 @@ export class SteamWorkshopDownloader {
           this.activeProcess = proc;
 
           let steamGuardRequested = false;
+          let invalidCredentials = false;
           let downloadFailed = false;
           let downloadErrorMsg = '';
           let fullOutput = '';
@@ -81,22 +71,25 @@ export class SteamWorkshopDownloader {
           const progressInterval = setInterval(async () => {
             if (totalSize > 0 && fs.existsSync(targetDir)) {
               let currentSize = 0;
-              const checkSize = async (dir: string) => {
-                if (!fs.existsSync(dir)) return;
+              const checkSize = async (dir: string): Promise<number> => {
+                if (!fs.existsSync(dir)) return 0;
+                let size = 0;
                 try {
                   const files = await fs.promises.readdir(dir, { withFileTypes: true });
-                  for (const file of files) {
+                  const sizes = await Promise.all(files.map(async (file) => {
                     const fullPath = join(dir, file.name);
                     if (file.isDirectory()) {
-                      await checkSize(fullPath);
+                      return await checkSize(fullPath);
                     } else {
                       const stats = await fs.promises.stat(fullPath);
-                      currentSize += stats.size;
+                      return stats.size;
                     }
-                  }
+                  }));
+                  size = sizes.reduce((a, b) => a + b, 0);
                 } catch (e) { /* ignore read errors during active download */ }
+                return size;
               };
-              await checkSize(targetDir);
+              currentSize = await checkSize(targetDir);
               const percent = Math.min((currentSize / totalSize) * 100, 99.9);
               SteamCMDSetup.sendLog(serverId, percent, `[MOD:${modId}] Downloading Mod Files (${percent.toFixed(1)}%)...`);
             } else if (totalSize === 0) {
@@ -122,14 +115,22 @@ export class SteamWorkshopDownloader {
                 downloadErrorMsg = 'ENOSPC';
               }
 
-              if (tryCached && (lowerOutput.includes('invalid password') || lowerOutput.includes('account login denied') || lowerOutput.includes('password required'))) {
+              if (SteamAuth.isInvalidPassword(output) || SteamAuth.isAccountLogonDenied(output)) {
+                invalidCredentials = true;
+              }
+
+              if (tryCached && invalidCredentials) {
                 resolve('RETRY_FULL_LOGIN');
                 return;
               }
 
               // Detect Steam Guard / 2FA prompts
-              if (lowerOutput.includes('steam guard') || lowerOutput.includes('two-factor') || lowerOutput.includes('enter the current code')) {
+              if (SteamAuth.isSteamGuardPrompt(output)) {
                 steamGuardRequested = true;
+              }
+
+              if (SteamAuth.isMobileAuthRequested(output)) {
+                SteamCMDSetup.sendLog(serverId, 50, `[MOD:${modId}] Approve the login on your Steam Mobile App...`);
               }
 
               const progressMatch = output.match(/progress:\s*([0-9.]+)/i);
@@ -158,6 +159,8 @@ export class SteamWorkshopDownloader {
               } else {
                 reject(new Error(`LOGIN_REQUIRED: ${downloadErrorMsg}`));
               }
+            } else if (invalidCredentials) {
+              reject(new Error('INVALID_CREDENTIALS'));
             } else if (code === 0 || code === 7) { // 7 is also success in some SteamCMD contexts
               SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Download Complete!`);
               resolve('SUCCESS');

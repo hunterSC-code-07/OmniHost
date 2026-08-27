@@ -34,8 +34,9 @@ The backend is responsible for spawning and managing heavy child processes (like
 
 ### Core Modules
 
-- **`index.ts`**: The main entry point. Sets up the Electron window, initializes networking providers (`FrpAdapter`, `RadminVpnAdapter`), and registers all IPC handlers.
+- **`index.ts`**: The main entry point. Sets up the Electron window, initializes networking providers (`FrpAdapter`, `RadminVpnAdapter`), registers all IPC handlers, and boots global services.
 - **`db.ts`**: Initializes `better-sqlite3` and exports the database instance.
+- **`utils/logger.ts`**: Configures `electron-log` to capture all backend and frontend logs centrally, saving them persistently to disk and intercepting crash stack traces automatically.
 - **`adapters/`**: Classes that encapsulate complex external integrations.
   - `DayzAdapter.ts`: Bootstraps and manages DayZ server setups.
   - `JavaManager.ts`: Automatically downloads and manages portable Java Runtimes (JREs).
@@ -70,6 +71,7 @@ The frontend is a modern React application utilizing Tailwind CSS for styling an
 - **`App.tsx`**: The root component. Handles routing between different views using a simple state-based router (`activeTab`).
 - **`components/hubs/`**: The primary views of the application.
   - `DashboardHub`: The main screen where users see all their installed servers, create new ones, and manage global settings.
+  - `SettingsModal`: The global settings overlay featuring application-wide configurations and a built-in Diagnostics log viewer.
   - `DayzHub`: The management interface for a specific DayZ server.
   - `MinecraftHub`: The management interface for a specific Minecraft server.
 - **Hub Tabs**: Inside each game hub, functionality is split into tabs:

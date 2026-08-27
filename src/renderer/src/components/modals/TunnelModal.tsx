@@ -1,13 +1,15 @@
 
 
+import { createPortal } from 'react-dom';
 import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
 
 export function TunnelModal({ onClose }: { onClose: () => void }) {
   const { tempTunnelIp, setTempTunnelIp, setTunnelIp } = useUiStore();
   const { showToast } = useToastStore();
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+  
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
           <div className="bg-surface/80 backdrop-blur-xl border border-outline-variant/30 shadow-2xl rounded-2xl w-full max-w-md overflow-hidden relative">
             <div className="p-6 relative z-10">
               <div className="flex items-center gap-4 mb-6">
@@ -55,6 +57,7 @@ export function TunnelModal({ onClose }: { onClose: () => void }) {
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+    document.body
   );
 }

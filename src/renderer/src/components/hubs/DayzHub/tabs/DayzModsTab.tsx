@@ -5,7 +5,7 @@ import { useServerStore } from '../../../../store/useServerStore';
 import { useDayzModStore } from '../../../../store/useDayzModStore';
 import { useDayzMods } from '../../../../hooks/useDayzMods';
 import { useDayzModInstallation } from '../../../../hooks/useDayzModInstallation';
-import { useSteamCredentials } from '../../../../hooks/useSteamCredentials';
+import { useSteamCredentialsStore } from '../../../../store/useSteamCredentialsStore';
 
 interface DayzModsTabProps {
   onNavigateToInstalled: () => void;
@@ -15,7 +15,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
   const { activeServerId } = useServerStore();
   const { pendingDownloads, removePendingDownload } = useDayzModStore();
 
-  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentials();
+  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentialsStore();
 
   const {
     searchQuery, setSearchQuery,
@@ -37,7 +37,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
     loadInstalledMods
   } = useDayzMods();
 
-  const { downloadProgress, installingMod, handleInstall, handleUninstall } = useDayzModInstallation(
+  const { downloadProgress, installingMod, setInstallingMod, handleInstall, handleUninstall } = useDayzModInstallation(
     activeServerId,
     installedMods,
     onNavigateToInstalled,
@@ -169,7 +169,7 @@ export const DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled 
               <span className="material-symbols-outlined text-red-500">lock</span>
               <span className="text-white font-bold text-lg">Steam Login Required</span>
             </div>
-            <button onClick={() => setShowCreds(false)} className="text-gray-400 hover:text-white transition-colors">
+            <button onClick={() => { setShowCreds(false); setInstallingMod(null); }} className="text-gray-400 hover:text-white transition-colors">
               <span className="material-symbols-outlined text-[20px]">close</span>
             </button>
           </div>

@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { DashboardHub } from '../hubs/DashboardHub/DashboardHub';
-import { DayzHub } from '../hubs/DayzHub/DayzHub';
-import { MinecraftHub } from '../hubs/MinecraftHub/MinecraftHub';
-import { SatisfactoryHub } from '../hubs/SatisfactoryHub/SatisfactoryHub';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useServerStore } from '../../store/useServerStore';
 import minecraftBg from '../../assets/minecraft-bg.png';
 import palworldBg from '../../assets/palworld-bg.jpg';
 import dayzBg from '../../assets/dayz-bg.jpg';
 import satisfactoryBg from '../../assets/satisfactory-bg.jpg';
+
+// Lazy load the heavy game hubs so they aren't bundled into the initial payload
+const DayzHub = React.lazy(() => import('../hubs/DayzHub/DayzHub').then(m => ({ default: m.DayzHub })));
+const MinecraftHub = React.lazy(() => import('../hubs/MinecraftHub/MinecraftHub').then(m => ({ default: m.MinecraftHub })));
+const SatisfactoryHub = React.lazy(() => import('../hubs/SatisfactoryHub/SatisfactoryHub').then(m => ({ default: m.SatisfactoryHub })));
 
 const supportedGameHubs = ['Minecraft', 'DayZ', 'Satisfactory'];
 const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
@@ -20,6 +23,14 @@ const getGameImageUrl = (game: string) => {
   if (game.toLowerCase().includes('satisfactory')) return satisfactoryBg;
   return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';
 };
+
+// Fallback loader to show while the chunk is fetching from disk
+const HubLoader = () => (
+  <div className="w-full h-full flex flex-col items-center justify-center bg-[#050505]">
+    <div className="w-8 h-8 border-2 border-zinc-700 border-t-white rounded-full animate-spin mb-4"></div>
+    <span className="text-zinc-500 font-mono text-sm uppercase tracking-widest animate-pulse">Loading Module...</span>
+  </div>
+);
 
 export const HubRouter: React.FC = () => {
   const { activeServerId, servers } = useServerStore();
@@ -57,13 +68,17 @@ export const HubRouter: React.FC = () => {
             transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
             className="absolute inset-0 w-full h-full flex flex-col overflow-hidden z-10 bg-[#050505]"
           >
-            {activeServer.game === 'DayZ' ? (
-              <DayzHub />
-            ) : activeServer.game === 'Satisfactory' ? (
-              <SatisfactoryHub />
-            ) : (
-              <MinecraftHub />
-            )}
+            <ErrorBoundary>
+              <Suspense fallback={<HubLoader />}>
+                {activeServer.game === 'DayZ' ? (
+                  <DayzHub />
+                ) : activeServer.game === 'Satisfactory' ? (
+                  <SatisfactoryHub />
+                ) : (
+                  <MinecraftHub />
+                )}
+              </Suspense>
+            </ErrorBoundary>
           </motion.div>
         )}
       </AnimatePresence>
