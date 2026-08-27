@@ -9,7 +9,12 @@ export type FileTailerOptions = {
   onLog: (msg: string) => void;
 };
 
-export class FileTailer {
+export interface IFileTailer {
+  start(): void;
+  stop(): void;
+}
+
+export class FileTailer implements IFileTailer {
   private fileWatcher: NodeJS.Timeout | null = null;
   private logWatcher: NodeJS.Timeout | null = null;
   private logFd: number | null = null;

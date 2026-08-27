@@ -1,11 +1,11 @@
 import { join } from 'path';
-import { FileTailer } from '../utils/FileTailer';
+import { FileTailer, IFileTailer } from '../utils/FileTailer';
 
 type LogCallback = (msg: string) => void;
 type PlayerCallback = (playerName: string, isConnected: boolean) => void;
 
 export class DayzLogParser {
-  private tailer: FileTailer | null = null;
+  private tailer: IFileTailer | null = null;
 
   constructor(
     private serverDir: string,
