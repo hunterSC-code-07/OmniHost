@@ -29,9 +29,9 @@ export class MinecraftProcessManager {
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output!
     this.logHistory.push(msg);
-    if (this.logHistory.length > 500) this.logHistory.shift();
+    if (this.logHistory.length > 2000) this.logHistory.shift();
     BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('server-log', { id: this.serverId, msg });
+      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
     });
   }
 
@@ -295,8 +295,9 @@ export class MinecraftProcessManager {
               ram: stats.memory
             });
           });
-        } catch (e) {
+        } catch (e: any) {
           // PID might not exist anymore (e.g. temporary java check process finished)
+          this.sendLog(`[System Error Debug] Stats error: ${e.message}`);
           this.javaPid = null;
         }
       }, 2000);

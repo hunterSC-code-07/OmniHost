@@ -10,6 +10,11 @@ export class CurseForgeApiClient {
     sortField: number = 2
   ) {
     try {
+      require('dotenv').config();
+      if (!process.env.CURSEFORGE_API_KEY) {
+        console.error('Error searching Curseforge mods: API Key is missing from environment.');
+      }
+
       let url = `https://api.curseforge.com/v1/mods/search?gameId=432&classId=${classId}&sortField=${sortField}&sortOrder=desc&index=${page * 50}`
       
       if (search) url += `&searchFilter=${encodeURIComponent(search)}`
