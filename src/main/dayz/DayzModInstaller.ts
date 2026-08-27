@@ -2,7 +2,6 @@ import { app, dialog } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
-import { SteamCMDManager } from '../steam/SteamCMDManager'
 import { DayzMissionManager, DAYZ_MAP_REPOS } from './DayzMissionManager'
 import { SteamWebAPI } from '../api/SteamWebAPI'
 // Note: We're calling SteamCMDManager for some downloads in the original code. 
@@ -132,7 +131,7 @@ export class DayzModInstaller {
           // Does not exist, safe to proceed
         }
 
-        SteamCMDManager.sendLog(serverId, 100, `Copying ${folderName} to server...`);
+        SteamCMDSetup.sendLog(serverId, 100, `Copying ${folderName} to server...`);
         await fsPromises.cp(workshopModDir, targetModDir, { recursive: true });
 
         // Save mod ID and title for reference
@@ -179,7 +178,7 @@ export class DayzModInstaller {
         console.warn('Failed to update mod_dependencies.json during install', e);
       }
 
-      SteamCMDManager.sendLog(serverId, 100, 'All mods installed and setup successfully!');
+      SteamCMDSetup.sendLog(serverId, 100, 'All mods installed and setup successfully!');
       return true;
     } catch (e: any) {
       console.error('Failed to install DayZ mods', e);
@@ -216,7 +215,7 @@ export class DayzModInstaller {
         // Does not exist, safe to proceed
       }
 
-      SteamCMDManager.sendLog(serverId, 100, `Copying ${folderName} to server...`);
+      SteamCMDSetup.sendLog(serverId, 100, `Copying ${folderName} to server...`);
       await fsPromises.cp(workshopModDir, targetModDir, { recursive: true });
 
       // Save mod ID and title for reference
@@ -247,9 +246,9 @@ export class DayzModInstaller {
       // 4. Auto-download mission files if this is a known map repo
       if (DAYZ_MAP_REPOS[modId]) {
         try {
-          SteamCMDManager.sendLog(serverId, 100, `Fetching mission files for ${modTitle}...`);
+          SteamCMDSetup.sendLog(serverId, 100, `Fetching mission files for ${modTitle}...`);
           await DayzMissionManager.fetchDayzMission(serverId, modId);
-          SteamCMDManager.sendLog(serverId, 100, `Mission files downloaded and server configured!`);
+          SteamCMDSetup.sendLog(serverId, 100, `Mission files downloaded and server configured!`);
         } catch (e) {
           console.warn(`Could not fetch auto mission files for ${modId}`, e);
         }

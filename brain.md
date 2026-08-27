@@ -36,12 +36,19 @@ The backend is responsible for spawning and managing heavy child processes (like
 
 - **`index.ts`**: The main entry point. Sets up the Electron window, initializes networking providers (`FrpAdapter`, `RadminVpnAdapter`), and registers all IPC handlers.
 - **`db.ts`**: Initializes `better-sqlite3` and exports the database instance.
-- **`adapters/`**: Classes that encapsulate complex external interactions.
-  - `SteamCMDManager.ts`: Handles downloading and updating Steam games (like DayZ) and Workshop mods using the SteamCMD CLI.
-  - `DayzAdapter.ts` & `MinecraftAdapter.ts`: Handles starting, monitoring, and stopping specific game servers.
-  - `JavaManager.ts`: Automatically downloads and manages portable Java Runtimes (JREs) for Minecraft.
-  - `FrpAdapter.ts` & `RadminVpnAdapter.ts`: Manages network tunneling to expose local servers to the internet securely.
+- **`adapters/`**: Classes that encapsulate complex external integrations.
+  - `DayzAdapter.ts`: Bootstraps and manages DayZ server setups.
+  - `JavaManager.ts`: Automatically downloads and manages portable Java Runtimes (JREs).
+  - `FrpAdapter.ts`, `PlayitAdapter.ts`, `RadminVpnAdapter.ts`: Manages network tunneling to expose local servers to the internet securely.
   - `WakeProxy.ts`: A custom TCP proxy that intercepts connections to wake sleeping servers.
+- **`dayz/`**: Dedicated backend module for DayZ server management.
+  - Includes `DayzProcessManager`, `DayzModInstaller`, `DayzEconomyManager`, and `DayzConfigManager` to handle all DayZ-specific workflows.
+- **`minecraft/`**: Dedicated backend module for Minecraft specifics.
+  - `MinecraftProcessManager.ts`: Handles lifecycle monitoring, resource polling (CPU/RAM), and process termination.
+  - `MinecraftCommandBuilder.ts`: Assembles complex JVM startup arguments and parses `run.bat` scripts for Forge/NeoForge servers.
+  - Includes managers for downloading jars (`MinecraftDownloader`), mods (`MinecraftModManager`), and players (`MinecraftPlayerManager`).
+- **`steam/`**: Dedicated backend module for SteamCMD and Steam Workshop interactions.
+  - Includes `SteamCMDSetup`, `SteamDownloader`, and `SteamWorkshopDownloader` for fetching games and mods directly from Steam.
 - **`ipc/`**: The bridges that listen for requests from the frontend UI.
   - `SystemIpc.ts`: System-level tasks (creating servers, deleting servers, VPN toggles).
   - `ServerIpc.ts`: Generic server operations (start/stop, file management, config reading).
@@ -68,8 +75,9 @@ The frontend is a modern React application utilizing Tailwind CSS for styling an
 - **Hub Tabs**: Inside each game hub, functionality is split into tabs:
   - `*ConsoleTab.tsx`: Shows real-time stdout/stderr from the running server process.
   - `*OptionsTab.tsx`: Provides a user-friendly UI for editing game-specific configuration files (like `serverDZ.cfg` or `server.properties`).
-  - `*ModsTab.tsx`: Interfaces with Steam Workshop or Modrinth to search for, install, and manage mods.
+  - `*ModsTab.tsx`: Interfaces with Steam Workshop or Modrinth to search for, install, and manage mods. (Note: Mod operations and searches are encapsulated into cohesive hooks like `useDayzModSearch` and `useDayzModImport`).
   - `*FilesTab.tsx`: A built-in file explorer to browse, delete, and edit raw server files.
+  - **Helper Components**: Complex tabs often delegate rendering to sub-components (e.g., `DayzModModals.tsx`) to avoid bloated React components.
 - **`components/unlumen-ui/`**: Reusable, highly stylized UI components (buttons, modals, inputs) that give OmniHost its premium aesthetic.
 
 ## 🔄 Core Workflows

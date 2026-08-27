@@ -1,38 +1,38 @@
-import React from 'react';
+import { useState } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { useDayzWorkshop } from '../../../../hooks/useDayzWorkshop';
+import { useDayzInstalledMods } from '../../../../hooks/useDayzInstalledMods';
+import { useDayzMissions } from '../../../../hooks/useDayzMissions';
+import { useDayzModDependencies } from '../../../../hooks/useDayzModDependencies';
+import { useDayzModOperations } from '../../../../hooks/useDayzModOperations';
+import { useSteamCredentials } from '../../../../hooks/useSteamCredentials';
+import { useDayzModStore } from '../../../../store/useDayzModStore';
+import { DayzModModals } from './DayzModModals';
 
 export const DayzInstalledModsTab: React.FC = () => {
-  const {
-    mods,
-    loading,
-    downloadingMission,
-    steamCreds,
-    setSteamCreds,
-    rememberMe,
-    setRememberMe,
-    showCreds,
-    setShowCreds,
-    installingDep,
-    depProgress,
-    checkingDeps,
-    isRebuilding,
-    dependencyResult,
-    setDependencyResult,
-    handleToggleMap,
-    handleDownloadMission,
-    handleExtractLocalMission,
-    handleToggleModStatus,
-    handleCheckDependencies,
-    handleUninstall,
-    handleUninstallAll, executeUninstallAll, executeUninstall, executeRebuildLoadOrder, executeMissingDepsInstall, modalState, setModalState,
-    handleRebuildLoadOrder,
-    saveCredentials,
-    loadInstalledMods,
-    activeServerId,
-    pendingDownloads,
-    removePendingDownload
-  } = useDayzWorkshop();
+  const [modalState, setModalState] = useState<{ type: string | null, data?: any }>({ type: null });
+  const { pendingDownloads, removePendingDownload } = useDayzModStore();
+
+  const { mods, loading, setLoading, loadInstalledMods, activeServerId } = useDayzInstalledMods();
+  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentials();
+  
+  const { downloadingMission, handleDownloadMission, handleExtractLocalMission } = useDayzMissions(activeServerId, setModalState);
+  
+  const { installingDep, depProgress, checkingDeps, dependencyResult, setDependencyResult, handleInstallDependencies, executeMissingDepsInstall, handleCheckDependencies } = useDayzModDependencies(activeServerId, steamCreds, setShowCreds, setModalState, loadInstalledMods, mods);
+  
+  const { isRebuilding, handleToggleMap, handleToggleModStatus, handleUninstall, executeUninstall, handleUninstallAll, executeUninstallAll, handleRebuildLoadOrder, executeRebuildLoadOrder } = useDayzModOperations(
+    activeServerId, 
+    mods, 
+    loadInstalledMods, 
+    setLoading, 
+    {
+      onMissingDependencies: (depNames, depDetails) => setModalState({ type: 'MISSING_DEPS', data: { depNames, depDetails } }),
+      onUninstallSingle: (modId, modName) => setModalState({ type: 'UNINSTALL_SINGLE', data: { modId, modName } }),
+      onUninstallAll: () => setModalState({ type: 'UNINSTALL_ALL' }),
+      onRebuildConfirm: () => setModalState({ type: 'REBUILD_CONFIRM' }),
+      onRebuildSuccess: () => setModalState({ type: 'REBUILD_SUCCESS' }),
+      onError: (message) => setModalState({ type: 'INFO', data: { message } })
+    }
+  );
 
   const openWorkshopPage = (id: string) => {
     if (/^\d+$/.test(id)) {
@@ -114,7 +114,10 @@ export const DayzInstalledModsTab: React.FC = () => {
                 Remember Me
               </label>
               <button
-                onClick={saveCredentials}
+                onClick={() => saveCredentials(
+                  () => handleInstallDependencies(), 
+                  (msg) => setModalState({ type: 'INFO', data: { message: msg } })
+                )}
                 className="bg-primary text-on-primary px-4 py-2 rounded-lg hover:bg-primary/90 text-sm font-bold shadow transition-colors"
               >
                 Continue Installation
@@ -137,7 +140,7 @@ export const DayzInstalledModsTab: React.FC = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {activeServerId && pendingDownloads[activeServerId] && Object.values(pendingDownloads[activeServerId]).map((pending) => {
+            {activeServerId && pendingDownloads[activeServerId] && Object.values(pendingDownloads[activeServerId]).map((pending: any) => {
               const mod = pending.mod || pending;
               const isInstalled = mods.some(m => String(m.id) === String(mod.id || mod.publishedfileid));
               if (isInstalled) return null; // Prevent duplicate rendering if installed list is updated early
@@ -371,178 +374,16 @@ export const DayzInstalledModsTab: React.FC = () => {
         </div>
       )}
 
-            {/* Cohesive UI Modals */}
-      
-      {/* INFO MODAL */}
-      {modalState.type === 'INFO' && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-blue-500/30 shadow-[0_0_30px_rgba(59,130,246,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-blue-900/10">
-              <span className="material-symbols-outlined text-blue-500 text-2xl">info</span>
-              <h2 className="text-lg font-bold text-white">Notice</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">
-              {modalState.data?.message}
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
-              <button
-                onClick={() => setModalState({ type: null })}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* MISSING DEPS MODAL */}
-      {modalState.type === 'MISSING_DEPS' && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-yellow-500/30 shadow-[0_0_30px_rgba(234,179,8,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-yellow-900/10">
-              <span className="material-symbols-outlined text-yellow-500 text-2xl">extension</span>
-              <h2 className="text-lg font-bold text-white">Missing Dependencies</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              This mod requires the following missing dependencies:
-              <div className="mt-4 flex flex-wrap gap-2">
-                {modalState.data?.depDetails?.map((dep: any) => (
-                  <span key={dep.id} className="px-2 py-1 bg-yellow-900/20 border border-yellow-500/20 text-yellow-300 rounded text-xs font-bold">
-                    {dep.title}
-                  </span>
-                ))}
-              </div>
-              <div className="mt-4 text-gray-400">Do you want to install them automatically?</div>
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={() => setModalState({ type: null })}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => executeMissingDepsInstall(modalState.data?.depDetails)}
-                className="bg-yellow-900/30 text-yellow-400 border border-yellow-500/50 hover:bg-yellow-900/50 hover:border-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Install Automatically
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* UNINSTALL SINGLE MODAL */}
-      {modalState.type === 'UNINSTALL_SINGLE' && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
-              <span className="material-symbols-outlined text-red-500 text-2xl">delete</span>
-              <h2 className="text-lg font-bold text-white">Uninstall Mod</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              Are you sure you want to uninstall <span className="text-white font-bold">{modalState.data?.modName}</span>?
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={() => setModalState({ type: null })}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => executeUninstall(modalState.data?.modId)}
-                className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Uninstall
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* REBUILD CONFIRM MODAL */}
-      {modalState.type === 'REBUILD_CONFIRM' && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-red-500/30 shadow-[0_0_30px_rgba(220,38,38,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/10">
-              <span className="material-symbols-outlined text-red-500 text-2xl">warning</span>
-              <h2 className="text-lg font-bold text-white">Rebuild Load Order</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={() => setModalState({ type: null })}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={executeRebuildLoadOrder}
-                className="bg-red-900/30 text-red-400 border border-red-500/30 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_15px_rgba(220,38,38,0.1)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Proceed
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* REBUILD SUCCESS MODAL */}
-      {modalState.type === 'REBUILD_SUCCESS' && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-green-500/30 shadow-[0_0_30px_rgba(34,197,94,0.15)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-green-900/10">
-              <span className="material-symbols-outlined text-green-500 text-2xl">check_circle</span>
-              <h2 className="text-lg font-bold text-white">Success</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              Successfully rebuilt load order dependency graph!
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end shrink-0 bg-black/20">
-              <button
-                onClick={() => setModalState({ type: null })}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* UNINSTALL ALL CONFIRM MODAL */}
-      {modalState.type === 'UNINSTALL_ALL' && (
-        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#121212]/80 border border-red-500/50 shadow-[0_0_40px_rgba(220,38,38,0.2)] rounded-xl w-full max-w-md flex flex-col overflow-hidden backdrop-blur-xl">
-            <div className="flex items-center gap-3 p-6 border-b border-white/5 shrink-0 bg-red-900/20">
-              <span className="material-symbols-outlined text-red-500 text-2xl">delete_forever</span>
-              <h2 className="text-lg font-bold text-white">Delete All Mods</h2>
-            </div>
-            <div className="p-6 text-gray-300 text-sm leading-relaxed">
-              <span className="text-red-400 font-bold block mb-2">WARNING: You are about to uninstall ALL {mods.length} mods from this server.</span>
-              Are you sure you want to proceed? This cannot be undone.
-            </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 shrink-0 bg-black/20">
-              <button
-                onClick={() => setModalState({ type: null })}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-6 py-2.5 rounded-lg font-bold transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={executeUninstallAll}
-                className="bg-red-900/30 text-red-400 border border-red-500/50 hover:bg-red-900/50 hover:border-red-400 shadow-[0_0_20px_rgba(220,38,38,0.15)] px-6 py-2.5 rounded-lg font-bold transition-all"
-              >
-                Delete All
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Cohesive UI Modals */}
+      <DayzModModals
+        modalState={modalState}
+        setModalState={setModalState}
+        executeMissingDepsInstall={executeMissingDepsInstall}
+        executeUninstall={executeUninstall}
+        executeRebuildLoadOrder={executeRebuildLoadOrder}
+        executeUninstallAll={executeUninstallAll}
+        modsCount={mods.length}
+      />
     </div>
   );
 };

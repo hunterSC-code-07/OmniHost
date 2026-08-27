@@ -20,19 +20,24 @@ const DayzModStatus = ({ serverId }: { serverId: number }) => {
 
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
-import { useModalStore } from '../../../store/useModalStore';
 import { useToastStore } from '../../../store/useToastStore';
 
+import { useSteamLoginModal } from '../../../hooks/useSteamLoginModal';
+import { CreateServerModal } from '../../modals/CreateServerModal';
+import { DeleteConfirmationModal } from '../../modals/DeleteConfirmationModal';
+
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
-  const { servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
+  const { servers, setActiveServerId, startServer, stopServer, restartServer } = useServerStore();
   const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached } = useUiStore();
-  const { setShowCreateModal, setShowSteamLoginModal, setSteamLoginAction } = useModalStore();
   const { showToast } = useToastStore();
+
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [serverToDelete, setServerToDelete] = useState<number | null>(null);
+  const { openSteamLoginModal, SteamLoginModal } = useSteamLoginModal();
 
   const handleStart = startServer;
   const handleStop = stopServer;
   const handleRestart = restartServer;
-  const handleDelete = deleteServer;
   return (
 
     <div className="relative w-full h-full flex-1 min-h-0">
@@ -200,7 +205,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                 </button>
                               </>
                             )}
-                            <button onClick={() => handleDelete(server.id)} className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors ml-2" title="Delete Server">
+                            <button onClick={() => setServerToDelete(server.id)} className="w-8 h-8 rounded bg-surface-container-highest text-on-surface-variant hover:text-red-400 hover:bg-red-500/10 flex items-center justify-center transition-colors ml-2" title="Delete Server">
                               <span className="material-symbols-outlined text-[18px]">delete</span>
                             </button>
                           </div>
@@ -247,7 +252,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                   <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
                   <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">Manage your available {activeGameHub} servers or create a new one.</p>
                 </div>
-                <button onClick={() => setShowCreateModal(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
+                <button onClick={() => setIsCreateModalOpen(true)} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
                   <span className="material-symbols-outlined">add_box</span>
                   NEW {activeGameHub.toUpperCase()} SERVER
                 </button>
@@ -262,7 +267,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                   <div className="flex flex-wrap gap-3 items-center ml-auto">
                     {!isDayzCached ? (
                       <button 
-                        onClick={() => { setSteamLoginAction('cache'); setShowSteamLoginModal(true); }} 
+                        onClick={() => openSteamLoginModal('cache')} 
                         className="px-5 py-2.5 bg-brand/10 text-brand border border-brand/30 rounded-lg hover:bg-brand/20 font-bold transition-colors flex items-center gap-2"
                       >
                         <span className="material-symbols-outlined text-[18px]">download</span>
@@ -275,7 +280,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                           Downloaded
                         </div>
                         <button 
-                          onClick={() => { setSteamLoginAction('cache'); setShowSteamLoginModal(true); }} 
+                          onClick={() => openSteamLoginModal('cache')} 
                           className="px-5 py-2.5 bg-blue-500/10 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/20 font-bold transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined text-[18px]">sync</span>
@@ -443,6 +448,15 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
           </motion.div>
       )}
       </AnimatePresence>
+
+      {isCreateModalOpen && <CreateServerModal onClose={() => setIsCreateModalOpen(false)} />}
+      {serverToDelete !== null && (
+        <DeleteConfirmationModal
+          serverId={serverToDelete}
+          onClose={() => setServerToDelete(null)}
+        />
+      )}
+      {SteamLoginModal}
     </div>
   );
 }

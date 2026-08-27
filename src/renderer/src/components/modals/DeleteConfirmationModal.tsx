@@ -1,15 +1,10 @@
 import { useServerStore } from '../../store/useServerStore';
-import { useModalStore } from '../../store/useModalStore';
-
-export function DeleteConfirmationModal() {
+export function DeleteConfirmationModal({ serverId, onClose }: { serverId: number, onClose: () => void }) {
   const { servers, deleteServer } = useServerStore();
-  const { serverToDelete, setServerToDelete } = useModalStore();
 
   const confirmDeleteServer = () => {
-    if (serverToDelete !== null) {
-      deleteServer(serverToDelete);
-      setServerToDelete(null);
-    }
+    deleteServer(serverId);
+    onClose();
   };
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -30,12 +25,12 @@ export function DeleteConfirmationModal() {
               </div>
               
               <p className="text-on-surface-variant mb-8 leading-relaxed">
-                Are you sure you want to permanently delete <span className="text-white font-bold">{servers.find(s => s.id === serverToDelete)?.name}</span>? All files, worlds, and configurations will be lost.
+                Are you sure you want to permanently delete <span className="text-white font-bold">{servers.find(s => s.id === serverId)?.name}</span>? All files, worlds, and configurations will be lost.
               </p>
 
               <div className="flex justify-end gap-3">
                 <button 
-                  onClick={() => setServerToDelete(null)}
+                  onClick={() => onClose()}
                   className="px-5 py-2.5 rounded-lg font-bold text-on-surface-variant hover:text-white hover:bg-surface-bright/50 transition-colors"
                 >
                   Cancel
