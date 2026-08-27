@@ -11,15 +11,9 @@ export interface Server {
 interface ServerStore {
   servers: Server[];
   activeServerId: number | null;
-  activeGameHub: string | null;
-  lastGameHub: string | null;
-  hoveredGame: string | null;
   
   setServers: (servers: Server[]) => void;
   setActiveServerId: (id: number | null) => void;
-  setActiveGameHub: (hub: string | null) => void;
-  setLastGameHub: (hub: string | null) => void;
-  setHoveredGame: (game: string | null) => void;
   
   // Actions
   startServer: (id: number) => Promise<void>;
@@ -32,15 +26,9 @@ interface ServerStore {
 export const useServerStore = create<ServerStore>((set, get) => ({
   servers: [],
   activeServerId: null,
-  activeGameHub: null,
-  lastGameHub: null,
-  hoveredGame: null,
   
   setServers: (servers) => set({ servers }),
   setActiveServerId: (id) => set({ activeServerId: id }),
-  setActiveGameHub: (hub) => set({ activeGameHub: hub }),
-  setLastGameHub: (hub) => set({ lastGameHub: hub }),
-  setHoveredGame: (game) => set({ hoveredGame: game }),
   
   fetchServers: async () => {
     // @ts-ignore
