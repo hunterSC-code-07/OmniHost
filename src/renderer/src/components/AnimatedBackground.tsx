@@ -1,14 +1,18 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react'
 
-export const AnimatedBackground: React.FC = React.memo(() => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+interface AnimatedBackgroundProps {
+  theme?: 'green' | 'blue'
+}
+
+export const AnimatedBackground: React.FC<AnimatedBackgroundProps> = React.memo(({ theme = 'green' }) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const gl = canvas.getContext('webgl');
-    if (!gl) return;
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const gl = canvas.getContext('webgl')
+    if (!gl) return
 
     const vsSource = `
       attribute vec4 a_position;
@@ -17,7 +21,19 @@ export const AnimatedBackground: React.FC = React.memo(() => {
         gl_Position = a_position;
         v_texCoord = a_position.xy * 0.5 + 0.5;
       }
-    `;
+    `
+
+    const colors = theme === 'blue'
+      ? {
+          c1: 'vec3(0.373, 0.647, 0.98)',   // Light Blue (blue-400 equivalent)
+          c2: 'vec3(0.145, 0.388, 0.843)',  // Deep Blue
+          bg: 'vec3(0.02, 0.06, 0.15)'      // Dark Navy Base
+        }
+      : {
+          c1: 'vec3(0.569, 0.741, 0.349)', // Mossy Green
+          c2: 'vec3(0.314, 0.478, 0.196)', // Deep Green
+          bg: 'vec3(0.015, 0.09, 0.06)'   // Dark Emerald Base
+        };
 
     const fsSource = `
       precision highp float;
@@ -33,9 +49,9 @@ export const AnimatedBackground: React.FC = React.memo(() => {
           float noise2 = sin(uv.y * 2.5 - u_time * 0.4) * 0.5 + 0.5;
           float noise3 = sin((uv.x + uv.y) * 1.5 + u_time * 0.6) * 0.5 + 0.5;
           
-          vec3 color1 = vec3(0.569, 0.741, 0.349); // Mossy Green
-          vec3 color2 = vec3(0.314, 0.478, 0.196); // Deep Green
-          vec3 bgColor = vec3(0.015, 0.09, 0.06);   // Dark Emerald Base
+          vec3 color1 = ${colors.c1};
+          vec3 color2 = ${colors.c2};
+          vec3 bgColor = ${colors.bg};
           
           // Mix colors based on noise for a fluid effect
           vec3 finalColor = mix(bgColor, color2, noise1 * 0.4);
@@ -47,75 +63,63 @@ export const AnimatedBackground: React.FC = React.memo(() => {
 
           gl_FragColor = vec4(finalColor, 1.0);
       }
-    `;
+    `
 
     const compileShader = (gl: WebGLRenderingContext, type: number, source: string) => {
-      const shader = gl.createShader(type)!;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      return shader;
-    };
+      const shader = gl.createShader(type)!
+      gl.shaderSource(shader, source)
+      gl.compileShader(shader)
+      return shader
+    }
 
-    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource)
+    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource)
 
-    const program = gl.createProgram()!;
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
+    const program = gl.createProgram()!
+    gl.attachShader(program, vertexShader)
+    gl.attachShader(program, fragmentShader)
+    gl.linkProgram(program)
+    gl.useProgram(program)
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const positions = [
-      -1.0, -1.0,
-       1.0, -1.0,
-      -1.0,  1.0,
-      -1.0,  1.0,
-       1.0, -1.0,
-       1.0,  1.0,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    const positionBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+    const positions = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
-    const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    gl.enableVertexAttribArray(positionAttributeLocation);
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+    gl.enableVertexAttribArray(positionAttributeLocation)
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0)
 
-    const timeLocation = gl.getUniformLocation(program, "u_time");
-    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const timeLocation = gl.getUniformLocation(program, 'u_time')
+    const resolutionLocation = gl.getUniformLocation(program, 'u_resolution')
 
-    let animationFrameId: number;
+    let animationFrameId: number
 
     const render = (time: number) => {
-      time *= 0.001;
-      
-      const rect = canvas.parentElement?.getBoundingClientRect();
+      time *= 0.001
+
+      const rect = canvas.parentElement?.getBoundingClientRect()
       if (rect) {
         if (canvas.width !== rect.width || canvas.height !== rect.height) {
-          canvas.width = rect.width;
-          canvas.height = rect.height;
-          gl.viewport(0, 0, canvas.width, canvas.height);
+          canvas.width = rect.width
+          canvas.height = rect.height
+          gl.viewport(0, 0, canvas.width, canvas.height)
         }
       }
 
-      gl.uniform1f(timeLocation, time);
-      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-      
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-      animationFrameId = requestAnimationFrame(render);
-    };
+      gl.uniform1f(timeLocation, time)
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height)
 
-    animationFrameId = requestAnimationFrame(render);
+      gl.drawArrays(gl.TRIANGLES, 0, 6)
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    animationFrameId = requestAnimationFrame(render)
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
 
-  return (
-    <canvas 
-      ref={canvasRef} 
-      className="absolute inset-0 w-full h-full pointer-events-none" 
-    />
-  );
-});
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
+})

@@ -8,57 +8,72 @@ export function registerMinecraftIpc() {
   ipcMain.handle('get-fabric-versions', async () => MinecraftDownloader.getFabricVersions())
   ipcMain.handle('get-forge-versions', async () => MinecraftDownloader.getForgeVersions())
   ipcMain.handle('get-neoforge-versions', async () => MinecraftDownloader.getNeoForgeVersions())
-  
-  ipcMain.handle('get-loader-versions', async (_, type: string, mcVersion: string) => 
+
+  ipcMain.handle('get-loader-versions', async (_, type: string, mcVersion: string) =>
     MinecraftDownloader.getLoaderVersions(type, mcVersion)
   )
-  
-  ipcMain.handle('search-modpacks', async (_, query: string, version: string, modloader: string) => 
-    MinecraftModManager.searchModpacks(query, version, modloader) 
+
+  ipcMain.handle('search-modpacks', async (_, query: string, version: string, modloader: string) =>
+    MinecraftModManager.searchModpacks(query, version, modloader)
   )
-  
-  ipcMain.handle('get-modpack-details', async (_, modId: string) => 
-    MinecraftModManager.getModpackDetails(modId) 
+
+  ipcMain.handle('get-modpack-details', async (_, modId: string) =>
+    MinecraftModManager.getModpackDetails(modId)
   )
 
   // Mod Management (CurseForge)
-  ipcMain.handle('search-curseforge-mods', async (_, search: string, type: string, version: string, page?: number, classId?: number, sortField?: number) => 
-    MinecraftModManager.searchCurseforgeMods(search, type, version, page, classId, sortField)
+  ipcMain.handle(
+    'search-curseforge-mods',
+    async (
+      _,
+      search: string,
+      type: string,
+      version: string,
+      page?: number,
+      classId?: number,
+      sortField?: number
+    ) => MinecraftModManager.searchCurseforgeMods(search, type, version, page, classId, sortField)
   )
 
-  ipcMain.handle('get-curseforge-mod', async (_, modId: number | string) => 
+  ipcMain.handle('get-curseforge-mod', async (_, modId: number | string) =>
     MinecraftModManager.getCurseforgeMod(modId)
   )
 
-  ipcMain.handle('get-curseforge-file', async (_, modId: number | string, fileId: number | string) => 
-    MinecraftModManager.getCurseforgeFile(modId, fileId)
+  ipcMain.handle(
+    'get-curseforge-file',
+    async (_, modId: number | string, fileId: number | string) =>
+      MinecraftModManager.getCurseforgeFile(modId, fileId)
   )
 
-  ipcMain.handle('install-curseforge-mod', async (event, id: number, downloadUrl: string, fileName: string, classId?: number) => 
-    MinecraftModManager.installCurseforgeMod(event, id, downloadUrl, fileName, classId)
+  ipcMain.handle(
+    'install-curseforge-mod',
+    async (event, id: number, downloadUrl: string, fileName: string, classId?: number) =>
+      MinecraftModManager.installCurseforgeMod(event, id, downloadUrl, fileName, classId)
   )
 
-  ipcMain.handle('install-curseforge-modpack', async (event, id: number, modId: number | string, version: string) => 
-    MinecraftModManager.installCurseforgeModpack(event, id, modId, version)
+  ipcMain.handle(
+    'install-curseforge-modpack',
+    async (event, id: number, modId: number | string, version: string) =>
+      MinecraftModManager.installCurseforgeModpack(event, id, modId, version)
   )
 
-  ipcMain.handle('get-installed-mods', async (_, id: number) => 
+  ipcMain.handle('get-installed-mods', async (_, id: number) =>
     MinecraftModManager.getInstalledMods(id)
   )
 
-  ipcMain.handle('get-installed-mod-dependencies', async (_, id: number) => 
+  ipcMain.handle('get-installed-mod-dependencies', async (_, id: number) =>
     MinecraftModManager.getInstalledModDependencies(id)
   )
 
-  ipcMain.handle('delete-mod', async (_, id: number, fileName: string) => 
+  ipcMain.handle('delete-mod', async (_, id: number, fileName: string) =>
     MinecraftModManager.deleteMod(id, fileName)
   )
-  
-  ipcMain.handle('delete-all-mods', async (_, id: number) => 
-    MinecraftModManager.deleteAllMods(id)
-  )
-  
-  ipcMain.handle('download-server-jar', async (event, id: number, type: string, version: string, loaderVersion: string) => 
-    MinecraftDownloader.downloadServerJar(event, id, type, version, loaderVersion)
+
+  ipcMain.handle('delete-all-mods', async (_, id: number) => MinecraftModManager.deleteAllMods(id))
+
+  ipcMain.handle(
+    'download-server-jar',
+    async (event, id: number, type: string, version: string, loaderVersion: string) =>
+      MinecraftDownloader.downloadServerJar(event, id, type, version, loaderVersion)
   )
 }

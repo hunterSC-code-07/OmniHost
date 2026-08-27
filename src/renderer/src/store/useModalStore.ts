@@ -1,27 +1,27 @@
-import { create } from 'zustand';
+import { create } from 'zustand'
 
 interface ModalStore {
-  showCreateModal: boolean;
-  initialCreateServerType: string;
-  showSteamLoginModal: boolean;
-  steamLoginAction: 'create' | 'cache';
-  steamUsername: string;
-  steamPassword: string;
-  steamGuardCode: string;
-  isSteamGuardRequired: boolean;
-  serverToDelete: number | null;
-  showTunnelModal: boolean;
+  showCreateModal: boolean
+  initialCreateServerType: string
+  showSteamLoginModal: boolean
+  steamLoginAction: 'create' | 'cache'
+  steamUsername: string
+  steamPassword: string
+  steamGuardCode: string
+  isSteamGuardRequired: boolean
+  serverToDelete: number | null
+  showTunnelModal: boolean
 
-  setShowCreateModal: (show: boolean) => void;
-  setInitialCreateServerType: (type: string) => void;
-  setShowSteamLoginModal: (show: boolean) => void;
-  setSteamLoginAction: (action: 'create' | 'cache') => void;
-  setSteamUsername: (username: string) => void;
-  setSteamPassword: (password: string) => void;
-  setSteamGuardCode: (code: string) => void;
-  setIsSteamGuardRequired: (required: boolean) => void;
-  setServerToDelete: (id: number | null) => void;
-  setShowTunnelModal: (show: boolean) => void;
+  setShowCreateModal: (show: boolean) => void
+  setInitialCreateServerType: (type: string) => void
+  setShowSteamLoginModal: (show: boolean) => void
+  setSteamLoginAction: (action: 'create' | 'cache') => void
+  setSteamUsername: (username: string) => void
+  setSteamPassword: (password: string) => void
+  setSteamGuardCode: (code: string) => void
+  setIsSteamGuardRequired: (required: boolean) => void
+  setServerToDelete: (id: number | null) => void
+  setShowTunnelModal: (show: boolean) => void
 }
 
 export const useModalStore = create<ModalStore>((set) => ({
@@ -45,5 +45,5 @@ export const useModalStore = create<ModalStore>((set) => ({
   setSteamGuardCode: (code) => set({ steamGuardCode: code }),
   setIsSteamGuardRequired: (required) => set({ isSteamGuardRequired: required }),
   setServerToDelete: (id) => set({ serverToDelete: id }),
-  setShowTunnelModal: (show) => set({ showTunnelModal: show }),
-}));
+  setShowTunnelModal: (show) => set({ showTunnelModal: show })
+}))

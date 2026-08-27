@@ -1,33 +1,40 @@
-const fs = require('fs');
-const path = require('path');
-const file = path.join('d:', 'github', 'OmniHost', 'src', 'main', 'ipc', 'ServerIpc.ts');
-let content = fs.readFileSync(file, 'utf-8');
+const fs = require('fs')
+const path = require('path')
+const file = path.join('d:', 'github', 'OmniHost', 'src', 'main', 'ipc', 'ServerIpc.ts')
+let content = fs.readFileSync(file, 'utf-8')
 
 // 1. Remove XMLParser, XMLBuilder, axios, AdmZip imports
-content = content.replace(/import \{ XMLParser, XMLBuilder \} from 'fast-xml-parser'[\r\n]*/, '');
-content = content.replace(/import axios from 'axios'[\r\n]*/, '');
-content = content.replace(/import AdmZip from 'adm-zip'[\r\n]*/, '');
+content = content.replace(/import \{ XMLParser, XMLBuilder \} from 'fast-xml-parser'[\r\n]*/, '')
+content = content.replace(/import axios from 'axios'[\r\n]*/, '')
+content = content.replace(/import AdmZip from 'adm-zip'[\r\n]*/, '')
 
 // 2. Add Manager imports right after SteamCMDManager
-const newImports = 'import { DayzConfigManager } from \'../dayz/DayzConfigManager\'\nimport { DayzEconomyManager } from \'../dayz/DayzEconomyManager\'\nimport { DayzWorkshopManager } from \'../dayz/DayzWorkshopManager\'\n';
-content = content.replace(/(import \{ SteamCMDManager \} from '\.\.\/adapters\/SteamCMDManager'[\r\n]+)/, '$1' + newImports);
+const newImports =
+  "import { DayzConfigManager } from '../dayz/DayzConfigManager'\nimport { DayzEconomyManager } from '../dayz/DayzEconomyManager'\nimport { DayzWorkshopManager } from '../dayz/DayzWorkshopManager'\n"
+content = content.replace(
+  /(import \{ SteamCMDManager \} from '\.\.\/adapters\/SteamCMDManager'[\r\n]+)/,
+  '$1' + newImports
+)
 
 // 3. Remove DAYZ_MAP_REPOS
-content = content.replace(/export const DAYZ_MAP_REPOS[\s\S]*?\};\r?\n/m, '');
+content = content.replace(/export const DAYZ_MAP_REPOS[\s\S]*?\};\r?\n/m, '')
 
 // 4. Replace config IPCs
-content = content.replace(/ipcMain\.handle\('read-dayz-config'[\s\S]*?ipcMain\.handle\('write-dayz-config'[\s\S]*?return false\r?\n\s+\}\)\r?\n/m, 
-`ipcMain.handle('read-dayz-config', async (_, id) => {
+content = content.replace(
+  /ipcMain\.handle\('read-dayz-config'[\s\S]*?ipcMain\.handle\('write-dayz-config'[\s\S]*?return false\r?\n\s+\}\)\r?\n/m,
+  `ipcMain.handle('read-dayz-config', async (_, id) => {
     return await DayzConfigManager.readConfig(id);
   })
 
   ipcMain.handle('write-dayz-config', async (_, id, c) => {
     return await DayzConfigManager.writeConfig(id, c);
-  })\n`);
+  })\n`
+)
 
 // 5. Replace Economy IPCs
-content = content.replace(/ipcMain\.handle\('get-dayz-economy'[\s\S]*?ipcMain\.handle\('update-dayz-economy'[\s\S]*?ipcMain\.handle\('wipe-dayz-loot'[\s\S]*?return false;\r?\n\s+\}\);\r?\n/m, 
-`ipcMain.handle('get-dayz-economy', async (_, id) => {
+content = content.replace(
+  /ipcMain\.handle\('get-dayz-economy'[\s\S]*?ipcMain\.handle\('update-dayz-economy'[\s\S]*?ipcMain\.handle\('wipe-dayz-loot'[\s\S]*?return false;\r?\n\s+\}\);\r?\n/m,
+  `ipcMain.handle('get-dayz-economy', async (_, id) => {
     return await DayzEconomyManager.getEconomyConfig(id);
   });
 
@@ -38,14 +45,16 @@ content = content.replace(/ipcMain\.handle\('get-dayz-economy'[\s\S]*?ipcMain\.h
   ipcMain.handle('wipe-dayz-loot', async (_, id) => {
     // We pass activeServers[id] boolean directly since DayzEconomyManager has no access to activeServers
     return await DayzEconomyManager.wipeLoot(id, !!activeServers[id]);
-  });\n`);
+  });\n`
+)
 
 // Also need to remove 'async function fetchDayzMission(id: number, modId: string) { ... }' which might be caught in the middle.
-content = content.replace(/async function fetchDayzMission[\s\S]*?return true;\r?\n\s+\}\r?\n/m, '');
+content = content.replace(/async function fetchDayzMission[\s\S]*?return true;\r?\n\s+\}\r?\n/m, '')
 
 // 6. Replace Mod IPCs
-content = content.replace(/ipcMain\.handle\('search-steam-workshop'[\s\S]*?ipcMain\.handle\('uninstall-dayz-mod'[\s\S]*?return false;\r?\n\s+\}\);\r?\n/m, 
-`ipcMain.handle('search-steam-workshop', async (_, query, queryType, page, requiredTags) => {
+content = content.replace(
+  /ipcMain\.handle\('search-steam-workshop'[\s\S]*?ipcMain\.handle\('uninstall-dayz-mod'[\s\S]*?return false;\r?\n\s+\}\);\r?\n/m,
+  `ipcMain.handle('search-steam-workshop', async (_, query, queryType, page, requiredTags) => {
     return await DayzWorkshopManager.searchWorkshop(query, page, queryType, requiredTags);
   });
 
@@ -99,7 +108,8 @@ content = content.replace(/ipcMain\.handle\('search-steam-workshop'[\s\S]*?ipcMa
 
   ipcMain.handle('uninstall-dayz-mod', async (_, id, modIdOrFolder) => {
     return await DayzWorkshopManager.uninstallMod(id, modIdOrFolder);
-  });\n`);
+  });\n`
+)
 
-fs.writeFileSync(file, content);
-console.log('Refactoring complete');
+fs.writeFileSync(file, content)
+console.log('Refactoring complete')

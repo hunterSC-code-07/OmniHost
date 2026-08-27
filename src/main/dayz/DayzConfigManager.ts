@@ -4,7 +4,6 @@ import fsPromises from 'fs/promises'
 import fs from 'fs'
 
 export class DayzConfigManager {
-  
   static async exists(path: string) {
     try {
       await fsPromises.access(path)
@@ -15,9 +14,9 @@ export class DayzConfigManager {
   }
 
   static async ensureDefaultConfig(serverDir: string) {
-    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });
-    
-    const cfgPath = join(serverDir, 'serverDZ.cfg');
+    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true })
+
+    const cfgPath = join(serverDir, 'serverDZ.cfg')
     if (!fs.existsSync(cfgPath)) {
       const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility
 steamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel
@@ -49,13 +48,13 @@ class Missions
         template="dayzOffline.chernarusplus"; // Mission to load on server startup.
     };
 };
-`;
-      fs.writeFileSync(cfgPath, defaultCfg);
+`
+      fs.writeFileSync(cfgPath, defaultCfg)
     }
   }
 
   static async readConfig(serverId: number) {
-    if (serverId == null) return null;
+    if (serverId == null) return null
     const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())
     const cfgPath = join(serverDir, 'serverDZ.cfg')
     if (await this.exists(cfgPath)) {
@@ -65,7 +64,7 @@ class Missions
   }
 
   static async writeConfig(serverId: number, content: string) {
-    if (serverId == null) return false;
+    if (serverId == null) return false
     const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())
     const cfgPath = join(serverDir, 'serverDZ.cfg')
     if (await this.exists(cfgPath)) {

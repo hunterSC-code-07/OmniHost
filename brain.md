@@ -75,11 +75,13 @@ The frontend is a modern React application utilizing Tailwind CSS for styling an
 ## 🔄 Core Workflows
 
 ### 1. Creating a Server
+
 1. User clicks "Create Server" in `DashboardHub`.
 2. Frontend calls `window.api.createServer(type, name)`.
 3. Backend (`SystemIpc.ts`) inserts a new row into the SQLite `servers` table and returns the new Server ID.
 
 ### 2. Downloading & Starting (e.g., DayZ)
+
 1. User clicks "Start Server" in `DayzHub`.
 2. Frontend calls `window.api.startServer(serverId)`.
 3. Backend (`ServerIpc.ts`) looks up the server type.
@@ -90,4 +92,5 @@ The frontend is a modern React application utilizing Tailwind CSS for styling an
    - Pipes `stdout` to the frontend via webContents IPC so the `ConsoleTab` updates in real-time.
 
 ### 3. Networking & Tunnels
+
 If the user enables a "Tunnel" in the UI, the `FrpAdapter` starts a background `frpc` process that forwards the server's local port to a public remote proxy, allowing external players to connect without manual router port-forwarding.

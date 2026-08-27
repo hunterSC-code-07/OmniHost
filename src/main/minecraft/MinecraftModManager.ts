@@ -19,20 +19,21 @@ export class MinecraftModManager {
   ) {
     // Shaders (6552) and Resource Packs (12) are universal and do not use modloaders
     if (classId === 6552 || classId === 12) {
-      type = '';
+      type = ''
     }
 
     // 1. Try CurseForge if an API key is provided
     if (process.env.CURSEFORGE_API_KEY) {
       try {
         let url = `https://api.curseforge.com/v1/mods/search?gameId=432&classId=${classId}&sortField=${sortField}&sortOrder=desc&index=${page * 50}`
-        
+
         if (search) url += `&searchFilter=${encodeURIComponent(search)}`
-        
+
         if (version) {
-          const cfVersion = version.endsWith('.0') && version.split('.').length === 3 
-            ? version.slice(0, -2) 
-            : version
+          const cfVersion =
+            version.endsWith('.0') && version.split('.').length === 3
+              ? version.slice(0, -2)
+              : version
           url += `&gameVersion=${encodeURIComponent(cfVersion)}`
         }
         if (type) {
@@ -43,12 +44,17 @@ export class MinecraftModManager {
           else if (lowerType === 'quilt') url += '&modLoaderType=5'
         }
 
-        const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY } })
+        const res = await axios.get(url, {
+          headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY }
+        })
         if (res.data && res.data.data) {
           return res.data.data
         }
       } catch (e: any) {
-        console.warn('[MinecraftModManager] CurseForge API request failed, falling back to Modrinth:', e.message)
+        console.warn(
+          '[MinecraftModManager] CurseForge API request failed, falling back to Modrinth:',
+          e.message
+        )
       }
     }
 
@@ -71,7 +77,7 @@ export class MinecraftModManager {
   ) {
     // Shaders (6552) and Resource Packs (12) are universal and do not use modloaders
     if (classId === 6552 || classId === 12) {
-      type = '';
+      type = ''
     }
 
     // Map classId to Modrinth project_type
@@ -104,7 +110,8 @@ export class MinecraftModManager {
       else if (lowerType === 'fabric') facets.push(['categories:fabric'])
       else if (lowerType === 'neoforge') facets.push(['categories:neoforge'])
       else if (lowerType === 'quilt') facets.push(['categories:quilt'])
-      else if (lowerType === 'paper') facets.push(['categories:paper', 'categories:spigot', 'categories:purpur'])
+      else if (lowerType === 'paper')
+        facets.push(['categories:paper', 'categories:spigot', 'categories:purpur'])
     }
 
     // Version facet
@@ -160,10 +167,12 @@ export class MinecraftModManager {
         authors: [{ name: hit.author || 'Author' }],
         downloadCount: hit.downloads || 0,
         dateModified: hit.date_modified || hit.date_created,
-        categories: (hit.display_categories || hit.categories || []).map((c: string, idx: number) => ({
-          id: idx,
-          name: c
-        })),
+        categories: (hit.display_categories || hit.categories || []).map(
+          (c: string, idx: number) => ({
+            id: idx,
+            name: c
+          })
+        ),
         latestFiles: v
           ? [
               {
@@ -252,22 +261,40 @@ export class MinecraftModManager {
     }
   }
 
-  static async installCurseforgeMod(event: any, id: number, downloadUrl: string, fileName: string, classId: number = 6) {
+  static async installCurseforgeMod(
+    event: any,
+    id: number,
+    downloadUrl: string,
+    fileName: string,
+    classId: number = 6
+  ) {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
       // 6 is Mods, 12 is Resource Packs, 17 is Worlds, 6552 is Shaders
-      const folderName = classId === 12 ? 'resourcepacks' : classId === 17 ? 'saves' : classId === 6552 ? 'shaderpacks' : 'mods'
+      const folderName =
+        classId === 12
+          ? 'resourcepacks'
+          : classId === 17
+            ? 'saves'
+            : classId === 6552
+              ? 'shaderpacks'
+              : 'mods'
       const targetDir = join(serverDir, folderName)
-      
+
       await fsPromises.mkdir(targetDir, { recursive: true })
       const targetPath = join(targetDir, fileName)
 
-      const cachedFile = await CacheManager.getOrDownload('mods', downloadUrl, fileName, (progress) => {
-        if (event && event.sender) {
-          event.sender.send(`download-progress-${id}`, progress, `Downloading ${fileName}...`)
+      const cachedFile = await CacheManager.getOrDownload(
+        'mods',
+        downloadUrl,
+        fileName,
+        (progress) => {
+          if (event && event.sender) {
+            event.sender.send(`download-progress-${id}`, progress, `Downloading ${fileName}...`)
+          }
         }
-      })
-      
+      )
+
       await fsPromises.copyFile(cachedFile, targetPath)
       return true
     } catch (e: any) {
@@ -276,7 +303,12 @@ export class MinecraftModManager {
     }
   }
 
-  static async installCurseforgeModpack(event: any, id: number, modId: number | string, version: string) {
+  static async installCurseforgeModpack(
+    event: any,
+    id: number,
+    modId: number | string,
+    version: string
+  ) {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
       await fsPromises.mkdir(serverDir, { recursive: true })
@@ -285,7 +317,10 @@ export class MinecraftModManager {
       let fileName = 'modpack.mrpack'
 
       // 1. Resolve download URL if not already a direct URL
-      if (typeof version === 'string' && (version.startsWith('http://') || version.startsWith('https://'))) {
+      if (
+        typeof version === 'string' &&
+        (version.startsWith('http://') || version.startsWith('https://'))
+      ) {
         downloadUrl = version
         fileName = downloadUrl.split('/').pop()?.split('?')[0] || 'modpack.mrpack'
       } else if (process.env.CURSEFORGE_API_KEY && typeof modId === 'number') {
@@ -294,40 +329,51 @@ export class MinecraftModManager {
             headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY }
           })
           const files = filesRes.data?.data || []
-          let selectedFile = files[0];
-          
+          let selectedFile = files[0]
+
           if (version && version !== 'latest') {
-             selectedFile = files.find((f: any) => f.id === Number(version) || f.displayName === version)
-             if (!selectedFile) {
-                selectedFile = files.find((f: any) => f.gameVersions?.includes(version)) || files[0];
-             }
+            selectedFile = files.find(
+              (f: any) => f.id === Number(version) || f.displayName === version
+            )
+            if (!selectedFile) {
+              selectedFile = files.find((f: any) => f.gameVersions?.includes(version)) || files[0]
+            }
           }
-          
+
           if (selectedFile) {
             downloadUrl = selectedFile.downloadUrl
             fileName = selectedFile.fileName
           }
         } catch (e: any) {
-          console.warn('[MinecraftModManager] CurseForge modpack file resolution failed:', e.message)
+          console.warn(
+            '[MinecraftModManager] CurseForge modpack file resolution failed:',
+            e.message
+          )
         }
       }
 
       // Modrinth fallback / direct resolution
       if (!downloadUrl) {
         try {
-          const versionsRes = await axios.get(`https://api.modrinth.com/v2/project/${modId}/version`, {
-            headers: { 'User-Agent': MODRINTH_USER_AGENT }
-          })
+          const versionsRes = await axios.get(
+            `https://api.modrinth.com/v2/project/${modId}/version`,
+            {
+              headers: { 'User-Agent': MODRINTH_USER_AGENT }
+            }
+          )
           const versions = versionsRes.data || []
-          let selectedVer = versions[0];
-          
+          let selectedVer = versions[0]
+
           if (version && version !== 'latest') {
-             // Try exact match first
-             selectedVer = versions.find((v: any) => v.id === version || v.version_number === version)
-             // Fallback to finding by game version
-             if (!selectedVer) {
-                selectedVer = versions.find((v: any) => v.game_versions?.includes(version)) || versions[0];
-             }
+            // Try exact match first
+            selectedVer = versions.find(
+              (v: any) => v.id === version || v.version_number === version
+            )
+            // Fallback to finding by game version
+            if (!selectedVer) {
+              selectedVer =
+                versions.find((v: any) => v.game_versions?.includes(version)) || versions[0]
+            }
           }
 
           if (selectedVer && selectedVer.files) {
@@ -348,14 +394,27 @@ export class MinecraftModManager {
 
       // 2. Download modpack archive
       if (event && event.sender) {
-        event.sender.send(`download-progress-${id}`, 5, `Downloading modpack archive (${fileName})...`)
+        event.sender.send(
+          `download-progress-${id}`,
+          5,
+          `Downloading modpack archive (${fileName})...`
+        )
       }
 
-      const cachedArchive = await CacheManager.getOrDownload('modpacks', downloadUrl, fileName, (pct) => {
-        if (event && event.sender) {
-          event.sender.send(`download-progress-${id}`, Math.round(5 + pct * 0.15), `Downloading modpack archive... ${pct}%`)
+      const cachedArchive = await CacheManager.getOrDownload(
+        'modpacks',
+        downloadUrl,
+        fileName,
+        (pct) => {
+          if (event && event.sender) {
+            event.sender.send(
+              `download-progress-${id}`,
+              Math.round(5 + pct * 0.15),
+              `Downloading modpack archive... ${pct}%`
+            )
+          }
         }
-      })
+      )
 
       const zip = new AdmZip(cachedArchive)
 
@@ -411,14 +470,21 @@ export class MinecraftModManager {
           const modName = f.path.split('/').pop() || 'mod.jar'
           const pct = Math.round(20 + ((i + 1) / totalFiles) * 80)
           if (event && event.sender) {
-            event.sender.send(`download-progress-${id}`, pct, `Installing mod (${i + 1}/${totalFiles}): ${modName}`)
+            event.sender.send(
+              `download-progress-${id}`,
+              pct,
+              `Installing mod (${i + 1}/${totalFiles}): ${modName}`
+            )
           }
 
           try {
             const resp = await axios.get(dl, { responseType: 'arraybuffer' })
             await fsPromises.writeFile(targetPath, Buffer.from(resp.data))
           } catch (e: any) {
-            console.warn(`[MinecraftModManager] Failed to download modpack file ${modName}:`, e.message)
+            console.warn(
+              `[MinecraftModManager] Failed to download modpack file ${modName}:`,
+              e.message
+            )
           }
         }
 
@@ -469,7 +535,11 @@ export class MinecraftModManager {
           const f = files[i]
           const pct = Math.round(20 + ((i + 1) / totalFiles) * 80)
           if (event && event.sender) {
-            event.sender.send(`download-progress-${id}`, pct, `Installing mod (${i + 1}/${totalFiles})...`)
+            event.sender.send(
+              `download-progress-${id}`,
+              pct,
+              `Installing mod (${i + 1}/${totalFiles})...`
+            )
           }
           try {
             const fileData = await this.getCurseforgeFile(f.projectID, f.fileID)
@@ -479,7 +549,10 @@ export class MinecraftModManager {
               await fsPromises.writeFile(targetPath, Buffer.from(resp.data))
             }
           } catch (e: any) {
-            console.warn(`[MinecraftModManager] Failed to fetch CurseForge file ${f.projectID}:`, e.message)
+            console.warn(
+              `[MinecraftModManager] Failed to fetch CurseForge file ${f.projectID}:`,
+              e.message
+            )
           }
         }
 
@@ -507,7 +580,9 @@ export class MinecraftModManager {
           } catch {}
         }
       } else {
-        throw new Error('Unrecognized modpack format. Neither modrinth.index.json nor manifest.json was found.')
+        throw new Error(
+          'Unrecognized modpack format. Neither modrinth.index.json nor manifest.json was found.'
+        )
       }
 
       if (event && event.sender) {
@@ -524,15 +599,15 @@ export class MinecraftModManager {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
       const modsDir = join(serverDir, 'mods')
-      
+
       try {
         await fsPromises.access(modsDir)
       } catch {
-        return [] 
+        return []
       }
-      
+
       const files = await fsPromises.readdir(modsDir, { withFileTypes: true })
-      const jarFiles = files.filter(f => f.isFile() && f.name.endsWith('.jar'))
+      const jarFiles = files.filter((f) => f.isFile() && f.name.endsWith('.jar'))
 
       return await Promise.all(
         jarFiles.map(async (f) => {
@@ -562,7 +637,7 @@ export class MinecraftModManager {
       }
 
       const files = await fsPromises.readdir(modsDir, { withFileTypes: true })
-      const jarFiles = files.filter(f => f.isFile() && f.name.endsWith('.jar'))
+      const jarFiles = files.filter((f) => f.isFile() && f.name.endsWith('.jar'))
 
       const parsedMods: Array<{
         name: string
@@ -611,7 +686,7 @@ export class MinecraftModManager {
               version = json.version || ''
               description = json.description || ''
               if (Array.isArray(json.authors)) {
-                authors = json.authors.map((a: any) => typeof a === 'string' ? a : (a?.name || ''))
+                authors = json.authors.map((a: any) => (typeof a === 'string' ? a : a?.name || ''))
               }
 
               const depends = json.depends || {}
@@ -669,7 +744,9 @@ export class MinecraftModManager {
               const modIdMatch = text.match(/modId\s*=\s*["']([^"']+)["']/)
               const nameMatch = text.match(/displayName\s*=\s*["']([^"']+)["']/)
               const verMatch = text.match(/version\s*=\s*["']([^"']+)["']/)
-              const descMatch = text.match(/description\s*=\s*'''([^']+)'''/) || text.match(/description\s*=\s*["']([^"']+)["']/)
+              const descMatch =
+                text.match(/description\s*=\s*'''([^']+)'''/) ||
+                text.match(/description\s*=\s*["']([^"']+)["']/)
               if (modIdMatch) modId = modIdMatch[1]
               if (nameMatch) name = nameMatch[1]
               if (verMatch) version = verMatch[1]
@@ -709,20 +786,31 @@ export class MinecraftModManager {
 
               const dependMatch = text.match(/^depend:\s*\[(.*)\]/m)
               if (dependMatch) {
-                dependMatch[1].split(',').map(s => s.trim()).filter(Boolean).forEach(d => {
-                  rawDeps.push({ id: d.toLowerCase(), name: d, version: '*', mandatory: true })
-                })
+                dependMatch[1]
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .forEach((d) => {
+                    rawDeps.push({ id: d.toLowerCase(), name: d, version: '*', mandatory: true })
+                  })
               }
               const softDependMatch = text.match(/^softdepend:\s*\[(.*)\]/m)
               if (softDependMatch) {
-                softDependMatch[1].split(',').map(s => s.trim()).filter(Boolean).forEach(d => {
-                  rawDeps.push({ id: d.toLowerCase(), name: d, version: '*', mandatory: false })
-                })
+                softDependMatch[1]
+                  .split(',')
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+                  .forEach((d) => {
+                    rawDeps.push({ id: d.toLowerCase(), name: d, version: '*', mandatory: false })
+                  })
               }
             } catch {}
           }
         } catch (e: any) {
-          console.warn(`[MinecraftModManager] Could not read zip manifest for ${f.name}:`, e.message)
+          console.warn(
+            `[MinecraftModManager] Could not read zip manifest for ${f.name}:`,
+            e.message
+          )
         }
 
         parsedMods.push({
@@ -751,8 +839,11 @@ export class MinecraftModManager {
         const dependencies = m.rawDeps.map((dep) => {
           const lowerId = dep.id.toLowerCase()
           // Check exact or partial match in installed identifiers
-          const isSatisfied = installedIdentifiers.has(lowerId) ||
-            Array.from(installedIdentifiers).some(inst => inst.includes(lowerId) || lowerId.includes(inst))
+          const isSatisfied =
+            installedIdentifiers.has(lowerId) ||
+            Array.from(installedIdentifiers).some(
+              (inst) => inst.includes(lowerId) || lowerId.includes(inst)
+            )
 
           return {
             id: dep.id,

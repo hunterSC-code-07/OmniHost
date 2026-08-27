@@ -8,7 +8,6 @@ import { WakeProxy } from './adapters/WakeProxy'
 import { FrpAdapter } from './adapters/FrpAdapter'
 import { RadminVpnAdapter } from './adapters/RadminVpnAdapter'
 
-
 import * as dotenv from 'dotenv'
 import { registerServerIpc } from './ipc/ServerIpc'
 import { registerSteamCMDIpc } from './ipc/SteamCMDIpc'
@@ -18,9 +17,9 @@ import { registerPalworldIpc } from './ipc/PalworldIpc'
 
 const dotenvPath = join(__dirname, '../../.env')
 const dotenvResult = dotenv.config({ path: dotenvPath })
-console.log('[DEBUG] dotenv path:', dotenvPath);
-console.log('[DEBUG] dotenv result:', dotenvResult);
-console.log('[DEBUG] CURSEFORGE_API_KEY:', process.env.CURSEFORGE_API_KEY);
+console.log('[DEBUG] dotenv path:', dotenvPath)
+console.log('[DEBUG] dotenv result:', dotenvResult)
+console.log('[DEBUG] CURSEFORGE_API_KEY:', process.env.CURSEFORGE_API_KEY)
 
 // Set app data to be stored locally in the repo for full portability
 app.setPath('userData', join(process.cwd(), '.omnihost-data'))
@@ -41,18 +40,26 @@ function createWindow(): void {
     }
   })
 
-  mainWindow.webContents.on('console-message', (event: any, details?: any, legacyMessage?: string) => {
-    // Handle both modern `(event)` with properties, `(event, details)`, and legacy `(event, level, message)`
-    const msg = event?.message ?? details?.message ?? legacyMessage ?? String(event);
-    
-    if (typeof msg === 'string') {
-      // Suppress benign network handshakes, font timeouts, and React DevTools noise
-      if (msg.includes('net_error -100') || msg.includes('fonts.gstatic.com') || msg.includes('React DevTools') || msg.includes('ERR_CONNECTION_CLOSED')) {
-        return;
+  mainWindow.webContents.on(
+    'console-message',
+    (event: any, details?: any, legacyMessage?: string) => {
+      // Handle both modern `(event)` with properties, `(event, details)`, and legacy `(event, level, message)`
+      const msg = event?.message ?? details?.message ?? legacyMessage ?? String(event)
+
+      if (typeof msg === 'string') {
+        // Suppress benign network handshakes, font timeouts, and React DevTools noise
+        if (
+          msg.includes('net_error -100') ||
+          msg.includes('fonts.gstatic.com') ||
+          msg.includes('React DevTools') ||
+          msg.includes('ERR_CONNECTION_CLOSED')
+        ) {
+          return
+        }
       }
+      console.log('[Renderer Console]: ' + msg)
     }
-    console.log('[Renderer Console]: ' + msg);
-  });
+  )
 
   mainWindow.on('ready-to-show', () => {
     mainWindow.show()

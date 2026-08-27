@@ -1,16 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react'
 
 export const DayzAnimatedBackground: React.FC = React.memo(() => {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [mounted, setMounted] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    setMounted(true);
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
-    if (!gl) return;
+    setMounted(true)
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const gl = (canvas.getContext('webgl') ||
+      canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null
+    if (!gl) return
 
     const vsSource = `
       attribute vec2 a_position;
@@ -19,7 +20,7 @@ export const DayzAnimatedBackground: React.FC = React.memo(() => {
         v_texCoord = a_position * 0.5 + 0.5;
         gl_Position = vec4(a_position, 0.0, 1.0);
       }
-    `;
+    `
 
     const fsSource = `
       precision highp float;
@@ -87,73 +88,68 @@ export const DayzAnimatedBackground: React.FC = React.memo(() => {
 
           gl_FragColor = vec4(color, 1.0);
       }
-    `;
+    `
 
     const compileShader = (gl: WebGLRenderingContext, type: number, source: string) => {
-      const shader = gl.createShader(type)!;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      return shader;
-    };
+      const shader = gl.createShader(type)!
+      gl.shaderSource(shader, source)
+      gl.compileShader(shader)
+      return shader
+    }
 
-    const vertexShader = compileShader(gl as WebGLRenderingContext, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = compileShader(gl as WebGLRenderingContext, gl.FRAGMENT_SHADER, fsSource);
+    const vertexShader = compileShader(gl as WebGLRenderingContext, gl.VERTEX_SHADER, vsSource)
+    const fragmentShader = compileShader(gl as WebGLRenderingContext, gl.FRAGMENT_SHADER, fsSource)
 
-    const program = gl.createProgram()!;
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
+    const program = gl.createProgram()!
+    gl.attachShader(program, vertexShader)
+    gl.attachShader(program, fragmentShader)
+    gl.linkProgram(program)
+    gl.useProgram(program)
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    const positions = [
-      -1.0, -1.0,
-       1.0, -1.0,
-      -1.0,  1.0,
-       1.0,  1.0,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    const positionBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
+    const positions = [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0]
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
-    const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    gl.enableVertexAttribArray(positionAttributeLocation);
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+    gl.enableVertexAttribArray(positionAttributeLocation)
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0)
 
-    const timeLocation = gl.getUniformLocation(program, "u_time");
-    const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const timeLocation = gl.getUniformLocation(program, 'u_time')
+    const resolutionLocation = gl.getUniformLocation(program, 'u_resolution')
 
-    let animationFrameId: number;
+    let animationFrameId: number
 
     const render = (time: number) => {
-      time *= 0.001;
-      
-      const rect = canvas.parentElement?.getBoundingClientRect();
+      time *= 0.001
+
+      const rect = canvas.parentElement?.getBoundingClientRect()
       if (rect) {
         if (canvas.width !== rect.width || canvas.height !== rect.height) {
-          canvas.width = rect.width;
-          canvas.height = rect.height;
-          gl.viewport(0, 0, canvas.width, canvas.height);
+          canvas.width = rect.width
+          canvas.height = rect.height
+          gl.viewport(0, 0, canvas.width, canvas.height)
         }
       }
 
-      gl.uniform1f(timeLocation, time);
-      gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
-      
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      animationFrameId = requestAnimationFrame(render);
-    };
+      gl.uniform1f(timeLocation, time)
+      gl.uniform2f(resolutionLocation, canvas.width, canvas.height)
 
-    animationFrameId = requestAnimationFrame(render);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    animationFrameId = requestAnimationFrame(render)
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-    };
-  }, []);
+      cancelAnimationFrame(animationFrameId)
+    }
+  }, [])
 
   return (
-    <canvas 
-      ref={canvasRef} 
-      className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-[1500ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
+    <canvas
+      ref={canvasRef}
+      className={`absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-[1500ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`}
     />
-  );
-});
+  )
+})
