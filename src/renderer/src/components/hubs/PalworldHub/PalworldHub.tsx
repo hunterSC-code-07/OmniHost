@@ -11,10 +11,10 @@ import { FilesTab } from '../../tabs/FilesTab'
 import { BackupsTab } from '../../tabs/BackupsTab'
 import { OverviewTab } from '../../tabs/OverviewTab'
 import { AnimatedBackground } from '../../AnimatedBackground'
+import { TunnelModal } from '../../modals/TunnelModal'
 
 import { useServerStore } from '../../../store/useServerStore'
 import { useUiStore } from '../../../store/useUiStore'
-import { useModalStore } from '../../../store/useModalStore'
 import { useShallow } from 'zustand/react/shallow'
 
 const TABS = [
@@ -55,7 +55,7 @@ export const PalworldHub: React.FC = () => {
       setTempTunnelIp: s.setTempTunnelIp
     }))
   )
-  const setShowTunnelModal = useModalStore((s) => s.setShowTunnelModal)
+  const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false)
 
   const handleTunnel = async () => {} // Stub for tunnel functionality if needed
 
@@ -75,7 +75,7 @@ export const PalworldHub: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden">
-      <AnimatedBackground theme="blue" />
+      <AnimatedBackground />
 
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="flex justify-between items-center relative z-20">
@@ -117,7 +117,7 @@ export const PalworldHub: React.FC = () => {
               <button
                 onClick={() => {
                   setTempTunnelIp(tunnelIp)
-                  setShowTunnelModal(true)
+                  setIsTunnelModalOpen(true)
                 }}
                 className="px-3 border-l border-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center"
                 title="Tunnel IP Settings"
@@ -244,6 +244,7 @@ export const PalworldHub: React.FC = () => {
           </AnimatePresence>
         </div>
       </div>
+      {isTunnelModalOpen && <TunnelModal onClose={() => setIsTunnelModalOpen(false)} />}
     </div>
   )
 }
