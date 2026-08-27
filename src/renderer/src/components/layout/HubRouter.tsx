@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { DashboardHub } from '../hubs/DashboardHub/DashboardHub';
 import { DayzHub } from '../hubs/DayzHub/DayzHub';
 import { MinecraftHub } from '../hubs/MinecraftHub/MinecraftHub';
+import { SatisfactoryHub } from '../hubs/SatisfactoryHub/SatisfactoryHub';
 import { useServerStore } from '../../store/useServerStore';
 import minecraftBg from '../../assets/minecraft-bg.png';
 import palworldBg from '../../assets/palworld-bg.jpg';
 import dayzBg from '../../assets/dayz-bg.jpg';
 import satisfactoryBg from '../../assets/satisfactory-bg.jpg';
 
-const supportedGameHubs = ['Minecraft', 'DayZ'];
+const supportedGameHubs = ['Minecraft', 'DayZ', 'Satisfactory'];
 const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
 
 const getGameImageUrl = (game: string) => {
@@ -58,6 +59,8 @@ export const HubRouter: React.FC = () => {
           >
             {activeServer.game === 'DayZ' ? (
               <DayzHub />
+            ) : activeServer.game === 'Satisfactory' ? (
+              <SatisfactoryHub />
             ) : (
               <MinecraftHub />
             )}

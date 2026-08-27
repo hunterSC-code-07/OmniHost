@@ -1,52 +1,39 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
-import { DayzConsoleTab } from './tabs/DayzConsoleTab';
-import { DayzOptionsTab } from './tabs/DayzOptionsTab';
-import { DayzEconomyTab } from './tabs/DayzEconomyTab';
-import { DayzModsTab } from './tabs/DayzModsTab';
-import { DayzInstalledModsTab } from './tabs/DayzInstalledModsTab';
-import { DayzFilesTab } from './tabs/DayzFilesTab';
-import { DayzVppAdminTab } from './tabs/DayzVppAdminTab';
+import { SatisfactoryConsoleTab } from './tabs/SatisfactoryConsoleTab';
 import { motion, AnimatePresence } from 'motion/react';
-import { DayzAnimatedBackground } from './DayzAnimatedBackground';
+import { SatisfactoryAnimatedBackground } from './SatisfactoryAnimatedBackground';
 
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
-import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader';
-import { DayzHubProvider, useDayzHubContext } from '../../../contexts/DayzHubContext';
 import { TunnelModal } from '../../modals/TunnelModal';
-import { useState } from 'react';
 
-const DayzHubContent: React.FC = () => {
-  const { activeServer, activeServerId, activeTab, tabDirection, handleTabChange } = useDayzHubContext();
-  
-  if (!activeServer) return null;
+import { SatisfactoryPlayersTab } from './tabs/SatisfactoryPlayersTab';
+
+export const SatisfactoryHub: React.FC = () => {
+  const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
+  const [activeTab, setActiveTab] = useState('console');
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
-  const { setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
-  
-  const handleStart = startServer;
-  const handleStop = stopServer;
-  const handleRestart = restartServer;
-  const handleDelete = deleteServer;
+
+  const activeServer = useMemo(() => servers.find(s => s.id === activeServerId), [servers, activeServerId]);
 
   const handleTunnel = async () => {
     if (tunnelStatus === 'Offline' || tunnelStatus === '') {
       // @ts-ignore
-      await window.api.system.startTunnel(tunnelIp, 'dayz');
+      await window.api.system.startTunnel(tunnelIp, 'satisfactory');
     } else if (tunnelStatus === 'Online') {
       // @ts-ignore
       await window.api.system.stopTunnel();
     }
   };
-
-  // Keep download listener active as long as Hub is mounted
-  useDayzModDownloader(activeServerId);
+  
+  if (!activeServer) return null;
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars">
-      <DayzAnimatedBackground />
+      <SatisfactoryAnimatedBackground />
 
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="flex justify-between items-center relative z-20">
@@ -55,7 +42,7 @@ const DayzHubContent: React.FC = () => {
               <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </button>
             <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
-            <span className="bg-red-500/20 text-red-400 border border-red-500/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">DayZ</span>
+            <span className="bg-[#fa9549]/20 text-[#fa9549] border border-[#fa9549]/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">Satisfactory</span>
           </div>
 
           <div className="flex gap-3 items-center">
@@ -67,15 +54,15 @@ const DayzHubContent: React.FC = () => {
                 <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
               </button>
             </div>
-            <button onClick={() => handleDelete(activeServer.id)} className="relative overflow-hidden group glass-panel px-6 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
+            <button onClick={() => deleteServer(activeServer.id)} className="relative overflow-hidden group glass-panel px-6 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">DELETE</span>
             </button>
-            <button onClick={() => activeServer.status === 'Online' ? handleStop(activeServer.id) : handleStart(activeServer.id)} className={`relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 ${activeServer.status === 'Online' ? 'hover:border-red-500/60 text-red-400 hover:text-red-300 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2)]' : 'hover:border-green-500/60 text-green-400 hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]'}`}>
+            <button onClick={() => activeServer.status === 'Online' ? stopServer(activeServer.id) : startServer(activeServer.id)} className={`relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 ${activeServer.status === 'Online' ? 'hover:border-red-500/60 text-red-400 hover:text-red-300 hover:shadow-[0_8px_32px_rgba(248,113,113,0.2)]' : 'hover:border-green-500/60 text-green-400 hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]'}`}>
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">{activeServer.status === 'Online' ? 'STOP' : 'START'}</span>
             </button>
-            <button onClick={() => handleRestart(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-brand/60 text-brand hover:text-green-300 hover:shadow-[0_8px_32px_rgba(74,222,128,0.2)]">
+            <button onClick={() => restartServer(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-[#fa9549]/60 text-[#fa9549] hover:text-[#fa9549] hover:shadow-[0_8px_32px_rgba(250,149,73,0.2)]">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">RESTART</span>
             </button>
@@ -88,18 +75,13 @@ const DayzHubContent: React.FC = () => {
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
               {[
                 { id: 'console', label: 'Console', icon: 'terminal' },
-                { id: 'options', label: 'Options', icon: 'settings' },
-                { id: 'economy', label: 'Economy', icon: 'storefront' },
-                { id: 'mods', label: 'Workshop', icon: 'extension' },
-                { id: 'installed', label: 'Installed Mods', icon: 'inventory_2' },
-                { id: 'files', label: 'Files', icon: 'folder' },
-                { id: 'vppadmin', label: 'VPP Admin', icon: 'admin_panel_settings' },
+                { id: 'players', label: 'Players', icon: 'group' }
               ].map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => handleTabChange(tab.id as any)}
+                  onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${activeTab === tab.id
-                      ? 'bg-red-500/10 text-red-400 border border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]'
+                      ? 'bg-[#fa9549]/10 text-[#fa9549] border border-[#fa9549]/30 shadow-[0_0_15px_rgba(250,149,73,0.15)]'
                       : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
                     }`}
                 >
@@ -114,73 +96,23 @@ const DayzHubContent: React.FC = () => {
 
       <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
-          <AnimatePresence custom={tabDirection} mode="wait" initial={false}>
+          <AnimatePresence mode="wait" initial={false}>
             <motion.div
               key={activeTab}
-              custom={tabDirection}
-              variants={{
-                enter: (direction: number) => ({
-                  x: direction > 0 ? 50 : -50,
-                  opacity: 0,
-                  position: 'absolute' as const,
-                  width: '100%',
-                  height: '100%'
-                }),
-                center: {
-                  x: 0,
-                  opacity: 1,
-                  position: 'relative' as const,
-                  width: '100%',
-                  height: '100%'
-                },
-                exit: (direction: number) => ({
-                  x: direction < 0 ? 50 : -50,
-                  opacity: 0,
-                  position: 'absolute' as const,
-                  width: '100%',
-                  height: '100%'
-                })
-              }}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.3, ease: 'easeInOut' }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >
-              {activeTab === 'console' && (
-                <DayzConsoleTab />
-              )}
-              {activeTab === 'options' && (
-                <DayzOptionsTab />
-              )}
-              {activeTab === 'economy' && (
-                <DayzEconomyTab />
-              )}
-              {activeTab === 'mods' && (
-                <DayzModsTab onNavigateToInstalled={() => handleTabChange('installed')} />
-              )}
-              {activeTab === 'installed' && (
-                <DayzInstalledModsTab />
-              )}
-              {activeTab === 'files' && (
-                <DayzFilesTab />
-              )}
-              {activeTab === 'vppadmin' && (
-                <DayzVppAdminTab />
-              )}
+              {activeTab === 'console' && <SatisfactoryConsoleTab />}
+              {activeTab === 'players' && <SatisfactoryPlayersTab />}
+
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
       {isTunnelModalOpen && <TunnelModal onClose={() => setIsTunnelModalOpen(false)} />}
     </div>
-  );
-};
-
-export const DayzHub: React.FC = () => {
-  return (
-    <DayzHubProvider>
-      <DayzHubContent />
-    </DayzHubProvider>
   );
 };

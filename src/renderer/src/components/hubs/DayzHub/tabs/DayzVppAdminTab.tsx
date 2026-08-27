@@ -1,10 +1,10 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { useDayzWorkshop } from '../../../../hooks/useDayzWorkshop';
+import { useDayzInstalledMods } from '../../../../hooks/useDayzInstalledMods';
 import { useServerStore } from '../../../../store/useServerStore';
 
 export const DayzVppAdminTab: React.FC = () => {
-  const { mods, loading } = useDayzWorkshop();
+  const { mods, loading } = useDayzInstalledMods();
   const { activeServerId } = useServerStore();
   const [showPassword, setShowPassword] = useState(false);
 
