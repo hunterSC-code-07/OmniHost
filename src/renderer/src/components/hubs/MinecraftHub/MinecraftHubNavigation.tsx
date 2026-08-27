@@ -1,9 +1,9 @@
 import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { useMinecraftHubContext } from '../../../contexts/MinecraftHubContext';
+import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
 
 export const MinecraftHubNavigation: React.FC = () => {
-  const { activeTab, handleTabChange } = useMinecraftHubContext();
+  const { activeTab, handleTabChange } = useMinecraftHubStore();
 
   return (
     <div className="w-full pb-1">

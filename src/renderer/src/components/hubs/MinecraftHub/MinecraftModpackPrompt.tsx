@@ -1,8 +1,8 @@
 import React from 'react';
-import { useMinecraftHubContext } from '../../../contexts/MinecraftHubContext';
+import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
 
 export const MinecraftModpackPrompt: React.FC = () => {
-  const { showModpackPrompt, setShowModpackPrompt, onRedirectToCreateModpack } = useMinecraftHubContext();
+  const { showModpackPrompt, setShowModpackPrompt, onRedirectToCreateModpack } = useMinecraftHubStore();
 
   if (!showModpackPrompt) return null;
 

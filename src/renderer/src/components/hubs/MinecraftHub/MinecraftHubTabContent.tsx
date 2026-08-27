@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useMinecraftHubContext } from '../../../contexts/MinecraftHubContext';
+import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
+import { useServerStore } from '../../../store/useServerStore';
 import { OverviewTab } from '../../tabs/OverviewTab';
 import { ConsoleTab } from '../../tabs/ConsoleTab';
 import { OptionsTab } from '../../tabs/OptionsTab';
@@ -11,7 +12,9 @@ import { ModsTab } from '../../tabs/ModsTab';
 import { SoftwareTab } from '../../tabs/SoftwareTab';
 
 export const MinecraftHubTabContent: React.FC = () => {
-  const { activeTab, tabDirection, handleTabChange, activeServer, serverMeta, fetchServerMeta } = useMinecraftHubContext();
+  const { activeTab, tabDirection, handleTabChange, serverMeta, fetchServerMeta } = useMinecraftHubStore();
+  const { activeServerId, servers } = useServerStore();
+  const activeServer = servers.find(s => s.id === activeServerId) || {} as any;
 
   return (
     <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
@@ -69,7 +72,7 @@ export const MinecraftHubTabContent: React.FC = () => {
           {activeTab === 'options' && (
             <OptionsTab 
               serverId={activeServer.id}
-              onConfigSaved={fetchServerMeta}
+              onConfigSaved={() => fetchServerMeta(activeServer.id)}
             />
           )}
 

@@ -1,14 +1,24 @@
 import React from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { AnimatedBackground } from '../../AnimatedBackground';
-import { MinecraftHubProvider, useMinecraftHubContext } from '../../../contexts/MinecraftHubContext';
+import { useServerStore } from '../../../store/useServerStore';
+import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
 import { MinecraftModpackPrompt } from './MinecraftModpackPrompt';
 import { MinecraftHubHeader } from './MinecraftHubHeader';
 import { MinecraftHubNavigation } from './MinecraftHubNavigation';
 import { MinecraftHubTabContent } from './MinecraftHubTabContent';
 
 const MinecraftHubContent: React.FC = () => {
-  const { activeServer } = useMinecraftHubContext();
+  const { activeServerId, servers } = useServerStore();
+  const currentServer = servers.find(s => s.id === activeServerId);
+  const activeServer = currentServer;
+  const { fetchServerMeta } = useMinecraftHubStore();
+
+  React.useEffect(() => {
+    if (activeServerId !== null) {
+      fetchServerMeta(activeServerId);
+    }
+  }, [activeServerId, fetchServerMeta]);
 
   if (!activeServer) return null;
 
@@ -29,10 +39,4 @@ const MinecraftHubContent: React.FC = () => {
   );
 };
 
-export function MinecraftHub() {
-  return (
-    <MinecraftHubProvider>
-      <MinecraftHubContent />
-    </MinecraftHubProvider>
-  );
-}
+export const MinecraftHub = MinecraftHubContent;
