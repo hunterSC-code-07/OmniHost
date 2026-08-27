@@ -1,41 +1,32 @@
-import { useState } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { useDayzInstalledMods } from '../../../../hooks/useDayzInstalledMods';
 import { useDayzMissions } from '../../../../hooks/useDayzMissions';
 import { useDayzModDependencies } from '../../../../hooks/useDayzModDependencies';
-import { useDayzModOperations } from '../../../../hooks/useDayzModOperations';
+import { useDayzModStatus } from '../../../../hooks/useDayzModStatus';
+import { useDayzModUninstall } from '../../../../hooks/useDayzModUninstall';
+import { useDayzModRebuild } from '../../../../hooks/useDayzModRebuild';
 import { useSteamCredentials } from '../../../../hooks/useSteamCredentials';
 import { useDayzModStore } from '../../../../store/useDayzModStore';
-import { DayzModModals } from './DayzModModals';
 import { DayzInstalledModCard } from './components/DayzInstalledModCard';
 import { DayzPendingDownloadCard } from './components/DayzPendingDownloadCard';
 import { DayzSteamCredentialsForm } from './components/DayzSteamCredentialsForm';
 import { DayzDependencyResultModal } from './components/DayzDependencyResultModal';
+
 export const DayzInstalledModsTab: React.FC = () => {
-  const [modalState, setModalState] = useState<{ type: string | null, data?: any }>({ type: null });
   const { pendingDownloads, removePendingDownload } = useDayzModStore();
 
   const { mods, loading, setLoading, loadInstalledMods, activeServerId } = useDayzInstalledMods();
   const { steamCreds, setSteamCreds, rememberMe, setRememberMe, showCreds, setShowCreds, saveCredentials } = useSteamCredentials();
   
-  const { downloadingMission, handleDownloadMission, handleExtractLocalMission } = useDayzMissions(activeServerId, setModalState);
+  const { downloadingMission, handleDownloadMission, handleExtractLocalMission } = useDayzMissions(activeServerId);
   
-  const { installingDep, depProgress, checkingDeps, dependencyResult, setDependencyResult, handleInstallDependencies, executeMissingDepsInstall, handleCheckDependencies } = useDayzModDependencies(activeServerId, steamCreds, setShowCreds, setModalState, loadInstalledMods, mods);
+  const { installingDep, depProgress, checkingDeps, dependencyResult, setDependencyResult, handleInstallDependencies, executeMissingDepsInstall, handleCheckDependencies } = useDayzModDependencies(activeServerId, steamCreds, setShowCreds, loadInstalledMods, mods);
   
-  const { isRebuilding, handleToggleMap, handleToggleModStatus, handleUninstall, executeUninstall, handleUninstallAll, executeUninstallAll, handleRebuildLoadOrder, executeRebuildLoadOrder } = useDayzModOperations(
-    activeServerId, 
-    mods, 
-    loadInstalledMods, 
-    setLoading, 
-    {
-      onMissingDependencies: (depNames, depDetails) => setModalState({ type: 'MISSING_DEPS', data: { depNames, depDetails } }),
-      onUninstallSingle: (modId, modName) => setModalState({ type: 'UNINSTALL_SINGLE', data: { modId, modName } }),
-      onUninstallAll: () => setModalState({ type: 'UNINSTALL_ALL' }),
-      onRebuildConfirm: () => setModalState({ type: 'REBUILD_CONFIRM' }),
-      onRebuildSuccess: () => setModalState({ type: 'REBUILD_SUCCESS' }),
-      onError: (message) => setModalState({ type: 'INFO', data: { message } })
-    }
-  );
+  const { handleToggleMap, handleToggleModStatus } = useDayzModStatus(activeServerId, mods, loadInstalledMods, executeMissingDepsInstall);
+  
+  const { handleUninstall, handleUninstallAll } = useDayzModUninstall(activeServerId, mods, loadInstalledMods, setLoading);
+  
+  const { isRebuilding, handleRebuildLoadOrder } = useDayzModRebuild(activeServerId);
 
   const openWorkshopPage = (id: string) => {
     if (/^\d+$/.test(id)) {
@@ -102,7 +93,6 @@ export const DayzInstalledModsTab: React.FC = () => {
           setShowCreds={setShowCreds}
           saveCredentials={saveCredentials}
           handleInstallDependencies={handleInstallDependencies}
-          setModalState={setModalState}
         />
       )}
 
@@ -156,17 +146,6 @@ export const DayzInstalledModsTab: React.FC = () => {
       <DayzDependencyResultModal
         dependencyResult={dependencyResult}
         setDependencyResult={setDependencyResult}
-      />
-
-      {/* Cohesive UI Modals */}
-      <DayzModModals
-        modalState={modalState}
-        setModalState={setModalState}
-        executeMissingDepsInstall={executeMissingDepsInstall}
-        executeUninstall={executeUninstall}
-        executeRebuildLoadOrder={executeRebuildLoadOrder}
-        executeUninstallAll={executeUninstallAll}
-        modsCount={mods.length}
       />
     </div>
   );
