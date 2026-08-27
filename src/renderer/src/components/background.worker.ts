@@ -126,7 +126,7 @@ self.onmessage = (e) => {
     const canvas: OffscreenCanvas = e.data.canvas;
     const theme: 'minecraft' | 'dayz' = e.data.theme;
     
-    gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')) as WebGLRenderingContext | null;
+    gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl' as any)) as WebGLRenderingContext | null;
     if (!gl) return;
 
     const vsSource = shaders[theme].vs;
