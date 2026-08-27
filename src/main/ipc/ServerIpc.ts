@@ -2,6 +2,7 @@ import { DayzController } from './DayzController';
 import { MinecraftController } from './MinecraftController';
 import { ServerLifecycleController } from './ServerLifecycleController';
 import { FileSystemController } from './FileSystemController';
+import { SatisfactoryController } from './SatisfactoryController';
 import { WakeProxy } from '../adapters/WakeProxy';
 
 export function registerServerIpc(
@@ -10,6 +11,7 @@ export function registerServerIpc(
 ) {
   DayzController.register(activeServers);
   MinecraftController.register();
+  SatisfactoryController.register(activeServers);
   ServerLifecycleController.register(activeServers, activeProxies);
   FileSystemController.register();
 }

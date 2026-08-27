@@ -5,6 +5,7 @@ import fs from 'fs';
 import { getServers, createServer, deleteServer } from '../db';
 import { DayzAdapter } from '../adapters/DayzAdapter';
 import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager';
+import { SatisfactoryAdapter } from '../adapters/SatisfactoryAdapter';
 import { WakeProxy } from '../adapters/WakeProxy';
 
 async function exists(path: string) {
@@ -139,6 +140,8 @@ export class ServerLifecycleController {
 
         if (game === 'DayZ') {
           activeServers[id] = new DayzAdapter(id);
+        } else if (game === 'Satisfactory') {
+          activeServers[id] = new SatisfactoryAdapter(id);
         } else {
           activeServers[id] = new MinecraftProcessManager(id);
         }

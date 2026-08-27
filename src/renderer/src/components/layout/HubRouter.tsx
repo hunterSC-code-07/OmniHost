@@ -11,8 +11,9 @@ import satisfactoryBg from '../../assets/satisfactory-bg.jpg';
 // Lazy load the heavy game hubs so they aren't bundled into the initial payload
 const DayzHub = React.lazy(() => import('../hubs/DayzHub/DayzHub').then(m => ({ default: m.DayzHub })));
 const MinecraftHub = React.lazy(() => import('../hubs/MinecraftHub/MinecraftHub').then(m => ({ default: m.MinecraftHub })));
+const SatisfactoryHub = React.lazy(() => import('../hubs/SatisfactoryHub/SatisfactoryHub').then(m => ({ default: m.SatisfactoryHub })));
 
-const supportedGameHubs = ['Minecraft', 'DayZ'];
+const supportedGameHubs = ['Minecraft', 'DayZ', 'Satisfactory'];
 const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
 
 const getGameImageUrl = (game: string) => {
@@ -71,6 +72,8 @@ export const HubRouter: React.FC = () => {
               <Suspense fallback={<HubLoader />}>
                 {activeServer.game === 'DayZ' ? (
                   <DayzHub />
+                ) : activeServer.game === 'Satisfactory' ? (
+                  <SatisfactoryHub />
                 ) : (
                   <MinecraftHub />
                 )}

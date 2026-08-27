@@ -41,7 +41,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
     }
 
     if (!newServerName) return;
-    if (activeGameHub !== 'DayZ') {
+    if (!['DayZ', 'Satisfactory'].includes(activeGameHub as string)) {
       if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;
       if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;
     }
@@ -73,9 +73,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           // @ts-ignore
           await window.api.minecraft.downloadServerJar(newId, result.modloader, result.version);
         }
-      } else if (activeGameHub === 'DayZ') {
+      } else if (activeGameHub === 'DayZ' || activeGameHub === 'Satisfactory') {
+        const appId = activeGameHub === 'DayZ' ? 223350 : 1690800;
         // @ts-ignore
-        const isCached = await window.api.steam.checkCache(223350);
+        const isCached = await window.api.steam.checkCache(appId);
 
         if (!isCached && !credentials) {
           setIsCreatingServer(false);
@@ -84,7 +85,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
         }
 
         // @ts-ignore
-        const newId = await window.api.server.createServer(newServerName, 'DayZ', 'Vanilla', 'Latest');
+        const newId = await window.api.server.createServer(newServerName, activeGameHub, 'Vanilla', 'Latest');
 
         // @ts-ignore
         window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
@@ -97,10 +98,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           if (isCached) {
             showToast("Server files found in cache! Copying...");
             // @ts-ignore
-            success = await window.api.steam.copyCache(newId, 223350);
+            success = await window.api.steam.copyCache(newId, appId);
           } else {
             // @ts-ignore
-            success = await window.api.steam.installApp(newId, 223350, credentials.steamUsername, credentials.steamPassword, credentials.steamGuardCode);
+            success = await window.api.steam.installApp(newId, appId, credentials.steamUsername, credentials.steamPassword, credentials.steamGuardCode);
           }
 
           if (success) {
@@ -109,7 +110,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
             const data = await window.api.server.getServers();
             setServers(data);
             setActiveServerId(newId);
-            showToast("DayZ Server created successfully!");
+            showToast(`${activeGameHub} Server created successfully!`);
             onClose();
             return;
           }
@@ -251,7 +252,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   />
                 </div>
 
-                {activeGameHub !== 'DayZ' && (
+                {!['DayZ', 'Satisfactory'].includes(activeGameHub as string) && (
                   <div className="relative z-50">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
                     <button
@@ -286,7 +287,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   </div>
                 )}
 
-                {activeGameHub !== 'DayZ' && newServerType !== 'CurseForge Modpack' && (
+                {!['DayZ', 'Satisfactory'].includes(activeGameHub as string) && newServerType !== 'CurseForge Modpack' && (
                   <div className="relative z-40">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
                     <button
@@ -309,7 +310,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
                 )}
-                {activeGameHub !== 'DayZ' && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
+                {!['DayZ', 'Satisfactory'].includes(activeGameHub as string) && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
                   <div className="relative z-30">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
                     <button
@@ -335,7 +336,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </div>
 
               {/* Right Column (Modpack Browser) */}
-              {activeGameHub !== 'DayZ' && newServerType === 'CurseForge Modpack' && (
+              {!['DayZ', 'Satisfactory'].includes(activeGameHub as string) && newServerType === 'CurseForge Modpack' && (
                 <div className="w-2/3 flex flex-col border-l border-gray-800/50 pl-8">
                   <div className="flex gap-4 mb-4">
                     <input
@@ -458,7 +459,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={handleCreateServer}
-                disabled={isCreatingServer || !newServerName || (activeGameHub !== 'DayZ' && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
+                disabled={isCreatingServer || !newServerName || (!['DayZ', 'Satisfactory'].includes(activeGameHub as string) && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
                 className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors"
               >
                 {isCreatingServer ? 'Creating...' : 'Create Server'}
