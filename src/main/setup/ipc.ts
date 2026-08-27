@@ -10,6 +10,7 @@ import { registerSystemIpc } from '../ipc/SystemIpc';
 import { registerMinecraftIpc } from '../ipc/MinecraftIpc';
 import { registerCacheIpc } from '../ipc/CacheIpc';
 import { registerLogIpc } from '../ipc/LogIpc';
+import { registerNetworkIpc } from '../ipc/NetworkIpc';
 import { getServers } from '../db';
 
 export function registerAllIpcs(): void {
@@ -31,6 +32,7 @@ export function registerAllIpcs(): void {
   registerServerIpc(activeServers, activeProxies);
   registerSteamCMDIpc();
   registerCacheIpc();
-  registerSystemIpc(tunnelProvider, radminVpnProvider, activeServers, getServers);
+  registerNetworkIpc(tunnelProvider, radminVpnProvider);
+  registerSystemIpc(activeServers, getServers);
   registerMinecraftIpc();
 }

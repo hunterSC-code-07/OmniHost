@@ -1,10 +1,11 @@
 import { exec } from 'child_process'
 import fs from 'fs'
 import { shell } from 'electron'
+import { IVpnAdapter } from './IVpnAdapter'
 
 export type RadminLogCallback = (msg: string) => void;
 
-export class RadminVpnAdapter {
+export class RadminVpnAdapter implements IVpnAdapter {
   private exePath: string = 'C:\\Program Files (x86)\\Radmin VPN\\RvRvpnGui.exe';
   private onLog: RadminLogCallback;
 
