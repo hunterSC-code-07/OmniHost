@@ -1,5 +1,6 @@
 import React from 'react';
 import { useModalStore } from '../../store/useModalStore';
+import { DayzDependencyResultModal } from '../hubs/DayzHub/tabs/components/DayzDependencyResultModal';
 
 export const DayzModals: React.FC = () => {
   const {
@@ -209,6 +210,8 @@ export const DayzModals: React.FC = () => {
           </div>
         </div>
       )}
+      {/* DEPENDENCY RESULT MODAL */}
+      <DayzDependencyResultModal />
     </>
   );
 };

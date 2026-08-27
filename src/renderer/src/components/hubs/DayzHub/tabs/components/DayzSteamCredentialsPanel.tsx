@@ -1,25 +1,14 @@
 import React from 'react';
 import { useModalStore } from '../../../../../store/useModalStore';
+import { useSteamCredentialsStore } from '../../../../../store/useSteamCredentialsStore';
+import { useDayzModDependencies } from '../../../../../hooks/useDayzModDependencies';
+import { useDayzInstalledMods } from '../../../../../hooks/useDayzInstalledMods';
 
-interface DayzSteamCredentialsFormProps {
-  steamCreds: any;
-  setSteamCreds: (creds: any) => void;
-  rememberMe: boolean;
-  setRememberMe: (remember: boolean) => void;
-  setShowCreds: (show: boolean) => void;
-  saveCredentials: (onSuccess: () => void, onError: (msg: string) => void) => void;
-  handleInstallDependencies: () => void;
-}
+export const DayzSteamCredentialsPanel: React.FC = () => {
+  const { steamCreds, setSteamCreds, rememberMe, setRememberMe, setShowCreds, saveCredentials } = useSteamCredentialsStore();
+  const { mods, loadInstalledMods, activeServerId } = useDayzInstalledMods();
+  const { handleInstallDependencies } = useDayzModDependencies(activeServerId, loadInstalledMods, mods);
 
-export const DayzSteamCredentialsForm: React.FC<DayzSteamCredentialsFormProps> = ({
-  steamCreds,
-  setSteamCreds,
-  rememberMe,
-  setRememberMe,
-  setShowCreds,
-  saveCredentials,
-  handleInstallDependencies,
-}) => {
   return (
     <div className="p-4 bg-surface-container-high border border-primary/30 mx-4 my-2 rounded-xl flex flex-col gap-3 shadow-lg">
       <div className="flex justify-between items-center">

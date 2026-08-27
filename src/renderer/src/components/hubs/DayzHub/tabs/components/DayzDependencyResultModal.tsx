@@ -1,19 +1,12 @@
 import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 
-interface DayzDependencyResultModalProps {
-  dependencyResult: {
-    modTitle: string;
-    deps: any[];
-  } | null;
-  setDependencyResult: (result: any) => void;
-}
+import { useModalStore } from '../../../../../store/useModalStore';
 
-export const DayzDependencyResultModal: React.FC<DayzDependencyResultModalProps> = ({
-  dependencyResult,
-  setDependencyResult,
-}) => {
-  if (!dependencyResult) return null;
+export const DayzDependencyResultModal: React.FC = () => {
+  const { dayzDependencyResultModal, closeDayzDependencyResultModal } = useModalStore();
+  
+  if (!dayzDependencyResultModal.isOpen) return null;
 
   return (
     <div className="absolute inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
@@ -21,16 +14,16 @@ export const DayzDependencyResultModal: React.FC<DayzDependencyResultModalProps>
         <div className="flex justify-between items-center p-6 border-b border-white/5 shrink-0">
           <h2 className="text-xl font-bold text-white flex items-center gap-3">
             <span className="material-symbols-outlined text-red-500">account_tree</span>
-            Dependencies for {dependencyResult.modTitle}
+            Dependencies for {dayzDependencyResultModal.modTitle}
           </h2>
-          <button onClick={() => setDependencyResult(null)} className="text-gray-400 hover:text-white transition-colors">
+          <button onClick={closeDayzDependencyResultModal} className="text-gray-400 hover:text-white transition-colors">
             <span className="material-symbols-outlined text-[24px]">close</span>
           </button>
         </div>
 
         <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1 p-6">
           <div className="flex flex-col gap-3">
-            {dependencyResult.deps.map(dep => (
+            {dayzDependencyResultModal.deps.map((dep: any) => (
               <div key={dep.id} className="bg-white/5 border border-white/10 rounded-lg p-3 flex justify-between items-center">
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-white">{dep.title}</span>
