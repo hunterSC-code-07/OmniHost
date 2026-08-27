@@ -33,12 +33,16 @@ export const useDayzModDependencies = (
         activeServerId,
         modsToInstall,
         steamCreds.username,
-        steamCreds.password,
+        steamCreds.password || undefined,
         steamCreds.steamGuard || undefined
       );
     } catch (e: any) {
       if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
         alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
+        useSteamCredentialsStore.getState().setShowCreds(true);
+        return;
+      } else if (e.message && e.message.includes('INVALID_CREDENTIALS')) {
+        alert('Invalid Steam Username or Password. Please update your credentials.');
         useSteamCredentialsStore.getState().setShowCreds(true);
         return;
       } else if (e.message?.includes('LOGIN_REQUIRED')) {
@@ -61,7 +65,7 @@ export const useDayzModDependencies = (
     useModalStore.getState().closeDayzMissingDepsModal();
     setPendingDeps(depDetails);
     const { steamCreds } = useSteamCredentialsStore.getState();
-    if (!steamCreds.username || !steamCreds.password) {
+    if (!steamCreds.username) {
       useSteamCredentialsStore.getState().setShowCreds(true);
     } else {
       handleInstallDependencies(depDetails);

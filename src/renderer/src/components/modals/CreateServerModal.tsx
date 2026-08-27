@@ -117,6 +117,9 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           if (err.message && err.message.includes('STEAM_GUARD_REQUIRED')) {
             showToast("Steam Guard Code required!");
             openSteamLoginModal('create', handleCreateServer);
+          } else if (err.message && err.message.includes('INVALID_CREDENTIALS')) {
+            showToast("Invalid Username or Password!", "error");
+            openSteamLoginModal('create', handleCreateServer);
           } else {
             alert('Failed to download DayZ Server via SteamCMD: ' + err.message);
           }

@@ -1,10 +1,10 @@
 import { create } from 'zustand';
 
 interface SteamCredentialsStore {
-  steamCreds: { username: string; password: string; steamGuard: string };
+  steamCreds: { username: string; password?: string; steamGuard?: string };
   rememberMe: boolean;
   showCreds: boolean;
-  setSteamCreds: (creds: { username: string; password: string; steamGuard: string }) => void;
+  setSteamCreds: (creds: { username: string; password?: string; steamGuard?: string }) => void;
   setRememberMe: (remember: boolean) => void;
   setShowCreds: (show: boolean) => void;
   saveCredentials: (onSuccess: () => void, onError: (msg: string) => void) => void;
@@ -14,9 +14,9 @@ export const useSteamCredentialsStore = create<SteamCredentialsStore>((set, get)
   steamCreds: (() => {
     try {
       const saved = localStorage.getItem('omnihost_steam_creds');
-      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };
+      return saved ? JSON.parse(atob(saved)) : { username: '' };
     } catch {
-      return { username: '', password: '', steamGuard: '' };
+      return { username: '' };
     }
   })(),
   rememberMe: !!localStorage.getItem('omnihost_steam_creds'),
@@ -26,18 +26,18 @@ export const useSteamCredentialsStore = create<SteamCredentialsStore>((set, get)
   setShowCreds: (show) => set({ showCreds: show }),
   saveCredentials: (onSuccess, onError) => {
     const state = get();
-    if (state.steamCreds.username && state.steamCreds.password) {
+    if (state.steamCreds.username) {
       if (state.rememberMe) {
         localStorage.setItem(
           'omnihost_steam_creds',
-          btoa(JSON.stringify({ username: state.steamCreds.username, password: state.steamCreds.password, steamGuard: '' }))
+          btoa(JSON.stringify({ username: state.steamCreds.username }))
         );
       } else {
         localStorage.removeItem('omnihost_steam_creds');
       }
       onSuccess();
     } else {
-      onError('Username and password are required.');
+      onError('Username is required.');
     }
   }
 }));
