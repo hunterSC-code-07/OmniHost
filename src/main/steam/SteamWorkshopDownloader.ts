@@ -66,36 +66,13 @@ export class SteamWorkshopDownloader {
           let downloadErrorMsg = '';
           let fullOutput = '';
 
-          const targetDir = join(SteamCMDSetup.getSteamCMDDir(), 'steamapps', 'workshop', 'downloads', appId.toString(), modId);
 
-          const progressInterval = setInterval(async () => {
-            if (totalSize > 0 && fs.existsSync(targetDir)) {
-              let currentSize = 0;
-              const checkSize = async (dir: string): Promise<number> => {
-                if (!fs.existsSync(dir)) return 0;
-                let size = 0;
-                try {
-                  const files = await fs.promises.readdir(dir, { withFileTypes: true });
-                  const sizes = await Promise.all(files.map(async (file) => {
-                    const fullPath = join(dir, file.name);
-                    if (file.isDirectory()) {
-                      return await checkSize(fullPath);
-                    } else {
-                      const stats = await fs.promises.stat(fullPath);
-                      return stats.size;
-                    }
-                  }));
-                  size = sizes.reduce((a, b) => a + b, 0);
-                } catch (e) { /* ignore read errors during active download */ }
-                return size;
-              };
-              currentSize = await checkSize(targetDir);
-              const percent = Math.min((currentSize / totalSize) * 100, 99.9);
-              SteamCMDSetup.sendLog(serverId, percent, `[MOD:${modId}] Downloading Mod Files (${percent.toFixed(1)}%)...`);
-            } else if (totalSize === 0) {
-              // Indeterminate UI fallback handled by DayzModsTab CSS animation when percent === 0
-              SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Downloading Mod Files (Indeterminate)...`);
-            }
+
+          let elapsedSeconds = 0;
+          const progressInterval = setInterval(() => {
+            elapsedSeconds++;
+            const sizeStr = totalSize > 0 ? ` (~${(totalSize / 1024 / 1024).toFixed(1)} MB)` : '';
+            SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Downloading${sizeStr}... (${elapsedSeconds}s)`);
           }, 1000);
 
           proc.stdout?.on('data', (data) => {
