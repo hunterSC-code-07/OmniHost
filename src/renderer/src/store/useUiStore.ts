@@ -10,8 +10,7 @@ interface UiStore {
   radminIp: string;
   isClearingCache: boolean;
   cacheSize: number;
-  isDayzCached: boolean | null;
-  isSatisfactoryCached: boolean | null;
+  gameCacheStatus: Record<string, boolean>;
   
   setActiveGameHub: (hub: string | null) => void;
   setLastGameHub: (hub: string | null) => void;
@@ -22,8 +21,7 @@ interface UiStore {
   setRadminIp: (ip: string) => void;
   setIsClearingCache: (isClearing: boolean) => void;
   setCacheSize: (size: number) => void;
-  setIsDayzCached: (isCached: boolean | null) => void;
-  setIsSatisfactoryCached: (isCached: boolean | null) => void;
+  setGameCacheStatus: (game: string, isCached: boolean) => void;
 }
 
 export const useUiStore = create<UiStore>((set) => ({
@@ -36,8 +34,7 @@ export const useUiStore = create<UiStore>((set) => ({
   radminIp: '',
   isClearingCache: false,
   cacheSize: 0,
-  isDayzCached: null,
-  isSatisfactoryCached: null,
+  gameCacheStatus: {},
   
   setActiveGameHub: (hub) => set(() => {
     if (hub) return { activeGameHub: hub, lastGameHub: hub };
@@ -54,6 +51,7 @@ export const useUiStore = create<UiStore>((set) => ({
   setRadminIp: (ip) => set({ radminIp: ip }),
   setIsClearingCache: (isClearing) => set({ isClearingCache: isClearing }),
   setCacheSize: (size) => set({ cacheSize: size }),
-  setIsDayzCached: (isCached) => set({ isDayzCached: isCached }),
-  setIsSatisfactoryCached: (isCached) => set({ isSatisfactoryCached: isCached })
+  setGameCacheStatus: (game, isCached) => set((state) => ({ 
+    gameCacheStatus: { ...state.gameCacheStatus, [game]: isCached } 
+  }))
 }));

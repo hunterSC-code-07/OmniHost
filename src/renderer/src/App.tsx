@@ -7,23 +7,23 @@ import { useUiStore } from './store/useUiStore';
 
 import { MainLayout } from './components/layout/MainLayout';
 import { HubRouter } from './components/layout/HubRouter';
+import { STEAM_GAMES } from '@shared/SteamGames';
 
 export default function App() {
   useIpcListeners();
   
-  const { setIsDayzCached, setIsSatisfactoryCached } = useUiStore();
+  const { setGameCacheStatus } = useUiStore();
 
   useEffect(() => {
     const checkCache = async () => {
-      // @ts-ignore
-      const dayzCached = await window.api.steam.checkCache(223350);
-      setIsDayzCached(dayzCached);
-      // @ts-ignore
-      const satisfactoryCached = await window.api.steam.checkCache(1690800);
-      setIsSatisfactoryCached(satisfactoryCached);
+      for (const [gameName, gameConfig] of Object.entries(STEAM_GAMES)) {
+        // @ts-ignore
+        const isCached = await window.api.steam.checkCache(gameConfig.appId);
+        setGameCacheStatus(gameName, isCached);
+      }
     };
     checkCache();
-  }, [setIsDayzCached, setIsSatisfactoryCached]);
+  }, [setGameCacheStatus]);
 
   return (
     <MainLayout>

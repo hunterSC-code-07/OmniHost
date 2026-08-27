@@ -1,6 +1,7 @@
 import fs from 'fs';
 import { join } from 'path';
 import { app, BrowserWindow } from 'electron';
+import { STEAM_GAMES } from '../../shared/SteamGames';
 
 export class SteamCache {
   static getCacheDir(appId: number) {
@@ -11,11 +12,8 @@ export class SteamCache {
     const cacheDir = this.getCacheDir(appId);
     if (!fs.existsSync(cacheDir)) return false;
     
-    if (appId === 223350 && fs.existsSync(join(cacheDir, 'DayZServer_x64.exe'))) {
-      return true;
-    }
-    
-    if (appId === 1690800 && fs.existsSync(join(cacheDir, 'FactoryServer.exe'))) {
+    const gameConfig = Object.values(STEAM_GAMES).find(g => g.appId === appId);
+    if (gameConfig && fs.existsSync(join(cacheDir, gameConfig.executable))) {
       return true;
     }
     
