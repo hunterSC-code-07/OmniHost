@@ -31,7 +31,7 @@ export class DayzEconomyManager {
         }
       }
 
-      return { pristineLoot };
+      return { pristineLoot, template };
     } catch (e) {
       console.error('Failed to get DayZ economy', e);
       return null;

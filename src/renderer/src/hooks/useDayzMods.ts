@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useServerStore } from '../store/useServerStore';
+import { useDayzModStore } from '../store/useDayzModStore';
 import { useDayzModSearch } from './useDayzModSearch';
 import { useDayzModImport } from './useDayzModImport';
 
 export function useDayzMods() {
   const { activeServerId } = useServerStore();
+  
+  const { installedMods: allInstalledMods, loadInstalledMods: globalLoadInstalledMods } = useDayzModStore();
 
-  const [installedMods, setInstalledMods] = useState<any[]>([]);
   const [viewingMod, setViewingMod] = useState<any | null>(null);
+
+  const installedMods = activeServerId ? (allInstalledMods[activeServerId] || []) : [];
 
   const loadInstalledMods = async () => {
     if (!activeServerId) return;
-    const mods = await window.api.dayz.getInstalledMods(activeServerId);
-    if (mods) {
-      setInstalledMods(mods);
-    }
+    await globalLoadInstalledMods(activeServerId);
   };
 
   useEffect(() => {
@@ -29,7 +30,6 @@ export function useDayzMods() {
     ...searchControls,
     ...importControls,
     installedMods,
-    setInstalledMods,
     viewingMod,
     setViewingMod,
     loadInstalledMods

@@ -75,6 +75,10 @@ export const DayzEconomyTab: React.FC = () => {
           <div>
             <h3 className="text-xl font-bold text-white mb-2">Central Economy</h3>
             <p className="text-sm text-gray-400">Tweak loot spawns and item conditions. These changes overwrite your mission's <code className="text-red-400">globals.xml</code> and <code className="text-red-400">types.xml</code>.</p>
+            <div className="flex items-center gap-2 mt-3">
+              <span className="text-sm font-bold text-gray-300">Targeting Map / Mission:</span>
+              <span className="text-sm font-mono bg-red-900/30 text-red-400 border border-red-500/30 px-2 py-1 rounded">{template}</span>
+            </div>
           </div>
           <button 
             onClick={handleSave}
