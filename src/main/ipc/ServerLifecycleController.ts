@@ -6,6 +6,7 @@ import { getServers, createServer, deleteServer } from '../db';
 import { DayzAdapter } from '../adapters/DayzAdapter';
 import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager';
 import { SatisfactoryAdapter } from '../adapters/SatisfactoryAdapter';
+import { PalworldAdapter } from '../adapters/PalworldAdapter';
 import { WakeProxy } from '../adapters/WakeProxy';
 
 async function exists(path: string) {
@@ -142,6 +143,8 @@ export class ServerLifecycleController {
           activeServers[id] = new DayzAdapter(id);
         } else if (game === 'Satisfactory') {
           activeServers[id] = new SatisfactoryAdapter(id);
+        } else if (game === 'Palworld') {
+          activeServers[id] = new PalworldAdapter(id);
         } else {
           activeServers[id] = new MinecraftProcessManager(id);
         }

@@ -1,13 +1,13 @@
-import { DayzProcessManager } from '../dayz/DayzProcessManager'
+import { PalworldProcessManager } from '../palworld/PalworldProcessManager'
 import { ChildProcess } from 'child_process'
 
-export class DayzAdapter {
+export class PalworldAdapter {
   serverId: number
-  private processManager: DayzProcessManager
+  private processManager: PalworldProcessManager
 
   constructor(serverId: number) {
     this.serverId = serverId
-    this.processManager = new DayzProcessManager(serverId)
+    this.processManager = new PalworldProcessManager(serverId)
   }
 
   async start(): Promise<void> {

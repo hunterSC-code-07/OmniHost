@@ -6,37 +6,40 @@ OmniHost is a modern, high-performance Minecraft server management application b
 
 ## 🚀 Features
 
-* **Multi-Loader Support**: Create Vanilla, Paper, Fabric, Forge, and NeoForge servers with a single click.
-* **Integrated Mod Management**: Browse, search, install, and update mods and modpacks directly from CurseForge within the app.
-* **Auto-Java Management**: Automatically downloads and maps the correct Java version (Java 8, 16, 17, 21, or 25) depending on your selected Minecraft version.
-* **Dynamic Hardware Allocation**: Easily scale your server's maximum RAM usage and CPU core limits using visual sliders.
-* **Cloud Tunneling (`frp`)**: Expose your local servers to the internet using a secure cloud tunnel—no router port-forwarding required.
-* **Smart Auto-Start & Auto-Stop**: Save system resources with an inactivity monitor that shuts down the server when empty, and a WakeProxy that instantly spins the server up the moment a player attempts to connect.
-* **Built-in File Manager**: A rich visual file explorer for modifying server properties, exploring worlds, and editing configurations without leaving the app.
+- **Multi-Loader Support**: Create Vanilla, Paper, Fabric, Forge, and NeoForge servers with a single click.
+- **Integrated Mod Management**: Browse, search, install, and update mods and modpacks directly from CurseForge within the app.
+- **Auto-Java Management**: Automatically downloads and maps the correct Java version (Java 8, 16, 17, 21, or 25) depending on your selected Minecraft version.
+- **Dynamic Hardware Allocation**: Easily scale your server's maximum RAM usage and CPU core limits using visual sliders.
+- **Cloud Tunneling (`frp`)**: Expose your local servers to the internet using a secure cloud tunnel—no router port-forwarding required.
+- **Smart Auto-Start & Auto-Stop**: Save system resources with an inactivity monitor that shuts down the server when empty, and a WakeProxy that instantly spins the server up the moment a player attempts to connect.
+- **Built-in File Manager**: A rich visual file explorer for modifying server properties, exploring worlds, and editing configurations without leaving the app.
 
 ## 🛠️ Tech Stack
 
-* **Frontend**: React, TypeScript, TailwindCSS
-* **Backend**: Node.js, Electron (IPC Main)
-* **Build Tool**: Vite (`electron-vite`)
+- **Frontend**: React, TypeScript, TailwindCSS
+- **Backend**: Node.js, Electron (IPC Main)
+- **Build Tool**: Vite (`electron-vite`)
 
 ---
 
 ## ⚙️ Installation & Setup
 
 ### Prerequisites
+
 - [Node.js](https://nodejs.org/en/download/) (v16.14.0 or newer)
 - Git
 
 ### Running Locally
 
 1. **Clone the repository:**
+
    ```bash
    git clone https://github.com/hunterSC-code-07/OmniHost.git
    cd OmniHost
    ```
 
 2. **Install dependencies:**
+
    ```bash
    npm install
    ```
@@ -63,15 +66,17 @@ To package OmniHost into a standalone executable for distribution, run the build
   ```bash
   npm run build:linux
   ```
+
 The compiled binaries and installers will be output to the `dist` directory.
 
 ## ☁️ Google Cloud Free-Tier Tunnel Setup (FRP)
 
 OmniHost includes a built-in tunneling system (using Fast Reverse Proxy) to share your server globally without opening ports on your home router.
 
-You can host the central tunnel endpoint completely for **free** using Google Cloud Platform (GCP). 
+You can host the central tunnel endpoint completely for **free** using Google Cloud Platform (GCP).
 
 ### 1. Create a Free GCP Instance
+
 1. Sign up for Google Cloud Platform and go to **Compute Engine** -> **VM Instances**.
 2. Click **Create Instance**.
 3. Select an `e2-micro` machine type (this is part of the "Always Free" tier).
@@ -79,6 +84,7 @@ You can host the central tunnel endpoint completely for **free** using Google Cl
 5. In the Firewall section, check "Allow HTTP/HTTPS traffic". Click **Create**.
 
 ### 2. Configure Firewall Rules
+
 1. In the GCP search bar, search for **VPC Network** -> **Firewall**.
 2. Click **Create Firewall Rule**.
 3. Name it `omnihost-frp`.
@@ -88,6 +94,7 @@ You can host the central tunnel endpoint completely for **free** using Google Cl
 7. Click **Create**.
 
 ### 3. Install FRP on your Cloud VM
+
 SSH into your new VM using the GCP console and run the following commands to install and start the FRP Server:
 
 ```bash
@@ -106,6 +113,7 @@ nohup ./frps -c ./frps.toml &
 ```
 
 ### 4. Connect OmniHost
+
 1. Copy the **External IP** of your Google Cloud VM from the Compute Engine dashboard.
 2. In OmniHost, navigate to the `FrpAdapter.ts` (or the tunneling options tab when configuring).
 3. Ensure the target IP matches your new GCP External IP.
@@ -115,15 +123,15 @@ nohup ./frps -c ./frps.toml &
 
 ## 📁 Project Structure
 
-* `src/main/`: Electron backend logic. Handles server processes, proxies, Java management, IPC events, and API interactions.
-  * `adapters/`: Contains integration logic for Minecraft servers, CurseForge, Java parsing, and FRP tunneling.
-* `src/renderer/`: The React frontend interface.
-  * `components/tabs/`: Contains the modular UI tabs (Console, Options, File Manager, Mod Browser).
-* `src/preload/`: The secure bridge exposing native Node functionalities to the React renderer.
+- `src/main/`: Electron backend logic. Handles server processes, proxies, Java management, IPC events, and API interactions.
+  - `adapters/`: Contains integration logic for Minecraft servers, CurseForge, Java parsing, and FRP tunneling.
+- `src/renderer/`: The React frontend interface.
+  - `components/tabs/`: Contains the modular UI tabs (Console, Options, File Manager, Mod Browser).
+- `src/preload/`: The secure bridge exposing native Node functionalities to the React renderer.
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! 
+Contributions, issues, and feature requests are welcome!
 If you find a bug or have an idea, please open an issue or submit a Pull Request.
 
 ## 📝 License
