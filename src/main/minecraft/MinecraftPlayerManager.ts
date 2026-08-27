@@ -1,6 +1,4 @@
-import { BrowserWindow } from 'electron'
-import { MinecraftStatsService } from './MinecraftStatsService'
-
+import { minecraftEventBus } from './MinecraftEventBus';
 export class MinecraftPlayerManager {
   private serverId: number;
   private serverDir: string;
@@ -20,31 +18,27 @@ export class MinecraftPlayerManager {
   }
 
   sendPlayerUpdate() {
-    BrowserWindow.getAllWindows().forEach(win => {
-      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });
-    });
+    // This could optionally emit an event for online-players if needed, 
+    // but the coordinator will handle player-joined/left.
   }
 
   async handlePlayerJoin(username: string) {
     if (!this.onlinePlayers.includes(username)) {
       this.onlinePlayers.push(username);
-      await MinecraftStatsService.updatePlayerStats(this.serverDir, username, true);
-      this.sendPlayerUpdate();
+      minecraftEventBus.emit('player-joined', this.serverId, this.serverDir, username);
     }
   }
 
   async handlePlayerLeave(username: string) {
     this.onlinePlayers = this.onlinePlayers.filter(p => p !== username);
-    await MinecraftStatsService.updatePlayerStats(this.serverDir, username, false);
-    this.sendPlayerUpdate();
+    minecraftEventBus.emit('player-left', this.serverId, this.serverDir, username);
   }
 
   async handleServerStop() {
     for (const pName of this.onlinePlayers) {
-      await MinecraftStatsService.updatePlayerStats(this.serverDir, pName, false);
+      minecraftEventBus.emit('player-left', this.serverId, this.serverDir, pName);
     }
     this.clearOnlinePlayers();
-    this.sendPlayerUpdate();
   }
 
 }

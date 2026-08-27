@@ -2,6 +2,7 @@ import { WakeProxy } from '../adapters/WakeProxy';
 import { FrpAdapter } from '../adapters/FrpAdapter';
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter';
 import { BrowserWindow } from 'electron';
+import { setupMinecraftEventCoordinator } from '../minecraft/MinecraftEventCoordinator';
 
 import { registerServerIpc } from '../ipc/ServerIpc';
 import { registerSteamCMDIpc } from '../ipc/SteamCMDIpc';
@@ -22,6 +23,8 @@ export function registerAllIpcs(): void {
       windows[0].webContents.send('console-log', msg);
     }
   });
+
+  setupMinecraftEventCoordinator(activeServers);
 
   // Register IPCs
   registerLogIpc();
