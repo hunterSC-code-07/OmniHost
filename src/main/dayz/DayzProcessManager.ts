@@ -12,6 +12,8 @@ export class DayzProcessManager {
   process: ChildProcess | null = null;
   onlinePlayers: string[] = [];
   logBuffer: string[] = [];
+  logHistory: string[] = [];
+  omnihostMeta: Record<string, unknown> = {};
   logFlushTimer: NodeJS.Timeout | null = null;
   
   private logParser: DayzLogParser | null = null;
@@ -25,6 +27,7 @@ export class DayzProcessManager {
     console.log(msg); // Guaranteed VS Code output!
     
     this.logBuffer.push(msg);
+    this.logHistory.push(msg);
     if (!this.logFlushTimer) {
       this.logFlushTimer = setTimeout(() => {
         const msgs = [...this.logBuffer];

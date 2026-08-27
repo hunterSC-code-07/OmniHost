@@ -93,33 +93,9 @@ export class PalworldModManager {
       })
 
       // 3. Extract based on type (Pak vs UE4SS)
-      const extractTemp = path.join(serverDir, `extract_${modId}`)
-      if (fs.existsSync(extractTemp)) fs.rmSync(extractTemp, { recursive: true, force: true })
-      fs.mkdirSync(extractTemp, { recursive: true })
-
-      await extract(tempZip, { dir: extractTemp })
-
-      const installPak = (dir: string) => {
-        const files = fs.readdirSync(dir)
-        for (const file of files) {
-          const fullPath = path.join(dir, file)
-          if (fs.statSync(fullPath).isDirectory()) {
-            installPak(fullPath)
-          } else if (file.endsWith('.pak')) {
-            const paksDir = path.join(serverDir, 'Pal', 'Content', 'Paks', 'LogicMods')
-            if (!fs.existsSync(paksDir)) fs.mkdirSync(paksDir, { recursive: true })
-            fs.copyFileSync(fullPath, path.join(paksDir, file))
-          } else if (file === 'Scripts') {
-            const ue4ssDir = path.join(serverDir, 'Pal', 'Binaries', 'Win64', 'Mods')
-            if (!fs.existsSync(ue4ssDir)) fs.mkdirSync(ue4ssDir, { recursive: true })
-          }
-        }
-      }
-
-      installPak(extractTemp)
+      await this.extractMod(tempZip, serverDir)
 
       fs.unlinkSync(tempZip)
-      fs.rmSync(extractTemp, { recursive: true, force: true })
 
       return true
     } catch (e: any) {
