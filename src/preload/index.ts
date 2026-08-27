@@ -51,7 +51,9 @@ const api = {
   system: {
     getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
     getCacheInfo: () => ipcRenderer.invoke('get-cache-info'),
+    getDetailedCacheInfo: () => ipcRenderer.invoke('get-detailed-cache-info'),
     clearCache: () => ipcRenderer.invoke('clear-cache'),
+    clearSpecificCache: (cacheId: string) => ipcRenderer.invoke('clear-specific-cache', cacheId),
     startTunnel: (ip: string, game: string) => ipcRenderer.invoke('start-tunnel', { ip, game }),
     stopTunnel: () => ipcRenderer.invoke('stop-tunnel'),
     getTunnelStatus: () => ipcRenderer.invoke('get-tunnel-status'),

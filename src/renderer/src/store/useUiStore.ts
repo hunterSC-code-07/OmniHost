@@ -9,7 +9,7 @@ interface UiStore {
   tempTunnelIp: string;
   radminIp: string;
   isClearingCache: boolean;
-  cacheSize: number;
+  cacheSizes: { minecraft: number, dayzBase: number, dayzWorkshop: number, satisfactoryBase: number };
   gameCacheStatus: Record<string, boolean>;
   
   setActiveGameHub: (hub: string | null) => void;
@@ -20,7 +20,7 @@ interface UiStore {
   setTempTunnelIp: (ip: string) => void;
   setRadminIp: (ip: string) => void;
   setIsClearingCache: (isClearing: boolean) => void;
-  setCacheSize: (size: number) => void;
+  setCacheSizes: (sizes: { minecraft: number, dayzBase: number, dayzWorkshop: number, satisfactoryBase: number }) => void;
   setGameCacheStatus: (game: string, isCached: boolean) => void;
 }
 
@@ -33,7 +33,7 @@ export const useUiStore = create<UiStore>((set) => ({
   tempTunnelIp: '',
   radminIp: '',
   isClearingCache: false,
-  cacheSize: 0,
+  cacheSizes: { minecraft: 0, dayzBase: 0, dayzWorkshop: 0, satisfactoryBase: 0 },
   gameCacheStatus: {},
   
   setActiveGameHub: (hub) => set(() => {
@@ -50,7 +50,7 @@ export const useUiStore = create<UiStore>((set) => ({
   setTempTunnelIp: (ip) => set({ tempTunnelIp: ip }),
   setRadminIp: (ip) => set({ radminIp: ip }),
   setIsClearingCache: (isClearing) => set({ isClearingCache: isClearing }),
-  setCacheSize: (size) => set({ cacheSize: size }),
+  setCacheSizes: (sizes) => set({ cacheSizes: sizes }),
   setGameCacheStatus: (game, isCached) => set((state) => ({ 
     gameCacheStatus: { ...state.gameCacheStatus, [game]: isCached } 
   }))

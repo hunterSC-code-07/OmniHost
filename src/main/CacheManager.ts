@@ -22,25 +22,36 @@ export class CacheManager {
     return `${hash}-${originalFilename}`;
   }
 
-  static getCacheSize(): number {
-    const dir = this.getCacheDir();
+  static getFolderSize(dir: string): number {
     if (!fs.existsSync(dir)) return 0;
 
     let totalSize = 0;
     const calculateSize = (folderPath: string) => {
-      const files = fs.readdirSync(folderPath);
-      for (const file of files) {
-        const fullPath = path.join(folderPath, file);
-        const stats = fs.statSync(fullPath);
-        if (stats.isDirectory()) {
-          calculateSize(fullPath);
-        } else {
-          totalSize += stats.size;
+      try {
+        const files = fs.readdirSync(folderPath);
+        for (const file of files) {
+          try {
+            const fullPath = path.join(folderPath, file);
+            const stats = fs.statSync(fullPath);
+            if (stats.isDirectory()) {
+              calculateSize(fullPath);
+            } else {
+              totalSize += stats.size;
+            }
+          } catch (e) {
+            console.error(`Failed to stat ${file}:`, e);
+          }
         }
+      } catch (e) {
+        console.error(`Failed to read dir ${folderPath}:`, e);
       }
     };
     calculateSize(dir);
-    return totalSize; // in bytes
+    return totalSize;
+  }
+
+  static getCacheSize(): number {
+    return this.getFolderSize(this.getCacheDir());
   }
 
   static clearCache() {

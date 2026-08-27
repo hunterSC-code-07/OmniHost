@@ -17,7 +17,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
   const [totalModCount, setTotalModCount] = useState<number>(0);
 
   const { showToast } = useToastStore();
-  const { setCacheSize } = useUiStore();
+  const { setCacheSizes } = useUiStore();
 
   const fetchMods = async () => {
     if (activeServerId === null || !serverMeta) return;
@@ -126,7 +126,7 @@ export function useMinecraftMods(activeServerId: number | null, serverMeta: any,
     showToast(`Installed ${mod.name} and dependencies!`);
     fetchMods();
     // @ts-ignore
-    window.api.system.getCacheInfo().then(size => setCacheSize(size));
+    window.api.system.getDetailedCacheInfo().then(sizes => setCacheSizes(sizes));
     setInstallingModId(null);
     setInstallProgressText('');
   };
