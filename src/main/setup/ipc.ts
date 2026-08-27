@@ -1,6 +1,7 @@
 import { WakeProxy } from '../adapters/WakeProxy';
 import { FrpAdapter } from '../adapters/FrpAdapter';
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter';
+import { BrowserWindow } from 'electron';
 
 import { registerServerIpc } from '../ipc/ServerIpc';
 import { registerSteamCMDIpc } from '../ipc/SteamCMDIpc';
@@ -15,7 +16,12 @@ export function registerAllIpcs(): void {
   const activeServers: Record<number, any> = {};
   const activeProxies: Record<number, WakeProxy> = {};
   const tunnelProvider = new FrpAdapter();
-  const radminVpnProvider = new RadminVpnAdapter();
+  const radminVpnProvider = new RadminVpnAdapter((msg) => {
+    const windows = BrowserWindow.getAllWindows();
+    if (windows.length > 0) {
+      windows[0].webContents.send('console-log', msg);
+    }
+  });
 
   // Register IPCs
   registerLogIpc();
