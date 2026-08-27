@@ -5,7 +5,7 @@ import icon from '../../resources/icon.png?asset'
 import { initializeLogger } from './utils/logger'
 
 // Initialize centralized logger
-const log = initializeLogger();
+initializeLogger();
 
 // Import our custom modules
 import { WakeProxy } from './adapters/WakeProxy'
