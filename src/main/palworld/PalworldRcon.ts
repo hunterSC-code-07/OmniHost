@@ -24,7 +24,10 @@ export class PalworldRcon {
       }
 
       const port = parseInt(config['RCONPort'] || '25575', 10)
-      const password = config['AdminPassword']
+      let password = config['AdminPassword']
+      if (password && password.startsWith('"') && password.endsWith('"')) {
+        password = password.slice(1, -1)
+      }
 
       if (!password) {
         throw new Error('AdminPassword is required for RCON')

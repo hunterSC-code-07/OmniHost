@@ -17,7 +17,8 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
   const [consoleInput, setConsoleInput] = useState('');
   const parentRef = useRef<HTMLDivElement>(null);
   
-  const { activeServerId } = useServerStore();
+  const { activeServerId, servers } = useServerStore();
+  const activeServer = servers.find(s => s.id === activeServerId);
   const { logs, clearLogs } = useLogStore();
   const { onlinePlayers } = usePlayerStore();
   const { showToast } = useToastStore();
@@ -66,7 +67,13 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
             {rowVirtualizer.getVirtualItems().map((virtualItem) => {
               const log = activeLogs[virtualItem.index];
               return (
-                <div key={virtualItem.key} className="mb-1 leading-relaxed break-words absolute top-0 left-0 w-full" style={{ transform: `translateY(${virtualItem.start}px)` }}>
+                <div 
+                  key={virtualItem.key} 
+                  ref={rowVirtualizer.measureElement}
+                  data-index={virtualItem.index}
+                  className="mb-1 leading-relaxed break-words absolute top-0 left-0 w-full" 
+                  style={{ transform: `translateY(${virtualItem.start}px)` }}
+                >
                   {log.includes('INFO') ? <span className="text-yellow-400 font-bold">INFO </span> : ''}
                   {log.includes('WARN') ? <span className="text-yellow-400 font-bold">WARN </span> : ''}
                   {log.includes('ERROR') ? <span className="text-red-400 font-bold">ERROR </span> : ''}
@@ -109,7 +116,15 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
               <div className="space-y-3">
                 {activePlayers.map((playerName, idx) => (
                   <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-brand/50 hover:bg-surface-container-lowest/80 transition-colors group">
-                    <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform" />
+                    {activeServer?.game === 'minecraft' ? (
+                      <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform" />
+                    ) : (
+                      <div className="w-10 h-10 bg-surface-container-highest rounded-lg flex items-center justify-center shrink-0">
+                        <span className="material-symbols-outlined text-[20px] text-on-surface-variant group-hover:text-brand transition-colors">
+                          person
+                        </span>
+                      </div>
+                    )}
                     <span className="font-label-lg text-label-lg text-on-surface group-hover:text-brand transition-colors">{playerName}</span>
                   </div>
                 ))}

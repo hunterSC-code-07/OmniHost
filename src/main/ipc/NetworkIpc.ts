@@ -7,8 +7,8 @@ export function registerNetworkIpc(
   vpnProvider: IVpnAdapter
 ) {
   // --- Tunnels ---
-  ipcMain.handle('start-tunnel', async (_, ip: string) => {
-    await tunnelProvider.start(ip)
+  ipcMain.handle('start-tunnel', async (_, payload: { ip: string, game: string }) => {
+    await tunnelProvider.start(payload.ip, payload.game)
     return true
   })
 

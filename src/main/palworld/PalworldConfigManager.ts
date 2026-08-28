@@ -65,15 +65,18 @@ export class PalworldConfigManager {
     const result: Record<string, string> = {}
     const match = content.match(/OptionSettings=\((.*)\)/s)
     if (match && match[1]) {
-      // Match Key=Value pairs, respecting quotes and inner commas
-      const pairs = match[1].match(/([^,]+="[^"]*")|([^,]+=[^,]*)/g) || []
-      for (const pair of pairs) {
-        const eqIdx = pair.indexOf('=')
-        if (eqIdx !== -1) {
-          const key = pair.substring(0, eqIdx).trim()
-          const val = pair.substring(eqIdx + 1).trim()
-          result[key] = val
-        }
+      let optionsStr = match[1];
+      
+      // We must split by commas, BUT ignore commas inside parentheses.
+      // A trick is to match key=value pairs up to the next key= or end of string.
+      const regex = /([a-zA-Z0-9_]+)=([^=]+)(?:,|$)(?=[a-zA-Z0-9_]+=|$)/g;
+      
+      let m;
+      while ((m = regex.exec(optionsStr)) !== null) {
+        // Because the value might end with a comma if it's not the last one, we trim trailing commas
+        let val = m[2].trim();
+        if (val.endsWith(',')) val = val.slice(0, -1);
+        result[m[1].trim()] = val;
       }
     }
     return result

@@ -43,11 +43,8 @@ export class PalworldModManager {
   }
 
   private static async getPalworldGameId(): Promise<number> {
-    const res = await this.fetchCurseForge<{ data: any[] }>('/games?name=Palworld')
-    if (res.data && res.data.length > 0) {
-      return res.data[0].id
-    }
-    throw new Error('Could not find Palworld on CurseForge')
+    // Hardcode CurseForge Game ID for Palworld since /games?name=Palworld returns a paginated list where Palworld is not first
+    return 85196
   }
 
   static async searchMods(query: string, categoryId?: number, index = 0, pageSize = 20) {
