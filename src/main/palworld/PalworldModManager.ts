@@ -67,26 +67,40 @@ export class PalworldModManager {
       const fileRes = await this.fetchCurseForge<{
         data: { downloadUrl: string; fileName: string }
       }>(`/mods/${modId}/files/${fileId}`)
-      if (!fileRes.data || !fileRes.data.downloadUrl) {
-        throw new Error('Could not find download URL for this mod file')
+      
+      if (!fileRes.data || !fileRes.data.fileName) {
+        throw new Error('Could not fetch file details from CurseForge')
       }
 
-      const downloadUrl = fileRes.data.downloadUrl
       const fileName = fileRes.data.fileName
+      // If author disabled 3rd party distribution, downloadUrl is null. We can manually reconstruct the Edge URL.
+      let downloadUrl = fileRes.data.downloadUrl
+      if (!downloadUrl) {
+        const part1 = Math.floor(fileId / 1000)
+        const part2 = String(fileId % 1000).padStart(3, '0')
+        downloadUrl = `https://edge.forgecdn.net/files/${part1}/${part2}/${encodeURIComponent(fileName)}`
+      }
 
       const serverDir = path.join(app.getPath('userData'), 'servers', serverId.toString())
       const tempZip = path.join(serverDir, fileName)
 
-      // 2. Download the zip file
+      // 2. Download the zip file (following redirects)
       await new Promise<void>((resolve, reject) => {
-        https
-          .get(downloadUrl, (res) => {
+        const downloadFile = (url: string) => {
+          https.get(url, (res) => {
+            if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+              return downloadFile(res.headers.location)
+            }
+            if (res.statusCode && res.statusCode >= 400) {
+              return reject(new Error(`Download failed with status ${res.statusCode}`))
+            }
             const fileStream = fs.createWriteStream(tempZip)
             res.pipe(fileStream)
             fileStream.on('finish', () => resolve())
             fileStream.on('error', reject)
-          })
-          .on('error', reject)
+          }).on('error', reject)
+        }
+        downloadFile(downloadUrl)
       })
 
       // 3. Extract based on type (Pak vs UE4SS)
