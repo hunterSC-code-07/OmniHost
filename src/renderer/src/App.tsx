@@ -7,7 +7,7 @@ import { useUiStore } from './store/useUiStore';
 
 import { MainLayout } from './components/layout/MainLayout';
 import { HubRouter } from './components/layout/HubRouter';
-import { STEAM_GAMES } from '@shared/SteamGames';
+import { HUB_REGISTRY } from './components/layout/HubRegistry';
 
 export default function App() {
   useIpcListeners();
@@ -16,10 +16,12 @@ export default function App() {
 
   useEffect(() => {
     const checkCache = async () => {
-      for (const [gameName, gameConfig] of Object.entries(STEAM_GAMES)) {
-        // @ts-ignore
-        const isCached = await window.api.steam.checkCache(gameConfig.appId);
-        setGameCacheStatus(gameName, isCached);
+      for (const [gameName, hubConfig] of Object.entries(HUB_REGISTRY)) {
+        if (hubConfig.steamAppId) {
+          // @ts-ignore
+          const isCached = await window.api.steam.checkCache(hubConfig.steamAppId);
+          setGameCacheStatus(gameName, isCached);
+        }
       }
     };
     checkCache();

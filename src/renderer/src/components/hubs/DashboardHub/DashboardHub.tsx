@@ -23,7 +23,7 @@ import { useUiStore } from '../../../store/useUiStore';
 import { useToastStore } from '../../../store/useToastStore';
 
 import { useModalStore } from '../../../store/useModalStore';
-import { STEAM_GAMES } from '@shared/SteamGames';
+import { HUB_REGISTRY } from '../../layout/HubRegistry';
 
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { servers, setActiveServerId, startServer, stopServer, restartServer } = useServerStore();
@@ -70,45 +70,26 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
         <div className="px-gutter py-stack-md relative z-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             
-            {/* Minecraft Hub */}
-            <div onMouseEnter={() => setHoveredGame('Minecraft')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Minecraft')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(76,175,80,0.15)] ring-1 hover:ring-primary cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-Minecraft`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Minecraft')}')`}}></motion.div>
-              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
-              <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
-                <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-primary transition-colors drop-shadow-lg shadow-black">Minecraft</h2>
+            {Object.values(HUB_REGISTRY).map((hub) => (
+              <div 
+                key={hub.gameName}
+                onMouseEnter={() => setHoveredGame(hub.gameName)} 
+                onMouseLeave={() => setHoveredGame(null)} 
+                onClick={() => setActiveGameHub(hub.gameName)} 
+                className={`group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ${hub.theme.shadowColor} ring-1 ${hub.theme.ringColor} cursor-pointer ring-surface-container-high`}
+              >
+                <motion.div 
+                  layoutId={`game-bg-${hub.gameName}`} 
+                  className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" 
+                  style={{backgroundImage: `url('${getGameImageUrl(hub.gameName)}')`}}
+                ></motion.div>
+                <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
+                <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
+                  <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
+                  <h2 className={`font-headline-lg text-headline-lg text-on-surface leading-tight ${hub.theme.textColor} transition-colors drop-shadow-lg shadow-black`}>{hub.gameName}</h2>
+                </div>
               </div>
-            </div>
-
-            {/* Palworld Hub */}
-            <div onMouseEnter={() => setHoveredGame('Palworld')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Palworld')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(66,192,255,0.2)] ring-1 hover:ring-[#42c0ff] cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-Palworld`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Palworld')}')`}}></motion.div>
-              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
-              <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
-                <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-[#42c0ff] transition-colors drop-shadow-lg shadow-black">Palworld</h2>
-              </div>
-            </div>
-
-            {/* DayZ Hub */}
-            <div onMouseEnter={() => setHoveredGame('DayZ')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('DayZ')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(239,68,68,0.2)] ring-1 hover:ring-red-500 cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-DayZ`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('DayZ')}')`}}></motion.div>
-              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
-              <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
-                <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-red-400 transition-colors drop-shadow-lg shadow-black">DayZ</h2>
-              </div>
-            </div>
-
-            {/* Satisfactory Hub */}
-            <div onMouseEnter={() => setHoveredGame('Satisfactory')} onMouseLeave={() => setHoveredGame(null)} onClick={() => setActiveGameHub('Satisfactory')} className="group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 hover:shadow-[0_0_30px_rgba(250,149,73,0.2)] ring-1 hover:ring-[#fa9549] cursor-pointer ring-surface-container-high">
-              <motion.div layoutId={`game-bg-Satisfactory`} className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100" style={{backgroundImage: `url('${getGameImageUrl('Satisfactory')}')`}}></motion.div>
-              <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
-              <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">Game Hub</p>
-                <h2 className="font-headline-lg text-headline-lg text-on-surface leading-tight group-hover:text-[#fa9549] transition-colors drop-shadow-lg shadow-black">Satisfactory</h2>
-              </div>
-            </div>
+            ))}
 
           </div>
         </div>
@@ -255,7 +236,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                 </button>
               </div>
 
-              {activeGameHub && STEAM_GAMES[activeGameHub] && (
+              {activeGameHub && HUB_REGISTRY[activeGameHub]?.steamAppId && (
                 <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-surface-container p-6 rounded-xl border border-outline-variant/30">
                   <div className="flex-1">
                     <h3 className="font-bold text-white text-lg">{activeGameHub} Base Installation Cache</h3>
@@ -284,10 +265,10 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                           Update Base
                         </button>
                         <button 
-                          onClick={async () => {
+                           onClick={async () => {
                             if (confirm(`Are you sure you want to delete the cached ${activeGameHub} base files?`)) {
                                // @ts-ignore
-                               await window.api.steam.deleteCache(STEAM_GAMES[activeGameHub].appId);
+                               await window.api.steam.deleteCache(HUB_REGISTRY[activeGameHub].steamAppId);
                                setGameCacheStatus(activeGameHub, false);
                                showToast(`${activeGameHub} Base Files Deleted.`);
                             }
