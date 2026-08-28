@@ -161,11 +161,18 @@ remotePort = 8888
     } else if (game === 'palworld') {
       proxyConfig = `
 [[proxies]]
-name = "palworld-8211-udp"
+name = "palworld-game"
 type = "udp"
 localIP = "${localIp}"
 localPort = 8211
 remotePort = 8211
+
+[[proxies]]
+name = "palworld-rcon"
+type = "tcp"
+localIP = "${localIp}"
+localPort = 25575
+remotePort = 25575
 `;
     }
 

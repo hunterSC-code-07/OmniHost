@@ -59,14 +59,18 @@ export const PalworldHub: React.FC = () => {
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false)
 
   const handleTunnel = async () => {
-    if (tunnelStatus === 'Offline' || tunnelStatus === '') {
+    if (tunnelStatus === 'Online' || tunnelStatus === 'Starting...') {
       // @ts-ignore
-      await window.api.system.startTunnel(tunnelIp, 'palworld');
-    } else if (tunnelStatus === 'Online') {
+      await window.api.system.stopTunnel()
+      useUiStore.getState().setTunnelStatus('Offline')
+    } else {
+      useUiStore.getState().setTunnelStatus('Starting...')
       // @ts-ignore
-      await window.api.system.stopTunnel();
+      await window.api.system.startTunnel(tunnelIp, 'palworld')
+      // Because FrpAdapter doesn't send a specific "connected" IPC, we assume Online after it spawns
+      useUiStore.getState().setTunnelStatus('Online')
     }
-  };
+  }
 
   const [activeTab, setActiveTab] = useState<
     'overview' | 'console' | 'options' | 'players' | 'mods' | 'files' | 'backups'
