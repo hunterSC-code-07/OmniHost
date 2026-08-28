@@ -32,7 +32,7 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
       {note && <span className="text-xs text-on-surface-variant/70 mt-1">{note}</span>}
     </div>
     <div className="flex items-center gap-4 flex-1 max-w-[300px]">
-      <span className="font-mono text-sm text-blue-400 w-12 text-right">{value}</span>
+      <span className="font-mono text-base font-bold text-blue-300 bg-blue-500/10 px-2 py-1 rounded-lg min-w-[3.5rem] text-center border border-blue-400/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]">{value}</span>
       <input
         type="range"
         min={min}
@@ -40,7 +40,15 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
         step={step}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full h-1.5 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-blue-500 shadow-inner group-hover:bg-surface-container-highest/80 transition-colors"
+        className="w-full h-4 bg-blue-950/60 rounded-full appearance-none cursor-pointer border border-blue-400/30 overflow-hidden
+          [&::-webkit-slider-thumb]:appearance-none 
+          [&::-webkit-slider-thumb]:w-4
+          [&::-webkit-slider-thumb]:h-4
+          [&::-webkit-slider-thumb]:rounded-full 
+          [&::-webkit-slider-thumb]:bg-blue-300 
+          [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#60a5fa]
+          hover:[&::-webkit-slider-thumb]:bg-blue-200
+          transition-all"
       />
     </div>
   </div>
@@ -183,7 +191,15 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
                   step="1"
                   value={cpuLimit}
                   onChange={(e) => setCpuLimit(parseInt(e.target.value, 10))}
-                  className="w-full h-3 bg-surface-container-highest rounded-full appearance-none cursor-pointer accent-blue-500 shadow-inner group-hover:bg-surface-container-highest/80 transition-colors"
+                  className="w-full h-4 bg-blue-950/60 rounded-full appearance-none cursor-pointer border border-blue-400/30 overflow-hidden
+                    [&::-webkit-slider-thumb]:appearance-none 
+                    [&::-webkit-slider-thumb]:w-4
+                    [&::-webkit-slider-thumb]:h-4
+                    [&::-webkit-slider-thumb]:rounded-full 
+                    [&::-webkit-slider-thumb]:bg-blue-300 
+                    [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#60a5fa]
+                    hover:[&::-webkit-slider-thumb]:bg-blue-200
+                    transition-all"
                 />
                 <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-4 px-1">
                   <span>1 Core</span>

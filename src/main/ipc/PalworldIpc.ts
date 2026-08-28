@@ -56,4 +56,30 @@ export function registerPalworldIpc() {
       return false
     }
   )
+
+  ipcMain.handle('get-banned-players', async (_, serverId: number) => {
+    const serverDir = path.join(app.getPath('userData'), 'servers', serverId.toString())
+    const banlistPath = path.join(serverDir, 'Pal', 'Saved', 'SaveGames', 'banlist.txt')
+    const namesFile = path.join(serverDir, 'banned_names.json')
+    let namesMap: Record<string, string> = {}
+    if (fs.existsSync(namesFile)) {
+      try { namesMap = JSON.parse(fs.readFileSync(namesFile, 'utf8')) } catch (e) {}
+    }
+    
+    if (fs.existsSync(banlistPath)) {
+      const data = fs.readFileSync(banlistPath, 'utf8')
+      const lines = data.split('\n').map(l => l.trim()).filter(l => l)
+      return lines.map(line => {
+        const parts = line.split(',')
+        const userId = parts[0] || 'Unknown'
+        const playerId = parts[1] || 'Unknown'
+        return {
+          userId,
+          playerId,
+          name: namesMap[userId] || namesMap[playerId] || null
+        }
+      })
+    }
+    return []
+  })
 }
