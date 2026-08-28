@@ -57,7 +57,15 @@ export const PalworldHub: React.FC = () => {
   )
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false)
 
-  const handleTunnel = async () => {} // Stub for tunnel functionality if needed
+  const handleTunnel = async () => {
+    if (tunnelStatus === 'Offline' || tunnelStatus === '') {
+      // @ts-ignore
+      await window.api.system.startTunnel(tunnelIp, 'palworld');
+    } else if (tunnelStatus === 'Online') {
+      // @ts-ignore
+      await window.api.system.stopTunnel();
+    }
+  };
 
   const [activeTab, setActiveTab] = useState<
     'overview' | 'console' | 'options' | 'players' | 'mods' | 'files' | 'backups'

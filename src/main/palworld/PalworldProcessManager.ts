@@ -3,16 +3,23 @@ import { join } from 'path'
 import { app, BrowserWindow } from 'electron'
 import fs from 'fs'
 import { PalworldRcon } from './PalworldRcon'
+import { PalworldConfigManager } from './PalworldConfigManager'
+import { FileTailer } from '../utils/FileTailer'
+import pidusage from 'pidusage'
 
 export class PalworldProcessManager {
   serverId: number
   serverDir: string
   process: ChildProcess | null = null
+  serverPid: number | null = null
   onlinePlayers: string[] = []
   logHistory: string[] = []
   omnihostMeta: any = {}
 
   private rcon: PalworldRcon
+  private fileTailer: FileTailer | null = null
+  private playerInterval: NodeJS.Timeout | null = null
+  private statsTimer: NodeJS.Timeout | null = null
 
   constructor(serverId: number) {
     this.serverId = serverId
@@ -44,6 +51,63 @@ export class PalworldProcessManager {
     }
   }
 
+  private getActualPid(): Promise<number> {
+    return new Promise((resolve) => {
+      const proc = this.process;
+      if (!proc || !proc.pid) return resolve(0);
+      if (this.serverPid) return resolve(this.serverPid);
+      if (process.platform !== 'win32') return resolve(proc.pid);
+
+      const { spawn } = require('child_process');
+      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);
+      
+      let out = '';
+      ps.stdout.on('data', (data: any) => out += data.toString());
+      
+      ps.on('close', () => {
+        const pid = parseInt(out.trim());
+        if (!isNaN(pid) && pid > 0) {
+          this.serverPid = pid;
+          resolve(pid);
+        } else {
+          resolve(proc.pid!);
+        }
+      });
+
+      const script = `
+        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name
+        $target = ${proc.pid}
+        $children = @{}
+        foreach ($p in $all) {
+            $parentId = [string]$p.ParentProcessId
+            if (-not $children.ContainsKey($parentId)) {
+                $children[$parentId] = @()
+            }
+            $children[$parentId] += $p
+        }
+        $queue = [System.Collections.Generic.Queue[string]]::new()
+        $queue.Enqueue([string]$target)
+        $found = 0
+        while ($queue.Count -gt 0) {
+            $curr = $queue.Dequeue()
+            if ($children.ContainsKey($curr)) {
+                foreach ($c in $children[$curr]) {
+                    if ($c.Name -match 'PalServer') {
+                        $found = $c.ProcessId
+                        break
+                    }
+                    $queue.Enqueue($c.ProcessId)
+                }
+            }
+            if ($found -ne 0) { break }
+        }
+        Write-Output $found
+      `;
+      ps.stdin.write(script);
+      ps.stdin.end();
+    });
+  }
+
   async start() {
     const exePath = join(this.serverDir, 'PalServer.exe')
     if (!fs.existsSync(exePath)) {
@@ -55,50 +119,154 @@ export class PalworldProcessManager {
 
     this.sendLog('[System] Starting Palworld Server...')
 
-    // No extra args needed out-of-the-box, but we can pass standard ports or configurations if desired
-    const args: string[] = []
+    // Force enable RCON, REST API, and set an AdminPassword so we can track players
+    const config = await PalworldConfigManager.getConfig(this.serverId);
+    let adminPassword = config['AdminPassword'] ? config['AdminPassword'].replace(/"/g, '') : '';
+    
+    if (config['RCONEnabled'] !== 'True' || config['RESTAPIEnabled'] !== 'True' || !adminPassword) {
+      this.sendLog('[System] Enabling RCON & REST API, generating Admin Password for player tracking...');
+      const newPassword = `"${Math.random().toString(36).substring(2, 10)}"`;
+      await PalworldConfigManager.setConfig(this.serverId, { RCONEnabled: 'True', RESTAPIEnabled: 'True', AdminPassword: newPassword });
+      adminPassword = newPassword.replace(/"/g, '');
+    }
+    
+    // Store it on the class so the interval can use it
+    (this as any).adminPassword = adminPassword;
 
-    this.process = spawn(`"${exePath}"`, args, { cwd: this.serverDir, shell: true })
-
-    // Apply CPU Core Limits
-    if (process.platform === 'win32' && this.process.pid) {
-      try {
-        const metaPath = join(this.serverDir, 'omnihost.json')
-        if (fs.existsSync(metaPath)) {
-          const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
-          if (meta.cpu) {
-            const cpuLimit = parseInt(meta.cpu, 10)
-            if (cpuLimit > 0) {
-              const affinityMask = (1 << cpuLimit) - 1
-              spawn('powershell', [
-                '-NoProfile',
-                '-Command',
-                `(Get-Process -Id ${this.process.pid}).ProcessorAffinity = ${affinityMask}`
-              ])
-              this.sendLog(
-                `[System] Applied CPU limit: ${cpuLimit} cores (Affinity: ${affinityMask})`
-              )
-            }
-          }
-        }
-      } catch (e) {
-        this.sendLog(`[System Error] Failed to apply resource limits: ${e}`)
-      }
+    const logDir = join(this.serverDir, 'Pal', 'Saved', 'Logs')
+    if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
+    const logFilePath = join(logDir, 'Pal.log')
+    try {
+      fs.writeFileSync(logFilePath, '')
+    } catch (e) {
+      this.sendLog(`[System Warning] Could not clear old Pal.log: ${e}`)
     }
 
+    const shippingExePath = join(this.serverDir, 'Pal', 'Binaries', 'Win64', 'PalServer-Win64-Shipping.exe')
+    const args = [
+      '/c',
+      `""${shippingExePath}" Pal -log > "${logFilePath}" 2>&1"`
+    ]
+    const startTime = Date.now() - 5000;
+
+    this.process = spawn('cmd.exe', args, { cwd: this.serverDir, shell: false, windowsHide: false, windowsVerbatimArguments: true })
+
+    // Wait a few seconds for the child process to spawn before applying CPU limit
+    setTimeout(() => {
+      if (process.platform === 'win32' && this.process?.pid) {
+        try {
+          const metaPath = join(this.serverDir, 'omnihost.json')
+          if (fs.existsSync(metaPath)) {
+            const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))
+            if (meta.cpu) {
+              const cpuLimit = parseInt(meta.cpu, 10)
+              if (cpuLimit > 0) {
+                const affinityMask = (1 << cpuLimit) - 1
+                // Find the child process (Shipping.exe) of cmd.exe and apply affinity
+                spawn('powershell', [
+                  '-NoProfile',
+                  '-Command',
+                  `$child = Get-CimInstance Win32_Process | Where-Object { $_.ParentProcessId -eq ${this.process.pid} }; if ($child) { (Get-Process -Id $child.ProcessId).ProcessorAffinity = ${affinityMask} }`
+                ])
+                this.sendLog(
+                  `[System] Applied CPU limit: ${cpuLimit} cores (Affinity: ${affinityMask})`
+                )
+              }
+            }
+          }
+        } catch (e) {
+          this.sendLog(`[System Error] Failed to apply resource limits: ${e}`)
+        }
+      }
+    }, 5000)
+
     this.process.stdout?.on('data', (data) => {
-      this.sendLog(`[Palworld] ${data.toString().trim()}`)
+      // Just log any cmd.exe output if it happens
+      const output = data.toString().trim()
+      if (output) this.sendLog(`[System] ${output}`)
     })
 
     this.process.stderr?.on('data', (data) => {
       this.sendLog(`[Palworld Error] ${data.toString().trim()}`)
     })
 
+    this.fileTailer = new FileTailer({
+      directory: join(this.serverDir, 'Pal', 'Saved', 'Logs'),
+      filePattern: /\.log$/i,
+      startTime,
+      onLine: (line) => this.sendLog(`[Palworld] ${line}`),
+      onLog: (msg) => this.sendLog(msg)
+    });
+    this.fileTailer.start();
+
+    if (this.process.pid) {
+      this.statsTimer = setInterval(async () => {
+        if (!this.process || !this.process.pid) return;
+        try {
+          const actualPid = await this.getActualPid();
+          if (actualPid === 0) return;
+          const stats = await pidusage(actualPid);
+          BrowserWindow.getAllWindows().forEach((win) => {
+            if (!win.isDestroyed())
+              win.webContents.send('server-stats', { id: this.serverId, cpu: stats.cpu, ram: stats.memory })
+          })
+        } catch (e: any) {
+          // PID might not exist anymore
+          this.serverPid = null;
+        }
+      }, 2000);
+    }
+
+    // Start REST API polling for players (Palworld RCON is broken and times out)
+    this.playerInterval = setInterval(async () => {
+      if (!this.process) return;
+      try {
+        const adminPass = (this as any).adminPassword || '';
+        const auth = Buffer.from(`admin:${adminPass}`).toString('base64');
+        const res = await fetch('http://127.0.0.1:8212/v1/api/players', {
+          headers: { 'Authorization': `Basic ${auth}` }
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          // data.players is an array of objects: { name, playerId, userId, ip, ping }
+          const currentPlayers = (data.players || []).map((p: any) => p.name || 'Unknown Player');
+          
+          // Only send update if players changed
+          if (JSON.stringify(currentPlayers) !== JSON.stringify(this.onlinePlayers)) {
+            // Find joined and left players to emit real-time logs (bypassing slow file buffer)
+            const joined = currentPlayers.filter(p => !this.onlinePlayers.includes(p));
+            const left = this.onlinePlayers.filter(p => !currentPlayers.includes(p));
+            
+            for (const p of joined) {
+              this.sendLog(`[System] ${p} joined the game`);
+            }
+            for (const p of left) {
+              this.sendLog(`[System] ${p} left the game`);
+            }
+
+            this.onlinePlayers = currentPlayers;
+            this.sendPlayerUpdate();
+          }
+        }
+      } catch (e) {
+        // Ignore polling errors while server is booting or REST API is unreachable
+      }
+    }, 10000);
+
     this.process.on('close', (code) => {
       this.sendLog(`[System] Palworld Server stopped (Code: ${code})`)
+      this.fileTailer?.stop()
+      if (this.playerInterval) { clearInterval(this.playerInterval); this.playerInterval = null; }
+      if (this.statsTimer) { clearInterval(this.statsTimer); this.statsTimer = null; }
+      this.rcon.disconnect()
       this.process = null
+      this.serverPid = null
       this.onlinePlayers = []
       this.sendPlayerUpdate()
+      BrowserWindow.getAllWindows().forEach((win) => {
+        if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 })
+      })
     })
 
     this.process.on('error', (err) => {
@@ -109,7 +277,10 @@ export class PalworldProcessManager {
   stop() {
     if (this.process) {
       this.sendLog('[System] Stopping Palworld Server...')
-      if (this.process.pid) {
+      if (this.serverPid && process.platform === 'win32') {
+        spawn('taskkill', ['/pid', this.serverPid.toString(), '/f', '/t'])
+      } else if (this.process.pid) {
+        // Fallback to killing powershell if something went wrong
         if (process.platform === 'win32') {
           spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t'])
         } else {
@@ -117,9 +288,17 @@ export class PalworldProcessManager {
         }
       }
       this.process = null
+      this.serverPid = null
+      this.fileTailer?.stop()
+      if (this.playerInterval) { clearInterval(this.playerInterval); this.playerInterval = null; }
+      if (this.statsTimer) { clearInterval(this.statsTimer); this.statsTimer = null; }
+      this.rcon.disconnect()
     }
 
     this.onlinePlayers = []
     this.sendPlayerUpdate()
+    BrowserWindow.getAllWindows().forEach((win) => {
+      if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 })
+    })
   }
 }
