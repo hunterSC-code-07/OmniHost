@@ -3,12 +3,15 @@ import { join } from 'path';
 import { app, BrowserWindow } from 'electron';
 import fs from 'fs';
 import net from 'net';
+import pidusage from 'pidusage';
 
 export class SevenDaysToDieProcessManager {
   serverId: number;
   serverDir: string;
   process: ChildProcess | null = null;
   onlinePlayers: string[] = [];
+  logHistory: string[] = [];
+  statsTimer: NodeJS.Timeout | null = null;
 
   constructor(serverId: number) {
     this.serverId = serverId;
@@ -17,6 +20,9 @@ export class SevenDaysToDieProcessManager {
 
   sendLog(msg: string) {
     console.log(msg); // Guaranteed VS Code output
+    this.logHistory.push(msg);
+    if (this.logHistory.length > 2000) this.logHistory.shift();
+
     BrowserWindow.getAllWindows().forEach(win => {
       if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
     });
@@ -84,7 +90,7 @@ export class SevenDaysToDieProcessManager {
       '-configfile=serverconfig.xml'
     ];
 
-    this.process = spawn(`"${exePath}"`, args, { cwd: this.serverDir, shell: true });
+    this.process = spawn(exePath, args, { cwd: this.serverDir });
 
     this.process.stdout?.on('data', (data) => {
       const text = data.toString();
@@ -103,8 +109,30 @@ export class SevenDaysToDieProcessManager {
       this.sendLog(`[System] 7 Days to Die Server stopped (Code: ${code})`);
       this.process = null;
       this.onlinePlayers = [];
+      this.logHistory = [];
+      if (this.statsTimer) {
+        clearInterval(this.statsTimer);
+        this.statsTimer = null;
+      }
+      BrowserWindow.getAllWindows().forEach(win => {
+        if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 });
+      });
       this.sendPlayerUpdate();
     });
+
+    if (this.process.pid) {
+      this.statsTimer = setInterval(async () => {
+        if (!this.process || !this.process.pid) return;
+        try {
+          const stats = await pidusage(this.process.pid);
+          BrowserWindow.getAllWindows().forEach(win => {
+            if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: stats.cpu, ram: stats.memory });
+          });
+        } catch (e: any) {
+          // PID might not exist anymore
+        }
+      }, 2000);
+    }
 
     this.process.on('error', (err) => {
       this.sendLog(`[System Error] ${err.message}`);
@@ -157,6 +185,14 @@ export class SevenDaysToDieProcessManager {
     }
     
     this.onlinePlayers = [];
+    this.logHistory = [];
+    if (this.statsTimer) {
+      clearInterval(this.statsTimer);
+      this.statsTimer = null;
+    }
+    BrowserWindow.getAllWindows().forEach(win => {
+      if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 });
+    });
     this.sendPlayerUpdate();
   }
 }
