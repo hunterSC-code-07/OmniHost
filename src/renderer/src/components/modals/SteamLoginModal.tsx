@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { STEAM_GAMES } from '@shared/SteamGames';
+import { HUB_REGISTRY } from '../layout/HubRegistry';
 
 import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
@@ -29,11 +29,11 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
         setIsUpdating(true);
         saveCredsBeforeAction();
         
-        if (!activeGameHub || !STEAM_GAMES[activeGameHub]) {
+        if (!activeGameHub || !HUB_REGISTRY[activeGameHub]?.steamAppId) {
             throw new Error(`No Steam configuration for ${activeGameHub}`);
         }
         
-        const appId = STEAM_GAMES[activeGameHub].appId;
+        const appId = HUB_REGISTRY[activeGameHub].steamAppId;
         
         // @ts-ignore
         await window.api.steam.updateCache(0, appId, steamUsername, steamPassword, steamGuardCode);
@@ -57,9 +57,9 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
     };
     
   useEffect(() => {
-      if (activeGameHub && STEAM_GAMES[activeGameHub]) {
+      if (activeGameHub && HUB_REGISTRY[activeGameHub]?.steamAppId) {
         // @ts-ignore
-        window.api.steam.checkCache(STEAM_GAMES[activeGameHub].appId).then((isCached) => {
+        window.api.steam.checkCache(HUB_REGISTRY[activeGameHub].steamAppId).then((isCached) => {
             setGameCacheStatus(activeGameHub, isCached);
         });
       }

@@ -3,26 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { DashboardHub } from '../hubs/DashboardHub/DashboardHub';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServerStore } from '../../store/useServerStore';
-import minecraftBg from '../../assets/minecraft-bg.png';
-import palworldBg from '../../assets/palworld-bg.jpg';
-import dayzBg from '../../assets/dayz-bg.jpg';
-import satisfactoryBg from '../../assets/satisfactory-bg.jpg';
+import { HUB_REGISTRY, isGameSupported, getGameImageUrl } from './HubRegistry';
 
-// Lazy load the heavy game hubs so they aren't bundled into the initial payload
-const DayzHub = React.lazy(() => import('../hubs/DayzHub/DayzHub').then(m => ({ default: m.DayzHub })));
-const MinecraftHub = React.lazy(() => import('../hubs/MinecraftHub/MinecraftHub').then(m => ({ default: m.MinecraftHub })));
-const SatisfactoryHub = React.lazy(() => import('../hubs/SatisfactoryHub/SatisfactoryHub').then(m => ({ default: m.SatisfactoryHub })));
-
-const supportedGameHubs = ['Minecraft', 'DayZ', 'Satisfactory'];
-const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
-
-const getGameImageUrl = (game: string) => {
-  if (game.toLowerCase().includes('minecraft')) return minecraftBg;
-  if (game.toLowerCase().includes('palworld')) return palworldBg;
-  if (game.toLowerCase().includes('dayz')) return dayzBg;
-  if (game.toLowerCase().includes('satisfactory')) return satisfactoryBg;
-  return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';
-};
 
 // Fallback loader to show while the chunk is fetching from disk
 const HubLoader = () => (
@@ -70,13 +52,16 @@ export const HubRouter: React.FC = () => {
           >
             <ErrorBoundary>
               <Suspense fallback={<HubLoader />}>
-                {activeServer.game === 'DayZ' ? (
-                  <DayzHub />
-                ) : activeServer.game === 'Satisfactory' ? (
-                  <SatisfactoryHub />
-                ) : (
-                  <MinecraftHub />
-                )}
+                {(() => {
+                  const config = HUB_REGISTRY[activeServer.game];
+                  if (config && config.component) {
+                    const HubComponent = config.component;
+                    return <HubComponent />;
+                  }
+                  // Fallback to MinecraftHub if something goes wrong
+                  const FallbackHub = HUB_REGISTRY['Minecraft']?.component;
+                  return FallbackHub ? <FallbackHub /> : null;
+                })()}
               </Suspense>
             </ErrorBoundary>
           </motion.div>

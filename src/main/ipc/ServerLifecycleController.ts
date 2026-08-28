@@ -3,9 +3,9 @@ import { join } from 'path';
 import fsPromises from 'fs/promises';
 import fs from 'fs';
 import { getServers, createServer, deleteServer } from '../db';
-import { DayzAdapter } from '../adapters/DayzAdapter';
 import { MinecraftProcessManager } from '../minecraft/MinecraftProcessManager';
-import { SatisfactoryAdapter } from '../adapters/SatisfactoryAdapter';
+import { AdapterRegistry } from '../adapters/AdapterRegistry';
+
 import { WakeProxy } from '../adapters/WakeProxy';
 
 async function exists(path: string) {
@@ -138,14 +138,14 @@ export class ServerLifecycleController {
           }
         } catch (e) {}
 
-        if (game === 'DayZ') {
-          activeServers[id] = new DayzAdapter(id);
-        } else if (game === 'Satisfactory') {
-          activeServers[id] = new SatisfactoryAdapter(id);
-        } else {
+        if (game === 'Minecraft') {
+          // Special case as per legacy behavior
           activeServers[id] = new MinecraftProcessManager(id);
+        } else {
+          activeServers[id] = AdapterRegistry.getAdapter(game, id);
         }
       }
+
 
       if (activeProxies[id]) {
         activeProxies[id].stopListening();
