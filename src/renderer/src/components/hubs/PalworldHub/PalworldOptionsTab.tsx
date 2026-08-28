@@ -143,7 +143,7 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
         options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }}
         defer
       >
-        <div className="p-6 bg-transparent font-body flex flex-col gap-6 min-h-full pb-32">
+        <div className="p-6 bg-transparent font-body flex flex-col gap-6 min-h-full">
           {/* Header Controls */}
           <div className="flex justify-between items-end z-20 py-4">
             <div>
@@ -240,11 +240,10 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
             </div>
 
             {/* Game Settings */}
-            {Object.keys(gameSettings).length > 0 && (
-              <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-8 shadow-glass">
-                <h3 className="font-headline-sm text-headline-sm text-blue-400 mb-6 uppercase tracking-widest">
-                  Game Settings
-                </h3>
+            <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-8 shadow-glass">
+              <h3 className="font-headline-sm text-headline-sm text-blue-400 mb-6 uppercase tracking-widest">
+                Game Settings
+              </h3>
 
                 <div className="flex flex-col gap-1">
                   <SettingSlider
@@ -466,7 +465,6 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
                   />
                 </div>
               </div>
-            )}
           </div>
         </div>
       </OverlayScrollbarsComponent>
