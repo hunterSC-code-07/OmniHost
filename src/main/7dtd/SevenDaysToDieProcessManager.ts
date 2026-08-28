@@ -46,10 +46,10 @@ export class SevenDaysToDieProcessManager {
 
     // Usually 7dtd servers are started with arguments: -quit -batchmode -nographics -dedicated
     const args = [
-      '-quit',
       '-batchmode',
       '-nographics',
-      '-dedicated'
+      '-dedicated',
+      '-configfile=serverconfig.xml'
     ];
 
     this.process = spawn(`"${exePath}"`, args, { cwd: this.serverDir, shell: true });
@@ -80,23 +80,32 @@ export class SevenDaysToDieProcessManager {
   }
 
   parseLogLine(line: string) {
-    // Basic example of player parsing if it exists in stdout logs
-    // e.g. "Player connected, entityid=171 name=Soprano"
-    const connectedMatch = line.match(/Player connected, entityid=\d+ name=(.+)/);
-    if (connectedMatch) {
-      const playerName = connectedMatch[1].trim();
-      if (!this.onlinePlayers.includes(playerName)) {
-        this.onlinePlayers.push(playerName);
-        this.sendPlayerUpdate();
+    // 7DTD connection logs examples:
+    // INF GMSG: Player 'AVALON' joined the game
+    // INF PlayerSpawnedInWorld (reason: EnterMultiplayer, position: ...): ... PlayerName='AVALON', ClientNumber='1'
+    const joinMatch = line.match(/GMSG: Player '([^']+)' joined the game/) || line.match(/PlayerName='([^']+)'/);
+    
+    if (line.includes('joined the game') || line.includes('PlayerSpawnedInWorld')) {
+      const match = line.match(/GMSG: Player '([^']+)' joined the game/) || line.match(/PlayerName='([^']+)'/);
+      if (match) {
+        const playerName = match[1].trim();
+        if (!this.onlinePlayers.includes(playerName)) {
+          this.onlinePlayers.push(playerName);
+          this.sendPlayerUpdate();
+        }
       }
     }
 
-    // e.g. "Player disconnected: name=Soprano"
-    const disconnectedMatch = line.match(/Player disconnected: name=(.+)/);
-    if (disconnectedMatch) {
-      const playerName = disconnectedMatch[1].trim();
-      this.onlinePlayers = this.onlinePlayers.filter(p => p !== playerName);
-      this.sendPlayerUpdate();
+    // 7DTD disconnection logs examples:
+    // INF GMSG: Player 'AVALON' left the game
+    // INF Player disconnected: EntityID=171, PltfmId='...', CrossId='...', OwnerID='...', PlayerName='AVALON'
+    if (line.includes('left the game') || line.includes('Player disconnected:')) {
+      const match = line.match(/GMSG: Player '([^']+)' left the game/) || line.match(/PlayerName='([^']+)'/);
+      if (match) {
+        const playerName = match[1].trim();
+        this.onlinePlayers = this.onlinePlayers.filter(p => p !== playerName);
+        this.sendPlayerUpdate();
+      }
     }
   }
 
