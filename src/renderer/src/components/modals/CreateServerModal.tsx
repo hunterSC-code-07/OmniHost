@@ -6,6 +6,7 @@ import { useServerStore } from '../../store/useServerStore';
 import { useUiStore } from '../../store/useUiStore';
 import { useToastStore } from '../../store/useToastStore';
 import { useModalStore } from '../../store/useModalStore';
+import { HUB_REGISTRY } from '../layout/HubRegistry';
 
 export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const { setServers, setActiveServerId } = useServerStore();
@@ -41,7 +42,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
     }
 
     if (!newServerName) return;
-    if (!['DayZ', 'Satisfactory', 'Palworld'].includes(activeGameHub as string)) {
+    if (!HUB_REGISTRY[activeGameHub as string]?.steamAppId) {
       if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;
       if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;
     }
@@ -73,8 +74,8 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           // @ts-ignore
           await window.api.minecraft.downloadServerJar(newId, result.modloader, result.version);
         }
-      } else if (activeGameHub === 'DayZ' || activeGameHub === 'Satisfactory' || activeGameHub === 'Palworld') {
-        const appId = activeGameHub === 'DayZ' ? 223350 : activeGameHub === 'Satisfactory' ? 1690800 : 2394010;
+      } else if (HUB_REGISTRY[activeGameHub as string]?.steamAppId) {
+        const appId = HUB_REGISTRY[activeGameHub as string].steamAppId;
         // @ts-ignore
         const isCached = await window.api.steam.checkCache(appId);
 
@@ -252,7 +253,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   />
                 </div>
 
-                {!['DayZ', 'Satisfactory', 'Palworld'].includes(activeGameHub as string) && (
+                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && (
                   <div className="relative z-50">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
                     <button
@@ -287,7 +288,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   </div>
                 )}
 
-                {!['DayZ', 'Satisfactory', 'Palworld'].includes(activeGameHub as string) && newServerType !== 'CurseForge Modpack' && (
+                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && newServerType !== 'CurseForge Modpack' && (
                   <div className="relative z-40">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
                     <button
@@ -310,7 +311,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     )}
                   </div>
                 )}
-                {!['DayZ', 'Satisfactory', 'Palworld'].includes(activeGameHub as string) && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
+                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
                   <div className="relative z-30">
                     <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
                     <button
@@ -336,7 +337,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </div>
 
               {/* Right Column (Modpack Browser) */}
-              {!['DayZ', 'Satisfactory', 'Palworld'].includes(activeGameHub as string) && newServerType === 'CurseForge Modpack' && (
+              {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && newServerType === 'CurseForge Modpack' && (
                 <div className="w-2/3 flex flex-col border-l border-gray-800/50 pl-8">
                   <div className="flex gap-4 mb-4">
                     <input
@@ -459,7 +460,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={handleCreateServer}
-                disabled={isCreatingServer || !newServerName || (!['DayZ', 'Satisfactory', 'Palworld'].includes(activeGameHub as string) && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
+                disabled={isCreatingServer || !newServerName || (!HUB_REGISTRY[activeGameHub as string]?.steamAppId && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
                 className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors"
               >
                 {isCreatingServer ? 'Creating...' : 'Create Server'}
