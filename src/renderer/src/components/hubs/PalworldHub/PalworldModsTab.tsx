@@ -29,7 +29,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
       >
         <div className="p-6 bg-transparent font-body flex flex-col gap-6 min-h-full pb-32">
           {/* Header Controls */}
-          <div className="flex justify-between items-end sticky top-0 bg-background/80 backdrop-blur-xl z-20 py-4 -mt-6">
+          <div className="flex justify-between items-end z-20 py-4">
             <div>
               <h2 className="font-headline-lg text-headline-lg text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
                 Mods (CurseForge)

@@ -33,8 +33,20 @@ const formatSize = (bytes: number) => {
 }
 
 export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
-  const { activeServerId } = useServerStore()
+  const { activeServerId, servers } = useServerStore()
   const serverId = activeServerId as number // Files tab is only rendered if activeServerId is not null
+  const activeServer = servers.find((s) => s.id === activeServerId)
+  const isPalworld = activeServer?.game?.toLowerCase() === 'palworld'
+
+  const textClass = isPalworld ? 'text-blue-400' : 'text-[#00ff40]'
+  const hoverTextClass = isPalworld ? 'hover:text-blue-400' : 'hover:text-[#00ff40]'
+  const groupHoverTextClass = isPalworld ? 'group-hover:text-blue-400' : 'group-hover:text-[#00ff40]'
+  const actionBtnClass = isPalworld 
+    ? 'bg-blue-500 text-white hover:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+    : 'bg-brand text-black hover:brightness-110 shadow-[0_0_10px_rgba(76,175,80,0.3)]'
+  const saveBtnClass = isPalworld
+    ? 'bg-blue-500 text-white hover:bg-blue-400'
+    : 'bg-[#00ff40] text-black hover:bg-[#00cc33]'
 
   const [currentPath, setCurrentPath] = useState('')
   const [files, setFiles] = useState<FileInfo[]>([])
@@ -133,7 +145,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
   return (
     <div className="absolute inset-0 flex flex-col p-8 text-white font-sans animate-in fade-in duration-300 min-h-0">
       <div className="flex justify-between items-center mb-6 shrink-0">
-        <h2 className="text-3xl font-bold text-[#00ff40]">Files</h2>
+        <h2 className={`text-3xl font-bold ${textClass}`}>Files</h2>
       </div>
 
       {editingFile ? (
@@ -153,7 +165,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
               <button
                 onClick={handleSaveFile}
                 disabled={saving}
-                className="px-4 py-1.5 rounded-md bg-[#00ff40] text-black hover:bg-[#00cc33] transition-colors text-sm font-bold flex items-center gap-2 disabled:opacity-50"
+                className={`px-4 py-1.5 rounded-md transition-colors text-sm font-bold flex items-center gap-2 disabled:opacity-50 ${saveBtnClass}`}
               >
                 {saving ? 'Saving...' : 'Save File'}
               </button>
@@ -173,7 +185,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
             <div className="flex items-center text-sm font-medium text-gray-300">
               <button
                 onClick={() => navigateTo('')}
-                className="hover:text-[#00ff40] transition-colors p-1"
+                className={`${hoverTextClass} transition-colors p-1`}
               >
                 <Home className="w-5 h-5" />
               </button>
@@ -182,7 +194,7 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
                   <ChevronRight className="w-4 h-4 mx-1 text-gray-500" />
                   <button
                     onClick={() => navigateTo(crumb.path)}
-                    className="hover:text-[#00ff40] transition-colors max-w-[150px] truncate"
+                    className={`${hoverTextClass} transition-colors max-w-[150px] truncate`}
                   >
                     {crumb.name}
                   </button>
@@ -192,13 +204,13 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
 
             <div className="flex items-center gap-2">
               <button
-                className="px-3 py-1.5 bg-brand hover:brightness-110 text-black font-bold shadow-[0_0_10px_rgba(76,175,80,0.3)] rounded flex items-center gap-2 text-xs transition-all"
+                className={`px-3 py-1.5 font-bold rounded flex items-center gap-2 text-xs transition-all ${actionBtnClass}`}
                 onClick={() => alert('File Upload via native dialog is pending implementation')}
               >
                 <Upload className="w-4 h-4" /> Upload
               </button>
               <button
-                className="px-3 py-1.5 bg-brand hover:brightness-110 text-black font-bold shadow-[0_0_10px_rgba(76,175,80,0.3)] rounded flex items-center gap-2 text-xs transition-all"
+                className={`px-3 py-1.5 font-bold rounded flex items-center gap-2 text-xs transition-all ${actionBtnClass}`}
                 onClick={() => alert('Create folder is pending implementation')}
               >
                 <FolderPlus className="w-4 h-4" /> New Folder
@@ -267,11 +279,11 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
                         onClick={() => handleFileClick(f)}
                       >
                         {f.isDirectory ? (
-                          <Folder className="w-5 h-5 text-[#00ff40]" />
+                          <Folder className={`w-5 h-5 ${textClass}`} />
                         ) : (
                           <File className="w-5 h-5 text-gray-400 group-hover:text-gray-200" />
                         )}
-                        <span className="text-gray-200 font-medium truncate group-hover:text-[#00ff40] transition-colors max-w-sm">
+                        <span className={`text-gray-200 font-medium truncate transition-colors max-w-sm ${groupHoverTextClass}`}>
                           {f.name}
                         </span>
                       </td>
