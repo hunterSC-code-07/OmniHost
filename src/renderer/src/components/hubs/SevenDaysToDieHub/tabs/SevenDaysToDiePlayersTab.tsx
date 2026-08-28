@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useUiStore } from '../../../../store/useUiStore';
+import { usePlayerStore } from '../../../../store/usePlayerStore';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 
@@ -9,7 +9,7 @@ interface SevenDaysToDiePlayersTabProps {
 }
 
 export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> = ({ serverId }) => {
-  const { onlinePlayers } = useUiStore();
+  const { onlinePlayers } = usePlayerStore();
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
 
   const players = onlinePlayers[serverId] || [];
