@@ -11,11 +11,16 @@ import { TunnelModal } from '../../modals/TunnelModal';
 import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
 import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab';
 import { SevenDaysToDiePlayersTab } from './tabs/SevenDaysToDiePlayersTab';
+import { SevenDaysToDieOverviewTab } from './tabs/SevenDaysToDieOverviewTab';
+import { SevenDaysToDieSpawnTab } from './tabs/SevenDaysToDieSpawnTab';
+import { SevenDaysToDieInstalledModsTab } from './tabs/SevenDaysToDieInstalledModsTab';
+import { SevenDaysToDieNexusTab } from './tabs/SevenDaysToDieNexusTab';
+import { SevenDaysToDieCommunityModsTab } from './tabs/SevenDaysToDieCommunityModsTab';
 
 export const SevenDaysToDieHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
-  const [activeTab, setActiveTab] = useState('console');
+  const [activeTab, setActiveTab] = useState('overview');
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
 
   const activeServer = useMemo(() => servers.find(s => s.id === activeServerId), [servers, activeServerId]);
@@ -76,8 +81,13 @@ export const SevenDaysToDieHub: React.FC = () => {
           <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer>
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
               {[
+                { id: 'overview', label: 'Overview', icon: 'dashboard' },
                 { id: 'console', label: 'Console', icon: 'terminal' },
                 { id: 'players', label: 'Live Players', icon: 'group' },
+                { id: 'spawn', label: 'Spawn Items', icon: 'inventory_2' },
+                { id: 'installed_mods', label: 'Installed Mods', icon: 'extension' },
+                { id: 'nexus_mods', label: 'Nexus Mods', icon: 'travel_explore' },
+                { id: 'community_mods', label: 'Community Mods', icon: 'language' },
                 { id: 'options', label: 'Options', icon: 'settings' },
                 { id: 'files', label: 'Config & Files', icon: 'folder' }
               ].map(tab => (
@@ -109,8 +119,13 @@ export const SevenDaysToDieHub: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >
+              { activeTab === 'overview' && <SevenDaysToDieOverviewTab serverId={activeServer.id} />}
               { activeTab === 'console' && <SevenDaysToDieConsoleTab />}
               { activeTab === 'players' && <SevenDaysToDiePlayersTab serverId={activeServer.id} />}
+              { activeTab === 'spawn' && <SevenDaysToDieSpawnTab serverId={activeServer.id} />}
+              { activeTab === 'installed_mods' && <SevenDaysToDieInstalledModsTab serverId={activeServer.id} />}
+              { activeTab === 'nexus_mods' && <SevenDaysToDieNexusTab serverId={activeServer.id} />}
+              { activeTab === 'community_mods' && <SevenDaysToDieCommunityModsTab serverId={activeServer.id} />}
               { activeTab === 'options' && <OptionsTab />}
               { activeTab === 'files' && <FilesTab />}
 

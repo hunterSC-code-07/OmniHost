@@ -35,18 +35,106 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       action: (player: string) => handleCommand(`buffplayer ${player} buffHealHealth`)
     },
     {
+      id: 'cure',
+      label: 'Cure Ailments',
+      icon: 'medical_services',
+      color: 'text-teal-400 hover:bg-teal-400/20 hover:border-teal-400/50',
+      action: (player: string) => {
+        const ailments = [
+          'buffInfectionCatch', 'buffInfectionMain', 'buffInfection01Untreated', 'buffInfection02Untreated', 'buffInfection03Untreated', 'buffInfection04',
+          'buffLegSprained', 'buffLegBroken', 'buffArmSprained', 'buffArmBroken', 
+          'buffLaceration', 'buffAbrasion', 'buffAbrasionCatch', 'buffInjuryAbrasion', 'buffInjuryAbrasionTreated', 
+          'buffDysentery', 'buffDysenteryCatchFood', 'buffDysenteryCatchDrink',
+          'buffFatigued', 'buffFatiguedTrigger', 'buffConcussion', 
+          'buffBleeding', 'buffInjuryBleeding', 'buffInjuryBleedingTwo', 'buffInjuryBleedingBarbedWire',
+          'buffInjuryStunned00', 'buffInjuryStunned01', 'buffInjuryStunned01Shotgun', 'buffInjuryStunned01CHTrigger', 
+          'buffInjuryStunned02', 'buffInjuryStunned02Shotgun', 'buffInjuryStunned03', 'buffInjuryStunned03Shotgun',
+          'buffArmSprainedCHTrigger', 'buffLegSprainedCHTrigger', 'buffLegSplinted', 'buffLegCast', 'buffArmSplinted', 'buffArmCast'
+        ];
+        ailments.forEach(buff => handleCommand(`debuffplayer ${player} ${buff}`));
+      }
+    },
+    {
       id: 'invincible',
       label: 'Invincible',
       icon: 'shield',
       color: 'text-yellow-400 hover:bg-yellow-400/20 hover:border-yellow-400/50',
-      action: (player: string) => handleCommand(`buffplayer ${player} buffGodMode`)
+      action: (player: string) => handleCommand(`buffplayer ${player} god`)
     },
     {
-      id: 'starve',
-      label: 'Starve',
-      icon: 'restaurant',
-      color: 'text-orange-400 hover:bg-orange-400/20 hover:border-orange-400/50',
-      action: (player: string) => handleCommand(`buffplayer ${player} buffStatusHungry`)
+      id: 'ungod',
+      label: 'Un-God',
+      icon: 'gpp_bad',
+      color: 'text-yellow-600 hover:bg-yellow-600/20 hover:border-yellow-600/50',
+      action: (player: string) => handleCommand(`debuffplayer ${player} god`)
+    },
+    {
+      id: 'dehydrate',
+      label: 'Dehydrate',
+      icon: 'water_drop',
+      color: 'text-blue-400 hover:bg-blue-400/20 hover:border-blue-400/50',
+      action: (player: string) => {
+        handleCommand(`cvar set $waterAmount 0 -p ${player}`);
+        handleCommand(`cvar set waterAmount 0 -p ${player}`);
+        handleCommand(`buffplayer ${player} buffStatusThirsty03`);
+        // We use buffPuking01 to instantly subtract 50 water on application
+        for (let i = 0; i < 4; i++) {
+          setTimeout(() => {
+            handleCommand(`buffplayer ${player} buffPuking01`);
+            handleCommand(`debuffplayer ${player} buffPuking01`);
+          }, i * 200);
+        }
+      }
+    },
+    {
+      id: 'megadamage',
+      label: 'Mega Damage',
+      icon: 'sports_martial_arts',
+      color: 'text-purple-400 hover:bg-purple-400/20 hover:border-purple-400/50',
+      action: (player: string) => handleCommand(`buffplayer ${player} megadamage`)
+    },
+    {
+      id: 'unmegadamage',
+      label: 'Un-Mega Damage',
+      icon: 'pan_tool',
+      color: 'text-gray-400 hover:bg-gray-400/20 hover:border-gray-400/50',
+      action: (player: string) => handleCommand(`debuffplayer ${player} megadamage`)
+    },
+    {
+      id: 'megacrush',
+      label: 'Mega Crush (6m)',
+      icon: 'bolt',
+      color: 'text-yellow-400 hover:bg-yellow-400/20 hover:border-yellow-400/50',
+      action: (player: string) => {
+        handleCommand(`cvar set $buffMegaCrushDuration 360 -p ${player}`);
+        handleCommand(`buffplayer ${player} buffMegaCrush`);
+      }
+    },
+    {
+      id: 'maxenergy',
+      label: 'Max Energy (∞)',
+      icon: 'battery_charging_full',
+      color: 'text-green-400 hover:bg-green-400/20 hover:border-green-400/50',
+      action: (player: string) => {
+        handleCommand(`cvar set $buffMegaCrushDuration 99999 -p ${player}`);
+        handleCommand(`buffplayer ${player} buffMegaCrush`);
+      }
+    },
+    {
+      id: 'removeenergy',
+      label: 'Remove Energy',
+      icon: 'battery_0_bar',
+      color: 'text-gray-400 hover:bg-gray-400/20 hover:border-gray-400/50',
+      action: (player: string) => handleCommand(`debuffplayer ${player} buffMegaCrush`)
+    },
+    {
+      id: 'fillstats',
+      label: 'Refill All Stats',
+      icon: 'battery_charging_full',
+      color: 'text-green-400 hover:bg-green-400/20 hover:border-green-400/50',
+      action: (player: string) => {
+        handleCommand(`buffplayer ${player} buffRefillStatsTesting`);
+      }
     },
     {
       id: 'admin',

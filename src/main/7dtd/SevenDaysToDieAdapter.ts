@@ -21,4 +21,16 @@ export class SevenDaysToDieAdapter implements IServerAdapter {
   get process() {
     return this.processManager.process;
   }
+
+  get onlinePlayers() {
+    return this.processManager.onlinePlayers;
+  }
+
+  get logHistory() {
+    return this.processManager.logHistory;
+  }
+
+  sendCommand(cmd: string) {
+    this.processManager.sendCommand(cmd);
+  }
 }
