@@ -11,6 +11,7 @@ import { FilesTab } from '../../tabs/FilesTab'
 import { BackupsTab } from '../../tabs/BackupsTab'
 import { OverviewTab } from '../../tabs/OverviewTab'
 import { AnimatedBackground } from '../../AnimatedBackground'
+import { PalworldAnimatedBackground } from './PalworldAnimatedBackground'
 import { TunnelModal } from '../../modals/TunnelModal'
 
 import { useServerStore } from '../../../store/useServerStore'
@@ -83,7 +84,7 @@ export const PalworldHub: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden">
-      <AnimatedBackground />
+      <PalworldAnimatedBackground />
 
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="flex justify-between items-center relative z-20">
