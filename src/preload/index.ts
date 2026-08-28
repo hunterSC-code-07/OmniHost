@@ -139,7 +139,8 @@ const api = {
     searchMods: (query: string, categoryId?: number, index?: number, pageSize?: number) => ipcRenderer.invoke('search-palworld-mods', query, categoryId, index, pageSize),
     installMod: (serverId: number, modId: number, fileId: number) => ipcRenderer.invoke('install-palworld-mod', serverId, modId, fileId),
     getInstalledMods: (serverId: number) => ipcRenderer.invoke('get-installed-palworld-mods', serverId),
-    uninstallMod: (serverId: number, modType: string, modName: string) => ipcRenderer.invoke('uninstall-palworld-mod', serverId, modType, modName)
+    uninstallMod: (serverId: number, modType: string, modName: string) => ipcRenderer.invoke('uninstall-palworld-mod', serverId, modType, modName),
+    getBannedPlayers: (serverId: number) => ipcRenderer.invoke('get-banned-players', serverId)
   },
 
   log: {

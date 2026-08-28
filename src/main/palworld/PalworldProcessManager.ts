@@ -12,7 +12,7 @@ export class PalworldProcessManager {
   serverDir: string
   process: ChildProcess | null = null
   serverPid: number | null = null
-  onlinePlayers: string[] = []
+  onlinePlayers: any[] = []
   logHistory: string[] = []
   omnihostMeta: any = {}
 
@@ -44,6 +44,47 @@ export class PalworldProcessManager {
   }
 
   async sendCommand(cmd: string) {
+    if (cmd.startsWith('/KickPlayer ') || cmd.startsWith('/BanPlayer ') || cmd.startsWith('/UnbanPlayer ')) {
+      const parts = cmd.split(' ');
+      const action = parts[0] === '/KickPlayer' ? 'kick' : (parts[0] === '/BanPlayer' ? 'ban' : 'unban');
+      const target = parts[1];
+
+      const adminPass = (this as any).adminPassword || '';
+      const auth = Buffer.from(`admin:${adminPass}`).toString('base64');
+      
+      try {
+        const res = await fetch(`http://127.0.0.1:8212/v1/api/${action}`, {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Basic ${auth}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userid: target })
+        });
+        
+        this.sendLog(`> ${cmd} (via REST API)`);
+        if (res.ok) {
+          this.sendLog(`[REST] Successfully executed ${action} on ${target}`);
+          if (action === 'ban') {
+            const p = this.onlinePlayers.find(op => op.userId === target || op.playerId === target || op.name === target);
+            if (p && p.name) {
+              const namesFile = join(this.serverDir, 'banned_names.json');
+              let namesMap: Record<string, string> = {};
+              try { if (fs.existsSync(namesFile)) namesMap = JSON.parse(fs.readFileSync(namesFile, 'utf8')); } catch(e) {}
+              namesMap[p.userId || p.playerId || target] = p.name;
+              fs.writeFileSync(namesFile, JSON.stringify(namesMap, null, 2));
+            }
+          }
+        } else {
+          this.sendLog(`[REST Error] Failed to ${action} ${target} (HTTP ${res.status})`);
+        }
+        return;
+      } catch (e) {
+        this.sendLog(`[REST Error] ${e}`);
+        // Fallback to RCON if REST fails
+      }
+    }
+
     const response = await this.rcon.sendCommand(cmd)
     this.sendLog(`> ${cmd}`)
     if (response) {
@@ -230,19 +271,23 @@ export class PalworldProcessManager {
         if (res.ok) {
           const data = await res.json();
           // data.players is an array of objects: { name, playerId, userId, ip, ping }
-          const currentPlayers = (data.players || []).map((p: any) => p.name || 'Unknown Player');
+          const currentPlayers = data.players || [];
           
           // Only send update if players changed
-          if (JSON.stringify(currentPlayers) !== JSON.stringify(this.onlinePlayers)) {
+          const getIds = (arr: any[]) => arr.map(p => p.userId || p.name);
+          const currIds = getIds(currentPlayers);
+          const oldIds = getIds(this.onlinePlayers);
+          
+          if (JSON.stringify(currIds) !== JSON.stringify(oldIds)) {
             // Find joined and left players to emit real-time logs (bypassing slow file buffer)
-            const joined = currentPlayers.filter(p => !this.onlinePlayers.includes(p));
-            const left = this.onlinePlayers.filter(p => !currentPlayers.includes(p));
+            const joined = currentPlayers.filter((p: any) => !oldIds.includes(p.userId || p.name));
+            const left = this.onlinePlayers.filter((p: any) => !currIds.includes(p.userId || p.name));
             
             for (const p of joined) {
-              this.sendLog(`[System] ${p} joined the game`);
+              this.sendLog(`[System] ${p.name || 'Unknown Player'} joined the game`);
             }
             for (const p of left) {
-              this.sendLog(`[System] ${p} left the game`);
+              this.sendLog(`[System] ${p.name || 'Unknown Player'} left the game`);
             }
 
             this.onlinePlayers = currentPlayers;
@@ -259,7 +304,7 @@ export class PalworldProcessManager {
       this.fileTailer?.stop()
       if (this.playerInterval) { clearInterval(this.playerInterval); this.playerInterval = null; }
       if (this.statsTimer) { clearInterval(this.statsTimer); this.statsTimer = null; }
-      this.rcon.disconnect()
+      try { this.rcon.disconnect() } catch (e) {}
       this.process = null
       this.serverPid = null
       this.onlinePlayers = []
@@ -292,7 +337,7 @@ export class PalworldProcessManager {
       this.fileTailer?.stop()
       if (this.playerInterval) { clearInterval(this.playerInterval); this.playerInterval = null; }
       if (this.statsTimer) { clearInterval(this.statsTimer); this.statsTimer = null; }
-      this.rcon.disconnect()
+      try { this.rcon.disconnect() } catch (e) {}
     }
 
     this.onlinePlayers = []
