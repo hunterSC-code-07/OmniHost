@@ -12,8 +12,9 @@ import satisfactoryBg from '../../assets/satisfactory-bg.jpg';
 const DayzHub = React.lazy(() => import('../hubs/DayzHub/DayzHub').then(m => ({ default: m.DayzHub })));
 const MinecraftHub = React.lazy(() => import('../hubs/MinecraftHub/MinecraftHub').then(m => ({ default: m.MinecraftHub })));
 const SatisfactoryHub = React.lazy(() => import('../hubs/SatisfactoryHub/SatisfactoryHub').then(m => ({ default: m.SatisfactoryHub })));
+const PalworldHub = React.lazy(() => import('../hubs/PalworldHub/PalworldHub').then(m => ({ default: m.PalworldHub })));
 
-const supportedGameHubs = ['Minecraft', 'DayZ', 'Satisfactory'];
+const supportedGameHubs = ['Minecraft', 'DayZ', 'Satisfactory', 'Palworld'];
 const isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false);
 
 const getGameImageUrl = (game: string) => {
@@ -74,6 +75,8 @@ export const HubRouter: React.FC = () => {
                   <DayzHub />
                 ) : activeServer.game === 'Satisfactory' ? (
                   <SatisfactoryHub />
+                ) : activeServer.game === 'Palworld' ? (
+                  <PalworldHub />
                 ) : (
                   <MinecraftHub />
                 )}
