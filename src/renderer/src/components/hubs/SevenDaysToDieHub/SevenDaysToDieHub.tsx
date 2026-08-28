@@ -8,8 +8,8 @@ import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 import { TunnelModal } from '../../modals/TunnelModal';
 
-// Using DayZ file tab as a generic files tab for now, assuming it supports generic file browsing
 import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
+import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab';
 
 export const SevenDaysToDieHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
@@ -76,6 +76,7 @@ export const SevenDaysToDieHub: React.FC = () => {
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
               {[
                 { id: 'console', label: 'Console', icon: 'terminal' },
+                { id: 'options', label: 'Options', icon: 'settings' },
                 { id: 'files', label: 'Config & Files', icon: 'folder' }
               ].map(tab => (
                 <button
@@ -107,6 +108,7 @@ export const SevenDaysToDieHub: React.FC = () => {
               className="flex flex-col min-h-0 w-full h-full"
             >
               {activeTab === 'console' && <SevenDaysToDieConsoleTab />}
+              {activeTab === 'options' && <OptionsTab />}
               {activeTab === 'files' && <FilesTab />}
 
             </motion.div>
