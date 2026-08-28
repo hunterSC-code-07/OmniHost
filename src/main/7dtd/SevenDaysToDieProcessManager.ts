@@ -1,0 +1,121 @@
+import { spawn, ChildProcess } from 'child_process';
+import { join } from 'path';
+import { app, BrowserWindow } from 'electron';
+import fs from 'fs';
+
+export class SevenDaysToDieProcessManager {
+  serverId: number;
+  serverDir: string;
+  process: ChildProcess | null = null;
+  onlinePlayers: string[] = [];
+
+  constructor(serverId: number) {
+    this.serverId = serverId;
+    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+  }
+
+  sendLog(msg: string) {
+    console.log(msg); // Guaranteed VS Code output
+    BrowserWindow.getAllWindows().forEach(win => {
+      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });
+    });
+  }
+
+  sendPlayerUpdate() {
+    BrowserWindow.getAllWindows().forEach(win => {
+      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });
+    });
+  }
+
+  sendCommand(cmd: string) {
+    if (this.process && this.process.stdin) {
+      this.process.stdin.write(cmd + '\n');
+    } else {
+      this.sendLog(`[System] Process not running, cannot send command: ${cmd}`);
+    }
+  }
+
+  async start() {
+    const exePath = join(this.serverDir, '7DaysToDieServer.exe');
+    if (!fs.existsSync(exePath)) {
+      this.sendLog(`[System] 7 Days to Die Server executable not found at ${exePath}. Did you finish the SteamCMD download?`);
+      return;
+    }
+
+    this.sendLog('[System] Starting 7 Days to Die Server...');
+
+    // Usually 7dtd servers are started with arguments: -quit -batchmode -nographics -dedicated
+    const args = [
+      '-quit',
+      '-batchmode',
+      '-nographics',
+      '-dedicated'
+    ];
+
+    this.process = spawn(`"${exePath}"`, args, { cwd: this.serverDir, shell: true });
+
+    this.process.stdout?.on('data', (data) => {
+      const text = data.toString();
+      const lines = text.trim().split('\n');
+      for (const line of lines) {
+        this.sendLog(`[7DTD] ${line.trim()}`);
+        this.parseLogLine(line.trim());
+      }
+    });
+
+    this.process.stderr?.on('data', (data) => {
+      this.sendLog(`[7DTD Error] ${data.toString().trim()}`);
+    });
+
+    this.process.on('close', (code) => {
+      this.sendLog(`[System] 7 Days to Die Server stopped (Code: ${code})`);
+      this.process = null;
+      this.onlinePlayers = [];
+      this.sendPlayerUpdate();
+    });
+
+    this.process.on('error', (err) => {
+      this.sendLog(`[System Error] ${err.message}`);
+    });
+  }
+
+  parseLogLine(line: string) {
+    // Basic example of player parsing if it exists in stdout logs
+    // e.g. "Player connected, entityid=171 name=Soprano"
+    const connectedMatch = line.match(/Player connected, entityid=\d+ name=(.+)/);
+    if (connectedMatch) {
+      const playerName = connectedMatch[1].trim();
+      if (!this.onlinePlayers.includes(playerName)) {
+        this.onlinePlayers.push(playerName);
+        this.sendPlayerUpdate();
+      }
+    }
+
+    // e.g. "Player disconnected: name=Soprano"
+    const disconnectedMatch = line.match(/Player disconnected: name=(.+)/);
+    if (disconnectedMatch) {
+      const playerName = disconnectedMatch[1].trim();
+      this.onlinePlayers = this.onlinePlayers.filter(p => p !== playerName);
+      this.sendPlayerUpdate();
+    }
+  }
+
+  stop() {
+    if (this.process) {
+      this.sendLog('[System] Stopping 7 Days to Die Server...');
+      // 7dtd server accepts 'shutdown' command via telnet, but via stdin if it works we can try.
+      // Alternatively, we can force kill.
+      if (this.process.pid) {
+        if (process.platform === 'win32') {
+          spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t']);
+        } else {
+          this.process.kill();
+        }
+      }
+      this.process = null;
+    }
+    
+    this.onlinePlayers = [];
+    this.sendPlayerUpdate();
+  }
+}
