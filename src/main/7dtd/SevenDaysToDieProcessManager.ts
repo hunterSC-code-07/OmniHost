@@ -2,6 +2,7 @@ import { spawn, ChildProcess } from 'child_process';
 import { join } from 'path';
 import { app, BrowserWindow } from 'electron';
 import fs from 'fs';
+import net from 'net';
 
 export class SevenDaysToDieProcessManager {
   serverId: number;
@@ -28,11 +29,42 @@ export class SevenDaysToDieProcessManager {
   }
 
   sendCommand(cmd: string) {
-    if (this.process && this.process.stdin) {
-      this.process.stdin.write(cmd + '\n');
-    } else {
+    if (!this.process) {
       this.sendLog(`[System] Process not running, cannot send command: ${cmd}`);
+      return;
     }
+
+    // Attempt to read Telnet port from config, default to 8081
+    let telnetPort = 8081;
+    let telnetPassword = '';
+    const configPath = join(this.serverDir, 'serverconfig.xml');
+    if (fs.existsSync(configPath)) {
+      const configData = fs.readFileSync(configPath, 'utf8');
+      const portMatch = configData.match(/<property name="TelnetPort"[\s]+value="(\d+)"/);
+      if (portMatch && portMatch[1]) {
+        telnetPort = parseInt(portMatch[1], 10);
+      }
+      const passMatch = configData.match(/<property name="TelnetPassword"[\s]+value="([^"]*)"/);
+      if (passMatch && passMatch[1]) {
+        telnetPassword = passMatch[1];
+      }
+    }
+
+    const client = new net.Socket();
+    client.connect(telnetPort, '127.0.0.1', () => {
+      if (telnetPassword) {
+        client.write(telnetPassword + '\r\n');
+      }
+      client.write(cmd + '\r\n');
+      // Give it a brief moment to process before destroying
+      setTimeout(() => {
+        client.destroy();
+      }, 500);
+    });
+
+    client.on('error', (err) => {
+      this.sendLog(`[System Error] Telnet command failed: ${err.message}`);
+    });
   }
 
   async start() {
