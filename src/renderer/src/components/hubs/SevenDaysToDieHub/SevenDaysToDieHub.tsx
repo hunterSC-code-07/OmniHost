@@ -10,6 +10,7 @@ import { TunnelModal } from '../../modals/TunnelModal';
 
 import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
 import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab';
+import { SevenDaysToDiePlayersTab } from './tabs/SevenDaysToDiePlayersTab';
 
 export const SevenDaysToDieHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
@@ -76,6 +77,7 @@ export const SevenDaysToDieHub: React.FC = () => {
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
               {[
                 { id: 'console', label: 'Console', icon: 'terminal' },
+                { id: 'players', label: 'Live Players', icon: 'group' },
                 { id: 'options', label: 'Options', icon: 'settings' },
                 { id: 'files', label: 'Config & Files', icon: 'folder' }
               ].map(tab => (
@@ -107,9 +109,10 @@ export const SevenDaysToDieHub: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >
-              {activeTab === 'console' && <SevenDaysToDieConsoleTab />}
-              {activeTab === 'options' && <OptionsTab />}
-              {activeTab === 'files' && <FilesTab />}
+              { activeTab === 'console' && <SevenDaysToDieConsoleTab />}
+              { activeTab === 'players' && <SevenDaysToDiePlayersTab serverId={activeServer.id} />}
+              { activeTab === 'options' && <OptionsTab />}
+              { activeTab === 'files' && <FilesTab />}
 
             </motion.div>
           </AnimatePresence>
