@@ -120,18 +120,42 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                           >
                             <ExternalLink className="w-5 h-5" />
                           </a>
-                          <button
-                            onClick={() => handleInstallMod(mod)}
-                            disabled={installingModId === mod.id}
-                            className={`p-2.5 rounded-lg flex items-center justify-center transition-all ${installingModId === mod.id ? 'bg-surface-container text-on-surface-variant' : 'bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500 hover:text-on-primary hover:border-transparent hover:shadow-glow'}`}
-                            title="Install Mod"
-                          >
-                            {installingModId === mod.id ? (
-                              <Package className="w-5 h-5 animate-pulse" />
-                            ) : (
-                              <Download className="w-5 h-5" />
-                            )}
-                          </button>
+                          {(() => {
+                            const isInstalled = installedMods.some(m => {
+                              const cleanModName = mod.name.toLowerCase().replace(/[^a-z0-9]/g, '')
+                              const cleanInstalledName = m.name.toLowerCase().replace(/(_p)?\.(pak|zip)$/g, '').replace(/[^a-z0-9]/g, '')
+                              return cleanModName.includes(cleanInstalledName) || cleanInstalledName.includes(cleanModName)
+                            })
+                            
+                            if (isInstalled) {
+                              return (
+                                <div
+                                  className="px-4 py-2.5 rounded-lg flex items-center justify-center bg-green-500/10 text-green-400 border border-green-500/30"
+                                  title="Mod is installed"
+                                >
+                                  <span className="font-bold text-sm flex items-center gap-2">
+                                    <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                                    Installed
+                                  </span>
+                                </div>
+                              )
+                            }
+                            
+                            return (
+                              <button
+                                onClick={() => handleInstallMod(mod)}
+                                disabled={installingModId === mod.id}
+                                className={`p-2.5 rounded-lg flex items-center justify-center transition-all ${installingModId === mod.id ? 'bg-surface-container text-on-surface-variant' : 'bg-blue-500/10 text-blue-400 border border-blue-500/30 hover:bg-blue-500 hover:text-on-primary hover:border-transparent hover:shadow-glow'}`}
+                                title="Install Mod"
+                              >
+                                {installingModId === mod.id ? (
+                                  <Package className="w-5 h-5 animate-pulse" />
+                                ) : (
+                                  <Download className="w-5 h-5" />
+                                )}
+                              </button>
+                            )
+                          })()}
                         </div>
                       </div>
                     ))}
