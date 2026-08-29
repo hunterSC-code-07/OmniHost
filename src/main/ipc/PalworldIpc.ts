@@ -23,6 +23,10 @@ export function registerPalworldIpc() {
     }
   )
 
+  ipcMain.handle('get-palworld-mod', async (_, modId: number) => {
+    return await PalworldModManager.getModDetails(modId)
+  })
+
   ipcMain.handle(
     'install-palworld-mod',
     async (_, serverId: number, modId: number, fileId: number) => {

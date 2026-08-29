@@ -39,11 +39,11 @@ export class AdapterRegistry {
   }
 
   static register(game: string, factory: (id: number) => IServerAdapter) {
-    this.registry[game] = factory;
+    this.registry[game.toLowerCase()] = factory;
   }
 
   static getAdapter(game: string, id: number): IServerAdapter {
-    const factory = this.registry[game];
+    const factory = this.registry[game.toLowerCase()];
     if (factory) {
       return factory(id);
     }
