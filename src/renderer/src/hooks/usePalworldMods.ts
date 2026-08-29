@@ -57,10 +57,37 @@ export function usePalworldMods() {
     if (!activeServerId) return
     setInstallingModId(mod.id)
     try {
-      // Find latest file ID
       if (mod.latestFiles && mod.latestFiles.length > 0) {
-        const fileId = mod.latestFiles[0].id
-        await window.api.palworld.installMod(activeServerId, mod.id, fileId)
+        const file = mod.latestFiles[0]
+        
+        // Check for required dependencies
+        const reqDeps = file.dependencies?.filter((d: any) => d.relationType === 3) || []
+        if (reqDeps.length > 0) {
+          const depNames: string[] = []
+          const depMods: any[] = []
+          
+          for (const dep of reqDeps) {
+            const depMod = await window.api.palworld.getModDetails(dep.modId)
+            if (depMod && !depMod.error) {
+              depNames.push(depMod.name)
+              depMods.push(depMod)
+            }
+          }
+          
+          if (depMods.length > 0) {
+            const confirm = window.confirm(`This mod requires the following dependencies:\n${depNames.join(', ')}\n\nWould you like to install them as well?`)
+            if (confirm) {
+              for (const depMod of depMods) {
+                if (depMod.latestFiles && depMod.latestFiles.length > 0) {
+                  await window.api.palworld.installMod(activeServerId, depMod.id, depMod.latestFiles[0].id)
+                }
+              }
+            }
+          }
+        }
+
+        // Install the main mod
+        await window.api.palworld.installMod(activeServerId, mod.id, file.id)
         await fetchInstalledMods()
       }
     } catch (e) {
