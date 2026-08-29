@@ -6,7 +6,7 @@ import os from 'os'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
 
-export class FrpAdapter {
+export abstract class BaseFrpAdapter {
   process: ChildProcess | null = null;
   frpDir: string;
   exePath: string;
@@ -18,6 +18,8 @@ export class FrpAdapter {
     this.configPath = join(this.frpDir, 'frpc.toml');
   }
 
+  abstract getProxyConfig(localIp: string): string;
+
   sendLog(msg: string) {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length > 0) {
@@ -25,7 +27,7 @@ export class FrpAdapter {
     }
   }
 
-  async start(ip: string = "34.131.235.17", game: string = "minecraft") {
+  async start(ip: string = "34.131.235.17") {
     if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });
 
     // 1. Download and Extract FRP from GitHub
@@ -65,129 +67,7 @@ export class FrpAdapter {
       }
     }
 
-    let proxyConfig = '';
-
-    if (game === 'minecraft') {
-      proxyConfig = `
-[[proxies]]
-name = "minecraft-${Date.now()}"
-type = "tcp"
-localIP = "${localIp}"
-localPort = 25565
-remotePort = 25565
-
-[[proxies]]
-name = "minecraft-udp"
-type = "udp"
-localIP = "${localIp}"
-localPort = 25565
-remotePort = 25565
-`;
-    } else if (game === 'dayz') {
-      proxyConfig = `
-[[proxies]]
-name = "dayz-game"
-type = "udp"
-localIP = "${localIp}"
-localPort = 2302
-remotePort = 2302
-
-[[proxies]]
-name = "dayz-steam-query"
-type = "udp"
-localIP = "${localIp}"
-localPort = 2303
-remotePort = 2303
-
-[[proxies]]
-name = "dayz-steam-master-8766"
-type = "udp"
-localIP = "${localIp}"
-localPort = 8766
-remotePort = 8766
-
-[[proxies]]
-name = "dayz-steam-master-2304"
-type = "udp"
-localIP = "${localIp}"
-localPort = 2304
-remotePort = 2304
-
-[[proxies]]
-name = "dayz-von"
-type = "udp"
-localIP = "${localIp}"
-localPort = 2305
-remotePort = 2305
-
-[[proxies]]
-name = "dayz-battleye"
-type = "udp"
-localIP = "${localIp}"
-localPort = 2306
-remotePort = 2306
-
-[[proxies]]
-name = "dayz-steam"
-type = "udp"
-localIP = "${localIp}"
-localPort = 27016
-remotePort = 27016
-`;
-    } else if (game === 'satisfactory') {
-      proxyConfig = `
-[[proxies]]
-name = "satisfactory-7777-udp"
-type = "udp"
-localIP = "${localIp}"
-localPort = 7777
-remotePort = 7777
-
-[[proxies]]
-name = "satisfactory-7777-tcp"
-type = "tcp"
-localIP = "${localIp}"
-localPort = 7777
-remotePort = 7777
-
-[[proxies]]
-name = "satisfactory-8888-tcp"
-type = "tcp"
-localIP = "${localIp}"
-localPort = 8888
-remotePort = 8888
-`;
-    } else if (game === '7dtd') {
-      proxyConfig = `
-[[proxies]]
-name = "7dtd-26900-tcp"
-type = "tcp"
-localIP = "${localIp}"
-localPort = 26900
-remotePort = 26900
-
-[[proxies]]
-name = "7dtd-26900-udp"
-type = "udp"
-localIP = "${localIp}"
-localPort = 26900
-remotePort = 26900
-
-[[proxies]]
-name = "7dtd-26901-udp"
-type = "udp"
-localIP = "${localIp}"
-localPort = 26901
-remotePort = 26901
-
-[[proxies]]
-name = "7dtd-26902-udp"
-type = "udp"
-localIP = "${localIp}"
-localPort = 26902
-remotePort = 26902
-`;
-    }
+    const proxyConfig = this.getProxyConfig(localIp);
 
     const tomlConfig = `
 serverAddr = "${ip}"
