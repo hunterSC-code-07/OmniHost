@@ -4,7 +4,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   server: {
     getServers: () => ipcRenderer.invoke('get-servers'),
-    createServer: (name: string, game: string, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion),
+    createServer: (name: string, game: string, type: string, version: string, loaderVersion?: string, extraArgs?: any) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion, extraArgs),
     deleteServer: (id: number) => ipcRenderer.invoke('delete-server', id),
     startServer: (id: number) => ipcRenderer.invoke('start-server', id),
     stopServer: (id: number) => ipcRenderer.invoke('stop-server', id),
@@ -20,6 +20,8 @@ const api = {
     getInventory: (id: number, playerName: string) => ipcRenderer.invoke('get-inventory', id, playerName),
     getSatisfactoryToken: (id: number) => ipcRenderer.invoke('get-satisfactory-token', id),
     saveSatisfactoryToken: (id: number, token: string) => ipcRenderer.invoke('save-satisfactory-token', id, token),
+    get7DTDItems: (serverId: number) => ipcRenderer.invoke('get-7dtd-items', serverId),
+    get7DTDEntities: (serverId: number) => ipcRenderer.invoke('get-7dtd-entities', serverId),
     
     // Events
     onServersUpdate: (callback: (data: any[]) => void) => {
@@ -54,7 +56,7 @@ const api = {
     getDetailedCacheInfo: () => ipcRenderer.invoke('get-detailed-cache-info'),
     clearCache: () => ipcRenderer.invoke('clear-cache'),
     clearSpecificCache: (cacheId: string) => ipcRenderer.invoke('clear-specific-cache', cacheId),
-    startTunnel: (ip: string, game: string) => ipcRenderer.invoke('start-tunnel', { ip, game }),
+    startTunnel: (ip: string, game: string) => ipcRenderer.invoke('start-tunnel', ip, game),
     stopTunnel: () => ipcRenderer.invoke('stop-tunnel'),
     getTunnelStatus: () => ipcRenderer.invoke('get-tunnel-status'),
     radminCheck: () => ipcRenderer.invoke('radmin-check'),
@@ -116,6 +118,15 @@ const api = {
     importLocalWorkshop: (id: number, workshopPath: string) => ipcRenderer.invoke('import-local-workshop', id, workshopPath)
   },
 
+  sevenDaysToDie: {
+    getNexusApiKey: () => ipcRenderer.invoke('get-nexus-api-key'),
+    setNexusApiKey: (key: string) => ipcRenderer.invoke('set-nexus-api-key', key),
+    getMods: (serverId: number) => ipcRenderer.invoke('get-7dtd-mods', serverId),
+    toggleMod: (serverId: number, folderName: string, enabled: boolean) => ipcRenderer.invoke('toggle-7dtd-mod', serverId, folderName, enabled),
+    deleteMod: (serverId: number, folderName: string) => ipcRenderer.invoke('delete-7dtd-mod', serverId, folderName),
+    setActiveDownloadServer: (serverId: number | null) => ipcRenderer.invoke('set-active-download-server', serverId)
+  },
+
   steam: {
     searchWorkshop: (query: string, queryType?: number, page?: number, requiredTags?: string[]) => ipcRenderer.invoke('search-steam-workshop', query, queryType, page, requiredTags),
     getModDependencies: (modId: string) => ipcRenderer.invoke('get-mod-dependencies', modId),
@@ -137,6 +148,7 @@ const api = {
     getConfig: (serverId: number) => ipcRenderer.invoke('get-palworld-config', serverId),
     setConfig: (serverId: number, config: Record<string, string>) => ipcRenderer.invoke('set-palworld-config', serverId, config),
     searchMods: (query: string, categoryId?: number, index?: number, pageSize?: number) => ipcRenderer.invoke('search-palworld-mods', query, categoryId, index, pageSize),
+    getModDetails: (modId: number) => ipcRenderer.invoke('get-palworld-mod', modId),
     installMod: (serverId: number, modId: number, fileId: number) => ipcRenderer.invoke('install-palworld-mod', serverId, modId, fileId),
     getInstalledMods: (serverId: number) => ipcRenderer.invoke('get-installed-palworld-mods', serverId),
     uninstallMod: (serverId: number, modType: string, modName: string) => ipcRenderer.invoke('uninstall-palworld-mod', serverId, modType, modName),

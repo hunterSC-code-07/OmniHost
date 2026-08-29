@@ -1,8 +1,17 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
-import { Download, Search, ExternalLink, Trash2, Package, Layers } from 'lucide-react'
+import { Download, Search, ExternalLink, Trash2, Package, Layers, Globe, ShieldCheck, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react'
 import { usePalworldMods } from '../../../hooks/usePalworldMods'
+
+const formatBytes = (bytes?: number): string => {
+  if (bytes === undefined || bytes === null || isNaN(bytes)) return '--'
+  if (bytes === 0) return '0 B'
+  const k = 1024
+  const sizes = ['B', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
 
 export const PalworldModsTab: React.FC = React.memo(() => {
   const {
@@ -15,10 +24,52 @@ export const PalworldModsTab: React.FC = React.memo(() => {
     installedMods,
     handleInstallMod,
     installingModId,
-    handleDeleteMod
+    handleDeleteMod,
+    modDependencies,
+    isLoadingDependencies,
+    isInstallingAllDeps,
+    installAllProgress,
+    fetchModDependencies,
+    handleInstallMissingDependency,
+    handleInstallAllMissingDependencies
   } = usePalworldMods()
 
-  const [activeTab, setActiveTab] = useState<'search' | 'installed'>('search')
+  const [activeTab, setActiveTab] = useState<'search' | 'installed' | 'nexus' | 'dependencies'>('search')
+  const [depSearchFilter, setDepSearchFilter] = useState('')
+
+  // Calculate dependency stats
+  const depStats = useMemo(() => {
+    let totalDeps = 0
+    let satisfiedDeps = 0
+    let missingDeps = 0
+
+    for (const mod of modDependencies) {
+      for (const dep of mod.dependencies || []) {
+        totalDeps++
+        if (dep.satisfied) {
+          satisfiedDeps++
+        } else {
+          missingDeps++
+        }
+      }
+    }
+
+    return { totalDeps, satisfiedDeps, missingDeps }
+  }, [modDependencies])
+
+  const filteredDependencies = useMemo(() => {
+    if (!depSearchFilter.trim()) return modDependencies
+    const q = depSearchFilter.toLowerCase()
+    return modDependencies.filter(
+      (m) =>
+        m.name?.toLowerCase().includes(q) ||
+        m.fileName?.toLowerCase().includes(q) ||
+        m.modId?.toLowerCase().includes(q) ||
+        (m.dependencies || []).some(
+          (d: any) => d.name?.toLowerCase().includes(q) || d.id?.toLowerCase().includes(q)
+        )
+    )
+  }, [modDependencies, depSearchFilter])
 
   return (
     <div className="absolute inset-0 flex min-h-0">
@@ -32,7 +83,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
           <div className="flex justify-between items-end z-20 py-4">
             <div>
               <h2 className="font-headline-lg text-headline-lg text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
-                Mods (CurseForge)
+                Mods
               </h2>
             </div>
 
@@ -50,6 +101,23 @@ export const PalworldModsTab: React.FC = React.memo(() => {
               >
                 <Package className="w-4 h-4" />
                 Installed ({installedMods.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('dependencies')}
+                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'dependencies' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+              >
+                <Layers className="w-4 h-4" />
+                Dependencies
+                {depStats.missingDeps > 0 && (
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                )}
+              </button>
+              <button
+                onClick={() => setActiveTab('nexus')}
+                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'nexus' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+              >
+                <Globe className="w-4 h-4" />
+                Nexus
               </button>
             </div>
           </div>
@@ -226,6 +294,290 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'dependencies' && (
+                <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
+                  {/* Summary Stats Cards */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 shrink-0">
+                    <div className="bg-surface-container-low border border-surface-container-highest rounded-xl p-4 flex items-center justify-between shadow-sm">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                          Total Mods
+                        </p>
+                        <h4 className="text-2xl font-bold text-on-surface mt-0.5">{installedMods.length}</h4>
+                      </div>
+                      <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
+                        <Package className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    <div className="bg-surface-container-low border border-surface-container-highest rounded-xl p-4 flex items-center justify-between shadow-sm">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                          Satisfied Dependencies
+                        </p>
+                        <h4 className="text-2xl font-bold text-emerald-400 mt-0.5">
+                          {depStats.satisfiedDeps}
+                        </h4>
+                      </div>
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+                        <ShieldCheck className="w-5 h-5" />
+                      </div>
+                    </div>
+
+                    <div
+                      className={`bg-surface-container-low border rounded-xl p-4 flex items-center justify-between shadow-sm transition-all ${depStats.missingDeps > 0 ? 'border-amber-500/30' : 'border-surface-container-highest'}`}
+                    >
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                          Missing Dependencies
+                        </p>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          <h4
+                            className={`text-2xl font-bold ${depStats.missingDeps > 0 ? 'text-amber-400' : 'text-on-surface-variant'}`}
+                          >
+                            {depStats.missingDeps}
+                          </h4>
+                          {depStats.missingDeps > 0 && (
+                            <button
+                              onClick={handleInstallAllMissingDependencies}
+                              disabled={isInstallingAllDeps || installingModId !== null}
+                              className="px-3 py-1 bg-blue-500 hover:brightness-110 text-on-primary font-bold text-xs rounded-lg transition-all shadow-glow flex items-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                              title="Install all missing dependencies automatically"
+                            >
+                              <Download
+                                className={`w-3.5 h-3.5 ${isInstallingAllDeps ? 'animate-bounce' : ''}`}
+                              />
+                              {isInstallingAllDeps
+                                ? `Installing (${installAllProgress.current}/${installAllProgress.total})...`
+                                : 'Install All'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                      <div
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${depStats.missingDeps > 0 ? 'bg-amber-500/10 text-amber-400' : 'bg-surface-container text-on-surface-variant'}`}
+                      >
+                        <AlertCircle className="w-5 h-5" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Batch progress banner */}
+                  {isInstallingAllDeps && (
+                    <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3.5 mb-4 flex items-center gap-3 text-blue-400 text-xs font-semibold animate-pulse shrink-0">
+                      <Download className="w-4 h-4 animate-bounce shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-bold text-sm">
+                          Installing Missing Dependencies ({installAllProgress.current}/
+                          {installAllProgress.total})...
+                        </p>
+                        <p className="text-blue-400/80">
+                          {installAllProgress.text ||
+                            'Resolving and installing missing mod packages...'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Filter & Refresh Header */}
+                  <div className="flex items-center justify-between gap-3 mb-4 shrink-0">
+                    <div className="relative flex-1">
+                      <Search className="w-4 h-4 text-on-surface-variant absolute left-4 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        placeholder="Filter installed mods or dependencies by name..."
+                        value={depSearchFilter}
+                        onChange={(e) => setDepSearchFilter(e.target.value)}
+                        className="w-full bg-surface-container border border-surface-container-highest rounded-lg pl-11 pr-4 py-2.5 text-on-surface outline-none focus:border-blue-500/50 text-sm shadow-glass"
+                      />
+                    </div>
+                    {depStats.missingDeps > 0 && (
+                      <button
+                        onClick={handleInstallAllMissingDependencies}
+                        disabled={isInstallingAllDeps || installingModId !== null}
+                        className="px-4 py-2.5 bg-blue-500 hover:brightness-110 text-on-primary rounded-lg text-sm font-bold transition-all flex items-center gap-2 shadow-glow disabled:opacity-50 shrink-0"
+                      >
+                        <Download
+                          className={`w-4 h-4 ${isInstallingAllDeps ? 'animate-bounce' : ''}`}
+                        />
+                        {isInstallingAllDeps
+                          ? `Installing (${installAllProgress.current}/${installAllProgress.total})...`
+                          : `Install All Missing (${depStats.missingDeps})`}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => fetchModDependencies()}
+                      disabled={isLoadingDependencies}
+                      className="px-4 py-2.5 bg-surface-container border border-surface-container-highest hover:bg-surface-container-highest rounded-lg text-sm font-bold text-on-surface-variant hover:text-on-surface transition-all flex items-center gap-2 disabled:opacity-50"
+                      title="Re-scan installed mod dependencies"
+                    >
+                      <RefreshCw
+                        className={`w-4 h-4 ${isLoadingDependencies ? 'animate-spin text-blue-400' : ''}`}
+                      />
+                      Refresh
+                    </button>
+                  </div>
+
+                  {/* Dependencies List */}
+                  <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-6 shadow-glass flex flex-col flex-1 min-h-[400px]">
+                    {isLoadingDependencies ? (
+                      <div className="flex flex-col items-center justify-center flex-1 py-12">
+                        <RefreshCw className="w-8 h-8 text-blue-400 animate-spin mb-3" />
+                        <p className="text-on-surface-variant text-sm">
+                          Inspecting mod manifests and dependency trees...
+                        </p>
+                      </div>
+                    ) : filteredDependencies.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center flex-1 py-12 text-center">
+                        <Layers className="w-12 h-12 text-on-surface-variant opacity-50 mb-4 stroke-1" />
+                        <h4 className="text-lg font-bold text-on-surface">
+                          {installedMods.length === 0 ? 'No Mods Installed' : 'No Matching Mods Found'}
+                        </h4>
+                        <p className="text-on-surface-variant text-sm mt-1 max-w-sm">
+                          {installedMods.length === 0
+                            ? 'Install mods in the Browse tab to inspect their dependencies.'
+                            : 'Try clearing your filter search.'}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3 pb-6">
+                        {filteredDependencies.map((mod: any, idx: number) => {
+                          const deps = mod.dependencies || []
+                          const hasMissing = deps.some((d: any) => !d.satisfied && d.mandatory)
+
+                          return (
+                            <div
+                              key={idx}
+                              className={`bg-surface-container-lowest border rounded-xl p-5 transition-all shadow-sm ${
+                                hasMissing
+                                  ? 'border-amber-500/30 hover:border-amber-500/50 bg-amber-500/[0.02]'
+                                  : 'border-white/5 hover:border-blue-500/30'
+                              }`}
+                            >
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
+                                <div>
+                                  <div className="flex items-center gap-2.5 flex-wrap">
+                                    <h4 className="font-bold text-on-surface text-base">{mod.name}</h4>
+                                    {mod.version && (
+                                      <span className="text-xs font-mono bg-white/10 text-on-surface-variant px-2 py-0.5 rounded">
+                                        v{mod.version}
+                                      </span>
+                                    )}
+                                    <span className="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-semibold border border-blue-500/30">
+                                      {mod.type || 'Pak'} Mod
+                                    </span>
+                                  </div>
+                                  <p className="text-xs font-mono text-on-surface-variant mt-1 truncate">
+                                    {mod.fileName} • {formatBytes(mod.size)}
+                                  </p>
+                                </div>
+
+                                <div className="text-xs text-on-surface-variant shrink-0 font-semibold flex items-center gap-2">
+                                  <span>
+                                    {deps.length} {deps.length === 1 ? 'dependency' : 'dependencies'}
+                                  </span>
+                                  {deps.length > 0 && !hasMissing && (
+                                    <span className="text-emerald-400 flex items-center gap-1">
+                                      <CheckCircle2 className="w-3.5 h-3.5" /> All satisfied
+                                    </span>
+                                  )}
+                                  {hasMissing && (
+                                    <span className="text-amber-400 flex items-center gap-1">
+                                      <AlertCircle className="w-3.5 h-3.5" /> Missing dependencies
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {/* Declared Dependencies Badges */}
+                              <div className="mt-4">
+                                {deps.length === 0 ? (
+                                  <p className="text-xs text-on-surface-variant italic">
+                                    No external dependencies declared.
+                                  </p>
+                                ) : (
+                                  <div className="flex flex-wrap gap-2.5">
+                                    {deps.map((dep: any, dIdx: number) => {
+                                      const isInstalling = installingModId === dep.id
+
+                                      return (
+                                        <div
+                                          key={dIdx}
+                                          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs border transition-all ${
+                                            dep.satisfied
+                                              ? 'bg-emerald-900/20 border-emerald-500/30 text-emerald-300'
+                                              : dep.mandatory
+                                                ? 'bg-amber-900/20 border-amber-500/30 text-amber-300'
+                                                : 'bg-surface-container border-white/10 text-on-surface-variant'
+                                          }`}
+                                        >
+                                          {dep.satisfied ? (
+                                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                                          ) : (
+                                            <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                                          )}
+
+                                          <div className="flex items-center gap-1.5">
+                                            <span className="font-bold text-on-surface">{dep.name}</span>
+                                            {dep.version && dep.version !== '*' && (
+                                              <span className="text-[11px] font-mono text-on-surface-variant opacity-80">
+                                                ({dep.version})
+                                              </span>
+                                            )}
+                                            <span
+                                              className={`text-[10px] px-1.5 py-0.2 rounded font-semibold uppercase tracking-wider ${
+                                                dep.mandatory
+                                                  ? 'bg-white/10 text-on-surface'
+                                                  : 'bg-white/5 text-on-surface-variant'
+                                              }`}
+                                            >
+                                              {dep.mandatory ? 'Required' : 'Optional'}
+                                            </span>
+                                          </div>
+
+                                          {!dep.satisfied && (
+                                            <button
+                                              onClick={() => handleInstallMissingDependency(dep.id)}
+                                              disabled={isInstalling || installingModId !== null}
+                                              className="ml-2 px-2.5 py-1 bg-blue-500 hover:brightness-110 text-on-primary font-bold rounded text-[11px] transition-all disabled:opacity-50 shadow-sm flex items-center gap-1"
+                                            >
+                                              {isInstalling ? (
+                                                <>
+                                                  <RefreshCw className="w-3 h-3 animate-spin" />
+                                                  Installing...
+                                                </>
+                                              ) : (
+                                                <>
+                                                  <Download className="w-3 h-3" />
+                                                  Install
+                                                </>
+                                              )}
+                                            </button>
+                                          )}
+                                        </div>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'nexus' && (
+                <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl shadow-glass flex flex-col min-h-[600px] overflow-hidden">
+                  <webview
+                    src="https://www.nexusmods.com/palworld"
+                    className="w-full h-full border-none flex-1 bg-surface-container-lowest min-h-[600px]"
+                  />
                 </div>
               )}
             </div>

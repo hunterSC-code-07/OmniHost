@@ -1,13 +1,13 @@
-import { SevenDaysToDieProcessManager } from './SevenDaysToDieProcessManager';
+import { TheForestProcessManager } from './TheForestProcessManager';
 import { IServerAdapter } from '../adapters/AdapterRegistry';
 
-export class SevenDaysToDieAdapter implements IServerAdapter {
+export class TheForestAdapter implements IServerAdapter {
   serverId: number;
-  private processManager: SevenDaysToDieProcessManager;
+  private processManager: TheForestProcessManager;
 
   constructor(serverId: number) {
     this.serverId = serverId;
-    this.processManager = new SevenDaysToDieProcessManager(serverId);
+    this.processManager = new TheForestProcessManager(serverId);
   }
 
   async start() {

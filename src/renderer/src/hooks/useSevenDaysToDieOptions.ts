@@ -7,6 +7,11 @@ export function useSevenDaysToDieOptions() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // Meta State
+  const [ramLimit, setRamLimit] = useState(8);
+  const [cpuLimit, setCpuLimit] = useState(4);
+  const [sysInfo, setSysInfo] = useState({ totalMem: 8, cpus: 4 });
+
   // Form State
   const [serverName, setServerName] = useState('');
   const [serverDescription, setServerDescription] = useState('');
@@ -25,6 +30,22 @@ export function useSevenDaysToDieOptions() {
     if (!activeServerId) return;
     setIsLoading(true);
     try {
+      // Load Meta & SysInfo
+      // @ts-ignore
+      const info = await window.api.system.getSystemInfo();
+      setSysInfo({
+        totalMem: Math.max(2, Math.floor(info.totalMem / (1024 * 1024 * 1024))),
+        cpus: info.cpus || 4
+      });
+
+      // @ts-ignore
+      const meta = await window.api.server.getServerMeta(activeServerId);
+      if (meta) {
+        if (meta.ram) setRamLimit(meta.ram);
+        if (meta.cpu) setCpuLimit(meta.cpu);
+      }
+
+      // @ts-ignore
       const config = await window.api.fs.readFile(activeServerId, 'serverconfig.xml');
       if (config) {
         setConfigText(config);
@@ -81,8 +102,16 @@ export function useSevenDaysToDieOptions() {
       replaceString('GameDifficulty', gameDifficulty);
       replaceString('ServerPort', serverPort);
 
+      // @ts-ignore
       await window.api.fs.writeFile(activeServerId, 'serverconfig.xml', newConfig);
       setConfigText(newConfig);
+
+      // @ts-ignore
+      await window.api.server.updateServerMeta(activeServerId, {
+        ram: ramLimit,
+        cpu: cpuLimit
+      });
+
       alert('Settings saved successfully!');
     } catch (e) {
       console.error("Failed to save 7 Days to Die config", e);
@@ -103,6 +132,9 @@ export function useSevenDaysToDieOptions() {
     worldGenSeed, setWorldGenSeed,
     gameDifficulty, setGameDifficulty,
     serverPort, setServerPort,
+    ramLimit, setRamLimit,
+    cpuLimit, setCpuLimit,
+    sysInfo,
     handleSave
   };
 }

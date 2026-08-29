@@ -114,12 +114,14 @@ export function registerSystemIpc(
   ipcMain.handle('read-config', async (_, id) => {
     const serverDir = join(app.getPath('userData'), 'servers', id.toString())
     let configName = 'server.properties'
+    let customPath = ''
     try {
       const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'))
       if (meta.game === 'DayZ') configName = 'serverDZ.cfg'
+      if (meta.game === 'The Forest') customPath = join(os.homedir(), 'AppData', 'LocalLow', 'SKS', 'TheForestDedicatedServer', 'ds', 'Server.cfg')
     } catch (e) {}
 
-    const configPath = join(serverDir, configName)
+    const configPath = customPath || join(serverDir, configName)
     if (await exists(configPath)) return await fsPromises.readFile(configPath, 'utf-8')
     return `# No ${configName} found.\n# Start the server once to generate this file automatically!`
   })
@@ -137,12 +139,19 @@ export function registerSystemIpc(
     if (!(await exists(serverDir))) await fsPromises.mkdir(serverDir, { recursive: true })
 
     let configName = 'server.properties'
+    let customPath = ''
     try {
       const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'))
       if (meta.game === 'DayZ') configName = 'serverDZ.cfg'
+      if (meta.game === 'The Forest') {
+        const forestDir = join(os.homedir(), 'AppData', 'LocalLow', 'SKS', 'TheForestDedicatedServer', 'ds')
+        if (!(await exists(forestDir))) await fsPromises.mkdir(forestDir, { recursive: true })
+        customPath = join(forestDir, 'Server.cfg')
+      }
     } catch (e) {}
 
-    await fsPromises.writeFile(join(serverDir, configName), data)
+    const configPath = customPath || join(serverDir, configName)
+    await fsPromises.writeFile(configPath, data)
     return true
   })
 
