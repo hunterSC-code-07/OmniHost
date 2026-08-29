@@ -62,6 +62,16 @@ export class PalworldModManager {
     }
   }
 
+  static async getModDetails(modId: number) {
+    try {
+      const res = await this.fetchCurseForge<any>(`/mods/${modId}`)
+      return res.data
+    } catch (e: any) {
+      console.error(e)
+      return { error: e.message }
+    }
+  }
+
   static async installMod(serverId: number, modId: number, fileId: number) {
     try {
       // 1. Get Mod File Details

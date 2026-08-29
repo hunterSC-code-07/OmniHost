@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
-import { Download, Search, ExternalLink, Trash2, Package, Layers } from 'lucide-react'
+import { Download, Search, ExternalLink, Trash2, Package, Layers, Globe } from 'lucide-react'
 import { usePalworldMods } from '../../../hooks/usePalworldMods'
 
 export const PalworldModsTab: React.FC = React.memo(() => {
@@ -18,7 +18,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
     handleDeleteMod
   } = usePalworldMods()
 
-  const [activeTab, setActiveTab] = useState<'search' | 'installed'>('search')
+  const [activeTab, setActiveTab] = useState<'search' | 'installed' | 'nexus'>('search')
 
   return (
     <div className="absolute inset-0 flex min-h-0">
@@ -32,7 +32,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
           <div className="flex justify-between items-end z-20 py-4">
             <div>
               <h2 className="font-headline-lg text-headline-lg text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
-                Mods (CurseForge)
+                Mods
               </h2>
             </div>
 
@@ -50,6 +50,13 @@ export const PalworldModsTab: React.FC = React.memo(() => {
               >
                 <Package className="w-4 h-4" />
                 Installed ({installedMods.length})
+              </button>
+              <button
+                onClick={() => setActiveTab('nexus')}
+                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'nexus' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+              >
+                <Globe className="w-4 h-4" />
+                Nexus
               </button>
             </div>
           </div>
@@ -226,6 +233,15 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+
+              {activeTab === 'nexus' && (
+                <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl shadow-glass flex flex-col min-h-[600px] overflow-hidden">
+                  <webview
+                    src="https://www.nexusmods.com/palworld"
+                    className="w-full h-full border-none flex-1 bg-surface-container-lowest min-h-[600px]"
+                  />
                 </div>
               )}
             </div>
