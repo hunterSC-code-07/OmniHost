@@ -29,7 +29,7 @@ export class CurseForgeApiClient {
         url += `&gameVersion=${encodeURIComponent(cfVersion)}`
       }
       
-      if (type) {
+      if (type && (classId === 6 || classId === 4471 || classId === 5)) {
         if (type === 'Forge') url += '&modLoaderType=1'
         else if (type === 'Fabric') url += '&modLoaderType=4'
         else if (type === 'NeoForge') url += '&modLoaderType=6'
