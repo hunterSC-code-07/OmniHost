@@ -35,7 +35,7 @@ export function registerSevenDaysToDieIpc(): void {
         const content = await fs.promises.readFile(blocksPath, 'utf8');
         let match;
         while ((match = itemRegex.exec(content)) !== null) {
-          const type = match[1]; // block
+          // const _type = match[1]; // block
           const name = match[2];
           const block = match[0];
           
@@ -67,7 +67,7 @@ export function registerSevenDaysToDieIpc(): void {
         let match;
         while ((match = entityRegex.exec(content)) !== null) {
           const name = match[1];
-          const _block = match[0];
+          // const _block = match[0];
           
           if (name.includes('player')) continue;
           
