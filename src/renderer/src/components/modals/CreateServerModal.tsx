@@ -23,6 +23,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const [isNewServerTypeMenuOpen, setIsNewServerTypeMenuOpen] = useState(false)
   const [isNewServerVersionMenuOpen, setIsNewServerVersionMenuOpen] = useState(false)
   const [isNewServerLoaderMenuOpen, setIsNewServerLoaderMenuOpen] = useState(false)
+  
+  const [terrariaDifficulty, setTerrariaDifficulty] = useState('0')
+  const [terrariaWorldSize, setTerrariaWorldSize] = useState('2')
+
   const [isCreatingServer, setIsCreatingServer] = useState(false)
   const [downloadProgress, setDownloadProgress] = useState(0)
   const [downloadText, setDownloadText] = useState('Downloading server.jar...')
@@ -106,6 +110,12 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
           }
 
           if (success) {
+            if (activeGameHub === 'Terraria') {
+              const configData = `autocreate=${terrariaWorldSize}\nworld=worlds\\World1.wld\nworldname=OmniHost World\ndifficulty=${terrariaDifficulty}\nmaxplayers=8\nport=7777\npassword=\nmotd=Powered by OmniHost\nworldpath=worlds\nbanlist=banlist.txt`;
+              // @ts-ignore
+              await window.api.fs.writeFile(newId, 'serverconfig.txt', configData);
+            }
+
             // Refresh list
             // @ts-ignore
             const data = await window.api.server.getServers();
@@ -286,6 +296,38 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                       </div>
                     )}
                   </div>
+                )}
+
+                {activeGameHub === 'Terraria' && (
+                  <>
+                    <div className="relative z-40">
+                      <label className="block text-sm font-bold text-gray-400 mb-1">World Size</label>
+                      <select 
+                        className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
+                        value={terrariaWorldSize}
+                        onChange={(e) => setTerrariaWorldSize(e.target.value)}
+                        disabled={isCreatingServer}
+                      >
+                        <option value="1">Small</option>
+                        <option value="2">Medium</option>
+                        <option value="3">Large</option>
+                      </select>
+                    </div>
+                    <div className="relative z-30">
+                      <label className="block text-sm font-bold text-gray-400 mb-1">Difficulty</label>
+                      <select 
+                        className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
+                        value={terrariaDifficulty}
+                        onChange={(e) => setTerrariaDifficulty(e.target.value)}
+                        disabled={isCreatingServer}
+                      >
+                        <option value="0">Normal</option>
+                        <option value="1">Expert</option>
+                        <option value="2">Master</option>
+                        <option value="3">Journey</option>
+                      </select>
+                    </div>
+                  </>
                 )}
 
                 {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && newServerType !== 'CurseForge Modpack' && (

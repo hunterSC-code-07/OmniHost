@@ -4,7 +4,7 @@ import { electronAPI } from '@electron-toolkit/preload'
 const api = {
   server: {
     getServers: () => ipcRenderer.invoke('get-servers'),
-    createServer: (name: string, game: string, type: string, version: string, loaderVersion?: string) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion),
+    createServer: (name: string, game: string, type: string, version: string, loaderVersion?: string, extraArgs?: any) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion, extraArgs),
     deleteServer: (id: number) => ipcRenderer.invoke('delete-server', id),
     startServer: (id: number) => ipcRenderer.invoke('start-server', id),
     stopServer: (id: number) => ipcRenderer.invoke('stop-server', id),
