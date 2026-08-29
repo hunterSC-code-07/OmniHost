@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useServerStore } from '../../../../store/useServerStore';
+import { ResourceAllocationPanel } from '../../../common/ResourceAllocationPanel';
 
 interface TerrariaConfig {
   maxplayers: string;
@@ -38,9 +39,31 @@ export const TerrariaOptionsTab: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [hasLoaded, setHasLoaded] = useState(false);
 
+  const [sysInfo, setSysInfo] = useState({ totalMem: 8, cpus: 4 });
+  const [ramLimit, setRamLimit] = useState(4);
+  const [cpuLimit, setCpuLimit] = useState(2);
+
   useEffect(() => {
     if (!currentServer) return;
     
+    // Fetch system info
+    // @ts-ignore
+    window.api.system.getSystemInfo().then(info => {
+      setSysInfo({
+        totalMem: Math.max(2, Math.floor(info.totalMem / (1024 * 1024 * 1024))),
+        cpus: info.cpus || 4
+      });
+    }).catch(() => {});
+
+    // Fetch meta
+    // @ts-ignore
+    window.api.server.getServerMeta(currentServer.id).then((meta: any) => {
+      if (meta) {
+        if (meta.ram) setRamLimit(meta.ram);
+        if (meta.cpu) setCpuLimit(meta.cpu);
+      }
+    }).catch(console.error);
+
     window.api.fs.readFile(currentServer.id, 'serverconfig.txt')
       .then(res => {
         if (res.success && res.content) {
@@ -88,6 +111,12 @@ export const TerrariaOptionsTab: React.FC = () => {
     const content = serializeConfig(config);
     await window.api.fs.writeFile(currentServer.id, 'serverconfig.txt', content);
     
+    // @ts-ignore
+    await window.api.server.updateServerMeta(currentServer.id, {
+      ram: ramLimit,
+      cpu: cpuLimit
+    });
+    
     setTimeout(() => setIsSaving(false), 500);
   };
 
@@ -98,7 +127,7 @@ export const TerrariaOptionsTab: React.FC = () => {
   if (!currentServer || !hasLoaded) return null;
 
   return (
-    <div className="flex flex-col h-full gap-6 max-w-5xl mx-auto w-full pb-20">
+    <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-20">
       <div className="flex justify-between items-center bg-black/40 p-6 rounded-xl border border-white/5 glass-panel">
         <div>
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
@@ -118,6 +147,12 @@ export const TerrariaOptionsTab: React.FC = () => {
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
+
+      <ResourceAllocationPanel 
+        ramLimit={ramLimit} setRamLimit={setRamLimit}
+        cpuLimit={cpuLimit} setCpuLimit={setCpuLimit}
+        sysInfo={sysInfo}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Gameplay & World */}
