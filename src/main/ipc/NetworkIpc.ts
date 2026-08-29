@@ -5,6 +5,7 @@ import { FrpAdapterDayz } from '../adapters/FrpAdapterDayz'
 import { FrpAdapterSatisfactory } from '../adapters/FrpAdapterSatisfactory'
 import { FrpAdapter7dtd } from '../adapters/FrpAdapter7dtd'
 import { FrpAdapterTheForest } from '../adapters/FrpAdapterTheForest'
+import { FrpAdapterPalworld } from '../adapters/FrpAdapterPalworld'
 import { IVpnAdapter } from '../adapters/IVpnAdapter'
 
 let tunnelProviders: Record<string, BaseFrpAdapter> | null = null;
@@ -20,6 +21,7 @@ export function registerNetworkIpc(
       'satisfactory': new FrpAdapterSatisfactory(),
       '7dtd': new FrpAdapter7dtd(),
       'theforest': new FrpAdapterTheForest(),
+      'palworld': new FrpAdapterPalworld(),
     };
   }
 
