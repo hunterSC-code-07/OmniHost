@@ -1,5 +1,4 @@
 import { WakeProxy } from '../adapters/WakeProxy';
-import { FrpAdapter } from '../adapters/FrpAdapter';
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter';
 import { BrowserWindow } from 'electron';
 import { setupMinecraftEventCoordinator } from '../minecraft/MinecraftEventCoordinator';
@@ -12,13 +11,13 @@ import { registerCacheIpc } from '../ipc/CacheIpc';
 import { registerLogIpc } from '../ipc/LogIpc';
 import { registerNetworkIpc } from '../ipc/NetworkIpc';
 import { registerPalworldIpc } from '../ipc/PalworldIpc';
+import { registerSevenDaysToDieIpc } from '../ipc/SevenDaysToDieIpc';
 import { getServers } from '../db';
 
 export function registerAllIpcs(): void {
   // Initialize Systems
   const activeServers: Record<number, any> = {};
   const activeProxies: Record<number, WakeProxy> = {};
-  const tunnelProvider = new FrpAdapter();
   const radminVpnProvider = new RadminVpnAdapter((msg) => {
     const windows = BrowserWindow.getAllWindows();
     if (windows.length > 0) {
@@ -33,8 +32,9 @@ export function registerAllIpcs(): void {
   registerServerIpc(activeServers, activeProxies);
   registerSteamCMDIpc();
   registerCacheIpc();
-  registerNetworkIpc(tunnelProvider, radminVpnProvider);
+  registerNetworkIpc(radminVpnProvider);
   registerSystemIpc(activeServers, getServers);
   registerMinecraftIpc();
   registerPalworldIpc();
+  registerSevenDaysToDieIpc();
 }

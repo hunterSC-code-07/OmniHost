@@ -10,7 +10,6 @@ import { PalworldModsTab } from './PalworldModsTab'
 import { FilesTab } from '../../tabs/FilesTab'
 import { BackupsTab } from '../../tabs/BackupsTab'
 import { OverviewTab } from '../../tabs/OverviewTab'
-
 import { PalworldAnimatedBackground } from './PalworldAnimatedBackground'
 import { TunnelModal } from '../../modals/TunnelModal'
 
