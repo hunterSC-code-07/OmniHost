@@ -9,6 +9,7 @@ export const TerrariaHubHeader: React.FC = () => {
   const activeServer = servers.find(s => s.id === activeServerId);
 
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   if (!activeServer) return null;
 
@@ -27,6 +28,12 @@ export const TerrariaHubHeader: React.FC = () => {
     }
   };
 
+  const handleCopyIp = () => {
+    navigator.clipboard.writeText(tunnelIp);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
     <>
       <div className="flex justify-between items-center relative z-20">
@@ -40,10 +47,23 @@ export const TerrariaHubHeader: React.FC = () => {
 
         <div className="flex gap-3 items-center">
           {tunnelStatus === 'Online' && tunnelIp && (
-            <div className="px-4 py-2 flex flex-col justify-center text-brand font-bold bg-brand/5 border border-brand/20 rounded-lg shadow-sm" title="FRP Tunnel IP">
-              <span className="text-sm leading-tight text-center">{tunnelIp}</span>
-              <span className="text-[10px] text-brand/70 uppercase tracking-widest text-center mt-0.5">Port: 7777</span>
-            </div>
+            <button 
+              onClick={handleCopyIp}
+              className="px-4 py-2 min-w-[120px] flex flex-col justify-center items-center text-brand font-bold bg-brand/5 border border-brand/20 rounded-lg shadow-sm hover:bg-brand/10 transition-colors cursor-pointer group" 
+              title="Click to copy IP"
+            >
+              {copied ? (
+                <div className="flex items-center gap-1 h-full justify-center text-sm leading-tight">
+                  <span className="material-symbols-outlined text-[16px]">check</span>
+                  Copied!
+                </div>
+              ) : (
+                <>
+                  <span className="text-sm leading-tight text-center group-hover:scale-105 transition-transform">{tunnelIp}</span>
+                  <span className="text-[10px] text-brand/70 uppercase tracking-widest text-center mt-0.5">Port: 7777</span>
+                </>
+              )}
+            </button>
           )}
           <div className="flex glass-panel rounded-lg overflow-hidden transition-all duration-300 ease-out hover:border-white/30 hover:-translate-y-1 hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
             <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-brand/10 text-brand hover:bg-brand/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
