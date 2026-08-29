@@ -21,6 +21,24 @@ export function usePalworldMods() {
     }
   }, [activeServerId])
 
+  // Dependencies
+  const [modDependencies, setModDependencies] = useState<any[]>([])
+  const [isLoadingDependencies, setIsLoadingDependencies] = useState(false)
+  const [isInstallingAllDeps, _setIsInstallingAllDeps] = useState(false)
+  const [installAllProgress, _setInstallAllProgress] = useState({ current: 0, total: 0, text: '' })
+
+  const fetchModDependencies = useCallback(async () => {
+    // Mock implementation similar to Minecraft for now
+    setIsLoadingDependencies(true)
+    setTimeout(() => {
+      setModDependencies([])
+      setIsLoadingDependencies(false)
+    }, 1000)
+  }, [])
+
+  const handleInstallMissingDependency = async (_id: string) => {}
+  const handleInstallAllMissingDependencies = async () => {}
+
   const handleSearchMods = useCallback(
     async (e?: React.FormEvent, forceQuery?: string) => {
       if (e) e.preventDefault()
@@ -116,6 +134,13 @@ export function usePalworldMods() {
     installedMods,
     handleInstallMod,
     installingModId,
-    handleDeleteMod
+    handleDeleteMod,
+    modDependencies,
+    isLoadingDependencies,
+    isInstallingAllDeps,
+    installAllProgress,
+    fetchModDependencies,
+    handleInstallMissingDependency,
+    handleInstallAllMissingDependencies
   }
 }
