@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
-import { SevenDaysToDieConsoleTab } from './tabs/SevenDaysToDieConsoleTab';
 import { motion, AnimatePresence } from 'motion/react';
 
 import { useServerStore } from '../../../store/useServerStore';
@@ -9,15 +8,13 @@ import { useUiStore } from '../../../store/useUiStore';
 import { TunnelModal } from '../../modals/TunnelModal';
 
 import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
-import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab';
-import { SevenDaysToDiePlayersTab } from './tabs/SevenDaysToDiePlayersTab';
-import { SevenDaysToDieOverviewTab } from './tabs/SevenDaysToDieOverviewTab';
-import { SevenDaysToDieSpawnTab } from './tabs/SevenDaysToDieSpawnTab';
-import { SevenDaysToDieInstalledModsTab } from './tabs/SevenDaysToDieInstalledModsTab';
-import { SevenDaysToDieNexusTab } from './tabs/SevenDaysToDieNexusTab';
-import { SevenDaysToDieCommunityModsTab } from './tabs/SevenDaysToDieCommunityModsTab';
+import { TheForestOverviewTab } from './tabs/TheForestOverviewTab';
+import { TheForestConsoleTab } from './tabs/TheForestConsoleTab';
+import { TheForestPlayersTab } from './tabs/TheForestPlayersTab';
+import { TheForestOptionsTab } from './tabs/TheForestOptionsTab';
+import { TheForestAdminTab } from './tabs/TheForestAdminTab';
 
-export const SevenDaysToDieHub: React.FC = () => {
+export const TheForestHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
   const [activeTab, setActiveTab] = useState('overview');
@@ -28,7 +25,7 @@ export const SevenDaysToDieHub: React.FC = () => {
   const handleTunnel = async () => {
     if (tunnelStatus === 'Offline' || tunnelStatus === '') {
       // @ts-ignore
-      await window.api.system.startTunnel(tunnelIp, '7dtd');
+      await window.api.system.startTunnel(tunnelIp, 'theforest');
     } else if (tunnelStatus === 'Online') {
       // @ts-ignore
       await window.api.system.stopTunnel();
@@ -40,7 +37,7 @@ export const SevenDaysToDieHub: React.FC = () => {
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black/60">
       
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
 
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none backdrop-blur-md bg-black/40">
         <div className="flex justify-between items-center relative z-20">
@@ -49,7 +46,7 @@ export const SevenDaysToDieHub: React.FC = () => {
               <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </button>
             <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
-            <span className="bg-[#b32b2b]/20 text-[#ff4f4f] border border-[#b32b2b]/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">7 Days to Die</span>
+            <span className="bg-[#16a34a]/20 text-[#4ade80] border border-[#16a34a]/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">The Forest</span>
           </div>
 
           <div className="flex gap-3 items-center">
@@ -69,7 +66,7 @@ export const SevenDaysToDieHub: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">{activeServer.status === 'Online' ? 'STOP' : 'START'}</span>
             </button>
-            <button onClick={() => restartServer(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-[#b32b2b]/60 text-[#ff4f4f] hover:text-[#ff4f4f] hover:shadow-[0_8px_32px_rgba(179,43,43,0.2)]">
+            <button onClick={() => restartServer(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-[#16a34a]/60 text-[#4ade80] hover:text-[#4ade80] hover:shadow-[0_8px_32px_rgba(22,163,74,0.2)]">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">RESTART</span>
             </button>
@@ -84,10 +81,7 @@ export const SevenDaysToDieHub: React.FC = () => {
                 { id: 'overview', label: 'Overview', icon: 'dashboard' },
                 { id: 'console', label: 'Console', icon: 'terminal' },
                 { id: 'players', label: 'Live Players', icon: 'group' },
-                { id: 'spawn', label: 'Spawn Items', icon: 'inventory_2' },
-                { id: 'installed_mods', label: 'Installed Mods', icon: 'extension' },
-                { id: 'nexus_mods', label: 'Nexus Mods', icon: 'travel_explore' },
-                { id: 'community_mods', label: 'Community Mods', icon: 'language' },
+                { id: 'admin', label: 'Admin Actions', icon: 'admin_panel_settings' },
                 { id: 'options', label: 'Options', icon: 'settings' },
                 { id: 'files', label: 'Config & Files', icon: 'folder' }
               ].map(tab => (
@@ -95,7 +89,7 @@ export const SevenDaysToDieHub: React.FC = () => {
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${activeTab === tab.id
-                      ? 'bg-[#b32b2b]/20 text-[#ff4f4f] border border-[#b32b2b]/50 shadow-[0_0_15px_rgba(179,43,43,0.15)]'
+                      ? 'bg-[#16a34a]/20 text-[#4ade80] border border-[#16a34a]/50 shadow-[0_0_15px_rgba(22,163,74,0.15)]'
                       : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
                     }`}
                 >
@@ -119,14 +113,11 @@ export const SevenDaysToDieHub: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >
-              { activeTab === 'overview' && <SevenDaysToDieOverviewTab serverId={activeServer.id} />}
-              { activeTab === 'console' && <SevenDaysToDieConsoleTab />}
-              { activeTab === 'players' && <SevenDaysToDiePlayersTab serverId={activeServer.id} />}
-              { activeTab === 'spawn' && <SevenDaysToDieSpawnTab serverId={activeServer.id} />}
-              { activeTab === 'installed_mods' && <SevenDaysToDieInstalledModsTab serverId={activeServer.id} />}
-              { activeTab === 'nexus_mods' && <SevenDaysToDieNexusTab serverId={activeServer.id} />}
-              { activeTab === 'community_mods' && <SevenDaysToDieCommunityModsTab serverId={activeServer.id} />}
-              { activeTab === 'options' && <OptionsTab />}
+              { activeTab === 'overview' && <TheForestOverviewTab serverId={activeServer.id} />}
+              { activeTab === 'console' && <TheForestConsoleTab />}
+              { activeTab === 'players' && <TheForestPlayersTab serverId={activeServer.id} />}
+              { activeTab === 'admin' && <TheForestAdminTab serverId={activeServer.id} />}
+              { activeTab === 'options' && <TheForestOptionsTab />}
               { activeTab === 'files' && <FilesTab />}
 
             </motion.div>
