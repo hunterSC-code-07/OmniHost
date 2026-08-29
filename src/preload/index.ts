@@ -20,6 +20,8 @@ const api = {
     getInventory: (id: number, playerName: string) => ipcRenderer.invoke('get-inventory', id, playerName),
     getSatisfactoryToken: (id: number) => ipcRenderer.invoke('get-satisfactory-token', id),
     saveSatisfactoryToken: (id: number, token: string) => ipcRenderer.invoke('save-satisfactory-token', id, token),
+    get7DTDItems: (serverId: number) => ipcRenderer.invoke('get-7dtd-items', serverId),
+    get7DTDEntities: (serverId: number) => ipcRenderer.invoke('get-7dtd-entities', serverId),
     
     // Events
     onServersUpdate: (callback: (data: any[]) => void) => {
@@ -54,7 +56,7 @@ const api = {
     getDetailedCacheInfo: () => ipcRenderer.invoke('get-detailed-cache-info'),
     clearCache: () => ipcRenderer.invoke('clear-cache'),
     clearSpecificCache: (cacheId: string) => ipcRenderer.invoke('clear-specific-cache', cacheId),
-    startTunnel: (ip: string, game: string) => ipcRenderer.invoke('start-tunnel', { ip, game }),
+    startTunnel: (ip: string, game: string) => ipcRenderer.invoke('start-tunnel', ip, game),
     stopTunnel: () => ipcRenderer.invoke('stop-tunnel'),
     getTunnelStatus: () => ipcRenderer.invoke('get-tunnel-status'),
     radminCheck: () => ipcRenderer.invoke('radmin-check'),
@@ -114,6 +116,15 @@ const api = {
     extractLocalMission: (id: number, localMissionsPath: string) => ipcRenderer.invoke('extract-dayz-local-mission', id, localMissionsPath),
     rebuildModDependencies: (id: number | string) => ipcRenderer.invoke('rebuild-mod-dependencies', id),
     importLocalWorkshop: (id: number, workshopPath: string) => ipcRenderer.invoke('import-local-workshop', id, workshopPath)
+  },
+
+  sevenDaysToDie: {
+    getNexusApiKey: () => ipcRenderer.invoke('get-nexus-api-key'),
+    setNexusApiKey: (key: string) => ipcRenderer.invoke('set-nexus-api-key', key),
+    getMods: (serverId: number) => ipcRenderer.invoke('get-7dtd-mods', serverId),
+    toggleMod: (serverId: number, folderName: string, enabled: boolean) => ipcRenderer.invoke('toggle-7dtd-mod', serverId, folderName, enabled),
+    deleteMod: (serverId: number, folderName: string) => ipcRenderer.invoke('delete-7dtd-mod', serverId, folderName),
+    setActiveDownloadServer: (serverId: number | null) => ipcRenderer.invoke('set-active-download-server', serverId)
   },
 
   steam: {
