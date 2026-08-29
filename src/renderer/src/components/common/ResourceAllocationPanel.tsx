@@ -31,7 +31,15 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
           step="1"
           value={ramLimit} 
           onChange={(e) => setRamLimit(parseInt(e.target.value, 10))}
-          className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#ff4f4f] hover:bg-white/20 transition-colors"
+          className="w-full h-4 bg-white/5 rounded-full appearance-none cursor-pointer border border-white/10 overflow-hidden
+            [&::-webkit-slider-thumb]:appearance-none 
+            [&::-webkit-slider-thumb]:w-4
+            [&::-webkit-slider-thumb]:h-4
+            [&::-webkit-slider-thumb]:rounded-full 
+            [&::-webkit-slider-thumb]:bg-white 
+            [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#ff4f4f]
+            hover:[&::-webkit-slider-thumb]:bg-gray-200
+            transition-all"
         />
         <div className="flex justify-between text-xs font-bold text-gray-500 uppercase tracking-widest mt-3 px-1">
           <span>1 GB</span>
@@ -51,7 +59,15 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
           step="1"
           value={cpuLimit} 
           onChange={(e) => setCpuLimit(parseInt(e.target.value, 10))}
-          className="w-full h-2 bg-white/10 rounded-full appearance-none cursor-pointer accent-[#ff4f4f] hover:bg-white/20 transition-colors"
+          className="w-full h-4 bg-white/5 rounded-full appearance-none cursor-pointer border border-white/10 overflow-hidden
+            [&::-webkit-slider-thumb]:appearance-none 
+            [&::-webkit-slider-thumb]:w-4
+            [&::-webkit-slider-thumb]:h-4
+            [&::-webkit-slider-thumb]:rounded-full 
+            [&::-webkit-slider-thumb]:bg-white 
+            [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#ff4f4f]
+            hover:[&::-webkit-slider-thumb]:bg-gray-200
+            transition-all"
         />
         <div className="flex justify-between text-xs font-bold text-gray-500 uppercase tracking-widest mt-3 px-1">
           <span>1 Core</span>

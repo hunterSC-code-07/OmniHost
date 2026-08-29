@@ -39,7 +39,7 @@ export class TerrariaProcessManager {
   sendCommand(cmd: string) {
     this.sendLog(`> ${cmd}`)
     if (this.process && this.process.stdin) {
-      this.process.stdin.write(cmd + '\\n')
+      this.process.stdin.write(cmd + '\r\n')
     }
   }
 
@@ -113,9 +113,9 @@ banlist=banlist.txt`
     if (this.process.stdout) {
       this.process.stdout.on('data', (data: Buffer) => {
         const text = data.toString()
-        const lines = text.split('\\n')
+        const lines = text.split('\n')
         for (let line of lines) {
-          line = line.replace(/\\r/g, '').trim()
+          line = line.replace(/\r/g, '').trim()
           if (!line) continue
           this.sendLog(`[Terraria] ${line}`)
           this.parseLogLine(line)
@@ -150,7 +150,7 @@ banlist=banlist.txt`
 
   parseLogLine(line: string) {
     // Player connected: "[Name] has joined."
-    const joinMatch = line.match(/^(.+) has joined\\.$/)
+    const joinMatch = line.match(/^(.+) has joined\.$/)
     if (joinMatch) {
       const name = joinMatch[1].trim()
       if (!this.onlinePlayers.includes(name)) {
@@ -160,7 +160,7 @@ banlist=banlist.txt`
     }
 
     // Player disconnected: "[Name] has left."
-    const leaveMatch = line.match(/^(.+) has left\\.$/)
+    const leaveMatch = line.match(/^(.+) has left\.$/)
     if (leaveMatch) {
       const name = leaveMatch[1].trim()
       this.onlinePlayers = this.onlinePlayers.filter(p => p !== name)
@@ -172,7 +172,7 @@ banlist=banlist.txt`
     if (this.process) {
       this.sendLog('[System] Stopping Terraria Server...')
       if (this.process.stdin) {
-        this.process.stdin.write('exit\\n')
+        this.process.stdin.write('exit\r\n')
       }
     }
   }
