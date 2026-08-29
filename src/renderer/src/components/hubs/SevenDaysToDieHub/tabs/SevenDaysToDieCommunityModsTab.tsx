@@ -22,7 +22,7 @@ export const SevenDaysToDieCommunityModsTab: React.FC<Props> = ({ serverId }) =>
       <webview 
         src="https://7daystodiemods.com/" 
         className="w-full h-full"
-        allowpopups="true"
+        allowpopups={true}
       />
     </div>
   );

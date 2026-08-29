@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { CustomSelect, CustomNumberInput } from '../../../common/CustomInputs';
 import { usePlayerStore } from '../../../../store/usePlayerStore';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search } from 'lucide-react';
 
 interface SevenDaysToDieSpawnTabProps {
-  serverId: string;
+  serverId: number;
 }
 
 interface GameItem {

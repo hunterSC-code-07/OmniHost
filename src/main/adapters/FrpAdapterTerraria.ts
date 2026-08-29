@@ -1,7 +1,7 @@
 import { BaseFrpAdapter } from './BaseFrpAdapter';
 
 export class FrpAdapterTerraria extends BaseFrpAdapter {
-  getProxyConfig(localIp: string): string {
+  getProxyConfig(_localIp: string): string {
     return `
 [[proxies]]
 name = "terraria-game-${Date.now()}"

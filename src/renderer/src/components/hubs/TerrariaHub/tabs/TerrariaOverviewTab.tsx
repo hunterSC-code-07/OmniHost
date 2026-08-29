@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useServerStore } from '../../../../store/useServerStore';
 import { ResourceAllocationPanel } from '../../../common/ResourceAllocationPanel';
-import { useUiStore } from '../../../../store/useUiStore';
 
 export const TerrariaOverviewTab: React.FC = () => {
   const { activeServerId, servers } = useServerStore();

@@ -8,12 +8,7 @@ import { TerrariaOptionsTab } from './tabs/TerrariaOptionsTab';
 import { TerrariaPlayersTab } from './tabs/TerrariaPlayersTab';
 import { ConsoleTab } from '../../tabs/ConsoleTab';
 
-const TABS = [
-  { id: 'overview', label: 'Overview' },
-  { id: 'console', label: 'Console' },
-  { id: 'options', label: 'Options' },
-  { id: 'players', label: 'Live Players' }
-];
+
 
 export const TerrariaHub: React.FC = () => {
   const { activeServerId, servers } = useServerStore();

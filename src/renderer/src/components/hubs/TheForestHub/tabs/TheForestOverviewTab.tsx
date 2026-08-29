@@ -1,11 +1,7 @@
 import React from 'react';
 import { OverviewTab } from '../../../tabs/OverviewTab';
 
-interface Props {
-  serverId: number;
-}
-
-export const TheForestOverviewTab: React.FC<Props> = ({ serverId }) => {
+export const TheForestOverviewTab: React.FC = () => {
   return (
     <OverviewTab 
       serverVersion="Latest"
