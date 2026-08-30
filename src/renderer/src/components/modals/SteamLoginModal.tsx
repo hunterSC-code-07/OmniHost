@@ -15,6 +15,7 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
   const [isSteamGuardRequired, setIsSteamGuardRequired] = useState(false);
   const [steamGuardCode, setSteamGuardCode] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const saveCredsBeforeAction = () => {
     setSteamCreds({ username: steamUsername });
@@ -88,13 +89,25 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
                 </div>
                 <div>
                   <label className="block text-sm font-bold text-gray-400 mb-1">Steam Password <span className="text-xs text-gray-600 font-normal">(Optional if cached)</span></label>
-                  <input 
-                    type="password" 
-                    value={steamPassword}
-                    onChange={e => setSteamPassword(e.target.value)}
-                    className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <input 
+                      type={showPassword ? "text" : "password"} 
+                      value={steamPassword}
+                      onChange={e => setSteamPassword(e.target.value)}
+                      className="w-full bg-[#050505] border border-gray-800 rounded p-2 pr-10 text-white outline-none focus:border-brand shadow-inner"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors flex items-center justify-center p-1"
+                      tabIndex={-1}
+                    >
+                      <span className="material-symbols-outlined text-[20px]">
+                        {showPassword ? 'visibility_off' : 'visibility'}
+                      </span>
+                    </button>
+                  </div>
                 </div>
                 
                 <div className="flex items-center gap-2 mt-2">
