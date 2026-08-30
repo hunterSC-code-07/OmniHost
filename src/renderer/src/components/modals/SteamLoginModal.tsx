@@ -133,7 +133,7 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
                       className="w-full bg-[#050505] border border-yellow-500/50 rounded p-2 text-white outline-none focus:border-yellow-500 shadow-inner"
                       placeholder="ABCDE"
                     />
-                    <p className="text-xs text-yellow-500/70 mt-1">Check your email or Steam mobile app for the code.</p>
+                    <p className="text-xs text-yellow-500/70 mt-1">Check your email for the code. If you approved via mobile push, leave this blank and click Login again.</p>
                   </div>
                 )}
               </div>
@@ -154,7 +154,7 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
                     }
                     else handleUpdateSteamCache();
                   }}
-                  disabled={!steamUsername || (isSteamGuardRequired && !steamGuardCode) || isUpdating}
+                  disabled={!steamUsername || isUpdating}
                   className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors flex items-center justify-center gap-2"
                 >
                   {isUpdating ? (

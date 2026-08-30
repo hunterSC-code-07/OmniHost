@@ -10,6 +10,8 @@ import { useUiStore } from '../../../store/useUiStore';
 import { TunnelModal } from '../../modals/TunnelModal';
 
 import { SatisfactoryPlayersTab } from './tabs/SatisfactoryPlayersTab';
+import { SatisfactoryModsTab } from './tabs/SatisfactoryModsTab';
+import { SatisfactoryInstalledModsTab } from './tabs/SatisfactoryInstalledModsTab';
 
 export const SatisfactoryHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
@@ -75,7 +77,9 @@ export const SatisfactoryHub: React.FC = () => {
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
               {[
                 { id: 'console', label: 'Console', icon: 'terminal' },
-                { id: 'players', label: 'Players', icon: 'group' }
+                { id: 'players', label: 'Players', icon: 'group' },
+                { id: 'installed-mods', label: 'Installed Mods', icon: 'folder' },
+                { id: 'mods', label: 'Browse Mods', icon: 'travel_explore' }
               ].map(tab => (
                 <button
                   key={tab.id}
@@ -107,6 +111,8 @@ export const SatisfactoryHub: React.FC = () => {
             >
               {activeTab === 'console' && <SatisfactoryConsoleTab />}
               {activeTab === 'players' && <SatisfactoryPlayersTab />}
+              {activeTab === 'installed-mods' && <SatisfactoryInstalledModsTab />}
+              {activeTab === 'mods' && <SatisfactoryModsTab />}
 
             </motion.div>
           </AnimatePresence>
