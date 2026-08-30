@@ -17,11 +17,31 @@ import { SevenDaysToDieInstalledModsTab } from './tabs/SevenDaysToDieInstalledMo
 import { SevenDaysToDieNexusTab } from './tabs/SevenDaysToDieNexusTab';
 import { SevenDaysToDieCommunityModsTab } from './tabs/SevenDaysToDieCommunityModsTab';
 
+const TABS = [
+  { id: 'overview', label: 'Overview', icon: 'dashboard' },
+  { id: 'console', label: 'Console', icon: 'terminal' },
+  { id: 'options', label: 'Options', icon: 'settings' },
+  { id: 'players', label: 'Live Players', icon: 'group' },
+  { id: 'spawn', label: 'Spawn Items', icon: 'inventory_2' },
+  { id: 'installed_mods', label: 'Installed Mods', icon: 'extension' },
+  { id: 'nexus_mods', label: 'Nexus Mods', icon: 'travel_explore' },
+  { id: 'community_mods', label: 'Community Mods', icon: 'language' },
+  { id: 'files', label: 'Config & Files', icon: 'folder' }
+];
+
 export const SevenDaysToDieHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
   const [activeTab, setActiveTab] = useState('overview');
+  const [direction, setDirection] = useState(1);
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
+
+  const handleTabChange = (newTabId: string) => {
+    const currentIndex = TABS.findIndex(t => t.id === activeTab);
+    const newIndex = TABS.findIndex(t => t.id === newTabId);
+    setDirection(newIndex > currentIndex ? 1 : -1);
+    setActiveTab(newTabId);
+  };
 
   const activeServer = useMemo(() => servers.find(s => s.id === activeServerId), [servers, activeServerId]);
 
@@ -80,20 +100,10 @@ export const SevenDaysToDieHub: React.FC = () => {
         <div className="w-full pb-1">
           <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer>
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
-              {[
-                { id: 'overview', label: 'Overview', icon: 'dashboard' },
-                { id: 'console', label: 'Console', icon: 'terminal' },
-                { id: 'players', label: 'Live Players', icon: 'group' },
-                { id: 'spawn', label: 'Spawn Items', icon: 'inventory_2' },
-                { id: 'installed_mods', label: 'Installed Mods', icon: 'extension' },
-                { id: 'nexus_mods', label: 'Nexus Mods', icon: 'travel_explore' },
-                { id: 'community_mods', label: 'Community Mods', icon: 'language' },
-                { id: 'options', label: 'Options', icon: 'settings' },
-                { id: 'files', label: 'Config & Files', icon: 'folder' }
-              ].map(tab => (
+              {TABS.map(tab => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${activeTab === tab.id
                       ? 'bg-[#b32b2b]/20 text-[#ff4f4f] border border-[#b32b2b]/50 shadow-[0_0_15px_rgba(179,43,43,0.15)]'
                       : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
@@ -110,12 +120,18 @@ export const SevenDaysToDieHub: React.FC = () => {
 
       <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              custom={direction}
+              variants={{
+                initial: (dir: number) => ({ opacity: 0, x: dir * 20 }),
+                animate: { opacity: 1, x: 0 },
+                exit: (dir: number) => ({ opacity: 0, x: dir * -20 })
+              }}
+              initial="initial"
+              animate="animate"
+              exit="exit"
               transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >

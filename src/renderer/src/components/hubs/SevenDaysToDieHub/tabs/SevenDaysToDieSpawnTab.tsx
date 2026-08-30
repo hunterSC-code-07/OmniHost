@@ -170,8 +170,8 @@ export const SevenDaysToDieSpawnTab: React.FC<SevenDaysToDieSpawnTabProps> = ({ 
               ) : (
                 <div 
                   ref={parentRef} 
-                  className="absolute inset-0 overflow-auto os-theme-dark"
-                  style={{ contain: 'strict' }}
+                  className="absolute inset-0 overflow-auto"
+                  style={{ contain: 'strict', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}
                 >
                   <div
                     style={{
