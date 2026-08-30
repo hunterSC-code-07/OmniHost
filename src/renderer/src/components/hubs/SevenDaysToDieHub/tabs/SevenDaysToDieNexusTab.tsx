@@ -95,7 +95,7 @@ export const SevenDaysToDieNexusTab: React.FC<Props> = ({ serverId }) => {
       <webview 
         src="https://www.nexusmods.com/7daystodie" 
         className="w-full h-full"
-        allowpopups="true"
+        allowpopups={true}
       />
     </div>
   );

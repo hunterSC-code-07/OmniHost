@@ -84,13 +84,14 @@ export class MinecraftProcessManager {
         $target = ${proc.pid}
         $children = @{}
         foreach ($p in $all) {
-            if (-not $children.ContainsKey($p.ParentProcessId)) {
-                $children[$p.ParentProcessId] = @()
+            $parentId = [string]$p.ParentProcessId
+            if (-not $children.ContainsKey($parentId)) {
+                $children[$parentId] = @()
             }
-            $children[$p.ParentProcessId] += $p
+            $children[$parentId] += $p
         }
-        $queue = [System.Collections.Generic.Queue[int]]::new()
-        $queue.Enqueue($target)
+        $queue = [System.Collections.Generic.Queue[string]]::new()
+        $queue.Enqueue([string]$target)
         $found = 0
         while ($queue.Count -gt 0) {
             $curr = $queue.Dequeue()

@@ -16,7 +16,15 @@ export const MinecraftHubHeader: React.FC = () => {
   const handleStop = stopServer;
   const handleRestart = restartServer;
   const handleDelete = deleteServer;
-  const handleTunnel = async () => {};
+  const handleTunnel = async () => {
+    if (tunnelStatus === 'Offline' || tunnelStatus === '') {
+      // @ts-ignore
+      await window.api.system.startTunnel(tunnelIp, 'minecraft');
+    } else if (tunnelStatus === 'Online') {
+      // @ts-ignore
+      await window.api.system.stopTunnel();
+    }
+  };
 
   return (
     <>

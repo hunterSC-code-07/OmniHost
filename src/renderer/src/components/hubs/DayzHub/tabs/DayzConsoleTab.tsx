@@ -82,7 +82,13 @@ export const DayzConsoleTab: React.FC = React.memo(() => {
               else if (isInfo) colorClass = 'text-on-surface-variant/90';
 
               return (
-                <div key={virtualItem.key} className={`mb-1 leading-relaxed break-words whitespace-pre-wrap absolute top-0 left-0 w-full ${colorClass}`} style={{ transform: `translateY(${virtualItem.start}px)` }}>
+                <div 
+                  key={virtualItem.key} 
+                  ref={rowVirtualizer.measureElement}
+                  data-index={virtualItem.index}
+                  className={`mb-1 leading-relaxed break-words whitespace-pre-wrap absolute top-0 left-0 w-full ${colorClass}`} 
+                  style={{ transform: `translateY(${virtualItem.start}px)` }}
+                >
                   {isInfo && !isCommand && <span className="text-blue-400 font-bold mr-1">INFO</span>}
                   {isWarn && !isCommand && <span className="text-yellow-400 font-bold mr-1">WARN</span>}
                   {isError && !isCommand && <span className="text-red-400 font-bold mr-1">ERROR</span>}

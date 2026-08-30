@@ -25,12 +25,12 @@ body {
   --os-track-bg: transparent;
   --os-track-bg-hover: transparent;
   --os-track-bg-active: transparent;
-  
+
   --os-handle-border-radius: 4px;
   --os-handle-bg: rgba(76, 175, 80, 0.3);
   --os-handle-bg-hover: rgba(76, 175, 80, 0.7);
   --os-handle-bg-active: rgba(76, 175, 80, 0.8);
-  
+
   --os-handle-border: 1px solid rgba(255, 255, 255, 0.1);
   --os-handle-border-hover: 1px solid rgba(255, 255, 255, 0.2);
   --os-handle-border-active: 1px solid rgba(255, 255, 255, 0.3);
@@ -43,19 +43,19 @@ body {
   --os-handle-bg-active: rgba(239, 68, 68, 0.9);
 }
 
-
-
 .glass-panel {
   @apply bg-black/30 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.5)];
   position: relative;
   overflow: hidden;
 }
 
-
-
 .logo-sweep {
   background-size: 200% 100%;
-  background-image: linear-gradient(to right, var(--logo-default-color) 40%, var(--logo-game-color) 60%);
+  background-image: linear-gradient(
+    to right,
+    var(--logo-default-color) 40%,
+    var(--logo-game-color) 60%
+  );
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;

@@ -1,89 +1,108 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react'
 
-export function useCreateServerData(newServerType: string, modpackSearch: string, modpackVersionFilter: string, modpackLoaderFilter: string) {
-  const [newServerVersion, setNewServerVersion] = useState('');
-  const [availableVersions, setAvailableVersions] = useState<string[]>([]);
-  const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('');
-  const [availableLoaderVersions, setAvailableLoaderVersions] = useState<string[]>([]);
-  const [isSearchingPacks, setIsSearchingPacks] = useState(false);
-  const [modpacks, setModpacks] = useState<any[]>([]);
+export function useCreateServerData(
+  newServerType: string,
+  modpackSearch: string,
+  modpackVersionFilter: string,
+  modpackLoaderFilter: string
+) {
+  const [newServerVersion, setNewServerVersion] = useState('')
+  const [availableVersions, setAvailableVersions] = useState<string[]>([])
+  const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')
+  const [availableLoaderVersions, setAvailableLoaderVersions] = useState<string[]>([])
+  const [isSearchingPacks, setIsSearchingPacks] = useState(false)
+  const [modpacks, setModpacks] = useState<any[]>([])
 
   useEffect(() => {
     const fetchModpacks = async () => {
-      if (newServerType !== 'CurseForge Modpack') return;
-      setIsSearchingPacks(true);
+      if (newServerType !== 'CurseForge Modpack') return
+      setIsSearchingPacks(true)
       try {
-        const typeStr = modpackLoaderFilter || 'Any';
-        const versionStr = modpackVersionFilter || '';
+        const typeStr = modpackLoaderFilter || 'Any'
+        const versionStr = modpackVersionFilter || ''
         // @ts-ignore
-        const results = await window.api.minecraft.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
-        setModpacks(results || []);
+        const results = await window.api.minecraft.searchCurseforgeMods(
+          modpackSearch,
+          typeStr,
+          versionStr,
+          0,
+          4471,
+          2
+        )
+        setModpacks(results || [])
       } catch (e) {
-        console.error(e);
-        setModpacks([]);
+        console.error(e)
+        setModpacks([])
       } finally {
-        setIsSearchingPacks(false);
+        setIsSearchingPacks(false)
       }
-    };
-    
+    }
+
     const timer = setTimeout(() => {
-      fetchModpacks();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [modpackSearch, modpackVersionFilter, modpackLoaderFilter, newServerType]);
+      fetchModpacks()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [modpackSearch, modpackVersionFilter, modpackLoaderFilter, newServerType])
 
   useEffect(() => {
     const fetchVersions = async () => {
-      let versions: string[] = [];
+      let versions: string[] = []
       // @ts-ignore
-      if (newServerType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions();
+      if (newServerType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions()
       // @ts-ignore
-      else if (newServerType === 'Paper') versions = await window.api.minecraft.getPaperVersions();
+      else if (newServerType === 'Paper') versions = await window.api.minecraft.getPaperVersions()
       // @ts-ignore
-      else if (newServerType === 'Fabric') versions = await window.api.minecraft.getFabricVersions();
+      else if (newServerType === 'Fabric') versions = await window.api.minecraft.getFabricVersions()
       // @ts-ignore
-      else if (newServerType === 'Forge') versions = await window.api.minecraft.getForgeVersions();
+      else if (newServerType === 'Forge') versions = await window.api.minecraft.getForgeVersions()
       // @ts-ignore
-      else if (newServerType === 'NeoForge') versions = await window.api.minecraft.getNeoForgeVersions();
-      
-      setAvailableVersions(versions);
+      else if (newServerType === 'NeoForge')
+        versions = await window.api.minecraft.getNeoForgeVersions()
+
+      setAvailableVersions(versions)
       if (versions.length > 0) {
-          setNewServerVersion(prev => versions.includes(prev) ? prev : versions[0]);
+        setNewServerVersion((prev) => (versions.includes(prev) ? prev : versions[0]))
       }
     }
-    
+
     if (newServerType !== 'CurseForge Modpack') {
-      fetchVersions();
+      fetchVersions()
     } else {
-      setAvailableVersions([]);
+      setAvailableVersions([])
     }
-  }, [newServerType]);
+  }, [newServerType])
 
   useEffect(() => {
     const fetchLoaderVersions = async () => {
-      if (!newServerVersion) return;
+      if (!newServerVersion) return
       if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {
-        setAvailableLoaderVersions([]);
+        setAvailableLoaderVersions([])
         // @ts-ignore
-        const versions = await window.api.minecraft.getLoaderVersions(newServerType, newServerVersion);
-        setAvailableLoaderVersions(versions);
+        const versions = await window.api.minecraft.getLoaderVersions(
+          newServerType,
+          newServerVersion
+        )
+        setAvailableLoaderVersions(versions)
         if (versions && versions.length > 0) {
-          setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);
+          setNewServerLoaderVersion((prev) => (versions.includes(prev) ? prev : versions[0]))
         }
       } else {
-        setAvailableLoaderVersions([]);
-        setNewServerLoaderVersion('');
+        setAvailableLoaderVersions([])
+        setNewServerLoaderVersion('')
       }
     }
-    fetchLoaderVersions();
-  }, [newServerType, newServerVersion]);
+    fetchLoaderVersions()
+  }, [newServerType, newServerVersion])
 
   return {
-    newServerVersion, setNewServerVersion,
+    newServerVersion,
+    setNewServerVersion,
     availableVersions,
-    newServerLoaderVersion, setNewServerLoaderVersion,
+    newServerLoaderVersion,
+    setNewServerLoaderVersion,
     availableLoaderVersions,
     isSearchingPacks,
-    modpacks, setModpacks
-  };
+    modpacks,
+    setModpacks
+  }
 }

@@ -1,50 +1,48 @@
-"use client";
+'use client'
 
-import * as React from "react";
-import { motion } from "motion/react";
+import * as React from 'react'
+import { motion } from 'motion/react'
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils'
 
 export interface MotionAccordionItem {
-  question: React.ReactNode;
-  answer: React.ReactNode;
+  question: React.ReactNode
+  answer: React.ReactNode
 }
-
-
 
 function AccordionItem({
   item,
   isOpen,
   onToggle,
   itemId,
-  panelId,
+  panelId
 }: {
-  item: MotionAccordionItem;
-  isOpen: boolean;
-  onToggle: () => void;
-  itemId: string;
-  panelId: string;
+  item: MotionAccordionItem
+  isOpen: boolean
+  onToggle: () => void
+  itemId: string
+  panelId: string
 }) {
-  const contentRef = React.useRef<HTMLDivElement>(null);
-  const [contentH, setContentH] = React.useState(0);
+  const contentRef = React.useRef<HTMLDivElement>(null)
+  const [contentH, setContentH] = React.useState(0)
 
   React.useEffect(() => {
-    const el = contentRef.current;
-    if (!el) return;
-    const ro = new ResizeObserver(() => setContentH(el.scrollHeight));
-    ro.observe(el);
-    setContentH(el.scrollHeight);
-    return () => ro.disconnect();
-  }, []);
+    const el = contentRef.current
+    if (!el) return
+    const ro = new ResizeObserver(() => setContentH(el.scrollHeight))
+    ro.observe(el)
+    setContentH(el.scrollHeight)
+    return () => ro.disconnect()
+  }, [])
 
   return (
     <motion.div
       layout
       className={cn(
-        "overflow-hidden rounded-xl bg-transparent text-white",
-        isOpen ? "bg-[#111111]" : "hover:bg-white/5",
+        'overflow-hidden rounded-xl bg-transparent text-white',
+        isOpen ? 'bg-[#111111]' : 'hover:bg-white/5'
       )}
-      transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
+      transition={{ type: 'spring', stiffness: 280, damping: 28, mass: 0.9 }}
       animate={{ scale: isOpen ? 1 : 0.985 }}
       initial={false}
       style={{ originX: 0.5, originY: 0 }}
@@ -66,34 +64,17 @@ function AccordionItem({
           initial={false}
           animate={{
             rotate: isOpen ? 180 : 0,
-            scale: isOpen ? 1.05 : 1,
+            scale: isOpen ? 1.05 : 1
           }}
-          transition={{ type: "spring", stiffness: 480, damping: 28 }}
+          transition={{ type: 'spring', stiffness: 480, damping: 28 }}
           className="inline-flex w-6 h-6 shrink-0 items-center justify-center text-foreground"
         >
           {isOpen ? (
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 2"
-              fill="none"
-              aria-hidden
-            >
-              <path
-                d="M1 1h12"
-                stroke="currentColor"
-                strokeWidth="1.75"
-                strokeLinecap="round"
-              />
+            <svg width="14" height="14" viewBox="0 0 14 2" fill="none" aria-hidden>
+              <path d="M1 1h12" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
             </svg>
           ) : (
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              aria-hidden
-            >
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
               <path
                 d="M7 1v12M1 7h12"
                 stroke="currentColor"
@@ -111,42 +92,40 @@ function AccordionItem({
         aria-labelledby={itemId}
         animate={{
           height: isOpen ? contentH : 0,
-          opacity: isOpen ? 1 : 0,
+          opacity: isOpen ? 1 : 0
         }}
         initial={false}
         transition={{
-          height: { type: "spring", stiffness: 340, damping: 34, mass: 0.9 },
-          opacity: { duration: 0.2, ease: "easeOut" },
+          height: { type: 'spring', stiffness: 340, damping: 34, mass: 0.9 },
+          opacity: { duration: 0.2, ease: 'easeOut' }
         }}
-        style={{ overflow: "hidden" }}
+        style={{ overflow: 'hidden' }}
       >
         <motion.div
           ref={contentRef}
           animate={{ y: isOpen ? 0 : -8 }}
           transition={{
-            type: "spring",
+            type: 'spring',
             stiffness: 360,
             damping: 30,
-            mass: 0.8,
+            mass: 0.8
           }}
           className="px-4 pb-4"
         >
-          <div className="text-foreground/75">
-            {item.answer}
-          </div>
+          <div className="text-foreground/75">{item.answer}</div>
         </motion.div>
       </motion.div>
     </motion.div>
-  );
+  )
 }
 
 export interface MotionAccordionProps {
-  items: MotionAccordionItem[];
+  items: MotionAccordionItem[]
   /** @default 10 */
-  gap?: number;
-  className?: string;
-  value?: number | null;
-  onValueChange?: (value: number | null) => void;
+  gap?: number
+  className?: string
+  value?: number | null
+  onValueChange?: (value: number | null) => void
 }
 
 export function MotionAccordion({
@@ -154,28 +133,28 @@ export function MotionAccordion({
   gap = 10,
   className,
   value,
-  onValueChange,
+  onValueChange
 }: MotionAccordionProps) {
-  const rawId = React.useId();
-  const baseId = `accordion-${rawId.replace(/:/g, "")}`;
+  const rawId = React.useId()
+  const baseId = `accordion-${rawId.replace(/:/g, '')}`
 
-  const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(null);
+  const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(null)
 
-  const isControlled = value !== undefined;
-  const openIndex = isControlled ? value : internalOpenIndex;
+  const isControlled = value !== undefined
+  const openIndex = isControlled ? value : internalOpenIndex
 
   const toggle = (i: number) => {
-    const newValue = openIndex === i ? null : i;
+    const newValue = openIndex === i ? null : i
     if (!isControlled) {
-      setInternalOpenIndex(newValue);
+      setInternalOpenIndex(newValue)
     }
     if (onValueChange) {
-      onValueChange(newValue);
+      onValueChange(newValue)
     }
-  };
+  }
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn('w-full', className)}>
       <div className="flex flex-col" style={{ gap }}>
         {items.map((item, i) => (
           <AccordionItem
@@ -189,5 +168,5 @@ export function MotionAccordion({
         ))}
       </div>
     </div>
-  );
+  )
 }
