@@ -100,7 +100,7 @@ export const TheForestOptionsTab: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 min-h-0 bg-transparent flex flex-col p-8 gap-6">
+    <div className="flex-1 min-h-0 overflow-y-auto bg-transparent flex flex-col p-8 gap-6">
       <div className="flex justify-between items-end border-b border-outline-variant/20 pb-6">
         <div>
           <h3 className="font-headline-lg text-headline-lg text-on-surface mb-1">Server Configuration</h3>
@@ -199,7 +199,7 @@ export const TheForestOptionsTab: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl overflow-hidden flex flex-col shadow-inner">
+      <div className="flex-1 min-h-[400px] bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl overflow-hidden flex flex-col shadow-inner">
         <div className="bg-surface-container/50 px-4 py-3 border-b border-outline-variant/30 text-on-surface-variant font-label-md text-label-md flex justify-between">
           <span>Raw Editor</span>
         </div>
