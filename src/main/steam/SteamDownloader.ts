@@ -61,14 +61,14 @@ export class SteamDownloader {
         console.error(`[SteamCMD App ${appId} Error]:`, data.toString().trim());
       });
 
-      proc.on('close', (code) => {
+      proc.on('exit', (code) => {
         this.activeProcess = null;
         if (code === 0 || code === 7) {
           resolve(true);
-        } else if (invalidCredentials) {
-          reject(new Error('INVALID_CREDENTIALS'));
         } else if (code === 5 && steamGuardRequested) {
           reject(new Error('STEAM_GUARD_REQUIRED'));
+        } else if (invalidCredentials) {
+          reject(new Error('INVALID_CREDENTIALS'));
         } else {
           reject(new Error(`SteamCMD exited with code ${code}`));
         }

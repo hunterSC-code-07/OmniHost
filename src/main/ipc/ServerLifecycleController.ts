@@ -128,8 +128,10 @@ export class ServerLifecycleController {
 
     ipcMain.handle('start-server', async (_, id) => {
       if (!activeServers[id]) {
+        const srv = (getServers() as any[]).find(s => s.id === id);
+        let game = srv ? srv.game : 'Minecraft';
+
         const serverDir = join(app.getPath('userData'), 'servers', id.toString());
-        let game = 'Minecraft';
         try {
           const metaPath = join(serverDir, 'omnihost.json');
           if (fs.existsSync(metaPath)) {
@@ -137,6 +139,10 @@ export class ServerLifecycleController {
             if (meta.game) game = meta.game;
           }
         } catch (e) {}
+
+        if (game && game.startsWith('Minecraft')) {
+          game = 'Minecraft';
+        }
 
         if (game === 'Minecraft') {
           // Special case as per legacy behavior
