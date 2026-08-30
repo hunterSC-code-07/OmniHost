@@ -104,7 +104,7 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
                       tabIndex={-1}
                     >
                       <span className="material-symbols-outlined text-[20px]">
-                        {showPassword ? 'visibility_off' : 'visibility'}
+                        {showPassword ? 'visibility' : 'visibility_off'}
                       </span>
                     </button>
                   </div>

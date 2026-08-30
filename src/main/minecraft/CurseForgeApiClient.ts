@@ -37,7 +37,14 @@ export class CurseForgeApiClient {
       }
 
       const res = await axios.get(url, { headers: { 'x-api-key': apiKey } })
-      return res.data.data
+      let results = res.data.data
+      
+      if (search) {
+        const searchLower = search.toLowerCase()
+        results = results.filter((mod: any) => mod.name.toLowerCase().includes(searchLower))
+      }
+      
+      return results
     } catch (e: any) {
       console.error('Error searching Curseforge mods:', e.message)
       return []
