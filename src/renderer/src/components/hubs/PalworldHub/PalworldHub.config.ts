@@ -1,9 +1,10 @@
+import React from 'react';
 import palworldBg from '../../../assets/palworld-bg.jpg';
 
 export const config = {
   gameName: 'Palworld',
   steamAppId: 2394010,
-  // Component not yet implemented
+  component: React.lazy(() => import('./PalworldHub').then(m => ({ default: m.PalworldHub }))),
   backgroundUrl: palworldBg,
   theme: {
     ringColor: 'hover:ring-[#42c0ff]',

@@ -143,8 +143,6 @@ export class SevenDaysToDieProcessManager {
     // 7DTD connection logs examples:
     // INF GMSG: Player 'AVALON' joined the game
     // INF PlayerSpawnedInWorld (reason: EnterMultiplayer, position: ...): ... PlayerName='AVALON', ClientNumber='1'
-    const joinMatch = line.match(/GMSG: Player '([^']+)' joined the game/) || line.match(/PlayerName='([^']+)'/);
-    
     if (line.includes('joined the game') || line.includes('PlayerSpawnedInWorld')) {
       const match = line.match(/GMSG: Player '([^']+)' joined the game/) || line.match(/PlayerName='([^']+)'/);
       if (match) {

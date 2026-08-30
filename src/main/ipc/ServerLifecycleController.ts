@@ -48,7 +48,7 @@ export class ServerLifecycleController {
         }
         return {
           ...srv,
-          status: activeServers[srv.id] ? 'Online' : srv.status,
+          status: (activeServers[srv.id] && activeServers[srv.id].process) ? 'Online' : srv.status,
           type: type || 'Vanilla',
           version: meta.version || '1.20.4',
           loaderVersion: meta.loaderVersion || '',
@@ -158,7 +158,8 @@ export class ServerLifecycleController {
     ipcMain.handle('stop-server', async (_, id) => {
       if (activeServers[id]) {
         activeServers[id].stop();
-        delete activeServers[id];
+        // We no longer delete activeServers[id] here so that the process can gracefully shutdown and flush logs.
+        // get-servers has been updated to check for activeServers[id].process instead, which automatically becomes null when the process dies.
       }
       return true;
     });

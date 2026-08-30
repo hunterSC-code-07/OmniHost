@@ -3,13 +3,13 @@ import fs from 'fs';
 import { join } from 'path';
 
 export function registerSevenDaysToDieIpc(): void {
-  ipcMain.handle('get-7dtd-items', async (event, serverId: number) => {
+  ipcMain.handle('get-7dtd-items', async (_event, serverId: number) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
       const itemsPath = join(serverDir, 'Data', 'Config', 'items.xml');
       const blocksPath = join(serverDir, 'Data', 'Config', 'blocks.xml');
       
-      const items = [];
+      const items: any[] = [];
       const itemRegex = /<(item|block)\s+name="([^"]+)"(?:>|[\s\S]*?<\/\1>)/g;
       
       // Parse Items
@@ -35,7 +35,7 @@ export function registerSevenDaysToDieIpc(): void {
         const content = await fs.promises.readFile(blocksPath, 'utf8');
         let match;
         while ((match = itemRegex.exec(content)) !== null) {
-          const type = match[1]; // block
+          // const _type = match[1]; // block
           const name = match[2];
           const block = match[0];
           
@@ -55,11 +55,11 @@ export function registerSevenDaysToDieIpc(): void {
     }
   });
 
-  ipcMain.handle('get-7dtd-entities', async (event, serverId: number) => {
+  ipcMain.handle('get-7dtd-entities', async (_event, serverId: number) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
       const entitiesPath = join(serverDir, 'Data', 'Config', 'entityclasses.xml');
-      const entities = [];
+      const entities: any[] = [];
       
       if (fs.existsSync(entitiesPath)) {
         const content = await fs.promises.readFile(entitiesPath, 'utf8');
@@ -67,7 +67,7 @@ export function registerSevenDaysToDieIpc(): void {
         let match;
         while ((match = entityRegex.exec(content)) !== null) {
           const name = match[1];
-          const block = match[0];
+          // const _block = match[0];
           
           if (name.includes('player')) continue;
           
@@ -102,7 +102,7 @@ export function registerSevenDaysToDieIpc(): void {
     }
   });
 
-  ipcMain.handle('set-nexus-api-key', async (event, key: string) => {
+  ipcMain.handle('set-nexus-api-key', async (_event, key: string) => {
     try {
       const envPath = join(process.cwd(), '.env');
       let content = '';
@@ -122,7 +122,7 @@ export function registerSevenDaysToDieIpc(): void {
     }
   });
 
-  ipcMain.handle('get-7dtd-mods', async (event, serverId: number) => {
+  ipcMain.handle('get-7dtd-mods', async (_event, serverId: number) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
       const modsDir = join(serverDir, 'Mods');
@@ -187,7 +187,7 @@ export function registerSevenDaysToDieIpc(): void {
     }
   });
 
-  ipcMain.handle('toggle-7dtd-mod', async (event, serverId: number, folderName: string, enabled: boolean) => {
+  ipcMain.handle('toggle-7dtd-mod', async (_event, serverId: number, folderName: string, enabled: boolean) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
       const modsDir = join(serverDir, 'Mods');
@@ -210,7 +210,7 @@ export function registerSevenDaysToDieIpc(): void {
     }
   });
 
-  ipcMain.handle('delete-7dtd-mod', async (event, serverId: number, folderName: string) => {
+  ipcMain.handle('delete-7dtd-mod', async (_event, serverId: number, folderName: string) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
       const modsDir = join(serverDir, 'Mods');

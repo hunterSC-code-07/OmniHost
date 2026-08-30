@@ -79,18 +79,21 @@ ${proxyConfig}
     this.sendLog('[FRP Tunnel] Connecting to the Cloud Server...');
     
     // Clean up any zombie frpc processes before starting
-    import('child_process').then(cp => {
-      cp.exec('taskkill /F /IM frpc.exe', () => {
-        // 3. Launch the Client
-        this.process = spawn(this.exePath, ['-c', this.configPath], { cwd: this.frpDir });
-
-        this.process.stdout?.on('data', (data) => this.sendLog(`[FRP]: ${data.toString().trim()}`));
-        this.process.stderr?.on('data', (data) => this.sendLog(`[FRP Error]: ${data.toString().trim()}`));
-        
-        this.process.on('error', (err) => {
-          this.sendLog(`[FRP Fatal]: ${err.message}`);
-        });
+    const { exec } = await import('child_process');
+    await new Promise<void>((resolve) => {
+      exec('taskkill /F /IM frpc.exe', () => {
+        resolve();
       });
+    });
+
+    // 3. Launch the Client
+    this.process = spawn(this.exePath, ['-c', this.configPath], { cwd: this.frpDir });
+
+    this.process.stdout?.on('data', (data) => this.sendLog(`[FRP]: ${data.toString().trim()}`));
+    this.process.stderr?.on('data', (data) => this.sendLog(`[FRP Error]: ${data.toString().trim()}`));
+    
+    this.process.on('error', (err) => {
+      this.sendLog(`[FRP Fatal]: ${err.message}`);
     });
   }
 

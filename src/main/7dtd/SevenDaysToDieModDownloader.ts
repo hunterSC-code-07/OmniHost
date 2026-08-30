@@ -6,12 +6,12 @@ import AdmZip from 'adm-zip';
 let activeDownloadServerId: number | null = null;
 
 export function registerSevenDaysToDieModDownloader(): void {
-  ipcMain.handle('set-active-download-server', (event, serverId: number | null) => {
+  ipcMain.handle('set-active-download-server', (_event, serverId: number | null) => {
     activeDownloadServerId = serverId;
     return true;
   });
 
-  session.defaultSession.on('will-download', (event, item, webContents) => {
+  session.defaultSession.on('will-download', (_event, item, _webContents) => {
     // Only intercept if we have an active 7DTD server selected for downloading
     if (activeDownloadServerId === null) return;
     
@@ -43,7 +43,7 @@ export function registerSevenDaysToDieModDownloader(): void {
       });
     }
 
-    item.on('updated', (event, state) => {
+    item.on('updated', (_event, state) => {
       if (state === 'progressing') {
         if (window && !item.isPaused()) {
           window.webContents.send('mod-download-progress', {
@@ -55,7 +55,7 @@ export function registerSevenDaysToDieModDownloader(): void {
       }
     });
 
-    item.once('done', async (event, state) => {
+    item.once('done', async (_event, state) => {
       if (state === 'completed') {
         try {
           if (window) {
