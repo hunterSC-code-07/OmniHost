@@ -114,11 +114,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
         <div className="px-gutter pt-stack-lg pb-stack-lg relative z-10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Active Deployments</h2>
-            <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors font-label-sm">
-                <span className="material-symbols-outlined text-[18px]">filter_list</span> Filter
-              </button>
-            </div>
+
           </div>
           
           <div className="bg-surface-container/30 border border-outline-variant/30 rounded-2xl overflow-hidden backdrop-blur-md">

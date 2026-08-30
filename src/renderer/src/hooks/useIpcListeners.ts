@@ -13,6 +13,7 @@ export function useIpcListeners() {
       useServerStore.getState().setServers(data);
     };
     fetchServers();
+    const serverInterval = setInterval(fetchServers, 3000);
 
     // @ts-ignore
     window.api.server.onServersUpdate((data: any[]) => {
@@ -41,6 +42,9 @@ export function useIpcListeners() {
       useUiStore.getState().setTunnelStatus(status);
     }, 2000);
 
-    return () => clearInterval(tunnelInterval);
+    return () => {
+      clearInterval(tunnelInterval);
+      clearInterval(serverInterval);
+    };
   }, []);
 }

@@ -1,24 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useServerStore } from '../../../../store/useServerStore';
+import { usePlayerStore } from '../../../../store/usePlayerStore';
 
 export const TerrariaPlayersTab: React.FC = () => {
   const { activeServerId, servers } = useServerStore();
   const currentServer = servers.find(s => s.id === activeServerId);
-  const [players, setPlayers] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!currentServer) return;
-    
-    // Attempt to read current players if supported via status or IPC.
-    // In our process manager, we emit 'online-players'.
-    const handlePlayers = (data: { id: number, players: string[] }) => {
-      if (data.id === currentServer.id) {
-        setPlayers(data.players || []);
-      }
-    };
-
-    window.api.server.onOnlinePlayers(handlePlayers);
-  }, [currentServer?.id]);
+  const { onlinePlayers: allOnlinePlayers } = usePlayerStore();
+  
+  const players = activeServerId ? (allOnlinePlayers[activeServerId.toString()] || []) : [];
 
   const handleKick = async (player: string) => {
     if (activeServerId) {
