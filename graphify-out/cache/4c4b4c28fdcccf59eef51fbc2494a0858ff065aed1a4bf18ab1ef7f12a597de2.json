@@ -1,1 +1,59 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"refactor","label":"refactor.js","file_type":"code","source_file":"D:/github/OmniHost/refactor.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor.js","source_location":"L1"}]}],"edges":[{"source":"refactor","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor.js","source_location":"L1"}],"weight":1},{"source":"refactor","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor.js","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor.js","source_location":"L2"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "refactor",
+      "label": "refactor.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/refactor.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "refactor",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "refactor",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor.js",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor.js",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,184 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzeconomytab","label":"DayzEconomyTab.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L1"}]},{"id":"dayzeconomytab_dayzeconomytab","label":"DayzEconomyTab()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6-L176","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6"}],"snippet":"DayzEconomyTab: React.FC = () => {\n  const {\n    isLoading,\n    isSaving,\n    error,\n    pristineLoot, setPristineLoot,\n    multipliers,\n    loadEconomy,\n    handleMultiplierChange,\n    handleSave\n  } = useDayzEconomy();\n\n  if (isLoading) {\n    return (\n      <div className=\"flex-1 flex items-center justify-center\">\n        <div className=\"text-gray-400\">Loading Economy Files...</div>\n      </div>\n    );\n  }\n\n  if (error) {\n    return (\n      <div className=\"flex-1 flex items-center justify-center p-8\">\n        <div className=\"bg-red-500/10 border border-red-500/30 text-red-400 p-6 rounded-xl max-w-lg text-center\">\n          <span className=\"material-symbols-outlined text-4xl mb-2\">error</span>","node_kind":"component"},{"id":"dayzeconomytab_dayzeconomytab_renderslider","label":"renderSlider()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L44-L65","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L44"}],"snippet":"renderSlider = (category: string, label: string) => (\n    <div className=\"space-y-2\">\n      <div className=\"flex justify-between\">\n        <label className=\"text-sm font-bold text-gray-300\">{label} Spawn Multiplier</label>\n        <span className=\"text-red-400 font-mono\">{multipliers[category]?.toFixed(1)}x</span>\n      </div>\n      <input \n        type=\"range\" \n        min=\"0.1\" \n        max=\"5.0\" \n        step=\"0.1\" \n        value={multipliers[category]} \n        onChange={(e) => handleMultiplierChange(category, parseFloat(e.target.value))}\n        className=\"w-full accent-red-500\"\n      />\n      <div className=\"relative h-4 text-[11px] text-gray-500 mt-1\">\n        <span className=\"absolute left-0\">0.1x</span>\n        <span className=\"absolute left-[18.4%] -translate-x-1/2\">1.0x (Vanilla)</span>\n        <span className=\"absolute right-0\">5.0x</span>\n      </div>\n    </div>\n  )"}],"edges":[{"source":"dayzeconomytab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L1"}],"weight":1},{"source":"dayzeconomytab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L2"}],"weight":1},{"source":"dayzeconomytab","target":"usedayzeconomy","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L4"}],"weight":1},{"source":"dayzeconomytab","target":"dayzeconomytab_dayzeconomytab","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6"}],"weight":1},{"source":"dayzeconomytab_dayzeconomytab","target":"dayzeconomytab_dayzeconomytab_renderslider","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L44"}],"weight":1},{"source":"dayzeconomytab_dayzeconomytab","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6"}],"weight":1},{"source":"dayzeconomytab_dayzeconomytab","target":"dayzeconomytab_dayzeconomytab_renderslider","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L121","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L121"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzeconomytab",
+      "label": "DayzEconomyTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab",
+      "label": "DayzEconomyTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L6-L176",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "DayzEconomyTab: React.FC = () => {\n  const {\n    isLoading,\n    isSaving,\n    error,\n    pristineLoot, setPristineLoot,\n    multipliers,\n    loadEconomy,\n    handleMultiplierChange,\n    handleSave\n  } = useDayzEconomy();\n\n  if (isLoading) {\n    return (\n      <div className=\"flex-1 flex items-center justify-center\">\n        <div className=\"text-gray-400\">Loading Economy Files...</div>\n      </div>\n    );\n  }\n\n  if (error) {\n    return (\n      <div className=\"flex-1 flex items-center justify-center p-8\">\n        <div className=\"bg-red-500/10 border border-red-500/30 text-red-400 p-6 rounded-xl max-w-lg text-center\">\n          <span className=\"material-symbols-outlined text-4xl mb-2\">error</span>",
+      "node_kind": "component"
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab_renderslider",
+      "label": "renderSlider()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L44-L65",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L44"
+        }
+      ],
+      "snippet": "renderSlider = (category: string, label: string) => (\n    <div className=\"space-y-2\">\n      <div className=\"flex justify-between\">\n        <label className=\"text-sm font-bold text-gray-300\">{label} Spawn Multiplier</label>\n        <span className=\"text-red-400 font-mono\">{multipliers[category]?.toFixed(1)}x</span>\n      </div>\n      <input \n        type=\"range\" \n        min=\"0.1\" \n        max=\"5.0\" \n        step=\"0.1\" \n        value={multipliers[category]} \n        onChange={(e) => handleMultiplierChange(category, parseFloat(e.target.value))}\n        className=\"w-full accent-red-500\"\n      />\n      <div className=\"relative h-4 text-[11px] text-gray-500 mt-1\">\n        <span className=\"absolute left-0\">0.1x</span>\n        <span className=\"absolute left-[18.4%] -translate-x-1/2\">1.0x (Vanilla)</span>\n        <span className=\"absolute right-0\">5.0x</span>\n      </div>\n    </div>\n  )"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzeconomytab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomytab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomytab",
+      "target": "usedayzeconomy",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab_renderslider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab_renderslider",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L121",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L121"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

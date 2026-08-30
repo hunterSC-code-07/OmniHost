@@ -1,1 +1,307 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"javamanager","label":"JavaManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L1"}]},{"id":"javamanager_javamanager","label":"JavaManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L8-L82","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L8"}],"snippet":"export class JavaManager {\n  private static get javaDir() {\n    return path.join(app.getPath('userData'), 'java');\n  }\n\n  /**\n   * Returns the path to the javaw.exe or java.exe for the given version.\n   * If it doesn't exist, it will download and extract it first.\n   */\n  public static async getJavaPath(version: 8 | 16 | 17 | 21 | 25, onProgress?: (percent: number) => void): Promise<string> {\n    const versionDir = path.join(this.javaDir, version.toString());\n    \n    // Check if we already have it downloaded\n    if (fs.existsSync(versionDir)) {\n      const execPath = this.findJavaExecutable(versionDir);\n      if (execPath) return execPath;\n    }\n\n    // Otherwise, we need to download it\n    console.log(`[JavaManager] Downloading Java ${version}...`);\n    await this.downloadAndExtractJava(version, versionDir, onProgress);\n\n    const execPath = this.findJavaExecutable(versionDir);\n    if (!execPath) {\n      throw new Error(`Failed to locate java.exe in extracted archive for Java ${version}`);"},{"id":"javamanager_javamanager_getjavapath","label":".getJavaPath()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L17-L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L17"}],"snippet":"public static async getJavaPath(version: 8 | 16 | 17 | 21 | 25, onProgress?: (percent: number) => void): Promise<string> {\n    const versionDir = path.join(this.javaDir, version.toString());\n    \n    // Check if we already have it downloaded\n    if (fs.existsSync(versionDir)) {\n      const execPath = this.findJavaExecutable(versionDir);\n      if (execPath) return execPath;\n    }\n\n    // Otherwise, we need to download it\n    console.log(`[JavaManager] Downloading Java ${version}...`);\n    await this.downloadAndExtractJava(version, versionDir, onProgress);\n\n    const execPath = this.findJavaExecutable(versionDir);\n    if (!execPath) {\n      throw new Error(`Failed to locate java.exe in extracted archive for Java ${version}`);\n    }\n    \n    return execPath;\n  }"},{"id":"javamanager_javamanager_findjavaexecutable","label":".findJavaExecutable()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L38-L54","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L38"}],"snippet":"private static findJavaExecutable(dir: string): string | null {\n    // Adoptium zips usually contain a single root folder like 'jdk-21.0.4+7'\n    try {\n      const contents = fs.readdirSync(dir);\n      if (contents.length === 0) return null;\n      \n      for (const item of contents) {\n        const fullPath = path.join(dir, item, 'bin', 'java.exe');\n        if (fs.existsSync(fullPath)) {\n          return fullPath;\n        }\n      }\n    } catch (err) {\n      return null;\n    }\n    return null;\n  }"},{"id":"javamanager_javamanager_downloadandextractjava","label":".downloadAndExtractJava()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L56-L81","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L56"}],"snippet":"private static async downloadAndExtractJava(version: number, targetDir: string, onProgress?: (percent: number) => void): Promise<void> {\n    // 1. Fetch the latest release for this version from Adoptium\n    const apiUrl = `https://api.adoptium.net/v3/assets/latest/${version}/hotspot?architecture=x64&image_type=jdk&os=windows&vendor=eclipse`;\n    const response = await axios.get(apiUrl);\n    \n    if (!response.data || response.data.length === 0) {\n      throw new Error(`No Java ${version} releases found for Windows x64.`);\n    }\n\n    const downloadUrl = response.data[0].binary.package.link;\n\n    // 2. Download the zip\n    const zipPath = await CacheManager.getOrDownload('java', downloadUrl, `java-${version}.zip`, (progress) => {\n      if (onProgress) onProgress(progress);\n    });\n\n    // 3. Extract the zip\n    console.log(`[JavaManager] Extracting Java ${version}...`);\n    \n    // AdmZip is synchronous, this will block the main thread for a few seconds during extraction.\n    // That's acceptable for an Electron app during an explicit download action.\n    const zip = new AdmZip(zipPath);\n    zip.extractAllTo(targetDir, true);\n\n    console.log(`[JavaManager] Java ${version} installed successfully.`);"}],"edges":[{"source":"javamanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L1"}],"weight":1},{"source":"javamanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L2"}],"weight":1},{"source":"javamanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L3"}],"weight":1},{"source":"javamanager","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L4"}],"weight":1},{"source":"javamanager","target":"adm_zip","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L5"}],"weight":1},{"source":"javamanager","target":"cachemanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L6"}],"weight":1},{"source":"javamanager","target":"javamanager_javamanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L8"}],"weight":1},{"source":"javamanager_javamanager","target":"javamanager_javamanager_getjavapath","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L17"}],"weight":1},{"source":"javamanager_javamanager","target":"javamanager_javamanager_findjavaexecutable","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L38"}],"weight":1},{"source":"javamanager_javamanager","target":"javamanager_javamanager_downloadandextractjava","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L56","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L56"}],"weight":1},{"source":"javamanager_javamanager_getjavapath","target":"javamanager_javamanager_findjavaexecutable","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L22"}],"weight":1},{"source":"javamanager_javamanager_getjavapath","target":"javamanager_javamanager_downloadandextractjava","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L28","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/JavaManager.ts","source_location":"L28"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "javamanager",
+      "label": "JavaManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "javamanager_javamanager",
+      "label": "JavaManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L8-L82",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "export class JavaManager {\n  private static get javaDir() {\n    return path.join(app.getPath('userData'), 'java');\n  }\n\n  /**\n   * Returns the path to the javaw.exe or java.exe for the given version.\n   * If it doesn't exist, it will download and extract it first.\n   */\n  public static async getJavaPath(version: 8 | 16 | 17 | 21 | 25, onProgress?: (percent: number) => void): Promise<string> {\n    const versionDir = path.join(this.javaDir, version.toString());\n    \n    // Check if we already have it downloaded\n    if (fs.existsSync(versionDir)) {\n      const execPath = this.findJavaExecutable(versionDir);\n      if (execPath) return execPath;\n    }\n\n    // Otherwise, we need to download it\n    console.log(`[JavaManager] Downloading Java ${version}...`);\n    await this.downloadAndExtractJava(version, versionDir, onProgress);\n\n    const execPath = this.findJavaExecutable(versionDir);\n    if (!execPath) {\n      throw new Error(`Failed to locate java.exe in extracted archive for Java ${version}`);"
+    },
+    {
+      "id": "javamanager_javamanager_getjavapath",
+      "label": ".getJavaPath()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L17-L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "public static async getJavaPath(version: 8 | 16 | 17 | 21 | 25, onProgress?: (percent: number) => void): Promise<string> {\n    const versionDir = path.join(this.javaDir, version.toString());\n    \n    // Check if we already have it downloaded\n    if (fs.existsSync(versionDir)) {\n      const execPath = this.findJavaExecutable(versionDir);\n      if (execPath) return execPath;\n    }\n\n    // Otherwise, we need to download it\n    console.log(`[JavaManager] Downloading Java ${version}...`);\n    await this.downloadAndExtractJava(version, versionDir, onProgress);\n\n    const execPath = this.findJavaExecutable(versionDir);\n    if (!execPath) {\n      throw new Error(`Failed to locate java.exe in extracted archive for Java ${version}`);\n    }\n    \n    return execPath;\n  }"
+    },
+    {
+      "id": "javamanager_javamanager_findjavaexecutable",
+      "label": ".findJavaExecutable()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L38-L54",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L38"
+        }
+      ],
+      "snippet": "private static findJavaExecutable(dir: string): string | null {\n    // Adoptium zips usually contain a single root folder like 'jdk-21.0.4+7'\n    try {\n      const contents = fs.readdirSync(dir);\n      if (contents.length === 0) return null;\n      \n      for (const item of contents) {\n        const fullPath = path.join(dir, item, 'bin', 'java.exe');\n        if (fs.existsSync(fullPath)) {\n          return fullPath;\n        }\n      }\n    } catch (err) {\n      return null;\n    }\n    return null;\n  }"
+    },
+    {
+      "id": "javamanager_javamanager_downloadandextractjava",
+      "label": ".downloadAndExtractJava()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L56-L81",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L56"
+        }
+      ],
+      "snippet": "private static async downloadAndExtractJava(version: number, targetDir: string, onProgress?: (percent: number) => void): Promise<void> {\n    // 1. Fetch the latest release for this version from Adoptium\n    const apiUrl = `https://api.adoptium.net/v3/assets/latest/${version}/hotspot?architecture=x64&image_type=jdk&os=windows&vendor=eclipse`;\n    const response = await axios.get(apiUrl);\n    \n    if (!response.data || response.data.length === 0) {\n      throw new Error(`No Java ${version} releases found for Windows x64.`);\n    }\n\n    const downloadUrl = response.data[0].binary.package.link;\n\n    // 2. Download the zip\n    const zipPath = await CacheManager.getOrDownload('java', downloadUrl, `java-${version}.zip`, (progress) => {\n      if (onProgress) onProgress(progress);\n    });\n\n    // 3. Extract the zip\n    console.log(`[JavaManager] Extracting Java ${version}...`);\n    \n    // AdmZip is synchronous, this will block the main thread for a few seconds during extraction.\n    // That's acceptable for an Electron app during an explicit download action.\n    const zip = new AdmZip(zipPath);\n    zip.extractAllTo(targetDir, true);\n\n    console.log(`[JavaManager] Java ${version} installed successfully.`);"
+    }
+  ],
+  "edges": [
+    {
+      "source": "javamanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager",
+      "target": "adm_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager",
+      "target": "cachemanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager",
+      "target": "javamanager_javamanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager_javamanager",
+      "target": "javamanager_javamanager_getjavapath",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager_javamanager",
+      "target": "javamanager_javamanager_findjavaexecutable",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L38"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager_javamanager",
+      "target": "javamanager_javamanager_downloadandextractjava",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L56",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L56"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager_javamanager_getjavapath",
+      "target": "javamanager_javamanager_findjavaexecutable",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "javamanager_javamanager_getjavapath",
+      "target": "javamanager_javamanager_downloadandextractjava",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+      "source_location": "L28",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/JavaManager.ts",
+          "source_location": "L28"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

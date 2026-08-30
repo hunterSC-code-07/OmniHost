@@ -1,1 +1,945 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamcmdmanager","label":"SteamCMDManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L1"}]},{"id":"steamcmdmanager_steamcmdmanager","label":"SteamCMDManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L8-L368","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L8"}],"snippet":"export class SteamCMDManager {\n  static activeProcess: ChildProcess | null = null;\n\n  static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }\n\n  static getSteamCMDDir() {\n    return join(app.getPath('userData'), 'steamcmd');\n  }\n\n  static getExePath() {\n    return join(this.getSteamCMDDir(), 'steamcmd.exe');\n  }\n\n  static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }\n\n  static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);"},{"id":"steamcmdmanager_steamcmdmanager_sendinput","label":".sendInput()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L11-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L11"}],"snippet":"static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }"},{"id":"steamcmdmanager_steamcmdmanager_getsteamcmddir","label":".getSteamCMDDir()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L17-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L17"}],"snippet":"static getSteamCMDDir() {\n    return join(app.getPath('userData'), 'steamcmd');\n  }"},{"id":"steamcmdmanager_steamcmdmanager_getexepath","label":".getExePath()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L21-L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L21"}],"snippet":"static getExePath() {\n    return join(this.getSteamCMDDir(), 'steamcmd.exe');\n  }"},{"id":"steamcmdmanager_steamcmdmanager_getcachedir","label":".getCacheDir()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L25-L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L25"}],"snippet":"static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }"},{"id":"steamcmdmanager_steamcmdmanager_iscached","label":".isCached()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L29-L34","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L29"}],"snippet":"static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);\n    return files.length > 0;\n  }"},{"id":"steamcmdmanager_steamcmdmanager_deletecache","label":".deleteCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L36-L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L36"}],"snippet":"static async deleteCache(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (fs.existsSync(cacheDir)) {\n      await fs.promises.rm(cacheDir, { recursive: true, force: true });\n    }\n    return true;\n  }"},{"id":"steamcmdmanager_steamcmdmanager_copyfromcache","label":".copyFromCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L44-L50","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L44"}],"snippet":"static async copyFromCache(serverId: number, appId: number, installDir: string): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    this.sendLog(serverId, 50, 'Copying server files from cache...');\n    await fs.promises.cp(cacheDir, installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Server files copied!');\n    return true;\n  }"},{"id":"steamcmdmanager_steamcmdmanager_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L52-L57","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L52"}],"snippet":"static sendLog(serverId: number, progress: number, msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send(`download-progress-${serverId}`, progress, msg);\n    }\n  }"},{"id":"steamcmdmanager_steamcmdmanager_ensureinstalled","label":".ensureInstalled()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L59-L80","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L59"}],"snippet":"static async ensureInstalled(serverId: number): Promise<void> {\n    const dir = this.getSteamCMDDir();\n    const exePath = this.getExePath();\n\n    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });\n\n    if (!fs.existsSync(exePath)) {\n      this.sendLog(serverId, 10, 'Downloading SteamCMD...');\n      const zipPath = join(dir, 'steamcmd.zip');\n      const url = 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip';\n\n      const response = await axios({ url, method: 'GET', responseType: 'arraybuffer' });\n      fs.writeFileSync(zipPath, response.data);\n\n      this.sendLog(serverId, 50, 'Extracting SteamCMD...');\n      const zip = new AdmZip(zipPath);\n      zip.extractAllTo(dir, true);\n\n      fs.unlinkSync(zipPath);\n      this.sendLog(serverId, 100, 'SteamCMD setup complete!');\n    }\n  }"},{"id":"steamcmdmanager_steamcmdmanager_updatecache","label":".updateCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L82-L156","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L82"}],"snippet":"static async updateCache(serverId: number, appId: number, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.ensureInstalled(serverId);\n\n    return new Promise((resolve, reject) => {\n      this.sendLog(serverId, 0, `Starting SteamCMD download for App ${appId}...`);\n\n      const exePath = this.getExePath();\n\n      const loginArgs: string[] = [];\n      if (username && password) {\n        if (steamGuardCode) {\n          loginArgs.push('+login', username, password, steamGuardCode);\n        } else {\n          loginArgs.push('+login', username, password);\n        }\n      } else {\n        loginArgs.push('+login', 'anonymous');\n      }\n\n      const cacheDir = this.getCacheDir(appId);\n      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });\n\n      const args: string[] = [\n        '+force_install_dir', cacheDir,\n        ...loginArgs,"},{"id":"steamcmdmanager_steamcmdmanager_installapp","label":".installApp()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L158-L164","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L158"}],"snippet":"static async installApp(serverId: number, appId: number, installDir: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.updateCache(serverId, appId, username, password, steamGuardCode);\n    this.sendLog(serverId, 99, 'Copying from cache to server directory...');\n    await fs.promises.cp(this.getCacheDir(appId), installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Download and Setup Complete!');\n    return true;\n  }"},{"id":"steamcmdmanager_steamcmdmanager_downloadworkshopitem","label":".downloadWorkshopItem()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L166-L341","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L166"}],"snippet":"static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.ensureInstalled(serverId);\n\n    // Fetch total size from Steam API for accurate progress calculation\n    let totalSize = 0;\n    try {\n      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;\n      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {\n        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }\n      });\n      const fileDetails = res.data?.response?.publishedfiledetails?.[0];\n      if (fileDetails && fileDetails.file_size) {\n        totalSize = parseInt(fileDetails.file_size, 10);\n      }\n    } catch (e) {\n      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);\n    }\n\n    let retries = 0;\n    const maxRetries = 10;\n    let tryCached = !!(username && password && !steamGuardCode);\n\n    while (retries < maxRetries) {\n      if (this.activeProcess) {\n        try {"},{"id":"steamcmdmanager_steamcmdmanager_downloadworkshopitems","label":".downloadWorkshopItems()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L343-L367","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L343"}],"snippet":"static async downloadWorkshopItems(serverId: number, appId: number, modIds: string[], username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.ensureInstalled(serverId);\n\n    for (let i = 0; i < modIds.length; i++) {\n      const modId = modIds[i];\n      const targetDir = join(this.getSteamCMDDir(), 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {\n        this.sendLog(serverId, 100, `[MOD:${modId}] Mod already downloaded, skipping...`);\n        console.log(`[SteamCMD Batch] Mod ${modId} already exists in ${targetDir}, skipping.`);\n        continue;\n      }\n\n      this.sendLog(serverId, 0, `[MOD:${modId}] Downloading mod ${i + 1} of ${modIds.length}...`);\n      try {\n        await this.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n      } catch (e: any) {\n        console.error(`[SteamCMD Batch] Failed to download mod ${modId}:`, e);\n        throw e;\n      }\n    }\n\n    this.sendLog(serverId, 100, 'Batch Download Complete!');\n    return true;\n  }"}],"edges":[{"source":"steamcmdmanager","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L1"}],"weight":1},{"source":"steamcmdmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L2"}],"weight":1},{"source":"steamcmdmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L3"}],"weight":1},{"source":"steamcmdmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L4"}],"weight":1},{"source":"steamcmdmanager","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L5"}],"weight":1},{"source":"steamcmdmanager","target":"adm_zip","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L6"}],"weight":1},{"source":"steamcmdmanager","target":"steamcmdmanager_steamcmdmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L8"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_sendinput","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L11"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_getsteamcmddir","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L17"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_getexepath","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L21"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_getcachedir","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L25","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L25"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_iscached","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L29"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_deletecache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L36"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_copyfromcache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L44"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L52","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L52"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_ensureinstalled","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L59","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L59"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_updatecache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L82","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L82"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_installapp","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L158","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L158"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_downloadworkshopitem","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L166","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L166"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager","target":"steamcmdmanager_steamcmdmanager_downloadworkshopitems","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L343","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L343"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_getexepath","target":"steamcmdmanager_steamcmdmanager_getsteamcmddir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L22"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_iscached","target":"steamcmdmanager_steamcmdmanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L30","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L30"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_deletecache","target":"steamcmdmanager_steamcmdmanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L37"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_copyfromcache","target":"steamcmdmanager_steamcmdmanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L45"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_copyfromcache","target":"steamcmdmanager_steamcmdmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L46","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L46"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_ensureinstalled","target":"steamcmdmanager_steamcmdmanager_getsteamcmddir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L60"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_ensureinstalled","target":"steamcmdmanager_steamcmdmanager_getexepath","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L61","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L61"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_ensureinstalled","target":"steamcmdmanager_steamcmdmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L66","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L66"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_updatecache","target":"steamcmdmanager_steamcmdmanager_ensureinstalled","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L83","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L83"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_installapp","target":"steamcmdmanager_steamcmdmanager_updatecache","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L159","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L159"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_installapp","target":"steamcmdmanager_steamcmdmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L160","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L160"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_installapp","target":"steamcmdmanager_steamcmdmanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L161","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L161"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_downloadworkshopitem","target":"steamcmdmanager_steamcmdmanager_ensureinstalled","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L167","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L167"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_downloadworkshopitem","target":"steamcmdmanager_steamcmdmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L332","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L332"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_downloadworkshopitems","target":"steamcmdmanager_steamcmdmanager_ensureinstalled","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L344","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L344"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_downloadworkshopitems","target":"steamcmdmanager_steamcmdmanager_getsteamcmddir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L348","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L348"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_downloadworkshopitems","target":"steamcmdmanager_steamcmdmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L351","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L351"}],"weight":1},{"source":"steamcmdmanager_steamcmdmanager_downloadworkshopitems","target":"steamcmdmanager_steamcmdmanager_downloadworkshopitem","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L358","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts","source_location":"L358"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamcmdmanager",
+      "label": "SteamCMDManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager",
+      "label": "SteamCMDManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L8-L368",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "export class SteamCMDManager {\n  static activeProcess: ChildProcess | null = null;\n\n  static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }\n\n  static getSteamCMDDir() {\n    return join(app.getPath('userData'), 'steamcmd');\n  }\n\n  static getExePath() {\n    return join(this.getSteamCMDDir(), 'steamcmd.exe');\n  }\n\n  static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }\n\n  static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_sendinput",
+      "label": ".sendInput()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L11-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L11"
+        }
+      ],
+      "snippet": "static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_getsteamcmddir",
+      "label": ".getSteamCMDDir()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L17-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "static getSteamCMDDir() {\n    return join(app.getPath('userData'), 'steamcmd');\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_getexepath",
+      "label": ".getExePath()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L21-L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "static getExePath() {\n    return join(this.getSteamCMDDir(), 'steamcmd.exe');\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_getcachedir",
+      "label": ".getCacheDir()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L25-L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L25"
+        }
+      ],
+      "snippet": "static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_iscached",
+      "label": ".isCached()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L29-L34",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L29"
+        }
+      ],
+      "snippet": "static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);\n    return files.length > 0;\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_deletecache",
+      "label": ".deleteCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L36-L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L36"
+        }
+      ],
+      "snippet": "static async deleteCache(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (fs.existsSync(cacheDir)) {\n      await fs.promises.rm(cacheDir, { recursive: true, force: true });\n    }\n    return true;\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_copyfromcache",
+      "label": ".copyFromCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L44-L50",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L44"
+        }
+      ],
+      "snippet": "static async copyFromCache(serverId: number, appId: number, installDir: string): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    this.sendLog(serverId, 50, 'Copying server files from cache...');\n    await fs.promises.cp(cacheDir, installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Server files copied!');\n    return true;\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L52-L57",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L52"
+        }
+      ],
+      "snippet": "static sendLog(serverId: number, progress: number, msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send(`download-progress-${serverId}`, progress, msg);\n    }\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "label": ".ensureInstalled()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L59-L80",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L59"
+        }
+      ],
+      "snippet": "static async ensureInstalled(serverId: number): Promise<void> {\n    const dir = this.getSteamCMDDir();\n    const exePath = this.getExePath();\n\n    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });\n\n    if (!fs.existsSync(exePath)) {\n      this.sendLog(serverId, 10, 'Downloading SteamCMD...');\n      const zipPath = join(dir, 'steamcmd.zip');\n      const url = 'https://steamcdn-a.akamaihd.net/client/installer/steamcmd.zip';\n\n      const response = await axios({ url, method: 'GET', responseType: 'arraybuffer' });\n      fs.writeFileSync(zipPath, response.data);\n\n      this.sendLog(serverId, 50, 'Extracting SteamCMD...');\n      const zip = new AdmZip(zipPath);\n      zip.extractAllTo(dir, true);\n\n      fs.unlinkSync(zipPath);\n      this.sendLog(serverId, 100, 'SteamCMD setup complete!');\n    }\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_updatecache",
+      "label": ".updateCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L82-L156",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L82"
+        }
+      ],
+      "snippet": "static async updateCache(serverId: number, appId: number, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.ensureInstalled(serverId);\n\n    return new Promise((resolve, reject) => {\n      this.sendLog(serverId, 0, `Starting SteamCMD download for App ${appId}...`);\n\n      const exePath = this.getExePath();\n\n      const loginArgs: string[] = [];\n      if (username && password) {\n        if (steamGuardCode) {\n          loginArgs.push('+login', username, password, steamGuardCode);\n        } else {\n          loginArgs.push('+login', username, password);\n        }\n      } else {\n        loginArgs.push('+login', 'anonymous');\n      }\n\n      const cacheDir = this.getCacheDir(appId);\n      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });\n\n      const args: string[] = [\n        '+force_install_dir', cacheDir,\n        ...loginArgs,"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_installapp",
+      "label": ".installApp()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L158-L164",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L158"
+        }
+      ],
+      "snippet": "static async installApp(serverId: number, appId: number, installDir: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.updateCache(serverId, appId, username, password, steamGuardCode);\n    this.sendLog(serverId, 99, 'Copying from cache to server directory...');\n    await fs.promises.cp(this.getCacheDir(appId), installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Download and Setup Complete!');\n    return true;\n  }"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_downloadworkshopitem",
+      "label": ".downloadWorkshopItem()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L166-L341",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L166"
+        }
+      ],
+      "snippet": "static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.ensureInstalled(serverId);\n\n    // Fetch total size from Steam API for accurate progress calculation\n    let totalSize = 0;\n    try {\n      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;\n      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {\n        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }\n      });\n      const fileDetails = res.data?.response?.publishedfiledetails?.[0];\n      if (fileDetails && fileDetails.file_size) {\n        totalSize = parseInt(fileDetails.file_size, 10);\n      }\n    } catch (e) {\n      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);\n    }\n\n    let retries = 0;\n    const maxRetries = 10;\n    let tryCached = !!(username && password && !steamGuardCode);\n\n    while (retries < maxRetries) {\n      if (this.activeProcess) {\n        try {"
+    },
+    {
+      "id": "steamcmdmanager_steamcmdmanager_downloadworkshopitems",
+      "label": ".downloadWorkshopItems()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L343-L367",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L343"
+        }
+      ],
+      "snippet": "static async downloadWorkshopItems(serverId: number, appId: number, modIds: string[], username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.ensureInstalled(serverId);\n\n    for (let i = 0; i < modIds.length; i++) {\n      const modId = modIds[i];\n      const targetDir = join(this.getSteamCMDDir(), 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {\n        this.sendLog(serverId, 100, `[MOD:${modId}] Mod already downloaded, skipping...`);\n        console.log(`[SteamCMD Batch] Mod ${modId} already exists in ${targetDir}, skipping.`);\n        continue;\n      }\n\n      this.sendLog(serverId, 0, `[MOD:${modId}] Downloading mod ${i + 1} of ${modIds.length}...`);\n      try {\n        await this.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n      } catch (e: any) {\n        console.error(`[SteamCMD Batch] Failed to download mod ${modId}:`, e);\n        throw e;\n      }\n    }\n\n    this.sendLog(serverId, 100, 'Batch Download Complete!');\n    return true;\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamcmdmanager",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager",
+      "target": "adm_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_sendinput",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_getsteamcmddir",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_getexepath",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_getcachedir",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L25",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L25"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_iscached",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_deletecache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L36"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_copyfromcache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L52",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L52"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L59",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L59"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_updatecache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L82",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L82"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_installapp",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L158",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L158"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_downloadworkshopitem",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L166",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L166"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager",
+      "target": "steamcmdmanager_steamcmdmanager_downloadworkshopitems",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L343",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L343"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_getexepath",
+      "target": "steamcmdmanager_steamcmdmanager_getsteamcmddir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_iscached",
+      "target": "steamcmdmanager_steamcmdmanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L30",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L30"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_deletecache",
+      "target": "steamcmdmanager_steamcmdmanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L37"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_copyfromcache",
+      "target": "steamcmdmanager_steamcmdmanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L45"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_copyfromcache",
+      "target": "steamcmdmanager_steamcmdmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L46"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "target": "steamcmdmanager_steamcmdmanager_getsteamcmddir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L60"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "target": "steamcmdmanager_steamcmdmanager_getexepath",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L61",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L61"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "target": "steamcmdmanager_steamcmdmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L66",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L66"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_updatecache",
+      "target": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L83"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_installapp",
+      "target": "steamcmdmanager_steamcmdmanager_updatecache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L159",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L159"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_installapp",
+      "target": "steamcmdmanager_steamcmdmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L160",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L160"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_installapp",
+      "target": "steamcmdmanager_steamcmdmanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L161",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L161"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_downloadworkshopitem",
+      "target": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L167",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L167"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_downloadworkshopitem",
+      "target": "steamcmdmanager_steamcmdmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L332",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L332"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_downloadworkshopitems",
+      "target": "steamcmdmanager_steamcmdmanager_ensureinstalled",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L344",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L344"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_downloadworkshopitems",
+      "target": "steamcmdmanager_steamcmdmanager_getsteamcmddir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L348",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L348"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_downloadworkshopitems",
+      "target": "steamcmdmanager_steamcmdmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L351",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L351"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdmanager_steamcmdmanager_downloadworkshopitems",
+      "target": "steamcmdmanager_steamcmdmanager_downloadworkshopitem",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+      "source_location": "L358",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/SteamCMDManager.ts",
+          "source_location": "L358"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,146 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useminecraftsoftware","label":"useMinecraftSoftware.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L1"}]},{"id":"useminecraftsoftware_useminecraftsoftware","label":"useMinecraftSoftware()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L3-L75","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L3"}],"snippet":"export function useMinecraftSoftware(serverMeta: any, activeTab: string) {\n  const [editingSoftwareType, setEditingSoftwareType] = useState('Vanilla');\n  const [editingSoftwareVersion, setEditingSoftwareVersion] = useState('');\n  const [editingAvailableVersions, setEditingAvailableVersions] = useState<string[]>([]);\n  const [editingLoaderVersion, setEditingLoaderVersion] = useState('');\n  const [editingAvailableLoaderVersions, setEditingAvailableLoaderVersions] = useState<string[]>([]);\n  const [isTypeMenuOpen, setIsTypeMenuOpen] = useState(false);\n  const [isVersionMenuOpen, setIsVersionMenuOpen] = useState(false);\n  const [isLoaderMenuOpen, setIsLoaderMenuOpen] = useState(false);\n  const [isChangingSoftware, setIsChangingSoftware] = useState(false);\n\n  useEffect(() => {\n    if (activeTab === 'software' && serverMeta) {\n       setEditingSoftwareType(serverMeta.type || 'Vanilla');\n       setEditingSoftwareVersion(serverMeta.version || '');\n    }\n  }, [activeTab, serverMeta]);\n\n  useEffect(() => {\n    if (activeTab === 'software') {\n      const fetchVersions = async () => {\n        let versions: string[] = [];\n        // @ts-ignore\n        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore"},{"id":"useminecraftsoftware_useminecraftsoftware_fetchversions","label":"fetchVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L23-L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L23"}],"snippet":"fetchVersions = async () => {\n        let versions: string[] = [];\n        // @ts-ignore\n        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Paper') versions = await window.api.getPaperVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Fabric') versions = await window.api.getFabricVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Forge') versions = await window.api.getForgeVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n        \n        setEditingAvailableVersions(versions);\n        if (versions.length > 0) {\n           setEditingSoftwareVersion(prev => versions.includes(prev) ? prev : versions[0]);\n        }\n      }"},{"id":"useminecraftsoftware_useminecraftsoftware_fetchloaderversions","label":"fetchLoaderVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L47-L56","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L47"}],"snippet":"fetchLoaderVersions = async () => {\n        // @ts-ignore\n        const loaders = await window.api.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);\n        setEditingAvailableLoaderVersions(loaders);\n        if (serverMeta && serverMeta.loaderVersion && loaders.includes(serverMeta.loaderVersion)) {\n           setEditingLoaderVersion(serverMeta.loaderVersion);\n        } else {\n           setEditingLoaderVersion(loaders.length > 0 ? loaders[0] : '');\n        }\n      }"}],"edges":[{"source":"useminecraftsoftware","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L1"}],"weight":1},{"source":"useminecraftsoftware","target":"useminecraftsoftware_useminecraftsoftware","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L3"}],"weight":1},{"source":"useminecraftsoftware_useminecraftsoftware","target":"useminecraftsoftware_useminecraftsoftware_fetchversions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L23"}],"weight":1},{"source":"useminecraftsoftware_useminecraftsoftware","target":"useminecraftsoftware_useminecraftsoftware_fetchloaderversions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts","source_location":"L47"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useminecraftsoftware",
+      "label": "useMinecraftSoftware.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useminecraftsoftware_useminecraftsoftware",
+      "label": "useMinecraftSoftware()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L3-L75",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "export function useMinecraftSoftware(serverMeta: any, activeTab: string) {\n  const [editingSoftwareType, setEditingSoftwareType] = useState('Vanilla');\n  const [editingSoftwareVersion, setEditingSoftwareVersion] = useState('');\n  const [editingAvailableVersions, setEditingAvailableVersions] = useState<string[]>([]);\n  const [editingLoaderVersion, setEditingLoaderVersion] = useState('');\n  const [editingAvailableLoaderVersions, setEditingAvailableLoaderVersions] = useState<string[]>([]);\n  const [isTypeMenuOpen, setIsTypeMenuOpen] = useState(false);\n  const [isVersionMenuOpen, setIsVersionMenuOpen] = useState(false);\n  const [isLoaderMenuOpen, setIsLoaderMenuOpen] = useState(false);\n  const [isChangingSoftware, setIsChangingSoftware] = useState(false);\n\n  useEffect(() => {\n    if (activeTab === 'software' && serverMeta) {\n       setEditingSoftwareType(serverMeta.type || 'Vanilla');\n       setEditingSoftwareVersion(serverMeta.version || '');\n    }\n  }, [activeTab, serverMeta]);\n\n  useEffect(() => {\n    if (activeTab === 'software') {\n      const fetchVersions = async () => {\n        let versions: string[] = [];\n        // @ts-ignore\n        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore"
+    },
+    {
+      "id": "useminecraftsoftware_useminecraftsoftware_fetchversions",
+      "label": "fetchVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L23-L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L23"
+        }
+      ],
+      "snippet": "fetchVersions = async () => {\n        let versions: string[] = [];\n        // @ts-ignore\n        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Paper') versions = await window.api.getPaperVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Fabric') versions = await window.api.getFabricVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Forge') versions = await window.api.getForgeVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n        \n        setEditingAvailableVersions(versions);\n        if (versions.length > 0) {\n           setEditingSoftwareVersion(prev => versions.includes(prev) ? prev : versions[0]);\n        }\n      }"
+    },
+    {
+      "id": "useminecraftsoftware_useminecraftsoftware_fetchloaderversions",
+      "label": "fetchLoaderVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L47-L56",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L47"
+        }
+      ],
+      "snippet": "fetchLoaderVersions = async () => {\n        // @ts-ignore\n        const loaders = await window.api.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);\n        setEditingAvailableLoaderVersions(loaders);\n        if (serverMeta && serverMeta.loaderVersion && loaders.includes(serverMeta.loaderVersion)) {\n           setEditingLoaderVersion(serverMeta.loaderVersion);\n        } else {\n           setEditingLoaderVersion(loaders.length > 0 ? loaders[0] : '');\n        }\n      }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useminecraftsoftware",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftsoftware",
+      "target": "useminecraftsoftware_useminecraftsoftware",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftsoftware_useminecraftsoftware",
+      "target": "useminecraftsoftware_useminecraftsoftware_fetchversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L23"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftsoftware_useminecraftsoftware",
+      "target": "useminecraftsoftware_useminecraftsoftware_fetchloaderversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+      "source_location": "L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftSoftware.ts",
+          "source_location": "L47"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

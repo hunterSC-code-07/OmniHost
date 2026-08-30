@@ -1,1 +1,287 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useminecraftplayers","label":"useMinecraftPlayers.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L1"}]},{"id":"useminecraftplayers_useminecraftplayers","label":"useMinecraftPlayers()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L5-L114","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L5"}],"snippet":"export function useMinecraftPlayers(activeServerId: number | null, activeTab: string) {\n  const { playerListType, setPlayerListType, selectedPlayer, setSelectedPlayer } = usePlayerStore();\n  const [playerData, setPlayerData] = useState<any[]>([]);\n  const [newPlayerName, setNewPlayerName] = useState('');\n  const [isProcessing, setIsProcessing] = useState(false);\n  const [playerInventory, setPlayerInventory] = useState<any[] | null>(null);\n  const { showToast } = useToastStore();\n\n  useEffect(() => {\n    let interval: ReturnType<typeof setInterval>;\n    if (selectedPlayer && activeServerId !== null) {\n      const fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      };\n      fetchInv();\n      if (playerListType === 'live') {\n        interval = setInterval(fetchInv, 3000);\n      }\n    }\n    return () => { if (interval) clearInterval(interval); };\n  }, [selectedPlayer, activeServerId, playerListType]);\n\n  const loadPlayers = async (id: number, type: string) => {"},{"id":"useminecraftplayers_useminecraftplayers_fetchinv","label":"fetchInv()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L16-L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L16"}],"snippet":"fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      }"},{"id":"useminecraftplayers_useminecraftplayers_loadplayers","label":"loadPlayers()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L29-L43","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L29"}],"snippet":"loadPlayers = async (id: number, type: string) => {\n    if (type === 'live') {\n      setPlayerData([]);\n      return;\n    }\n    if (type === 'history') {\n      // @ts-ignore\n      const stats = await window.api.getPlayerStats(id);\n      setPlayerData(stats ? Object.values(stats) : []);\n    } else {\n      // @ts-ignore\n      const data = await window.api.readJson(id, type);\n      setPlayerData(data || []);\n    }\n  }"},{"id":"useminecraftplayers_useminecraftplayers_handleaddplayer","label":"handleAddPlayer()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L51-L86","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L51"}],"snippet":"handleAddPlayer = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;\n    setIsProcessing(true);\n\n    let uuid = \"00000000-0000-0000-0000-000000000000\";\n    let name = newPlayerName.trim();\n\n    if (playerListType !== 'banned-ips') {\n      try {\n        const res = await fetch(`https://api.ashcon.app/mojang/v2/user/${name}`);\n        if (res.ok) {\n          const profile = await res.json();\n          uuid = profile.uuid;\n          name = profile.username;\n        }\n      } catch (err) { }\n    }\n\n    let newEntry: any = { uuid, name };\n    if (playerListType === 'ops') newEntry = { uuid, name, level: 4, bypassesPlayerLimit: false };\n    else if (playerListType === 'banned-players') newEntry = { uuid, name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n    else if (playerListType === 'banned-ips') newEntry = { ip: name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n\n    const exists = playerData.some(p => p.name === name || p.ip === name);"},{"id":"useminecraftplayers_useminecraftplayers_handleremoveplayer","label":"handleRemovePlayer()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L88-L95","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L88"}],"snippet":"handleRemovePlayer = async (targetName: string) => {\n    if (activeServerId === null) return;\n    const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);\n    setPlayerData(updatedList);\n    // @ts-ignore\n    await window.api.writeJson(activeServerId, playerListType, updatedList);\n    showToast(`Removed ${targetName}`);\n  }"},{"id":"useminecraftplayers_useminecraftplayers_sendplayercommand","label":"sendPlayerCommand()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L97-L103","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L97"}],"snippet":"sendPlayerCommand = async (cmd: string, successMsg: string) => {\n    if (activeServerId !== null && selectedPlayer) {\n      // @ts-ignore\n      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));\n      showToast(successMsg.replace('{player}', selectedPlayer));\n    }\n  }"}],"edges":[{"source":"useminecraftplayers","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L1"}],"weight":1},{"source":"useminecraftplayers","target":"usetoaststore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L2"}],"weight":1},{"source":"useminecraftplayers","target":"useplayerstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L3"}],"weight":1},{"source":"useminecraftplayers","target":"useminecraftplayers_useminecraftplayers","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L5"}],"weight":1},{"source":"useminecraftplayers_useminecraftplayers","target":"useminecraftplayers_useminecraftplayers_fetchinv","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L16"}],"weight":1},{"source":"useminecraftplayers_useminecraftplayers","target":"useminecraftplayers_useminecraftplayers_loadplayers","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L29"}],"weight":1},{"source":"useminecraftplayers_useminecraftplayers","target":"useminecraftplayers_useminecraftplayers_handleaddplayer","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L51","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L51"}],"weight":1},{"source":"useminecraftplayers_useminecraftplayers","target":"useminecraftplayers_useminecraftplayers_handleremoveplayer","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L88","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L88"}],"weight":1},{"source":"useminecraftplayers_useminecraftplayers","target":"useminecraftplayers_useminecraftplayers_sendplayercommand","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L97","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts","source_location":"L97"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useminecraftplayers",
+      "label": "useMinecraftPlayers.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useminecraftplayers_useminecraftplayers",
+      "label": "useMinecraftPlayers()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L5-L114",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export function useMinecraftPlayers(activeServerId: number | null, activeTab: string) {\n  const { playerListType, setPlayerListType, selectedPlayer, setSelectedPlayer } = usePlayerStore();\n  const [playerData, setPlayerData] = useState<any[]>([]);\n  const [newPlayerName, setNewPlayerName] = useState('');\n  const [isProcessing, setIsProcessing] = useState(false);\n  const [playerInventory, setPlayerInventory] = useState<any[] | null>(null);\n  const { showToast } = useToastStore();\n\n  useEffect(() => {\n    let interval: ReturnType<typeof setInterval>;\n    if (selectedPlayer && activeServerId !== null) {\n      const fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      };\n      fetchInv();\n      if (playerListType === 'live') {\n        interval = setInterval(fetchInv, 3000);\n      }\n    }\n    return () => { if (interval) clearInterval(interval); };\n  }, [selectedPlayer, activeServerId, playerListType]);\n\n  const loadPlayers = async (id: number, type: string) => {"
+    },
+    {
+      "id": "useminecraftplayers_useminecraftplayers_fetchinv",
+      "label": "fetchInv()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L16-L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L16"
+        }
+      ],
+      "snippet": "fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      }"
+    },
+    {
+      "id": "useminecraftplayers_useminecraftplayers_loadplayers",
+      "label": "loadPlayers()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L29-L43",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L29"
+        }
+      ],
+      "snippet": "loadPlayers = async (id: number, type: string) => {\n    if (type === 'live') {\n      setPlayerData([]);\n      return;\n    }\n    if (type === 'history') {\n      // @ts-ignore\n      const stats = await window.api.getPlayerStats(id);\n      setPlayerData(stats ? Object.values(stats) : []);\n    } else {\n      // @ts-ignore\n      const data = await window.api.readJson(id, type);\n      setPlayerData(data || []);\n    }\n  }"
+    },
+    {
+      "id": "useminecraftplayers_useminecraftplayers_handleaddplayer",
+      "label": "handleAddPlayer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L51-L86",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L51"
+        }
+      ],
+      "snippet": "handleAddPlayer = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;\n    setIsProcessing(true);\n\n    let uuid = \"00000000-0000-0000-0000-000000000000\";\n    let name = newPlayerName.trim();\n\n    if (playerListType !== 'banned-ips') {\n      try {\n        const res = await fetch(`https://api.ashcon.app/mojang/v2/user/${name}`);\n        if (res.ok) {\n          const profile = await res.json();\n          uuid = profile.uuid;\n          name = profile.username;\n        }\n      } catch (err) { }\n    }\n\n    let newEntry: any = { uuid, name };\n    if (playerListType === 'ops') newEntry = { uuid, name, level: 4, bypassesPlayerLimit: false };\n    else if (playerListType === 'banned-players') newEntry = { uuid, name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n    else if (playerListType === 'banned-ips') newEntry = { ip: name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n\n    const exists = playerData.some(p => p.name === name || p.ip === name);"
+    },
+    {
+      "id": "useminecraftplayers_useminecraftplayers_handleremoveplayer",
+      "label": "handleRemovePlayer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L88-L95",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L88"
+        }
+      ],
+      "snippet": "handleRemovePlayer = async (targetName: string) => {\n    if (activeServerId === null) return;\n    const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);\n    setPlayerData(updatedList);\n    // @ts-ignore\n    await window.api.writeJson(activeServerId, playerListType, updatedList);\n    showToast(`Removed ${targetName}`);\n  }"
+    },
+    {
+      "id": "useminecraftplayers_useminecraftplayers_sendplayercommand",
+      "label": "sendPlayerCommand()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L97-L103",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L97"
+        }
+      ],
+      "snippet": "sendPlayerCommand = async (cmd: string, successMsg: string) => {\n    if (activeServerId !== null && selectedPlayer) {\n      // @ts-ignore\n      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));\n      showToast(successMsg.replace('{player}', selectedPlayer));\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useminecraftplayers",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers",
+      "target": "usetoaststore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers",
+      "target": "useplayerstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers",
+      "target": "useminecraftplayers_useminecraftplayers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers_useminecraftplayers",
+      "target": "useminecraftplayers_useminecraftplayers_fetchinv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers_useminecraftplayers",
+      "target": "useminecraftplayers_useminecraftplayers_loadplayers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers_useminecraftplayers",
+      "target": "useminecraftplayers_useminecraftplayers_handleaddplayer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L51"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers_useminecraftplayers",
+      "target": "useminecraftplayers_useminecraftplayers_handleremoveplayer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L88",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L88"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftplayers_useminecraftplayers",
+      "target": "useminecraftplayers_useminecraftplayers_sendplayercommand",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+      "source_location": "L97",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftPlayers.ts",
+          "source_location": "L97"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

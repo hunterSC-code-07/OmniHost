@@ -1,1 +1,112 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamcmdipc","label":"SteamCMDIpc.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L1"}]},{"id":"steamcmdipc_registersteamcmdipc","label":"registerSteamCMDIpc()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L6-L66","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L6"}],"snippet":"export function registerSteamCMDIpc() {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle(\n    'install-steam-app',\n    async (_, id, appId, username?: string, password?: string, steamGuardCode?: string) => {\n      const serverDir = join(app.getPath('userData'), 'servers', id.toString())\n      await SteamCMDManager.installApp(id, appId, serverDir, username, password, steamGuardCode)\n      return true\n    }\n  )\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle('check-steam-cache', async (_, appId: number) => {\n    return await SteamCMDManager.isCached(appId)\n  })\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle('delete-steam-cache', async (_, appId: number) => {\n    return await SteamCMDManager.deleteCache(appId)"}],"edges":[{"source":"steamcmdipc","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L1"}],"weight":1},{"source":"steamcmdipc","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L2"}],"weight":1},{"source":"steamcmdipc","target":"steamcmdmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L3"}],"weight":1},{"source":"steamcmdipc","target":"steamcmdipc_registersteamcmdipc","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts","source_location":"L6"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamcmdipc",
+      "label": "SteamCMDIpc.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamcmdipc_registersteamcmdipc",
+      "label": "registerSteamCMDIpc()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+      "source_location": "L6-L66",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "export function registerSteamCMDIpc() {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle(\n    'install-steam-app',\n    async (_, id, appId, username?: string, password?: string, steamGuardCode?: string) => {\n      const serverDir = join(app.getPath('userData'), 'servers', id.toString())\n      await SteamCMDManager.installApp(id, appId, serverDir, username, password, steamGuardCode)\n      return true\n    }\n  )\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle('check-steam-cache', async (_, appId: number) => {\n    return await SteamCMDManager.isCached(appId)\n  })\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle('delete-steam-cache', async (_, appId: number) => {\n    return await SteamCMDManager.deleteCache(appId)"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamcmdipc",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdipc",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdipc",
+      "target": "steamcmdmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcmdipc",
+      "target": "steamcmdipc_registersteamcmdipc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SteamCMDIpc.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

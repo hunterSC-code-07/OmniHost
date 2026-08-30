@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"refactor_minecraft","label":"refactor_minecraft.js","file_type":"code","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L1"}]},{"id":"refactor_minecraft_extract","label":"extract()","file_type":"code","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L5-L11","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L5"}],"snippet":"function extract(name, regex) {\n  const match = code.match(regex);\n  if (match) {\n    let body = match[1];\n    methods.push(`  static async ${name}() {\\n${body}  }`);\n  }\n}"}],"edges":[{"source":"refactor_minecraft","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L1"}],"weight":1},{"source":"refactor_minecraft","target":"refactor_minecraft_extract","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor_minecraft.js","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "refactor_minecraft",
+      "label": "refactor_minecraft.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "refactor_minecraft_extract",
+      "label": "extract()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+      "source_location": "L5-L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "function extract(name, regex) {\n  const match = code.match(regex);\n  if (match) {\n    let body = match[1];\n    methods.push(`  static async ${name}() {\\n${body}  }`);\n  }\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "refactor_minecraft",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "refactor_minecraft",
+      "target": "refactor_minecraft_extract",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor_minecraft.js",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

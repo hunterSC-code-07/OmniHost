@@ -1,1 +1,184 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"overviewtab","label":"OverviewTab.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1"}]},{"id":"overviewtab_overviewtabprops","label":"OverviewTabProps","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L10-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L10"}],"snippet":"interface OverviewTabProps {\n  serverVersion: string;\n  maxPlayers?: number;\n  maxRam?: number;\n  maxCpu?: number;\n}"}],"edges":[{"source":"overviewtab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1"}],"weight":1},{"source":"overviewtab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L2"}],"weight":1},{"source":"overviewtab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L3"}],"weight":1},{"source":"overviewtab","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L5"}],"weight":1},{"source":"overviewtab","target":"useplayerstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L6"}],"weight":1},{"source":"overviewtab","target":"uselogstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L7"}],"weight":1},{"source":"overviewtab","target":"usestatsstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L8"}],"weight":1},{"source":"overviewtab","target":"overviewtab_overviewtabprops","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L10"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "overviewtab",
+      "label": "OverviewTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "overviewtab_overviewtabprops",
+      "label": "OverviewTabProps",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L10-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "interface OverviewTabProps {\n  serverVersion: string;\n  maxPlayers?: number;\n  maxRam?: number;\n  maxCpu?: number;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "overviewtab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "useplayerstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "uselogstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "usestatsstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "overviewtab_overviewtabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

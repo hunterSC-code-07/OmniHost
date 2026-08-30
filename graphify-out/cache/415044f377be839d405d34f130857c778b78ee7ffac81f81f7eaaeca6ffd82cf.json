@@ -1,1 +1,396 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"frpadapter","label":"FrpAdapter.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L1"}]},{"id":"frpadapter_frpadapter","label":"FrpAdapter","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L9-L163","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L9"}],"snippet":"export class FrpAdapter {\n  process: ChildProcess | null = null;\n  frpDir: string;\n  exePath: string;\n  configPath: string;\n\n  constructor() {\n    this.frpDir = join(app.getPath('userData'), 'frp_client');\n    this.exePath = join(this.frpDir, 'frpc.exe');\n    this.configPath = join(this.frpDir, 'frpc.toml');\n  }\n\n  sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }\n\n  async start(ip: string = \"34.131.235.17\") {\n    if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });\n\n    // 1. Download and Extract FRP from GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[System] Downloading FRP Client from GitHub...');"},{"id":"frpadapter_frpadapter_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L15-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L15"}],"snippet":"constructor() {\n    this.frpDir = join(app.getPath('userData'), 'frp_client');\n    this.exePath = join(this.frpDir, 'frpc.exe');\n    this.configPath = join(this.frpDir, 'frpc.toml');\n  }"},{"id":"frpadapter_frpadapter_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L21-L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L21"}],"snippet":"sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }"},{"id":"frpadapter_frpadapter_start","label":".start()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L28-L153","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L28"}],"snippet":"async start(ip: string = \"34.131.235.17\") {\n    if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });\n\n    // 1. Download and Extract FRP from GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[System] Downloading FRP Client from GitHub...');\n      const zipPath = join(this.frpDir, 'frp.zip');\n      const url = 'https://github.com/fatedier/frp/releases/download/v0.58.1/frp_0.58.1_windows_amd64.zip';\n      \n      const response = await axios({ url, method: 'GET', responseType: 'arraybuffer' });\n      fs.writeFileSync(zipPath, response.data);\n      \n      this.sendLog('[System] Extracting FRP...');\n      const zip = new AdmZip(zipPath);\n      const zipEntries = zip.getEntries();\n      \n      // Look inside the zip to find the specific frpc.exe file\n      for (const entry of zipEntries) {\n        if (entry.entryName.endsWith('frpc.exe')) {\n           fs.writeFileSync(this.exePath, entry.getData());\n        }\n      }\n      fs.unlinkSync(zipPath); // Clean up the zip file\n      this.sendLog('[System] Extraction complete!');\n    }"},{"id":"frpadapter_frpadapter_stop","label":".stop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L155-L162","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L155"}],"snippet":"stop() {\n    if (this.process) {\n      this.sendLog('[FRP Tunnel] Disconnecting...');\n      this.process.kill('SIGKILL');\n      import('child_process').then(cp => cp.exec('taskkill /F /IM frpc.exe'));\n      this.process = null;\n    }\n  }"}],"edges":[{"source":"frpadapter","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L1"}],"weight":1},{"source":"frpadapter","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L2"}],"weight":1},{"source":"frpadapter","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L3"}],"weight":1},{"source":"frpadapter","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L4"}],"weight":1},{"source":"frpadapter","target":"os","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L5"}],"weight":1},{"source":"frpadapter","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L6"}],"weight":1},{"source":"frpadapter","target":"adm_zip","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L7"}],"weight":1},{"source":"frpadapter","target":"frpadapter_frpadapter","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L9"}],"weight":1},{"source":"frpadapter_frpadapter","target":"frpadapter_frpadapter_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L15"}],"weight":1},{"source":"frpadapter_frpadapter","target":"frpadapter_frpadapter_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L21"}],"weight":1},{"source":"frpadapter_frpadapter","target":"frpadapter_frpadapter_start","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L28","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L28"}],"weight":1},{"source":"frpadapter_frpadapter_start","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L140","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L140"}],"weight":1},{"source":"frpadapter_frpadapter","target":"frpadapter_frpadapter_stop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L155","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L155"}],"weight":1},{"source":"frpadapter_frpadapter_stop","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L159","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L159"}],"weight":1},{"source":"frpadapter_frpadapter_start","target":"frpadapter_frpadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L33"}],"weight":1},{"source":"frpadapter_frpadapter_stop","target":"frpadapter_frpadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L157","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/FrpAdapter.ts","source_location":"L157"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "frpadapter",
+      "label": "FrpAdapter.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "frpadapter_frpadapter",
+      "label": "FrpAdapter",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L9-L163",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "export class FrpAdapter {\n  process: ChildProcess | null = null;\n  frpDir: string;\n  exePath: string;\n  configPath: string;\n\n  constructor() {\n    this.frpDir = join(app.getPath('userData'), 'frp_client');\n    this.exePath = join(this.frpDir, 'frpc.exe');\n    this.configPath = join(this.frpDir, 'frpc.toml');\n  }\n\n  sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }\n\n  async start(ip: string = \"34.131.235.17\") {\n    if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });\n\n    // 1. Download and Extract FRP from GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[System] Downloading FRP Client from GitHub...');"
+    },
+    {
+      "id": "frpadapter_frpadapter_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L15-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L15"
+        }
+      ],
+      "snippet": "constructor() {\n    this.frpDir = join(app.getPath('userData'), 'frp_client');\n    this.exePath = join(this.frpDir, 'frpc.exe');\n    this.configPath = join(this.frpDir, 'frpc.toml');\n  }"
+    },
+    {
+      "id": "frpadapter_frpadapter_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L21-L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }"
+    },
+    {
+      "id": "frpadapter_frpadapter_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L28-L153",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L28"
+        }
+      ],
+      "snippet": "async start(ip: string = \"34.131.235.17\") {\n    if (!fs.existsSync(this.frpDir)) fs.mkdirSync(this.frpDir, { recursive: true });\n\n    // 1. Download and Extract FRP from GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[System] Downloading FRP Client from GitHub...');\n      const zipPath = join(this.frpDir, 'frp.zip');\n      const url = 'https://github.com/fatedier/frp/releases/download/v0.58.1/frp_0.58.1_windows_amd64.zip';\n      \n      const response = await axios({ url, method: 'GET', responseType: 'arraybuffer' });\n      fs.writeFileSync(zipPath, response.data);\n      \n      this.sendLog('[System] Extracting FRP...');\n      const zip = new AdmZip(zipPath);\n      const zipEntries = zip.getEntries();\n      \n      // Look inside the zip to find the specific frpc.exe file\n      for (const entry of zipEntries) {\n        if (entry.entryName.endsWith('frpc.exe')) {\n           fs.writeFileSync(this.exePath, entry.getData());\n        }\n      }\n      fs.unlinkSync(zipPath); // Clean up the zip file\n      this.sendLog('[System] Extraction complete!');\n    }"
+    },
+    {
+      "id": "frpadapter_frpadapter_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L155-L162",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L155"
+        }
+      ],
+      "snippet": "stop() {\n    if (this.process) {\n      this.sendLog('[FRP Tunnel] Disconnecting...');\n      this.process.kill('SIGKILL');\n      import('child_process').then(cp => cp.exec('taskkill /F /IM frpc.exe'));\n      this.process = null;\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "frpadapter",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "os",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "adm_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter",
+      "target": "frpadapter_frpadapter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter",
+      "target": "frpadapter_frpadapter_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter",
+      "target": "frpadapter_frpadapter_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter",
+      "target": "frpadapter_frpadapter_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L28",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L28"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter_start",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L140",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L140"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter",
+      "target": "frpadapter_frpadapter_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L155",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L155"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter_stop",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L159",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L159"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter_start",
+      "target": "frpadapter_frpadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L33"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "frpadapter_frpadapter_stop",
+      "target": "frpadapter_frpadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+      "source_location": "L157",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/FrpAdapter.ts",
+          "source_location": "L157"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

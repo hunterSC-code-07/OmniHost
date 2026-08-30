@@ -1,1 +1,324 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"playitadapter","label":"PlayitAdapter.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L1"}]},{"id":"playitadapter_playitadapter","label":"PlayitAdapter","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L7-L65","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L7"}],"snippet":"export class PlayitAdapter {\n  process: ChildProcess | null = null;\n  exePath: string;\n\n  constructor() {\n    // We renamed this to playit-agent.exe to bypass the corrupted old file!\n    this.exePath = join(app.getPath('userData'), 'playit-agent.exe');\n  }\n\n  sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }\n\n  async start() {\n    // 1. Download Playit directly from their official GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[Playit] Downloading Agent... please wait!');\n      const url = 'https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-x86_64.exe';\n      \n      const response = await axios({ url, method: 'GET', responseType: 'stream' });\n      const writer = fs.createWriteStream(this.exePath);\n      response.data.pipe(writer);"},{"id":"playitadapter_playitadapter_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L11-L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L11"}],"snippet":"constructor() {\n    // We renamed this to playit-agent.exe to bypass the corrupted old file!\n    this.exePath = join(app.getPath('userData'), 'playit-agent.exe');\n  }"},{"id":"playitadapter_playitadapter_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L16-L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L16"}],"snippet":"sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }"},{"id":"playitadapter_playitadapter_start","label":".start()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L23-L56","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L23"}],"snippet":"async start() {\n    // 1. Download Playit directly from their official GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[Playit] Downloading Agent... please wait!');\n      const url = 'https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-x86_64.exe';\n      \n      const response = await axios({ url, method: 'GET', responseType: 'stream' });\n      const writer = fs.createWriteStream(this.exePath);\n      response.data.pipe(writer);\n      \n      await new Promise<void>((resolve, reject) => { \n        // CRUCIAL FIX: We use 'close' instead of 'finish' so Windows has time to save the file!\n        writer.on('close', () => resolve()); \n        writer.on('error', reject); \n      });\n      this.sendLog('[Playit] Download fully saved to disk!');\n    }\n\n    const playitDir = join(app.getPath('userData'), 'playit_config');\n    if (!fs.existsSync(playitDir)) fs.mkdirSync(playitDir);\n\n    this.sendLog('[Playit] Starting secure tunnel...');\n    \n    // 3. Launch the agent\n    this.process = spawn(this.exePath, [], { cwd: playitDir });"},{"id":"playitadapter_playitadapter_stop","label":".stop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L58-L64","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L58"}],"snippet":"stop() {\n    if (this.process) {\n      this.sendLog('[Playit] Stopping tunnel...');\n      this.process.kill();\n      this.process = null;\n    }\n  }"}],"edges":[{"source":"playitadapter","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L1"}],"weight":1},{"source":"playitadapter","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L2"}],"weight":1},{"source":"playitadapter","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L3"}],"weight":1},{"source":"playitadapter","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L4"}],"weight":1},{"source":"playitadapter","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L5"}],"weight":1},{"source":"playitadapter","target":"playitadapter_playitadapter","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L7"}],"weight":1},{"source":"playitadapter_playitadapter","target":"playitadapter_playitadapter_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L11"}],"weight":1},{"source":"playitadapter_playitadapter","target":"playitadapter_playitadapter_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L16"}],"weight":1},{"source":"playitadapter_playitadapter","target":"playitadapter_playitadapter_start","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L23"}],"weight":1},{"source":"playitadapter_playitadapter","target":"playitadapter_playitadapter_stop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L58","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L58"}],"weight":1},{"source":"playitadapter_playitadapter_start","target":"playitadapter_playitadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L26"}],"weight":1},{"source":"playitadapter_playitadapter_stop","target":"playitadapter_playitadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts","source_location":"L60"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "playitadapter",
+      "label": "PlayitAdapter.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "playitadapter_playitadapter",
+      "label": "PlayitAdapter",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L7-L65",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export class PlayitAdapter {\n  process: ChildProcess | null = null;\n  exePath: string;\n\n  constructor() {\n    // We renamed this to playit-agent.exe to bypass the corrupted old file!\n    this.exePath = join(app.getPath('userData'), 'playit-agent.exe');\n  }\n\n  sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }\n\n  async start() {\n    // 1. Download Playit directly from their official GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[Playit] Downloading Agent... please wait!');\n      const url = 'https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-x86_64.exe';\n      \n      const response = await axios({ url, method: 'GET', responseType: 'stream' });\n      const writer = fs.createWriteStream(this.exePath);\n      response.data.pipe(writer);"
+    },
+    {
+      "id": "playitadapter_playitadapter_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L11-L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L11"
+        }
+      ],
+      "snippet": "constructor() {\n    // We renamed this to playit-agent.exe to bypass the corrupted old file!\n    this.exePath = join(app.getPath('userData'), 'playit-agent.exe');\n  }"
+    },
+    {
+      "id": "playitadapter_playitadapter_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L16-L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L16"
+        }
+      ],
+      "snippet": "sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', { id: 'global', msg });\n    }\n  }"
+    },
+    {
+      "id": "playitadapter_playitadapter_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L23-L56",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L23"
+        }
+      ],
+      "snippet": "async start() {\n    // 1. Download Playit directly from their official GitHub\n    if (!fs.existsSync(this.exePath)) {\n      this.sendLog('[Playit] Downloading Agent... please wait!');\n      const url = 'https://github.com/playit-cloud/playit-agent/releases/latest/download/playit-windows-x86_64.exe';\n      \n      const response = await axios({ url, method: 'GET', responseType: 'stream' });\n      const writer = fs.createWriteStream(this.exePath);\n      response.data.pipe(writer);\n      \n      await new Promise<void>((resolve, reject) => { \n        // CRUCIAL FIX: We use 'close' instead of 'finish' so Windows has time to save the file!\n        writer.on('close', () => resolve()); \n        writer.on('error', reject); \n      });\n      this.sendLog('[Playit] Download fully saved to disk!');\n    }\n\n    const playitDir = join(app.getPath('userData'), 'playit_config');\n    if (!fs.existsSync(playitDir)) fs.mkdirSync(playitDir);\n\n    this.sendLog('[Playit] Starting secure tunnel...');\n    \n    // 3. Launch the agent\n    this.process = spawn(this.exePath, [], { cwd: playitDir });"
+    },
+    {
+      "id": "playitadapter_playitadapter_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L58-L64",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L58"
+        }
+      ],
+      "snippet": "stop() {\n    if (this.process) {\n      this.sendLog('[Playit] Stopping tunnel...');\n      this.process.kill();\n      this.process = null;\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "playitadapter",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter",
+      "target": "playitadapter_playitadapter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter_playitadapter",
+      "target": "playitadapter_playitadapter_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter_playitadapter",
+      "target": "playitadapter_playitadapter_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter_playitadapter",
+      "target": "playitadapter_playitadapter_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L23"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter_playitadapter",
+      "target": "playitadapter_playitadapter_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L58",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L58"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter_playitadapter_start",
+      "target": "playitadapter_playitadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playitadapter_playitadapter_stop",
+      "target": "playitadapter_playitadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+      "source_location": "L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/PlayitAdapter.ts",
+          "source_location": "L60"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

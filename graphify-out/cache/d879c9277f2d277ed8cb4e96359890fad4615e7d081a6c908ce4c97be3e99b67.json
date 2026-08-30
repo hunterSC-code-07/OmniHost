@@ -1,1 +1,112 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzconsoletab","label":"DayzConsoleTab.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L1"}]},{"id":"dayzconsoletab_dayzconsoletabprops","label":"DayzConsoleTabProps","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L5-L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L5"}],"snippet":"interface DayzConsoleTabProps {\n  logs: string[];\n  endOfLogsRef: React.RefObject<HTMLDivElement | null>;\n  handleSendCommand: (command: string) => void;\n  handleClearLogs: () => void;\n  onlinePlayers: string[];\n  onPlayerClick: (playerName: string) => void;\n}"}],"edges":[{"source":"dayzconsoletab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L1"}],"weight":1},{"source":"dayzconsoletab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L2"}],"weight":1},{"source":"dayzconsoletab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L3"}],"weight":1},{"source":"dayzconsoletab","target":"dayzconsoletab_dayzconsoletabprops","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzconsoletab",
+      "label": "DayzConsoleTab.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzconsoletab_dayzconsoletabprops",
+      "label": "DayzConsoleTabProps",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L5-L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "interface DayzConsoleTabProps {\n  logs: string[];\n  endOfLogsRef: React.RefObject<HTMLDivElement | null>;\n  handleSendCommand: (command: string) => void;\n  handleClearLogs: () => void;\n  onlinePlayers: string[];\n  onPlayerClick: (playerName: string) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzconsoletab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconsoletab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconsoletab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconsoletab",
+      "target": "dayzconsoletab_dayzconsoletabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

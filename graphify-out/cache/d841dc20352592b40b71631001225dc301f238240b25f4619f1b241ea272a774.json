@@ -1,1 +1,413 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzmodstatusmanager","label":"DayzModStatusManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L1"}]},{"id":"dayzmodstatusmanager_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L8-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L8"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"dayzmodstatusmanager_dayzmodstatusmanager","label":"DayzModStatusManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L17-L179","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L17"}],"snippet":"export class DayzModStatusManager {\n  static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }\n\n      for (const f of mods) {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        if (fs.existsSync(modIdPath)) {\n          const content = await fsPromises.readFile(modIdPath, 'utf-8');\n          const modId = content.trim().split(':')[0];\n          if (modId) {\n            if (!modDeps[modId] || modDeps[modId].length === 0) {"},{"id":"dayzmodstatusmanager_dayzmodstatusmanager_rebuildmoddependencies","label":".rebuildModDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L18-L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L18"}],"snippet":"static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }\n\n      for (const f of mods) {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        if (fs.existsSync(modIdPath)) {\n          const content = await fsPromises.readFile(modIdPath, 'utf-8');\n          const modId = content.trim().split(':')[0];\n          if (modId) {\n            if (!modDeps[modId] || modDeps[modId].length === 0) {\n              console.log(`[Rebuild] Fetching deps for ${modId}`);"},{"id":"dayzmodstatusmanager_dayzmodstatusmanager_getinstalledmods","label":".getInstalledMods()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L57-L141","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L57"}],"snippet":"static async getInstalledMods(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await exists(serverDir))) return [];\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const modDetails = await Promise.all(mods.map(async f => {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        const isMapPath = join(modDir, 'is_map.txt');\n        const disabledPath = join(modDir, 'disabled.txt');\n        let title = f.name.substring(1);\n        let idStr = '';\n        if (fs.existsSync(modIdPath)) {\n          const content = fs.readFileSync(modIdPath, 'utf-8').trim();\n          const parts = content.split(':');\n          if (parts.length >= 2) {\n            idStr = parts.shift() || '';\n            title = parts.join(':');\n          }\n        } else {\n          // Fallback to meta.cpp for locally imported mods\n          const metaPath = join(modDir, 'meta.cpp');"},{"id":"dayzmodstatusmanager_dayzmodstatusmanager_togglemapmod","label":".toggleMapMod()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L143-L156","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L143"}],"snippet":"static async toggleMapMod(serverId: number, folderName: string, isMap: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await exists(modDir)) {\n        await fsPromises.writeFile(join(modDir, 'is_map.txt'), isMap ? 'true' : 'false', 'utf-8');\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ map mod', e);\n      return false;\n    }\n  }"},{"id":"dayzmodstatusmanager_dayzmodstatusmanager_togglemodstatus","label":".toggleModStatus()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L158-L178","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L158"}],"snippet":"static async toggleModStatus(serverId: number, folderName: string, isDisabled: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await exists(modDir)) {\n        const disabledPath = join(modDir, 'disabled.txt');\n        if (isDisabled) {\n          await fsPromises.writeFile(disabledPath, 'true', 'utf-8');\n        } else {\n          if (await exists(disabledPath)) {\n            await fsPromises.rm(disabledPath);\n          }\n        }\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ mod status', e);\n      return false;\n    }\n  }"}],"edges":[{"source":"dayzmodstatusmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L1"}],"weight":1},{"source":"dayzmodstatusmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L2"}],"weight":1},{"source":"dayzmodstatusmanager","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L3"}],"weight":1},{"source":"dayzmodstatusmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L4"}],"weight":1},{"source":"dayzmodstatusmanager","target":"steamwebapi","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L5"}],"weight":1},{"source":"dayzmodstatusmanager","target":"dayzmissionmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L6"}],"weight":1},{"source":"dayzmodstatusmanager","target":"dayzmodstatusmanager_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L8"}],"weight":1},{"source":"dayzmodstatusmanager","target":"dayzmodstatusmanager_dayzmodstatusmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L17"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager","target":"dayzmodstatusmanager_dayzmodstatusmanager_rebuildmoddependencies","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L18"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager","target":"dayzmodstatusmanager_dayzmodstatusmanager_getinstalledmods","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L57","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L57"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager","target":"dayzmodstatusmanager_dayzmodstatusmanager_togglemapmod","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L143","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L143"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager","target":"dayzmodstatusmanager_dayzmodstatusmanager_togglemodstatus","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L158","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L158"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager_rebuildmoddependencies","target":"dayzmodstatusmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L21"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager_getinstalledmods","target":"dayzmodstatusmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L60"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager_togglemapmod","target":"dayzmodstatusmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L147","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L147"}],"weight":1},{"source":"dayzmodstatusmanager_dayzmodstatusmanager_togglemodstatus","target":"dayzmodstatusmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L162","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts","source_location":"L162"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzmodstatusmanager",
+      "label": "DayzModStatusManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzmodstatusmanager_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L8-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "dayzmodstatusmanager_dayzmodstatusmanager",
+      "label": "DayzModStatusManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L17-L179",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "export class DayzModStatusManager {\n  static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }\n\n      for (const f of mods) {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        if (fs.existsSync(modIdPath)) {\n          const content = await fsPromises.readFile(modIdPath, 'utf-8');\n          const modId = content.trim().split(':')[0];\n          if (modId) {\n            if (!modDeps[modId] || modDeps[modId].length === 0) {"
+    },
+    {
+      "id": "dayzmodstatusmanager_dayzmodstatusmanager_rebuildmoddependencies",
+      "label": ".rebuildModDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L18-L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L18"
+        }
+      ],
+      "snippet": "static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }\n\n      for (const f of mods) {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        if (fs.existsSync(modIdPath)) {\n          const content = await fsPromises.readFile(modIdPath, 'utf-8');\n          const modId = content.trim().split(':')[0];\n          if (modId) {\n            if (!modDeps[modId] || modDeps[modId].length === 0) {\n              console.log(`[Rebuild] Fetching deps for ${modId}`);"
+    },
+    {
+      "id": "dayzmodstatusmanager_dayzmodstatusmanager_getinstalledmods",
+      "label": ".getInstalledMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L57-L141",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L57"
+        }
+      ],
+      "snippet": "static async getInstalledMods(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await exists(serverDir))) return [];\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const modDetails = await Promise.all(mods.map(async f => {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        const isMapPath = join(modDir, 'is_map.txt');\n        const disabledPath = join(modDir, 'disabled.txt');\n        let title = f.name.substring(1);\n        let idStr = '';\n        if (fs.existsSync(modIdPath)) {\n          const content = fs.readFileSync(modIdPath, 'utf-8').trim();\n          const parts = content.split(':');\n          if (parts.length >= 2) {\n            idStr = parts.shift() || '';\n            title = parts.join(':');\n          }\n        } else {\n          // Fallback to meta.cpp for locally imported mods\n          const metaPath = join(modDir, 'meta.cpp');"
+    },
+    {
+      "id": "dayzmodstatusmanager_dayzmodstatusmanager_togglemapmod",
+      "label": ".toggleMapMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L143-L156",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L143"
+        }
+      ],
+      "snippet": "static async toggleMapMod(serverId: number, folderName: string, isMap: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await exists(modDir)) {\n        await fsPromises.writeFile(join(modDir, 'is_map.txt'), isMap ? 'true' : 'false', 'utf-8');\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ map mod', e);\n      return false;\n    }\n  }"
+    },
+    {
+      "id": "dayzmodstatusmanager_dayzmodstatusmanager_togglemodstatus",
+      "label": ".toggleModStatus()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L158-L178",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L158"
+        }
+      ],
+      "snippet": "static async toggleModStatus(serverId: number, folderName: string, isDisabled: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await exists(modDir)) {\n        const disabledPath = join(modDir, 'disabled.txt');\n        if (isDisabled) {\n          await fsPromises.writeFile(disabledPath, 'true', 'utf-8');\n        } else {\n          if (await exists(disabledPath)) {\n            await fsPromises.rm(disabledPath);\n          }\n        }\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ mod status', e);\n      return false;\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "steamwebapi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "dayzmissionmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "dayzmodstatusmanager_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager",
+      "target": "dayzmodstatusmanager_dayzmodstatusmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager",
+      "target": "dayzmodstatusmanager_dayzmodstatusmanager_rebuildmoddependencies",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L18"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager",
+      "target": "dayzmodstatusmanager_dayzmodstatusmanager_getinstalledmods",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L57",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L57"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager",
+      "target": "dayzmodstatusmanager_dayzmodstatusmanager_togglemapmod",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L143",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L143"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager",
+      "target": "dayzmodstatusmanager_dayzmodstatusmanager_togglemodstatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L158",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L158"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager_rebuildmoddependencies",
+      "target": "dayzmodstatusmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager_getinstalledmods",
+      "target": "dayzmodstatusmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L60"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager_togglemapmod",
+      "target": "dayzmodstatusmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L147",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L147"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodstatusmanager_dayzmodstatusmanager_togglemodstatus",
+      "target": "dayzmodstatusmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+      "source_location": "L162",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModStatusManager.ts",
+          "source_location": "L162"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

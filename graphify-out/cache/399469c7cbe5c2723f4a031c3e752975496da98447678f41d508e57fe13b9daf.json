@@ -1,1 +1,22 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"clean_imports","label":"clean-imports.js","file_type":"code","source_file":"D:/github/OmniHost/clean-imports.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/clean-imports.js","source_location":"L1"}]}],"edges":[]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "clean_imports",
+      "label": "clean-imports.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/clean-imports.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/clean-imports.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

@@ -1,1 +1,466 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzprocessmanager","label":"DayzProcessManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L1"}]},{"id":"dayzprocessmanager_dayzprocessmanager","label":"DayzProcessManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L9-L133","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L9"}],"snippet":"export class DayzProcessManager {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  \n  private logParser: DayzLogParser | null = null;\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }\n\n  sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"},{"id":"dayzprocessmanager_dayzprocessmanager_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L17-L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L17"}],"snippet":"constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"},{"id":"dayzprocessmanager_dayzprocessmanager_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L22-L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L22"}],"snippet":"sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"},{"id":"dayzprocessmanager_dayzprocessmanager_sendplayerupdate","label":".sendPlayerUpdate()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L29-L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L29"}],"snippet":"sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"},{"id":"dayzprocessmanager_dayzprocessmanager_sendcommand","label":".sendCommand()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L35-L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L35"}],"snippet":"sendCommand(cmd: string) {\n    // Basic implementation (later use RCon/BEC for DayZ)\n    this.sendLog(`[System] Sending commands to DayZ requires RCon setup (not yet implemented). Command: ${cmd}`);\n  }"},{"id":"dayzprocessmanager_dayzprocessmanager_start","label":".start()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L40-L114","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L40"}],"snippet":"async start() {\n    await DayzConfigManager.ensureDefaultConfig(this.serverDir);\n\n    const exePath = join(this.serverDir, 'DayZServer_x64.exe');\n    if (!fs.existsSync(exePath)) {\n      this.sendLog(`[System] DayZ Server executable not found at ${exePath}. Did you finish the SteamCMD download?`);\n      return;\n    }\n\n    this.sendLog('[System] Starting DayZ Server...');\n\n    const args = [\n      '-config=serverDZ.cfg',\n      '-port=2302',\n      '-profiles=Profiles',\n      '-BEpath=BattlEye',\n      '-dologs',\n      '-adminlog',\n      '-netlog',\n      '-freezecheck'\n    ];\n\n    // Load mods\n    try {\n      const sortedMods = DayzModGraph.resolveMods(this.serverDir);"},{"id":"dayzprocessmanager_dayzprocessmanager_stop","label":".stop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L116-L132","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L116"}],"snippet":"stop() {\n    if (this.process) {\n      this.sendLog('[System] Stopping DayZ Server...');\n      if (this.process.pid) {\n        if (process.platform === 'win32') {\n          spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t']);\n        } else {\n          this.process.kill();\n        }\n      }\n      this.process = null;\n      this.logParser?.cleanup();\n    }\n    \n    this.onlinePlayers = [];\n    this.sendPlayerUpdate();\n  }"}],"edges":[{"source":"dayzprocessmanager","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L1"}],"weight":1},{"source":"dayzprocessmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L2"}],"weight":1},{"source":"dayzprocessmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L3"}],"weight":1},{"source":"dayzprocessmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L4"}],"weight":1},{"source":"dayzprocessmanager","target":"dayzmodgraph","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L5"}],"weight":1},{"source":"dayzprocessmanager","target":"dayzlogparser","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L6"}],"weight":1},{"source":"dayzprocessmanager","target":"dayzconfigmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L7"}],"weight":1},{"source":"dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L9"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L17"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L22"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager_sendplayerupdate","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L29"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager_sendcommand","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L35","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L35"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager_start","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L40"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager","target":"dayzprocessmanager_dayzprocessmanager_stop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L116","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L116"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager_sendcommand","target":"dayzprocessmanager_dayzprocessmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L37"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager_start","target":"dayzprocessmanager_dayzprocessmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L45"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager_stop","target":"dayzprocessmanager_dayzprocessmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L118","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L118"}],"weight":1},{"source":"dayzprocessmanager_dayzprocessmanager_stop","target":"dayzprocessmanager_dayzprocessmanager_sendplayerupdate","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L131","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts","source_location":"L131"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzprocessmanager",
+      "label": "DayzProcessManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager",
+      "label": "DayzProcessManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L9-L133",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "export class DayzProcessManager {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  \n  private logParser: DayzLogParser | null = null;\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }\n\n  sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L17-L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L22-L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L22"
+        }
+      ],
+      "snippet": "sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager_sendplayerupdate",
+      "label": ".sendPlayerUpdate()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L29-L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L29"
+        }
+      ],
+      "snippet": "sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager_sendcommand",
+      "label": ".sendCommand()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L35-L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L35"
+        }
+      ],
+      "snippet": "sendCommand(cmd: string) {\n    // Basic implementation (later use RCon/BEC for DayZ)\n    this.sendLog(`[System] Sending commands to DayZ requires RCon setup (not yet implemented). Command: ${cmd}`);\n  }"
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L40-L114",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L40"
+        }
+      ],
+      "snippet": "async start() {\n    await DayzConfigManager.ensureDefaultConfig(this.serverDir);\n\n    const exePath = join(this.serverDir, 'DayZServer_x64.exe');\n    if (!fs.existsSync(exePath)) {\n      this.sendLog(`[System] DayZ Server executable not found at ${exePath}. Did you finish the SteamCMD download?`);\n      return;\n    }\n\n    this.sendLog('[System] Starting DayZ Server...');\n\n    const args = [\n      '-config=serverDZ.cfg',\n      '-port=2302',\n      '-profiles=Profiles',\n      '-BEpath=BattlEye',\n      '-dologs',\n      '-adminlog',\n      '-netlog',\n      '-freezecheck'\n    ];\n\n    // Load mods\n    try {\n      const sortedMods = DayzModGraph.resolveMods(this.serverDir);"
+    },
+    {
+      "id": "dayzprocessmanager_dayzprocessmanager_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L116-L132",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L116"
+        }
+      ],
+      "snippet": "stop() {\n    if (this.process) {\n      this.sendLog('[System] Stopping DayZ Server...');\n      if (this.process.pid) {\n        if (process.platform === 'win32') {\n          spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t']);\n        } else {\n          this.process.kill();\n        }\n      }\n      this.process = null;\n      this.logParser?.cleanup();\n    }\n    \n    this.onlinePlayers = [];\n    this.sendPlayerUpdate();\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzprocessmanager",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "dayzmodgraph",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "dayzlogparser",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "dayzconfigmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendplayerupdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendcommand",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L35",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L35"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L40"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager",
+      "target": "dayzprocessmanager_dayzprocessmanager_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L116",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L116"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager_sendcommand",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L37"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager_start",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L45"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager_stop",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L118",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L118"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzprocessmanager_dayzprocessmanager_stop",
+      "target": "dayzprocessmanager_dayzprocessmanager_sendplayerupdate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+      "source_location": "L131",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzProcessManager.ts",
+          "source_location": "L131"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

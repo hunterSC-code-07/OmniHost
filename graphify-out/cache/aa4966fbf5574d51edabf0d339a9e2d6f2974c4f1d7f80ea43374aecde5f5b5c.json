@@ -1,1 +1,253 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzeconomymanager","label":"DayzEconomyManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L1"}]},{"id":"dayzeconomymanager_dayzeconomymanager","label":"DayzEconomyManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L7-L194","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L7"}],"snippet":"export class DayzEconomyManager {\n  static async getEconomy(serverId: number) {\n    if (serverId == null) return { pristineLoot: false };\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return null;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');\n\n      let pristineLoot = false;\n      if (await DayzConfigManager.exists(globalsPath)) {\n        const parser = new XMLParser({ ignoreAttributes: false });\n        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));\n        \n        // Find LootDamageMax\n        const vars = globalsData.variables?.var || [];\n        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');\n        if (damageMaxVar && damageMaxVar['@_value'] === '0.0') {\n          pristineLoot = true;\n        }"},{"id":"dayzeconomymanager_dayzeconomymanager_geteconomy","label":".getEconomy()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L8-L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L8"}],"snippet":"static async getEconomy(serverId: number) {\n    if (serverId == null) return { pristineLoot: false };\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return null;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');\n\n      let pristineLoot = false;\n      if (await DayzConfigManager.exists(globalsPath)) {\n        const parser = new XMLParser({ ignoreAttributes: false });\n        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));\n        \n        // Find LootDamageMax\n        const vars = globalsData.variables?.var || [];\n        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');\n        if (damageMaxVar && damageMaxVar['@_value'] === '0.0') {\n          pristineLoot = true;\n        }\n      }"},{"id":"dayzeconomymanager_dayzeconomymanager_updateeconomy","label":".updateEconomy()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L41-L167","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L41"}],"snippet":"static async updateEconomy(serverId: number, settings: { pristineLoot: boolean, multipliers: Record<string, number> }) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return false;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');\n      const typesPath = join(serverDir, 'mpmissions', template, 'db', 'types.xml');\n\n      // 1. Update globals.xml\n      if (await DayzConfigManager.exists(globalsPath)) {\n        // Backup\n        await fsPromises.copyFile(globalsPath, `${globalsPath}.bak_${Date.now()}`);\n        \n        const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false });\n        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));\n        \n        const vars = globalsData.variables?.var || [];\n        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');\n        const damageMinVar = vars.find((v: any) => v['@_name'] === 'LootDamageMin');"},{"id":"dayzeconomymanager_dayzeconomymanager_wipeloot","label":".wipeLoot()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L169-L193","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L169"}],"snippet":"static async wipeLoot(serverId: number, isRunning: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return false;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      if (isRunning) {\n        throw new Error('SERVER_IS_RUNNING');\n      }\n\n      const typesBinPath = join(serverDir, 'mpmissions', template, 'storage_1', 'data', 'types.bin');\n      if (await DayzConfigManager.exists(typesBinPath)) {\n        await fsPromises.rm(typesBinPath, { force: true });\n        return true;\n      }\n      return true; // Already wiped or doesn't exist\n    } catch (e) {\n      console.error('Failed to wipe DayZ loot', e);\n      return false;\n    }\n  }"}],"edges":[{"source":"dayzeconomymanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L1"}],"weight":1},{"source":"dayzeconomymanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L2"}],"weight":1},{"source":"dayzeconomymanager","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L3"}],"weight":1},{"source":"dayzeconomymanager","target":"fast_xml_parser","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L4"}],"weight":1},{"source":"dayzeconomymanager","target":"dayzconfigmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L5"}],"weight":1},{"source":"dayzeconomymanager","target":"dayzeconomymanager_dayzeconomymanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L7"}],"weight":1},{"source":"dayzeconomymanager_dayzeconomymanager","target":"dayzeconomymanager_dayzeconomymanager_geteconomy","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L8"}],"weight":1},{"source":"dayzeconomymanager_dayzeconomymanager","target":"dayzeconomymanager_dayzeconomymanager_updateeconomy","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L41"}],"weight":1},{"source":"dayzeconomymanager_dayzeconomymanager","target":"dayzeconomymanager_dayzeconomymanager_wipeloot","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L169","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts","source_location":"L169"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzeconomymanager",
+      "label": "DayzEconomyManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzeconomymanager_dayzeconomymanager",
+      "label": "DayzEconomyManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L7-L194",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export class DayzEconomyManager {\n  static async getEconomy(serverId: number) {\n    if (serverId == null) return { pristineLoot: false };\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return null;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');\n\n      let pristineLoot = false;\n      if (await DayzConfigManager.exists(globalsPath)) {\n        const parser = new XMLParser({ ignoreAttributes: false });\n        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));\n        \n        // Find LootDamageMax\n        const vars = globalsData.variables?.var || [];\n        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');\n        if (damageMaxVar && damageMaxVar['@_value'] === '0.0') {\n          pristineLoot = true;\n        }"
+    },
+    {
+      "id": "dayzeconomymanager_dayzeconomymanager_geteconomy",
+      "label": ".getEconomy()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L8-L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "static async getEconomy(serverId: number) {\n    if (serverId == null) return { pristineLoot: false };\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return null;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');\n\n      let pristineLoot = false;\n      if (await DayzConfigManager.exists(globalsPath)) {\n        const parser = new XMLParser({ ignoreAttributes: false });\n        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));\n        \n        // Find LootDamageMax\n        const vars = globalsData.variables?.var || [];\n        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');\n        if (damageMaxVar && damageMaxVar['@_value'] === '0.0') {\n          pristineLoot = true;\n        }\n      }"
+    },
+    {
+      "id": "dayzeconomymanager_dayzeconomymanager_updateeconomy",
+      "label": ".updateEconomy()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L41-L167",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L41"
+        }
+      ],
+      "snippet": "static async updateEconomy(serverId: number, settings: { pristineLoot: boolean, multipliers: Record<string, number> }) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return false;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      const globalsPath = join(serverDir, 'mpmissions', template, 'db', 'globals.xml');\n      const typesPath = join(serverDir, 'mpmissions', template, 'db', 'types.xml');\n\n      // 1. Update globals.xml\n      if (await DayzConfigManager.exists(globalsPath)) {\n        // Backup\n        await fsPromises.copyFile(globalsPath, `${globalsPath}.bak_${Date.now()}`);\n        \n        const parser = new XMLParser({ ignoreAttributes: false, preserveOrder: false });\n        const globalsData = parser.parse(await fsPromises.readFile(globalsPath, 'utf-8'));\n        \n        const vars = globalsData.variables?.var || [];\n        const damageMaxVar = vars.find((v: any) => v['@_name'] === 'LootDamageMax');\n        const damageMinVar = vars.find((v: any) => v['@_name'] === 'LootDamageMin');"
+    },
+    {
+      "id": "dayzeconomymanager_dayzeconomymanager_wipeloot",
+      "label": ".wipeLoot()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L169-L193",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L169"
+        }
+      ],
+      "snippet": "static async wipeLoot(serverId: number, isRunning: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const cfgPath = join(serverDir, 'serverDZ.cfg');\n      if (!await DayzConfigManager.exists(cfgPath)) return false;\n      \n      const cfg = await fsPromises.readFile(cfgPath, 'utf-8');\n      const templateMatch = cfg.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n      const template = templateMatch ? templateMatch[1] : 'dayzOffline.chernarusplus';\n      \n      if (isRunning) {\n        throw new Error('SERVER_IS_RUNNING');\n      }\n\n      const typesBinPath = join(serverDir, 'mpmissions', template, 'storage_1', 'data', 'types.bin');\n      if (await DayzConfigManager.exists(typesBinPath)) {\n        await fsPromises.rm(typesBinPath, { force: true });\n        return true;\n      }\n      return true; // Already wiped or doesn't exist\n    } catch (e) {\n      console.error('Failed to wipe DayZ loot', e);\n      return false;\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzeconomymanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager",
+      "target": "fast_xml_parser",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager",
+      "target": "dayzconfigmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager",
+      "target": "dayzeconomymanager_dayzeconomymanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager_dayzeconomymanager",
+      "target": "dayzeconomymanager_dayzeconomymanager_geteconomy",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager_dayzeconomymanager",
+      "target": "dayzeconomymanager_dayzeconomymanager_updateeconomy",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L41"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzeconomymanager_dayzeconomymanager",
+      "target": "dayzeconomymanager_dayzeconomymanager_wipeloot",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+      "source_location": "L169",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzEconomyManager.ts",
+          "source_location": "L169"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

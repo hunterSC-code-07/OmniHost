@@ -1,1 +1,502 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzmodinstaller","label":"DayzModInstaller.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L1"}]},{"id":"dayzmodinstaller_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L14-L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L14"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"dayzmodinstaller_dayzmodinstaller","label":"DayzModInstaller","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L23-L298","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L23"}],"snippet":"export class DayzModInstaller {\n  static async selectWorkshopFolder() {\n    const result = await dialog.showOpenDialog({\n      properties: ['openDirectory'],\n      title: 'Select DayZ Game Folder'\n    });\n    if (!result.canceled && result.filePaths.length > 0) {\n      return result.filePaths[0];\n    }\n    return null;\n  }\n\n  static async importLocalWorkshop(serverId: number, workshopPath: string) {\n    try {\n      let actualWorkshopPath = workshopPath;\n      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {\n        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');\n      }\n\n      if (!(await exists(actualWorkshopPath))) {\n        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);\n      }\n\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const keysDir = join(serverDir, 'keys');"},{"id":"dayzmodinstaller_dayzmodinstaller_selectworkshopfolder","label":".selectWorkshopFolder()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L24-L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L24"}],"snippet":"static async selectWorkshopFolder() {\n    const result = await dialog.showOpenDialog({\n      properties: ['openDirectory'],\n      title: 'Select DayZ Game Folder'\n    });\n    if (!result.canceled && result.filePaths.length > 0) {\n      return result.filePaths[0];\n    }\n    return null;\n  }"},{"id":"dayzmodinstaller_dayzmodinstaller_importlocalworkshop","label":".importLocalWorkshop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L35-L99","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L35"}],"snippet":"static async importLocalWorkshop(serverId: number, workshopPath: string) {\n    try {\n      let actualWorkshopPath = workshopPath;\n      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {\n        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');\n      }\n\n      if (!(await exists(actualWorkshopPath))) {\n        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);\n      }\n\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const keysDir = join(serverDir, 'keys');\n      \n      if (!(await exists(keysDir))) {\n        await fsPromises.mkdir(keysDir, { recursive: true });\n      }\n\n      const entries = await fsPromises.readdir(actualWorkshopPath, { withFileTypes: true });\n      let importedCount = 0;\n\n      for (const entry of entries) {\n        if ((entry.isDirectory() || entry.isSymbolicLink()) && entry.name.startsWith('@')) {\n          const modSource = join(actualWorkshopPath, entry.name);\n          const modDest = join(serverDir, entry.name);"},{"id":"dayzmodinstaller_dayzmodinstaller_installmods","label":".installMods()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L101-L188","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L101"}],"snippet":"static async installMods(serverId: number, modsToInstall: any[], username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n      \n      const modIds = modsToInstall.map((m: any) => m.modId);\n      \n      // 1. Download via SteamWorkshopDownloader\n      await SteamWorkshopDownloader.downloadWorkshopItems(serverId, appId, modIds, username, password, steamGuardCode);\n\n      // 2. Copy mod folders from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDSetup.getSteamCMDDir();\n\n      for (const m of modsToInstall) {\n        const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), m.modId);\n        \n        if (!(await exists(workshopModDir))) {\n          console.warn(`Mod folder not found after download for ${m.modTitle} (${m.modId})`);\n          continue;\n        }\n\n        // Safe folder name (e.g. @CF)\n        const safeTitle = m.modTitle.replace(/[^a-zA-Z0-9]/g, '');\n        const folderName = `@${safeTitle || m.modId}`;\n        const targetModDir = join(serverDir, folderName);"},{"id":"dayzmodinstaller_dayzmodinstaller_installmod","label":".installMod()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L190-L263","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L190"}],"snippet":"static async installMod(serverId: number, modId: string, modTitle: string, username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n\n      // 1. Download via SteamWorkshopDownloader\n      await SteamWorkshopDownloader.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n\n      // 2. Copy mod folder from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDSetup.getSteamCMDDir();\n      const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (!(await exists(workshopModDir))) {\n        throw new Error('Mod folder not found after download');\n      }\n\n      // Safe folder name (e.g. @CF)\n      const safeTitle = modTitle.replace(/[^a-zA-Z0-9]/g, '');\n      const folderName = `@${safeTitle || modId}`;\n      const targetModDir = join(serverDir, folderName);\n\n      try {\n        await fsPromises.lstat(targetModDir);\n        // If lstat succeeds, it exists (even as a broken symlink)\n        await fsPromises.rm(targetModDir, { recursive: true, force: true });"},{"id":"dayzmodinstaller_dayzmodinstaller_uninstallmod","label":".uninstallMod()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L265-L297","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L265"}],"snippet":"static async uninstallMod(serverId: number, modIdOrFolder: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      \n      // If it's a folder name (starts with @), remove it directly\n      if (modIdOrFolder.startsWith('@')) {\n        const modDir = join(serverDir, modIdOrFolder);\n        if (await exists(modDir)) {\n          // Ideally we'd also delete the .bikey files, but we don't know exactly which ones belong to this mod without parsing\n          await fsPromises.rm(modDir, { recursive: true, force: true });\n        }\n      } else {\n        // Find by modId inside modid.txt\n        const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n        const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));\n        for (const f of mods) {\n          const modIdPath = join(serverDir, f.name, 'modid.txt');\n          if (await exists(modIdPath)) {\n            const content = await fsPromises.readFile(modIdPath, 'utf-8');\n            if (content.startsWith(`${modIdOrFolder}:`)) {\n              await fsPromises.rm(join(serverDir, f.name), { recursive: true, force: true });\n              break;\n            }\n          }\n        }"}],"edges":[{"source":"dayzmodinstaller","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L1"}],"weight":1},{"source":"dayzmodinstaller","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L2"}],"weight":1},{"source":"dayzmodinstaller","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L3"}],"weight":1},{"source":"dayzmodinstaller","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L4"}],"weight":1},{"source":"dayzmodinstaller","target":"steamcmdmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L5"}],"weight":1},{"source":"dayzmodinstaller","target":"dayzmissionmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L6"}],"weight":1},{"source":"dayzmodinstaller","target":"steamwebapi","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L7"}],"weight":1},{"source":"dayzmodinstaller","target":"steamworkshopdownloader","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L11"}],"weight":1},{"source":"dayzmodinstaller","target":"steamcmdsetup","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L12"}],"weight":1},{"source":"dayzmodinstaller","target":"dayzmodinstaller_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L14"}],"weight":1},{"source":"dayzmodinstaller","target":"dayzmodinstaller_dayzmodinstaller","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L23"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller","target":"dayzmodinstaller_dayzmodinstaller_selectworkshopfolder","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L24","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L24"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller","target":"dayzmodinstaller_dayzmodinstaller_importlocalworkshop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L35","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L35"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller","target":"dayzmodinstaller_dayzmodinstaller_installmods","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L101","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L101"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller","target":"dayzmodinstaller_dayzmodinstaller_installmod","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L190","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L190"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller","target":"dayzmodinstaller_dayzmodinstaller_uninstallmod","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L265","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L265"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller_importlocalworkshop","target":"dayzmodinstaller_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L42"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller_installmods","target":"dayzmodinstaller_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L117","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L117"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller_installmod","target":"dayzmodinstaller_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L202","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L202"}],"weight":1},{"source":"dayzmodinstaller_dayzmodinstaller_uninstallmod","target":"dayzmodinstaller_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L272","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts","source_location":"L272"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzmodinstaller",
+      "label": "DayzModInstaller.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzmodinstaller_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L14-L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L14"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "dayzmodinstaller_dayzmodinstaller",
+      "label": "DayzModInstaller",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L23-L298",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L23"
+        }
+      ],
+      "snippet": "export class DayzModInstaller {\n  static async selectWorkshopFolder() {\n    const result = await dialog.showOpenDialog({\n      properties: ['openDirectory'],\n      title: 'Select DayZ Game Folder'\n    });\n    if (!result.canceled && result.filePaths.length > 0) {\n      return result.filePaths[0];\n    }\n    return null;\n  }\n\n  static async importLocalWorkshop(serverId: number, workshopPath: string) {\n    try {\n      let actualWorkshopPath = workshopPath;\n      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {\n        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');\n      }\n\n      if (!(await exists(actualWorkshopPath))) {\n        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);\n      }\n\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const keysDir = join(serverDir, 'keys');"
+    },
+    {
+      "id": "dayzmodinstaller_dayzmodinstaller_selectworkshopfolder",
+      "label": ".selectWorkshopFolder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L24-L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L24"
+        }
+      ],
+      "snippet": "static async selectWorkshopFolder() {\n    const result = await dialog.showOpenDialog({\n      properties: ['openDirectory'],\n      title: 'Select DayZ Game Folder'\n    });\n    if (!result.canceled && result.filePaths.length > 0) {\n      return result.filePaths[0];\n    }\n    return null;\n  }"
+    },
+    {
+      "id": "dayzmodinstaller_dayzmodinstaller_importlocalworkshop",
+      "label": ".importLocalWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L35-L99",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L35"
+        }
+      ],
+      "snippet": "static async importLocalWorkshop(serverId: number, workshopPath: string) {\n    try {\n      let actualWorkshopPath = workshopPath;\n      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {\n        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');\n      }\n\n      if (!(await exists(actualWorkshopPath))) {\n        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);\n      }\n\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const keysDir = join(serverDir, 'keys');\n      \n      if (!(await exists(keysDir))) {\n        await fsPromises.mkdir(keysDir, { recursive: true });\n      }\n\n      const entries = await fsPromises.readdir(actualWorkshopPath, { withFileTypes: true });\n      let importedCount = 0;\n\n      for (const entry of entries) {\n        if ((entry.isDirectory() || entry.isSymbolicLink()) && entry.name.startsWith('@')) {\n          const modSource = join(actualWorkshopPath, entry.name);\n          const modDest = join(serverDir, entry.name);"
+    },
+    {
+      "id": "dayzmodinstaller_dayzmodinstaller_installmods",
+      "label": ".installMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L101-L188",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L101"
+        }
+      ],
+      "snippet": "static async installMods(serverId: number, modsToInstall: any[], username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n      \n      const modIds = modsToInstall.map((m: any) => m.modId);\n      \n      // 1. Download via SteamWorkshopDownloader\n      await SteamWorkshopDownloader.downloadWorkshopItems(serverId, appId, modIds, username, password, steamGuardCode);\n\n      // 2. Copy mod folders from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDSetup.getSteamCMDDir();\n\n      for (const m of modsToInstall) {\n        const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), m.modId);\n        \n        if (!(await exists(workshopModDir))) {\n          console.warn(`Mod folder not found after download for ${m.modTitle} (${m.modId})`);\n          continue;\n        }\n\n        // Safe folder name (e.g. @CF)\n        const safeTitle = m.modTitle.replace(/[^a-zA-Z0-9]/g, '');\n        const folderName = `@${safeTitle || m.modId}`;\n        const targetModDir = join(serverDir, folderName);"
+    },
+    {
+      "id": "dayzmodinstaller_dayzmodinstaller_installmod",
+      "label": ".installMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L190-L263",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L190"
+        }
+      ],
+      "snippet": "static async installMod(serverId: number, modId: string, modTitle: string, username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n\n      // 1. Download via SteamWorkshopDownloader\n      await SteamWorkshopDownloader.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n\n      // 2. Copy mod folder from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDSetup.getSteamCMDDir();\n      const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (!(await exists(workshopModDir))) {\n        throw new Error('Mod folder not found after download');\n      }\n\n      // Safe folder name (e.g. @CF)\n      const safeTitle = modTitle.replace(/[^a-zA-Z0-9]/g, '');\n      const folderName = `@${safeTitle || modId}`;\n      const targetModDir = join(serverDir, folderName);\n\n      try {\n        await fsPromises.lstat(targetModDir);\n        // If lstat succeeds, it exists (even as a broken symlink)\n        await fsPromises.rm(targetModDir, { recursive: true, force: true });"
+    },
+    {
+      "id": "dayzmodinstaller_dayzmodinstaller_uninstallmod",
+      "label": ".uninstallMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L265-L297",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L265"
+        }
+      ],
+      "snippet": "static async uninstallMod(serverId: number, modIdOrFolder: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      \n      // If it's a folder name (starts with @), remove it directly\n      if (modIdOrFolder.startsWith('@')) {\n        const modDir = join(serverDir, modIdOrFolder);\n        if (await exists(modDir)) {\n          // Ideally we'd also delete the .bikey files, but we don't know exactly which ones belong to this mod without parsing\n          await fsPromises.rm(modDir, { recursive: true, force: true });\n        }\n      } else {\n        // Find by modId inside modid.txt\n        const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n        const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));\n        for (const f of mods) {\n          const modIdPath = join(serverDir, f.name, 'modid.txt');\n          if (await exists(modIdPath)) {\n            const content = await fsPromises.readFile(modIdPath, 'utf-8');\n            if (content.startsWith(`${modIdOrFolder}:`)) {\n              await fsPromises.rm(join(serverDir, f.name), { recursive: true, force: true });\n              break;\n            }\n          }\n        }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzmodinstaller",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "steamcmdmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "dayzmissionmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "steamwebapi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "steamworkshopdownloader",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "steamcmdsetup",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "dayzmodinstaller_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller",
+      "target": "dayzmodinstaller_dayzmodinstaller",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L23"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller",
+      "target": "dayzmodinstaller_dayzmodinstaller_selectworkshopfolder",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L24",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L24"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller",
+      "target": "dayzmodinstaller_dayzmodinstaller_importlocalworkshop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L35",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L35"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller",
+      "target": "dayzmodinstaller_dayzmodinstaller_installmods",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L101",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L101"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller",
+      "target": "dayzmodinstaller_dayzmodinstaller_installmod",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L190",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L190"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller",
+      "target": "dayzmodinstaller_dayzmodinstaller_uninstallmod",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L265",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L265"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller_importlocalworkshop",
+      "target": "dayzmodinstaller_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L42"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller_installmods",
+      "target": "dayzmodinstaller_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L117",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L117"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller_installmod",
+      "target": "dayzmodinstaller_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L202",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L202"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodinstaller_dayzmodinstaller_uninstallmod",
+      "target": "dayzmodinstaller_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+      "source_location": "L272",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzModInstaller.ts",
+          "source_location": "L272"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

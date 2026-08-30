@@ -1,1 +1,642 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzinstalledmodstab","label":"DayzInstalledModsTab.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L1"}]},{"id":"dayzinstalledmodstab_dayzinstalledmodstab","label":"DayzInstalledModsTab()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L7-L631","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L7"}],"snippet":"DayzInstalledModsTab: React.FC = () => {\n  const { activeServerId } = useServerStore();\n  const { pendingDownloads, addPendingDownload, removePendingDownload } = useDayzModStore();\n  const [mods, setMods] = useState<any[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [downloadingMission, setDownloadingMission] = useState<string | null>(null);\n\n  const [steamCreds, setSteamCreds] = useState(() => {\n    try {\n      const saved = localStorage.getItem('omnihost_steam_creds');\n      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };\n    } catch {\n      return { username: '', password: '', steamGuard: '' };\n    }\n  });\n  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));\n  const [showCreds, setShowCreds] = useState(false);\n  const [pendingDeps, setPendingDeps] = useState<any[]>([]);\n  const [installingDep, setInstallingDep] = useState<string | null>(null);\n  const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);\n  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);\n  const [isRebuilding, setIsRebuilding] = useState(false);\n  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);\n\n  const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {","node_kind":"component"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemap","label":"handleToggleMap()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L31-L35","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L31"}],"snippet":"handleToggleMap = async (folderName: string, currentIsMap: boolean) => {\n    if (!activeServerId) return;\n    await window.api.toggleDayzMapMod(activeServerId, folderName, !currentIsMap);\n    loadInstalledMods();\n  }"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handledownloadmission","label":"handleDownloadMission()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L37-L48","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L37"}],"snippet":"handleDownloadMission = async (modId: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.downloadDayzMission(activeServerId, modId);\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to download mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handleextractlocalmission","label":"handleExtractLocalMission()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L50-L62","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L50"}],"snippet":"handleExtractLocalMission = async (modId: string, localMissionsPath: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.extractDayzLocalMission(activeServerId, localMissionsPath);\n      alert('Mission files extracted and applied successfully!');\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to extract mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus","label":"handleToggleModStatus()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L64-L108","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L64"}],"snippet":"handleToggleModStatus = async (mod: any) => {\n    if (!activeServerId) return;\n    const isEnabling = mod.isDisabled;\n    await window.api.toggleDayzModStatus(activeServerId, mod.folderName, !isEnabling);\n\n    if (isEnabling && mod.id && /^\\d+$/.test(mod.id)) {\n      try {\n        const dependencies = await window.api.getModDependencies(mod.id);\n        if (dependencies && dependencies.length > 0) {\n          const installedDeps = mods.filter(m => dependencies.includes(m.id));\n          const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));\n\n          let enabledCount = 0;\n          for (const installedDep of installedDeps) {\n            if (installedDep.isDisabled) {\n              await window.api.toggleDayzModStatus(activeServerId, installedDep.folderName, false);\n              enabledCount++;\n            }\n          }\n\n          if (missingDepIds.length > 0) {\n            const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);\n            if (depDetails && depDetails.length > 0) {\n              const depNames = depDetails.map((d: any) => d.title).join(', ');\n              const confirmInstall = confirm(`This mod requires the following missing dependencies:\\n\\n${depNames}\\n\\nDo you want to install them automatically?`);"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handlecheckdependencies","label":"handleCheckDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L110-L138","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L110"}],"snippet":"handleCheckDependencies = async (mod: any) => {\n    setCheckingDeps(mod.id);\n    try {\n      const depIds = await window.api.getModDependencies(mod.id);\n      if (!depIds || depIds.length === 0) {\n        alert('No dependencies required for this mod.');\n        setCheckingDeps(null);\n        return;\n      }\n\n      const details = await window.api.getWorkshopItemDetails(depIds);\n\n      const results = details.map((d: any) => {\n        const localMod = mods.find(m => String(m.id) === String(d.id));\n        return {\n          id: d.id,\n          title: d.title,\n          isInstalled: !!localMod,\n          isDisabled: localMod ? localMod.isDisabled : false\n        };\n      });\n\n      setDependencyResult({ modTitle: mod.title, deps: results });\n    } catch (e: any) {\n      alert('Failed to check dependencies: ' + e.message);"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies","label":"handleInstallDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L140-L189","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L140"}],"snippet":"handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {\n    if (!activeServerId) return;\n    setShowCreds(false);\n\n    if (addPendingDownload) {\n      depsToInstall.forEach(dep => {\n        addPendingDownload(activeServerId, {\n          id: dep.id,\n          title: dep.title,\n          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,\n          tags: []\n        });\n      });\n    } else {\n      setInstallingDep('batch');\n      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });\n    }\n\n    try {\n      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));\n      await window.api.installDayzMods(\n        activeServerId,\n        modsToInstall,\n        steamCreds.username,\n        steamCreds.password,"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","label":"loadInstalledMods()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L195-L237","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L195"}],"snippet":"loadInstalledMods = async () => {\n    if (!activeServerId) return;\n    setLoading(true);\n    try {\n      const basicMods = await window.api.getDayzInstalledMods(activeServerId);\n\n      // Fetch rich details from Steam API for mods that have a Workshop ID\n      const workshopIds = basicMods\n        .filter((m: any) => m.id && /^\\d+$/.test(m.id) && String(m.id) !== '0')\n        .map((m: any) => m.id);\n\n      let detailedMods: any[] = [];\n      if (workshopIds.length > 0) {\n        detailedMods = await window.api.getWorkshopItemDetails(workshopIds);\n      }\n\n      // Merge basic details with rich details and sort: enabled first, then alphabetically\n      const mergedMods = basicMods.map((basicMod: any) => {\n        const detail = detailedMods.find((d: any) => d.publishedfileid === basicMod.id);\n        if (detail) {\n          return {\n            ...basicMod,\n            title: detail.title || basicMod.title,\n            preview_url: detail.preview_url,\n            file_size: detail.file_size,"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage","label":"openWorkshopPage()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L239-L243","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L239"}],"snippet":"openWorkshopPage = (id: string) => {\n    if (/^\\d+$/.test(id)) {\n      window.open(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`, '_blank');\n    }\n  }"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handleuninstall","label":"handleUninstall()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L245-L255","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L245"}],"snippet":"handleUninstall = async (modId: string, modName: string) => {\n    if (!activeServerId) return;\n    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {\n      try {\n        await window.api.uninstallDayzMod(activeServerId, modId);\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall mod: ${e.message}`);\n      }\n    }\n  }"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handleuninstallall","label":"handleUninstallAll()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L257-L272","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L257"}],"snippet":"handleUninstallAll = async () => {\n    if (mods.length === 0 || !activeServerId) return;\n    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\\n\\nAre you sure you want to proceed? This cannot be undone.`)) {\n      setLoading(true);\n      try {\n        for (const mod of mods) {\n          await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);\n        }\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall some mods: ${e.message}`);\n        await loadInstalledMods();\n      }\n      setLoading(false);\n    }\n  }"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_handlerebuildloadorder","label":"handleRebuildLoadOrder()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L274-L286","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L274"}],"snippet":"handleRebuildLoadOrder = async () => {\n    if (!activeServerId) return;\n    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {\n      setIsRebuilding(true);\n      try {\n        await window.api.rebuildModDependencies(activeServerId);\n        alert('Successfully rebuilt load order dependency graph!');\n      } catch (e: any) {\n        alert('Failed to rebuild load order: ' + e.message);\n      }\n      setIsRebuilding(false);\n    }\n  }"}],"edges":[{"source":"dayzinstalledmodstab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L1"}],"weight":1},{"source":"dayzinstalledmodstab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L2"}],"weight":1},{"source":"dayzinstalledmodstab","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L4"}],"weight":1},{"source":"dayzinstalledmodstab","target":"usedayzmodstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L5"}],"weight":1},{"source":"dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L7"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemap","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L31","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L31"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handledownloadmission","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L37"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handleextractlocalmission","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L50","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L50"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L64","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L64"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handlecheckdependencies","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L110","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L110"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L140","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L140"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L195","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L195"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L239","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L239"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handleuninstall","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L245","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L245"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handleuninstallall","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L257","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L257"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"dayzinstalledmodstab_dayzinstalledmodstab_handlerebuildloadorder","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L274","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L274"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L7"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemap","target":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L34","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L34"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus","target":"dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L94","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L94"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus","target":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L107","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L107"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies","target":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L188","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L188"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab_handleuninstall","target":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L250","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L250"}],"weight":1},{"source":"dayzinstalledmodstab_dayzinstalledmodstab_handleuninstallall","target":"dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L265","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L265"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzinstalledmodstab",
+      "label": "DayzInstalledModsTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "label": "DayzInstalledModsTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L7-L631",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "DayzInstalledModsTab: React.FC = () => {\n  const { activeServerId } = useServerStore();\n  const { pendingDownloads, addPendingDownload, removePendingDownload } = useDayzModStore();\n  const [mods, setMods] = useState<any[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [downloadingMission, setDownloadingMission] = useState<string | null>(null);\n\n  const [steamCreds, setSteamCreds] = useState(() => {\n    try {\n      const saved = localStorage.getItem('omnihost_steam_creds');\n      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };\n    } catch {\n      return { username: '', password: '', steamGuard: '' };\n    }\n  });\n  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));\n  const [showCreds, setShowCreds] = useState(false);\n  const [pendingDeps, setPendingDeps] = useState<any[]>([]);\n  const [installingDep, setInstallingDep] = useState<string | null>(null);\n  const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);\n  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);\n  const [isRebuilding, setIsRebuilding] = useState(false);\n  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);\n\n  const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {",
+      "node_kind": "component"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemap",
+      "label": "handleToggleMap()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L31-L35",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L31"
+        }
+      ],
+      "snippet": "handleToggleMap = async (folderName: string, currentIsMap: boolean) => {\n    if (!activeServerId) return;\n    await window.api.toggleDayzMapMod(activeServerId, folderName, !currentIsMap);\n    loadInstalledMods();\n  }"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handledownloadmission",
+      "label": "handleDownloadMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L37-L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L37"
+        }
+      ],
+      "snippet": "handleDownloadMission = async (modId: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.downloadDayzMission(activeServerId, modId);\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to download mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handleextractlocalmission",
+      "label": "handleExtractLocalMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L50-L62",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L50"
+        }
+      ],
+      "snippet": "handleExtractLocalMission = async (modId: string, localMissionsPath: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.extractDayzLocalMission(activeServerId, localMissionsPath);\n      alert('Mission files extracted and applied successfully!');\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to extract mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus",
+      "label": "handleToggleModStatus()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L64-L108",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L64"
+        }
+      ],
+      "snippet": "handleToggleModStatus = async (mod: any) => {\n    if (!activeServerId) return;\n    const isEnabling = mod.isDisabled;\n    await window.api.toggleDayzModStatus(activeServerId, mod.folderName, !isEnabling);\n\n    if (isEnabling && mod.id && /^\\d+$/.test(mod.id)) {\n      try {\n        const dependencies = await window.api.getModDependencies(mod.id);\n        if (dependencies && dependencies.length > 0) {\n          const installedDeps = mods.filter(m => dependencies.includes(m.id));\n          const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));\n\n          let enabledCount = 0;\n          for (const installedDep of installedDeps) {\n            if (installedDep.isDisabled) {\n              await window.api.toggleDayzModStatus(activeServerId, installedDep.folderName, false);\n              enabledCount++;\n            }\n          }\n\n          if (missingDepIds.length > 0) {\n            const depDetails = await window.api.getWorkshopItemDetails(missingDepIds);\n            if (depDetails && depDetails.length > 0) {\n              const depNames = depDetails.map((d: any) => d.title).join(', ');\n              const confirmInstall = confirm(`This mod requires the following missing dependencies:\\n\\n${depNames}\\n\\nDo you want to install them automatically?`);"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handlecheckdependencies",
+      "label": "handleCheckDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L110-L138",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L110"
+        }
+      ],
+      "snippet": "handleCheckDependencies = async (mod: any) => {\n    setCheckingDeps(mod.id);\n    try {\n      const depIds = await window.api.getModDependencies(mod.id);\n      if (!depIds || depIds.length === 0) {\n        alert('No dependencies required for this mod.');\n        setCheckingDeps(null);\n        return;\n      }\n\n      const details = await window.api.getWorkshopItemDetails(depIds);\n\n      const results = details.map((d: any) => {\n        const localMod = mods.find(m => String(m.id) === String(d.id));\n        return {\n          id: d.id,\n          title: d.title,\n          isInstalled: !!localMod,\n          isDisabled: localMod ? localMod.isDisabled : false\n        };\n      });\n\n      setDependencyResult({ modTitle: mod.title, deps: results });\n    } catch (e: any) {\n      alert('Failed to check dependencies: ' + e.message);"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies",
+      "label": "handleInstallDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L140-L189",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L140"
+        }
+      ],
+      "snippet": "handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {\n    if (!activeServerId) return;\n    setShowCreds(false);\n\n    if (addPendingDownload) {\n      depsToInstall.forEach(dep => {\n        addPendingDownload(activeServerId, {\n          id: dep.id,\n          title: dep.title,\n          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,\n          tags: []\n        });\n      });\n    } else {\n      setInstallingDep('batch');\n      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });\n    }\n\n    try {\n      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));\n      await window.api.installDayzMods(\n        activeServerId,\n        modsToInstall,\n        steamCreds.username,\n        steamCreds.password,"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "label": "loadInstalledMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L195-L237",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L195"
+        }
+      ],
+      "snippet": "loadInstalledMods = async () => {\n    if (!activeServerId) return;\n    setLoading(true);\n    try {\n      const basicMods = await window.api.getDayzInstalledMods(activeServerId);\n\n      // Fetch rich details from Steam API for mods that have a Workshop ID\n      const workshopIds = basicMods\n        .filter((m: any) => m.id && /^\\d+$/.test(m.id) && String(m.id) !== '0')\n        .map((m: any) => m.id);\n\n      let detailedMods: any[] = [];\n      if (workshopIds.length > 0) {\n        detailedMods = await window.api.getWorkshopItemDetails(workshopIds);\n      }\n\n      // Merge basic details with rich details and sort: enabled first, then alphabetically\n      const mergedMods = basicMods.map((basicMod: any) => {\n        const detail = detailedMods.find((d: any) => d.publishedfileid === basicMod.id);\n        if (detail) {\n          return {\n            ...basicMod,\n            title: detail.title || basicMod.title,\n            preview_url: detail.preview_url,\n            file_size: detail.file_size,"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage",
+      "label": "openWorkshopPage()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L239-L243",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L239"
+        }
+      ],
+      "snippet": "openWorkshopPage = (id: string) => {\n    if (/^\\d+$/.test(id)) {\n      window.open(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`, '_blank');\n    }\n  }"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handleuninstall",
+      "label": "handleUninstall()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L245-L255",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L245"
+        }
+      ],
+      "snippet": "handleUninstall = async (modId: string, modName: string) => {\n    if (!activeServerId) return;\n    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {\n      try {\n        await window.api.uninstallDayzMod(activeServerId, modId);\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall mod: ${e.message}`);\n      }\n    }\n  }"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handleuninstallall",
+      "label": "handleUninstallAll()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L257-L272",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L257"
+        }
+      ],
+      "snippet": "handleUninstallAll = async () => {\n    if (mods.length === 0 || !activeServerId) return;\n    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\\n\\nAre you sure you want to proceed? This cannot be undone.`)) {\n      setLoading(true);\n      try {\n        for (const mod of mods) {\n          await window.api.uninstallDayzMod(activeServerId, mod.folderName || mod.id);\n        }\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall some mods: ${e.message}`);\n        await loadInstalledMods();\n      }\n      setLoading(false);\n    }\n  }"
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_handlerebuildloadorder",
+      "label": "handleRebuildLoadOrder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L274-L286",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L274"
+        }
+      ],
+      "snippet": "handleRebuildLoadOrder = async () => {\n    if (!activeServerId) return;\n    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {\n      setIsRebuilding(true);\n      try {\n        await window.api.rebuildModDependencies(activeServerId);\n        alert('Successfully rebuilt load order dependency graph!');\n      } catch (e: any) {\n        alert('Failed to rebuild load order: ' + e.message);\n      }\n      setIsRebuilding(false);\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzinstalledmodstab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab",
+      "target": "usedayzmodstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L31"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handledownloadmission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L37"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handleextractlocalmission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L50",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L50"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L64",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L64"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handlecheckdependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L110",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L110"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L140",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L140"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L195",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L195"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L239",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L239"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handleuninstall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L245",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L245"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handleuninstallall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L257",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L257"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handlerebuildloadorder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L274",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L274"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemap",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L34",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L34"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L94",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L94"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab_handletogglemodstatus",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L107",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L107"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab_handleinstalldependencies",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L188",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L188"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab_handleuninstall",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L250",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L250"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab_handleuninstallall",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L265",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L265"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,24 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"file_bytes":1040237,"content_type":"image/png","id":"minecraft_bg","label":"minecraft-bg.png","file_type":"image","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/minecraft-bg.png","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:image","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/minecraft-bg.png","source_location":"L1"}]}],"edges":[]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "file_bytes": 1040237,
+      "content_type": "image/png",
+      "id": "minecraft_bg",
+      "label": "minecraft-bg.png",
+      "file_type": "image",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/minecraft-bg.png",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:image",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/minecraft-bg.png",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

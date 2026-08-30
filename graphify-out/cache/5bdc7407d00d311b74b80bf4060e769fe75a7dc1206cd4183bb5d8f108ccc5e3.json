@@ -1,1 +1,184 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"consoletab","label":"ConsoleTab.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L1"}]},{"id":"consoletab_consoletabprops","label":"ConsoleTabProps","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L10-L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L10"}],"snippet":"interface ConsoleTabProps {\n  onPlayerClick: (playerName: string) => void;\n  isActive: boolean;\n}"}],"edges":[{"source":"consoletab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L1"}],"weight":1},{"source":"consoletab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L2"}],"weight":1},{"source":"consoletab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L3"}],"weight":1},{"source":"consoletab","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L5"}],"weight":1},{"source":"consoletab","target":"uselogstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L6"}],"weight":1},{"source":"consoletab","target":"useplayerstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L7"}],"weight":1},{"source":"consoletab","target":"usetoaststore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L8"}],"weight":1},{"source":"consoletab","target":"consoletab_consoletabprops","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx","source_location":"L10"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "consoletab",
+      "label": "ConsoleTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "consoletab_consoletabprops",
+      "label": "ConsoleTabProps",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L10-L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "interface ConsoleTabProps {\n  onPlayerClick: (playerName: string) => void;\n  isActive: boolean;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "consoletab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "uselogstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "useplayerstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "usetoaststore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "consoletab",
+      "target": "consoletab_consoletabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/ConsoleTab.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

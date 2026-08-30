@@ -1,1 +1,767 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecraftadapter","label":"MinecraftAdapter.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L1"}]},{"id":"minecraftadapter_minecraftadapter","label":"MinecraftAdapter","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L9-L537","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L9"}],"snippet":"export class MinecraftAdapter {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  autoStopTimer: NodeJS.Timeout | null = null;\n  statsTimer: NodeJS.Timeout | null = null;\n  omnihostMeta: any = {}; \n  javaPid: number | null = null; \n  isFullyStarted: boolean = false; \n  logHistory: string[] = [];\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"},{"id":"minecraftadapter_minecraftadapter_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L21-L24","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L21"}],"snippet":"constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"},{"id":"minecraftadapter_minecraftadapter_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L26-L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L26"}],"snippet":"sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"},{"id":"minecraftadapter_minecraftadapter_sendplayerupdate","label":".sendPlayerUpdate()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L35-L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L35"}],"snippet":"sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"},{"id":"minecraftadapter_minecraftadapter_sendcommand","label":".sendCommand()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L41-L48","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L41"}],"snippet":"sendCommand(cmd: string) {\n    if (this.process && this.process.stdin) {\n      this.process.stdin.write(cmd + '\\n');\n      this.sendLog(`> ${cmd}`); \n    } else {\n      this.sendLog(`[System] Cannot send command: Server is offline.`);\n    }\n  }"},{"id":"minecraftadapter_minecraftadapter_getactualpid","label":".getActualPid()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L50-L104","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L50"}],"snippet":"private getActualPid(): Promise<number> {\n    return new Promise((resolve) => {\n      const proc = this.process;\n      if (!proc || !proc.pid) return resolve(0);\n      if (this.javaPid) return resolve(this.javaPid);\n      if (process.platform !== 'win32') return resolve(proc.pid);\n\n      const { spawn } = require('child_process');\n      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);\n      \n      let out = '';\n      ps.stdout.on('data', (data: any) => out += data.toString());\n      \n      ps.on('close', () => {\n        const pid = parseInt(out.trim());\n        if (!isNaN(pid) && pid > 0) {\n          this.javaPid = pid;\n          resolve(pid);\n        } else {\n          resolve(proc.pid!);\n        }\n      });\n\n      const script = `\n        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name"},{"id":"minecraftadapter_minecraftadapter_getplayerinventory","label":".getPlayerInventory()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L108-L149","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L108"}],"snippet":"async getPlayerInventory(playerName: string) {\n    try {\n      // Rate-limit save-all flush to avoid spamming \"Saved the game\" to all players in-game.\n      // The live inventory tracker polls every 3s, but we only need to flush to disk periodically.\n      // Between flushes, we read the .dat file as-is (updated on auto-save every ~5min or player disconnect).\n      const now = Date.now();\n      if (now - this.lastSaveFlushTime > 60000 && this.process?.stdin && this.isFullyStarted) {\n        this.process.stdin.write('save-all flush\\n');\n        this.lastSaveFlushTime = now;\n        await new Promise(r => setTimeout(r, 200));\n      }\n\n      const cachePath = join(this.serverDir, 'usercache.json');\n      if (!fs.existsSync(cachePath)) return null;\n      \n      const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));\n      const playerEntry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase());\n      if (!playerEntry) return null;\n\n      let datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);\n      if (!fs.existsSync(datPath)) {\n        datPath = join(this.serverDir, 'world', 'players', 'data', `${playerEntry.uuid}.dat`);\n      }\n      if (!fs.existsSync(datPath)) return null;"},{"id":"minecraftadapter_minecraftadapter_init","label":".init()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L151-L181","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L151"}],"snippet":"async init() {\n    if (!fs.existsSync(this.serverDir)) fs.mkdirSync(this.serverDir, { recursive: true });\n    \n    // Auto-accept EULA\n    fs.writeFileSync(join(this.serverDir, 'eula.txt'), 'eula=true\\n');\n\n    const propsPath = join(this.serverDir, 'server.properties');\n    if (fs.existsSync(propsPath)) {\n      let props = fs.readFileSync(propsPath, 'utf-8');\n      let modified = false;\n\n      if (props.includes('broadcast-console-to-ops=true')) {\n        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');\n        modified = true;\n      } else if (!props.includes('broadcast-console-to-ops=')) {\n        props += '\\nbroadcast-console-to-ops=false\\n';\n        modified = true;\n      }\n\n      if (!props.includes('online-mode=')) {\n        props += '\\nonline-mode=false\\n';\n        modified = true;\n      }\n\n      if (modified) {"},{"id":"minecraftadapter_minecraftadapter_updateplayerstats","label":".updatePlayerStats()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L183-L240","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L183"}],"snippet":"async updatePlayerStats(username: string, isJoin: boolean) {\n    const statsPath = join(this.serverDir, 'player-stats.json');\n    let stats: any = {};\n    if (fs.existsSync(statsPath)) {\n      try {\n        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));\n      } catch (e) {}\n    }\n    \n    if (!stats[username]) {\n      stats[username] = {\n        username,\n        firstJoin: Date.now(),\n        lastLeft: null,\n        totalPlaytime: 0\n      };\n    }\n\n    if (isJoin) {\n      stats[username].currentSessionStart = Date.now();\n      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');\n    } else {\n      const joinTime = stats[username].currentSessionStart;\n      if (joinTime) {\n        const duration = Date.now() - joinTime;"},{"id":"minecraftadapter_minecraftadapter_parserunbat","label":".parseRunBat()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L254-L299","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L254"}],"snippet":"private parseRunBat(batPath: string): string[] | null {\n    try {\n      const content = fs.readFileSync(batPath, 'utf-8');\n      const lines = content.split(/\\r?\\n/);\n\n      // Forge run.bat has TWO java commands:\n      //   1) java -jar forge-...-shim.jar --onlyCheckJava  (version check, exits immediately)\n      //   2) java @user_jvm_args.txt @libraries/.../win_args.txt %*  (actual server)\n      // We want the LAST java command, which is always the actual server launch.\n      let lastJavaArgs: string[] | null = null;\n\n      for (const rawLine of lines) {\n        const line = rawLine.trim();\n\n        // Skip non-Java lines (echo, set, rem, pause, empty, labels, conditionals, etc.)\n        if (!line || line.startsWith('@echo') || line.startsWith('REM') || line.startsWith('rem') ||\n            line.startsWith('set ') || line.startsWith('SET ') || line === 'pause' || line === 'PAUSE' ||\n            line.startsWith('::') || line.startsWith('if ') || line.startsWith('IF ') ||\n            line.startsWith(':') || line.startsWith('echo') || line.startsWith('goto')) {\n          continue;\n        }\n\n        // Look for the java launch command\n        // Matches: java ..., \"java\" ..., %JAVA_HOME%\\bin\\java ..., \"path\\to\\java.exe\" ...\n        const javaMatch = line.match(/^(?:@\\s*)?(?:\"[^\"]*[/\\\\])?(?:java(?:w)?(?:\\.exe)?)\"?\\s+(.*)/i);"},{"id":"minecraftadapter_minecraftadapter_start","label":".start()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L301-L475","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L301"}],"snippet":"async start() {\n    await this.init();\n    this.onlinePlayers = []; \n    this.logHistory = [];\n    this.isFullyStarted = false;\n    this.sendPlayerUpdate();\n    \n    this.sendLog(`[System] Starting Server ${this.serverId}...`);\n\n    const metaPath = join(this.serverDir, 'omnihost.json');\n    let version = '1.20.4';\n    if (fs.existsSync(metaPath)) {\n      try {\n        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));\n        this.omnihostMeta = meta;\n        if (meta.version) version = meta.version;\n      } catch(e) {}\n    }\n\n    let javaRequired: 8 | 16 | 17 | 21 | 25 = 17;\n    const coerced = semver.coerce(version);\n    if (coerced) {\n      if (semver.lt(coerced, '1.17.0')) javaRequired = 8;\n      else if (semver.lt(coerced, '1.18.0')) javaRequired = 16;\n      else if (semver.lt(coerced, '1.20.5')) javaRequired = 17;"},{"id":"minecraftadapter_minecraftadapter_stop","label":".stop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L477-L536","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L477"}],"snippet":"async stop(): Promise<void> {\n    return new Promise((resolve) => {\n      if (!this.process) {\n        resolve();\n        return;\n      }\n      \n      this.sendLog(`[System] Stopping Server ${this.serverId}...`);\n      this.process.stdin?.write('stop\\n');\n      \n      const p = this.process;\n      this.process = null;\n      if (this.autoStopTimer) clearTimeout(this.autoStopTimer);\n      if (this.statsTimer) clearInterval(this.statsTimer);\n      this.autoStopTimer = null;\n      this.statsTimer = null;\n\n      // Update stats for all players before clearing them\n      for (const pName of this.onlinePlayers) {\n        this.updatePlayerStats(pName, false);\n      }\n      \n      this.onlinePlayers = []; \n      this.sendPlayerUpdate();"}],"edges":[{"source":"minecraftadapter","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L1"}],"weight":1},{"source":"minecraftadapter","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L2"}],"weight":1},{"source":"minecraftadapter","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L3"}],"weight":1},{"source":"minecraftadapter","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L4"}],"weight":1},{"source":"minecraftadapter","target":"semver","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L5"}],"weight":1},{"source":"minecraftadapter","target":"javamanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L6"}],"weight":1},{"source":"minecraftadapter","target":"pidusage","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L7"}],"weight":1},{"source":"minecraftadapter","target":"minecraftadapter_minecraftadapter","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L9"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L21"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L26"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_sendplayerupdate","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L35","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L35"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_sendcommand","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L41"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_getactualpid","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L50","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L50"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_getplayerinventory","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L108","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L108"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_getplayerinventory","target":"prismarine_nbt","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L136","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L136"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_init","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L151","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L151"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_updateplayerstats","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L183","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L183"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_updateplayerstats","target":"prismarine_nbt","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L225","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L225"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_parserunbat","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L254","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L254"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_start","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L301","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L301"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_start","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L385","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L385"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_start","target":"readline","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L444","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L444"}],"weight":1},{"source":"minecraftadapter_minecraftadapter","target":"minecraftadapter_minecraftadapter_stop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L477","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L477"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_sendcommand","target":"minecraftadapter_minecraftadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L44"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_getplayerinventory","target":"minecraftadapter_minecraftadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L146","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L146"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_updateplayerstats","target":"minecraftadapter_minecraftadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L235","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L235"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_start","target":"minecraftadapter_minecraftadapter_init","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L302","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L302"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_start","target":"minecraftadapter_minecraftadapter_sendplayerupdate","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L306","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L306"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_start","target":"minecraftadapter_minecraftadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L308","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L308"}],"weight":1},{"source":"minecraftadapter_minecraftadapter_start","target":"minecraftadapter_minecraftadapter_parserunbat","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L395","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts","source_location":"L395"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecraftadapter",
+      "label": "MinecraftAdapter.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter",
+      "label": "MinecraftAdapter",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L9-L537",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "export class MinecraftAdapter {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  autoStopTimer: NodeJS.Timeout | null = null;\n  statsTimer: NodeJS.Timeout | null = null;\n  omnihostMeta: any = {}; \n  javaPid: number | null = null; \n  isFullyStarted: boolean = false; \n  logHistory: string[] = [];\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L21-L24",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L26-L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_sendplayerupdate",
+      "label": ".sendPlayerUpdate()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L35-L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L35"
+        }
+      ],
+      "snippet": "sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_sendcommand",
+      "label": ".sendCommand()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L41-L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L41"
+        }
+      ],
+      "snippet": "sendCommand(cmd: string) {\n    if (this.process && this.process.stdin) {\n      this.process.stdin.write(cmd + '\\n');\n      this.sendLog(`> ${cmd}`); \n    } else {\n      this.sendLog(`[System] Cannot send command: Server is offline.`);\n    }\n  }"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_getactualpid",
+      "label": ".getActualPid()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L50-L104",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L50"
+        }
+      ],
+      "snippet": "private getActualPid(): Promise<number> {\n    return new Promise((resolve) => {\n      const proc = this.process;\n      if (!proc || !proc.pid) return resolve(0);\n      if (this.javaPid) return resolve(this.javaPid);\n      if (process.platform !== 'win32') return resolve(proc.pid);\n\n      const { spawn } = require('child_process');\n      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);\n      \n      let out = '';\n      ps.stdout.on('data', (data: any) => out += data.toString());\n      \n      ps.on('close', () => {\n        const pid = parseInt(out.trim());\n        if (!isNaN(pid) && pid > 0) {\n          this.javaPid = pid;\n          resolve(pid);\n        } else {\n          resolve(proc.pid!);\n        }\n      });\n\n      const script = `\n        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_getplayerinventory",
+      "label": ".getPlayerInventory()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L108-L149",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L108"
+        }
+      ],
+      "snippet": "async getPlayerInventory(playerName: string) {\n    try {\n      // Rate-limit save-all flush to avoid spamming \"Saved the game\" to all players in-game.\n      // The live inventory tracker polls every 3s, but we only need to flush to disk periodically.\n      // Between flushes, we read the .dat file as-is (updated on auto-save every ~5min or player disconnect).\n      const now = Date.now();\n      if (now - this.lastSaveFlushTime > 60000 && this.process?.stdin && this.isFullyStarted) {\n        this.process.stdin.write('save-all flush\\n');\n        this.lastSaveFlushTime = now;\n        await new Promise(r => setTimeout(r, 200));\n      }\n\n      const cachePath = join(this.serverDir, 'usercache.json');\n      if (!fs.existsSync(cachePath)) return null;\n      \n      const cache = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));\n      const playerEntry = cache.find((p: any) => p.name.toLowerCase() === playerName.toLowerCase());\n      if (!playerEntry) return null;\n\n      let datPath = join(this.serverDir, 'world', 'playerdata', `${playerEntry.uuid}.dat`);\n      if (!fs.existsSync(datPath)) {\n        datPath = join(this.serverDir, 'world', 'players', 'data', `${playerEntry.uuid}.dat`);\n      }\n      if (!fs.existsSync(datPath)) return null;"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_init",
+      "label": ".init()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L151-L181",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L151"
+        }
+      ],
+      "snippet": "async init() {\n    if (!fs.existsSync(this.serverDir)) fs.mkdirSync(this.serverDir, { recursive: true });\n    \n    // Auto-accept EULA\n    fs.writeFileSync(join(this.serverDir, 'eula.txt'), 'eula=true\\n');\n\n    const propsPath = join(this.serverDir, 'server.properties');\n    if (fs.existsSync(propsPath)) {\n      let props = fs.readFileSync(propsPath, 'utf-8');\n      let modified = false;\n\n      if (props.includes('broadcast-console-to-ops=true')) {\n        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');\n        modified = true;\n      } else if (!props.includes('broadcast-console-to-ops=')) {\n        props += '\\nbroadcast-console-to-ops=false\\n';\n        modified = true;\n      }\n\n      if (!props.includes('online-mode=')) {\n        props += '\\nonline-mode=false\\n';\n        modified = true;\n      }\n\n      if (modified) {"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_updateplayerstats",
+      "label": ".updatePlayerStats()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L183-L240",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L183"
+        }
+      ],
+      "snippet": "async updatePlayerStats(username: string, isJoin: boolean) {\n    const statsPath = join(this.serverDir, 'player-stats.json');\n    let stats: any = {};\n    if (fs.existsSync(statsPath)) {\n      try {\n        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));\n      } catch (e) {}\n    }\n    \n    if (!stats[username]) {\n      stats[username] = {\n        username,\n        firstJoin: Date.now(),\n        lastLeft: null,\n        totalPlaytime: 0\n      };\n    }\n\n    if (isJoin) {\n      stats[username].currentSessionStart = Date.now();\n      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');\n    } else {\n      const joinTime = stats[username].currentSessionStart;\n      if (joinTime) {\n        const duration = Date.now() - joinTime;"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_parserunbat",
+      "label": ".parseRunBat()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L254-L299",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L254"
+        }
+      ],
+      "snippet": "private parseRunBat(batPath: string): string[] | null {\n    try {\n      const content = fs.readFileSync(batPath, 'utf-8');\n      const lines = content.split(/\\r?\\n/);\n\n      // Forge run.bat has TWO java commands:\n      //   1) java -jar forge-...-shim.jar --onlyCheckJava  (version check, exits immediately)\n      //   2) java @user_jvm_args.txt @libraries/.../win_args.txt %*  (actual server)\n      // We want the LAST java command, which is always the actual server launch.\n      let lastJavaArgs: string[] | null = null;\n\n      for (const rawLine of lines) {\n        const line = rawLine.trim();\n\n        // Skip non-Java lines (echo, set, rem, pause, empty, labels, conditionals, etc.)\n        if (!line || line.startsWith('@echo') || line.startsWith('REM') || line.startsWith('rem') ||\n            line.startsWith('set ') || line.startsWith('SET ') || line === 'pause' || line === 'PAUSE' ||\n            line.startsWith('::') || line.startsWith('if ') || line.startsWith('IF ') ||\n            line.startsWith(':') || line.startsWith('echo') || line.startsWith('goto')) {\n          continue;\n        }\n\n        // Look for the java launch command\n        // Matches: java ..., \"java\" ..., %JAVA_HOME%\\bin\\java ..., \"path\\to\\java.exe\" ...\n        const javaMatch = line.match(/^(?:@\\s*)?(?:\"[^\"]*[/\\\\])?(?:java(?:w)?(?:\\.exe)?)\"?\\s+(.*)/i);"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L301-L475",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L301"
+        }
+      ],
+      "snippet": "async start() {\n    await this.init();\n    this.onlinePlayers = []; \n    this.logHistory = [];\n    this.isFullyStarted = false;\n    this.sendPlayerUpdate();\n    \n    this.sendLog(`[System] Starting Server ${this.serverId}...`);\n\n    const metaPath = join(this.serverDir, 'omnihost.json');\n    let version = '1.20.4';\n    if (fs.existsSync(metaPath)) {\n      try {\n        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));\n        this.omnihostMeta = meta;\n        if (meta.version) version = meta.version;\n      } catch(e) {}\n    }\n\n    let javaRequired: 8 | 16 | 17 | 21 | 25 = 17;\n    const coerced = semver.coerce(version);\n    if (coerced) {\n      if (semver.lt(coerced, '1.17.0')) javaRequired = 8;\n      else if (semver.lt(coerced, '1.18.0')) javaRequired = 16;\n      else if (semver.lt(coerced, '1.20.5')) javaRequired = 17;"
+    },
+    {
+      "id": "minecraftadapter_minecraftadapter_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L477-L536",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L477"
+        }
+      ],
+      "snippet": "async stop(): Promise<void> {\n    return new Promise((resolve) => {\n      if (!this.process) {\n        resolve();\n        return;\n      }\n      \n      this.sendLog(`[System] Stopping Server ${this.serverId}...`);\n      this.process.stdin?.write('stop\\n');\n      \n      const p = this.process;\n      this.process = null;\n      if (this.autoStopTimer) clearTimeout(this.autoStopTimer);\n      if (this.statsTimer) clearInterval(this.statsTimer);\n      this.autoStopTimer = null;\n      this.statsTimer = null;\n\n      // Update stats for all players before clearing them\n      for (const pName of this.onlinePlayers) {\n        this.updatePlayerStats(pName, false);\n      }\n      \n      this.onlinePlayers = []; \n      this.sendPlayerUpdate();"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecraftadapter",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "semver",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "javamanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "pidusage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_sendplayerupdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L35",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L35"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_sendcommand",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L41"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_getactualpid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L50",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L50"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_getplayerinventory",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L108",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L108"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_getplayerinventory",
+      "target": "prismarine_nbt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L136",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L136"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_init",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L151",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L151"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_updateplayerstats",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L183",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L183"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_updateplayerstats",
+      "target": "prismarine_nbt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L225",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L225"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_parserunbat",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L254",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L254"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L301",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L301"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_start",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L385",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L385"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_start",
+      "target": "readline",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L444",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L444"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter",
+      "target": "minecraftadapter_minecraftadapter_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L477",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L477"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_sendcommand",
+      "target": "minecraftadapter_minecraftadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_getplayerinventory",
+      "target": "minecraftadapter_minecraftadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L146",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L146"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_updateplayerstats",
+      "target": "minecraftadapter_minecraftadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L235",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L235"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_start",
+      "target": "minecraftadapter_minecraftadapter_init",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L302",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L302"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_start",
+      "target": "minecraftadapter_minecraftadapter_sendplayerupdate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L306",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L306"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_start",
+      "target": "minecraftadapter_minecraftadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L308",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L308"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftadapter_minecraftadapter_start",
+      "target": "minecraftadapter_minecraftadapter_parserunbat",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+      "source_location": "L395",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/MinecraftAdapter.ts",
+          "source_location": "L395"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

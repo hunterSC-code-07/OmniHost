@@ -1,1 +1,185 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dashboardhub","label":"DashboardHub.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1"}]},{"id":"dashboardhub_dayzmodstatus","label":"DayzModStatus()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5"}],"snippet":"DayzModStatus = ({ serverId }: { serverId: number }) => {\n  const [modCount, setModCount] = useState<number | null>(null);\n  useEffect(() => {\n    // @ts-ignore\n    window.api.getDayzInstalledMods(serverId).then((mods: any[]) => {\n      setModCount(mods.length);\n    }).catch(() => setModCount(0));\n  }, [serverId]);\n\n  return (\n    <span className=\"text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest\">\n      {modCount === null ? 'Checking...' : modCount > 0 ? `${modCount} Detected` : 'None'}\n    </span>\n  );\n}","node_kind":"component"},{"id":"dashboardhub_dashboardhub","label":"DashboardHub()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21-L459","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21"}],"snippet":"export function DashboardHub({ \n  servers, \n  activeGameHub, \n\n  // ... (rest of props)\n\n  hoveredGame, \n  setHoveredGame, \n  setActiveGameHub, \n  setActiveServerId, \n  handleStart, \n  handleStop, \n  handleRestart, \n  handleDelete, \n  handleTunnel, \n  tunnelStatus, \n  tunnelIp, \n  getGameImageUrl,\n  setShowCreateModal,\n  setShowSteamLoginModal,\n  isGameSupported,\n  isDayzCached,\n  setIsDayzCached,\n  setSteamLoginAction,\n  showToast","node_kind":"component"}],"edges":[{"source":"dashboardhub","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1"}],"weight":1},{"source":"dashboardhub","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L2"}],"weight":1},{"source":"dashboardhub","target":"dashboardhub_dayzmodstatus","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5"}],"weight":1},{"source":"dashboardhub","target":"dashboardhub_dashboardhub","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21"}],"weight":1},{"source":"dashboardhub_dashboardhub","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21"}],"weight":1},{"source":"dashboardhub_dashboardhub","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21"}],"weight":1},{"source":"dashboardhub_dashboardhub","target":"DayzModStatus__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dashboardhub",
+      "label": "DashboardHub.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dashboardhub_dayzmodstatus",
+      "label": "DayzModStatus()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L5-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "DayzModStatus = ({ serverId }: { serverId: number }) => {\n  const [modCount, setModCount] = useState<number | null>(null);\n  useEffect(() => {\n    // @ts-ignore\n    window.api.getDayzInstalledMods(serverId).then((mods: any[]) => {\n      setModCount(mods.length);\n    }).catch(() => setModCount(0));\n  }, [serverId]);\n\n  return (\n    <span className=\"text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest\">\n      {modCount === null ? 'Checking...' : modCount > 0 ? `${modCount} Detected` : 'None'}\n    </span>\n  );\n}",
+      "node_kind": "component"
+    },
+    {
+      "id": "dashboardhub_dashboardhub",
+      "label": "DashboardHub()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L21-L459",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "export function DashboardHub({ \n  servers, \n  activeGameHub, \n\n  // ... (rest of props)\n\n  hoveredGame, \n  setHoveredGame, \n  setActiveGameHub, \n  setActiveServerId, \n  handleStart, \n  handleStop, \n  handleRestart, \n  handleDelete, \n  handleTunnel, \n  tunnelStatus, \n  tunnelIp, \n  getGameImageUrl,\n  setShowCreateModal,\n  setShowSteamLoginModal,\n  isGameSupported,\n  isDayzCached,\n  setIsDayzCached,\n  setSteamLoginAction,\n  showToast",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dashboardhub",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "dashboardhub_dayzmodstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "dashboardhub_dashboardhub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_dashboardhub",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_dashboardhub",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_dashboardhub",
+      "target": "DayzModStatus__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

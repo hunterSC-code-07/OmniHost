@@ -1,1 +1,362 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"serveripc","label":"ServerIpc.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L1"}]},{"id":"serveripc_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L15-L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L15"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"serveripc_registerserveripc","label":"registerServerIpc()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L25-L587","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L25"}],"snippet":"export function registerServerIpc(\n  activeServers: Record<number, any>,\n  activeProxies: Record<number, WakeProxy>\n) {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle('get-servers', () => {\n    const list = getServers() as any[]\n    const serversDir = join(app.getPath('userData'), 'servers')\n    return list.map((srv) => {\n      let meta: any = {}\n      let port = 25565\n      const srvDir = join(serversDir, srv.id.toString())\n      const metaPath = join(srvDir, 'omnihost.json')\n      if (fs.existsSync(metaPath)) {\n        try {\n          meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))\n        } catch (e) {}\n      }\n      const propsPath = join(srvDir, 'server.properties')\n      if (fs.existsSync(propsPath)) {\n        try {\n          const props = fs.readFileSync(propsPath, 'utf-8')\n          const match = props.match(/^server-port=(\\d+)/m)"},{"id":"serveripc_registerserveripc_getserverpath","label":"getServerPath()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L505-L513","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L505"}],"snippet":"getServerPath = (serverId: number, relativePath: string) => {\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const safePath = join(serverDir, relativePath);\n    // Basic directory traversal protection\n    if (!safePath.startsWith(serverDir)) {\n      throw new Error('Access denied');\n    }\n    return safePath;\n  }"}],"edges":[{"source":"serveripc","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L1"}],"weight":1},{"source":"serveripc","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L2"}],"weight":1},{"source":"serveripc","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L3"}],"weight":1},{"source":"serveripc","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L4"}],"weight":1},{"source":"serveripc","target":"fast_xml_parser","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L5"}],"weight":1},{"source":"serveripc","target":"db","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L6"}],"weight":1},{"source":"serveripc","target":"dayzadapter","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L7"}],"weight":1},{"source":"serveripc","target":"minecraftprocessmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L8"}],"weight":1},{"source":"serveripc","target":"wakeproxy","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L9"}],"weight":1},{"source":"serveripc","target":"steamwebapi","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L10"}],"weight":1},{"source":"serveripc","target":"dayzmodinstaller","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L11"}],"weight":1},{"source":"serveripc","target":"dayzmissionmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L12"}],"weight":1},{"source":"serveripc","target":"dayzmodstatusmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L13"}],"weight":1},{"source":"serveripc","target":"serveripc_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L15"}],"weight":1},{"source":"serveripc","target":"serveripc_registerserveripc","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L25","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L25"}],"weight":1},{"source":"serveripc_registerserveripc","target":"serveripc_registerserveripc_getserverpath","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L505","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/ServerIpc.ts","source_location":"L505"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "serveripc",
+      "label": "ServerIpc.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "serveripc_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L15-L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L15"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "serveripc_registerserveripc",
+      "label": "registerServerIpc()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L25-L587",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L25"
+        }
+      ],
+      "snippet": "export function registerServerIpc(\n  activeServers: Record<number, any>,\n  activeProxies: Record<number, WakeProxy>\n) {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  ipcMain.handle('get-servers', () => {\n    const list = getServers() as any[]\n    const serversDir = join(app.getPath('userData'), 'servers')\n    return list.map((srv) => {\n      let meta: any = {}\n      let port = 25565\n      const srvDir = join(serversDir, srv.id.toString())\n      const metaPath = join(srvDir, 'omnihost.json')\n      if (fs.existsSync(metaPath)) {\n        try {\n          meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'))\n        } catch (e) {}\n      }\n      const propsPath = join(srvDir, 'server.properties')\n      if (fs.existsSync(propsPath)) {\n        try {\n          const props = fs.readFileSync(propsPath, 'utf-8')\n          const match = props.match(/^server-port=(\\d+)/m)"
+    },
+    {
+      "id": "serveripc_registerserveripc_getserverpath",
+      "label": "getServerPath()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L505-L513",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L505"
+        }
+      ],
+      "snippet": "getServerPath = (serverId: number, relativePath: string) => {\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const safePath = join(serverDir, relativePath);\n    // Basic directory traversal protection\n    if (!safePath.startsWith(serverDir)) {\n      throw new Error('Access denied');\n    }\n    return safePath;\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "serveripc",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "fast_xml_parser",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "dayzadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "minecraftprocessmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "wakeproxy",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "steamwebapi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "dayzmodinstaller",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "dayzmissionmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "dayzmodstatusmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L13"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "serveripc_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc",
+      "target": "serveripc_registerserveripc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L25",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L25"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "serveripc_registerserveripc",
+      "target": "serveripc_registerserveripc_getserverpath",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+      "source_location": "L505",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/ServerIpc.ts",
+          "source_location": "L505"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,77 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"versions","label":"Versions.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L1"}]},{"id":"versions_versions","label":"Versions()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L3-L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L3"}],"snippet":"function Versions(): React.JSX.Element {\n  const [versions] = useState(window.electron.process.versions)\n\n  return (\n    <ul className=\"versions\">\n      <li className=\"electron-version\">Electron v{versions.electron}</li>\n      <li className=\"chrome-version\">Chromium v{versions.chrome}</li>\n      <li className=\"node-version\">Node v{versions.node}</li>\n    </ul>\n  )\n}","node_kind":"component"}],"edges":[{"source":"versions","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L1"}],"weight":1},{"source":"versions","target":"versions_versions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/Versions.tsx","source_location":"L3"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "versions",
+      "label": "Versions.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "versions_versions",
+      "label": "Versions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+      "source_location": "L3-L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "function Versions(): React.JSX.Element {\n  const [versions] = useState(window.electron.process.versions)\n\n  return (\n    <ul className=\"versions\">\n      <li className=\"electron-version\">Electron v{versions.electron}</li>\n      <li className=\"chrome-version\">Chromium v{versions.chrome}</li>\n      <li className=\"node-version\">Node v{versions.node}</li>\n    </ul>\n  )\n}",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "versions",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "versions",
+      "target": "versions_versions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/Versions.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

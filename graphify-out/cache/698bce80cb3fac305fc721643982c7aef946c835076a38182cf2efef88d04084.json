@@ -1,1 +1,166 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamloginmodal","label":"SteamLoginModal.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L1"}]},{"id":"steamloginmodal_steamloginmodal","label":"SteamLoginModal()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L7-L125","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L7"}],"snippet":"export function SteamLoginModal({ handleCreateServer }: any) {\n  const { activeGameHub, setIsDayzCached } = useUiStore();\n  const { showToast } = useToastStore();\n  const { \n    setShowSteamLoginModal, steamLoginAction, \n    steamUsername, setSteamUsername, \n    steamPassword, setSteamPassword, \n    isSteamGuardRequired, setIsSteamGuardRequired, \n    steamGuardCode, setSteamGuardCode \n  } = useModalStore();\n\n    const [isUpdating, setIsUpdating] = useState(false);\n\n    const handleUpdateSteamCache = async () => {\n        try {\n          setIsUpdating(true);\n          // @ts-ignore\n          await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);\n          showToast(\"DayZ Base Files Updated Successfully!\");\n          setIsDayzCached(true);\n          setShowSteamLoginModal(false);\n          setSteamPassword('');\n          setSteamGuardCode('');\n          setIsSteamGuardRequired(false);\n        } catch (e: any) {","node_kind":"component"},{"id":"steamloginmodal_steamloginmodal_handleupdatesteamcache","label":"handleUpdateSteamCache()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L20-L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L20"}],"snippet":"handleUpdateSteamCache = async () => {\n        try {\n          setIsUpdating(true);\n          // @ts-ignore\n          await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);\n          showToast(\"DayZ Base Files Updated Successfully!\");\n          setIsDayzCached(true);\n          setShowSteamLoginModal(false);\n          setSteamPassword('');\n          setSteamGuardCode('');\n          setIsSteamGuardRequired(false);\n        } catch (e: any) {\n          if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {\n            setIsSteamGuardRequired(true);\n            showToast(\"Steam Guard Code required!\");\n          } else {\n            alert(\"Failed to update cache: \" + e.message);\n          }\n        } finally {\n          setIsUpdating(false);\n        }\n      }"}],"edges":[{"source":"steamloginmodal","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L1"}],"weight":1},{"source":"steamloginmodal","target":"useuistore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L3"}],"weight":1},{"source":"steamloginmodal","target":"usemodalstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L4"}],"weight":1},{"source":"steamloginmodal","target":"usetoaststore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L5"}],"weight":1},{"source":"steamloginmodal","target":"steamloginmodal_steamloginmodal","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L7"}],"weight":1},{"source":"steamloginmodal_steamloginmodal","target":"steamloginmodal_steamloginmodal_handleupdatesteamcache","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx","source_location":"L20"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamloginmodal",
+      "label": "SteamLoginModal.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamloginmodal_steamloginmodal",
+      "label": "SteamLoginModal()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L7-L125",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export function SteamLoginModal({ handleCreateServer }: any) {\n  const { activeGameHub, setIsDayzCached } = useUiStore();\n  const { showToast } = useToastStore();\n  const { \n    setShowSteamLoginModal, steamLoginAction, \n    steamUsername, setSteamUsername, \n    steamPassword, setSteamPassword, \n    isSteamGuardRequired, setIsSteamGuardRequired, \n    steamGuardCode, setSteamGuardCode \n  } = useModalStore();\n\n    const [isUpdating, setIsUpdating] = useState(false);\n\n    const handleUpdateSteamCache = async () => {\n        try {\n          setIsUpdating(true);\n          // @ts-ignore\n          await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);\n          showToast(\"DayZ Base Files Updated Successfully!\");\n          setIsDayzCached(true);\n          setShowSteamLoginModal(false);\n          setSteamPassword('');\n          setSteamGuardCode('');\n          setIsSteamGuardRequired(false);\n        } catch (e: any) {",
+      "node_kind": "component"
+    },
+    {
+      "id": "steamloginmodal_steamloginmodal_handleupdatesteamcache",
+      "label": "handleUpdateSteamCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L20-L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L20"
+        }
+      ],
+      "snippet": "handleUpdateSteamCache = async () => {\n        try {\n          setIsUpdating(true);\n          // @ts-ignore\n          await window.api.steam.updateCache(0, 223350, steamUsername, steamPassword, steamGuardCode);\n          showToast(\"DayZ Base Files Updated Successfully!\");\n          setIsDayzCached(true);\n          setShowSteamLoginModal(false);\n          setSteamPassword('');\n          setSteamGuardCode('');\n          setIsSteamGuardRequired(false);\n        } catch (e: any) {\n          if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {\n            setIsSteamGuardRequired(true);\n            showToast(\"Steam Guard Code required!\");\n          } else {\n            alert(\"Failed to update cache: \" + e.message);\n          }\n        } finally {\n          setIsUpdating(false);\n        }\n      }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamloginmodal",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamloginmodal",
+      "target": "useuistore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamloginmodal",
+      "target": "usemodalstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamloginmodal",
+      "target": "usetoaststore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamloginmodal",
+      "target": "steamloginmodal_steamloginmodal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamloginmodal_steamloginmodal",
+      "target": "steamloginmodal_steamloginmodal_handleupdatesteamcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+      "source_location": "L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/SteamLoginModal.tsx",
+          "source_location": "L20"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

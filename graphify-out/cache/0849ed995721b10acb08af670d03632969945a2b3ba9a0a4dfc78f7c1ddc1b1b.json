@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"index_d","label":"index.d.ts","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L1"}]},{"id":"index_d_window","label":"Window","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L4-L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L4"}],"snippet":"interface Window {\n    electron: ElectronAPI\n    api: any\n  }"}],"edges":[{"source":"index_d","target":"preload","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L1"}],"weight":1},{"source":"index_d","target":"index_d_window","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts","source_location":"L4"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "index_d",
+      "label": "index.d.ts",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "index_d_window",
+      "label": "Window",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+      "source_location": "L4-L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "interface Window {\n    electron: ElectronAPI\n    api: any\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "index_d",
+      "target": "preload",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "index_d",
+      "target": "index_d_window",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/preload/index.d.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

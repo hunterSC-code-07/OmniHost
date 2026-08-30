@@ -1,1 +1,817 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzworkshopmanager","label":"DayzWorkshopManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L1"}]},{"id":"dayzworkshopmanager_dayzworkshopmanager","label":"DayzWorkshopManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L46-L610","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L46"}],"snippet":"export class DayzWorkshopManager {\n  static async searchWorkshop(query: string, page = 1, queryType = 9, requiredTags: string[] = []) {\n    return await SteamWebAPI.searchWorkshop(query, 221100, page, queryType, requiredTags);\n  }\n\n  static async getModDependencies(modId: string) {\n    return await SteamWebAPI.getModDependencies(modId);\n  }\n\n  static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await DayzConfigManager.exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_searchworkshop","label":".searchWorkshop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L47-L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L47"}],"snippet":"static async searchWorkshop(query: string, page = 1, queryType = 9, requiredTags: string[] = []) {\n    return await SteamWebAPI.searchWorkshop(query, 221100, page, queryType, requiredTags);\n  }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_getmoddependencies","label":".getModDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L51-L53","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L51"}],"snippet":"static async getModDependencies(modId: string) {\n    return await SteamWebAPI.getModDependencies(modId);\n  }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_rebuildmoddependencies","label":".rebuildModDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L55-L92","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L55"}],"snippet":"static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await DayzConfigManager.exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }\n\n      for (const f of mods) {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        if (fs.existsSync(modIdPath)) {\n          const content = await fsPromises.readFile(modIdPath, 'utf-8');\n          const modId = content.trim().split(':')[0];\n          if (modId) {\n            if (!modDeps[modId] || modDeps[modId].length === 0) {\n              console.log(`[Rebuild] Fetching deps for ${modId}`);"},{"id":"dayzworkshopmanager_dayzworkshopmanager_getworkshopitemdetails","label":".getWorkshopItemDetails()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L94-L96","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L94"}],"snippet":"static async getWorkshopItemDetails(modIds: string[]) {\n    return await SteamWebAPI.getWorkshopItemDetails(modIds);\n  }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_getinstalledmods","label":".getInstalledMods()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L98-L182","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L98"}],"snippet":"static async getInstalledMods(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await DayzConfigManager.exists(serverDir))) return [];\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const modDetails = await Promise.all(mods.map(async f => {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        const isMapPath = join(modDir, 'is_map.txt');\n        const disabledPath = join(modDir, 'disabled.txt');\n        let title = f.name.substring(1);\n        let idStr = '';\n        if (fs.existsSync(modIdPath)) {\n          const content = fs.readFileSync(modIdPath, 'utf-8').trim();\n          const parts = content.split(':');\n          if (parts.length >= 2) {\n            idStr = parts.shift() || '';\n            title = parts.join(':');\n          }\n        } else {\n          // Fallback to meta.cpp for locally imported mods\n          const metaPath = join(modDir, 'meta.cpp');"},{"id":"dayzworkshopmanager_dayzworkshopmanager_togglemapmod","label":".toggleMapMod()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L184-L197","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L184"}],"snippet":"static async toggleMapMod(serverId: number, folderName: string, isMap: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await DayzConfigManager.exists(modDir)) {\n        await fsPromises.writeFile(join(modDir, 'is_map.txt'), isMap ? 'true' : 'false', 'utf-8');\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ map mod', e);\n      return false;\n    }\n  }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_togglemodstatus","label":".toggleModStatus()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L199-L219","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L199"}],"snippet":"static async toggleModStatus(serverId: number, folderName: string, isDisabled: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await DayzConfigManager.exists(modDir)) {\n        const disabledPath = join(modDir, 'disabled.txt');\n        if (isDisabled) {\n          await fsPromises.writeFile(disabledPath, 'true', 'utf-8');\n        } else {\n          if (await DayzConfigManager.exists(disabledPath)) {\n            await fsPromises.rm(disabledPath);\n          }\n        }\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ mod status', e);\n      return false;\n    }\n  }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission","label":".fetchDayzMission()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L221-L289","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L221"}],"snippet":"static async fetchDayzMission(serverId: number, modId: string) {\n    const repoInfo = DAYZ_MAP_REPOS[modId];\n    if (!repoInfo || !repoInfo.repoZip) {\n      throw new Error('No mission repository found for this map mod.');\n    }\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const mpmissionsDir = join(serverDir, 'mpmissions');\n    \n    if (!(await DayzConfigManager.exists(mpmissionsDir))) {\n      await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n    }\n\n    // Download ZIP\n    const response = await axios({\n      url: repoInfo.repoZip,\n      method: 'GET',\n      responseType: 'arraybuffer'\n    });\n\n    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);\n    await fsPromises.writeFile(tempZipPath, response.data);\n\n    // Extract ZIP\n    const zip = new AdmZip(tempZipPath);"},{"id":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission_findfolder","label":"findFolder()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L251-L262","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L251"}],"snippet":"async function findFolder(dir: string, targetFolder: string) {\n      const entries = await fsPromises.readdir(dir, { withFileTypes: true });\n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          if (entry.name.toLowerCase() === targetFolder.toLowerCase()) {\n            foundMissionPath = join(dir, entry.name);\n            return;\n          }\n          await findFolder(join(dir, entry.name), targetFolder);\n        }\n      }\n    }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_extractlocalmission","label":".extractLocalMission()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L291-L334","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L291"}],"snippet":"static async extractLocalMission(serverId: number, localMissionsPath: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const mpmissionsDir = join(serverDir, 'mpmissions');\n      \n      if (!(await DayzConfigManager.exists(mpmissionsDir))) {\n        await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n      }\n\n      // Read directories in localMissionsPath\n      const entries = await fsPromises.readdir(localMissionsPath, { withFileTypes: true });\n      let firstTemplate = '';\n      \n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          const sourcePath = join(localMissionsPath, entry.name);\n          const destPath = join(mpmissionsDir, entry.name);\n          \n          if (await DayzConfigManager.exists(destPath)) {\n            await fsPromises.rm(destPath, { recursive: true, force: true });\n          }\n          await fsPromises.cp(sourcePath, destPath, { recursive: true });\n          \n          if (!firstTemplate) {\n            firstTemplate = entry.name;"},{"id":"dayzworkshopmanager_dayzworkshopmanager_selectworkshopfolder","label":".selectWorkshopFolder()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L336-L345","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L336"}],"snippet":"static async selectWorkshopFolder() {\n    const result = await dialog.showOpenDialog({\n      properties: ['openDirectory'],\n      title: 'Select DayZ Game Folder'\n    });\n    if (!result.canceled && result.filePaths.length > 0) {\n      return result.filePaths[0];\n    }\n    return null;\n  }"},{"id":"dayzworkshopmanager_dayzworkshopmanager_importlocalworkshop","label":".importLocalWorkshop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L347-L411","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L347"}],"snippet":"static async importLocalWorkshop(serverId: number, workshopPath: string) {\n    try {\n      let actualWorkshopPath = workshopPath;\n      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {\n        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');\n      }\n\n      if (!(await DayzConfigManager.exists(actualWorkshopPath))) {\n        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);\n      }\n\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const keysDir = join(serverDir, 'keys');\n      \n      if (!(await DayzConfigManager.exists(keysDir))) {\n        await fsPromises.mkdir(keysDir, { recursive: true });\n      }\n\n      const entries = await fsPromises.readdir(actualWorkshopPath, { withFileTypes: true });\n      let importedCount = 0;\n\n      for (const entry of entries) {\n        if ((entry.isDirectory() || entry.isSymbolicLink()) && entry.name.startsWith('@')) {\n          const modSource = join(actualWorkshopPath, entry.name);\n          const modDest = join(serverDir, entry.name);"},{"id":"dayzworkshopmanager_dayzworkshopmanager_installmods","label":".installMods()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L413-L500","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L413"}],"snippet":"static async installMods(serverId: number, modsToInstall: any[], username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n      \n      const modIds = modsToInstall.map((m: any) => m.modId);\n      \n      // 1. Download via SteamCMD\n      await SteamCMDManager.downloadWorkshopItems(serverId, appId, modIds, username, password, steamGuardCode);\n\n      // 2. Copy mod folders from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDManager.getSteamCMDDir();\n\n      for (const m of modsToInstall) {\n        const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), m.modId);\n        \n        if (!(await DayzConfigManager.exists(workshopModDir))) {\n          console.warn(`Mod folder not found after download for ${m.modTitle} (${m.modId})`);\n          continue;\n        }\n\n        // Safe folder name (e.g. @CF)\n        const safeTitle = m.modTitle.replace(/[^a-zA-Z0-9]/g, '');\n        const folderName = `@${safeTitle || m.modId}`;\n        const targetModDir = join(serverDir, folderName);"},{"id":"dayzworkshopmanager_dayzworkshopmanager_installmod","label":".installMod()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L502-L575","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L502"}],"snippet":"static async installMod(serverId: number, modId: string, modTitle: string, username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n\n      // 1. Download via SteamCMD\n      await SteamCMDManager.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n\n      // 2. Copy mod folder from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDManager.getSteamCMDDir();\n      const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (!(await DayzConfigManager.exists(workshopModDir))) {\n        throw new Error('Mod folder not found after download');\n      }\n\n      // Safe folder name (e.g. @CF)\n      const safeTitle = modTitle.replace(/[^a-zA-Z0-9]/g, '');\n      const folderName = `@${safeTitle || modId}`;\n      const targetModDir = join(serverDir, folderName);\n\n      try {\n        await fsPromises.lstat(targetModDir);\n        // If lstat succeeds, it exists (even as a broken symlink)\n        await fsPromises.rm(targetModDir, { recursive: true, force: true });"},{"id":"dayzworkshopmanager_dayzworkshopmanager_uninstallmod","label":".uninstallMod()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L577-L609","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L577"}],"snippet":"static async uninstallMod(serverId: number, modIdOrFolder: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      \n      // If it's a folder name (starts with @), remove it directly\n      if (modIdOrFolder.startsWith('@')) {\n        const modDir = join(serverDir, modIdOrFolder);\n        if (await DayzConfigManager.exists(modDir)) {\n          // Ideally we'd also delete the .bikey files, but we don't know exactly which ones belong to this mod without parsing\n          await fsPromises.rm(modDir, { recursive: true, force: true });\n        }\n      } else {\n        // Find by modId inside modid.txt\n        const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n        const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));\n        for (const f of mods) {\n          const modIdPath = join(serverDir, f.name, 'modid.txt');\n          if (await DayzConfigManager.exists(modIdPath)) {\n            const content = await fsPromises.readFile(modIdPath, 'utf-8');\n            if (content.startsWith(`${modIdOrFolder}:`)) {\n              await fsPromises.rm(join(serverDir, f.name), { recursive: true, force: true });\n              break;\n            }\n          }\n        }"}],"edges":[{"source":"dayzworkshopmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L1"}],"weight":1},{"source":"dayzworkshopmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L2"}],"weight":1},{"source":"dayzworkshopmanager","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L3"}],"weight":1},{"source":"dayzworkshopmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L4"}],"weight":1},{"source":"dayzworkshopmanager","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L5"}],"weight":1},{"source":"dayzworkshopmanager","target":"adm_zip","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L6"}],"weight":1},{"source":"dayzworkshopmanager","target":"steamwebapi","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L7"}],"weight":1},{"source":"dayzworkshopmanager","target":"steamcmdmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L8"}],"weight":1},{"source":"dayzworkshopmanager","target":"dayzconfigmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L9"}],"weight":1},{"source":"dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L46","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L46"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_searchworkshop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L47"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_getmoddependencies","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L51","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L51"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_rebuildmoddependencies","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L55"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_getworkshopitemdetails","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L94","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L94"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_getinstalledmods","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L98","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L98"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_togglemapmod","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L184","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L184"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_togglemodstatus","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L199","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L199"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L221","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L221"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission","target":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission_findfolder","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L251","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L251"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_extractlocalmission","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L291","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L291"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_selectworkshopfolder","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L336","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L336"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_importlocalworkshop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L347","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L347"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_installmods","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L413","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L413"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_installmod","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L502","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L502"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager","target":"dayzworkshopmanager_dayzworkshopmanager_uninstallmod","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L577","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L577"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager_rebuildmoddependencies","target":"dayzworkshopmanager_dayzworkshopmanager_getmoddependencies","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L80","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L80"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission","target":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission_findfolder","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L264","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L264"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager_installmods","target":"dayzworkshopmanager_dayzworkshopmanager_getmoddependencies","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L486","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L486"}],"weight":1},{"source":"dayzworkshopmanager_dayzworkshopmanager_installmod","target":"dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L563","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts","source_location":"L563"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzworkshopmanager",
+      "label": "DayzWorkshopManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager",
+      "label": "DayzWorkshopManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L46-L610",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L46"
+        }
+      ],
+      "snippet": "export class DayzWorkshopManager {\n  static async searchWorkshop(query: string, page = 1, queryType = 9, requiredTags: string[] = []) {\n    return await SteamWebAPI.searchWorkshop(query, 221100, page, queryType, requiredTags);\n  }\n\n  static async getModDependencies(modId: string) {\n    return await SteamWebAPI.getModDependencies(modId);\n  }\n\n  static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await DayzConfigManager.exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_searchworkshop",
+      "label": ".searchWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L47-L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L47"
+        }
+      ],
+      "snippet": "static async searchWorkshop(query: string, page = 1, queryType = 9, requiredTags: string[] = []) {\n    return await SteamWebAPI.searchWorkshop(query, 221100, page, queryType, requiredTags);\n  }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_getmoddependencies",
+      "label": ".getModDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L51-L53",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L51"
+        }
+      ],
+      "snippet": "static async getModDependencies(modId: string) {\n    return await SteamWebAPI.getModDependencies(modId);\n  }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_rebuildmoddependencies",
+      "label": ".rebuildModDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L55-L92",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "static async rebuildModDependencies(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await DayzConfigManager.exists(serverDir))) return;\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const depsPath = join(serverDir, 'mod_dependencies.json');\n      let modDeps: Record<string, string[]> = {};\n      if (fs.existsSync(depsPath)) {\n        try {\n          modDeps = JSON.parse(await fsPromises.readFile(depsPath, 'utf8'));\n        } catch (e) {}\n      }\n\n      for (const f of mods) {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        if (fs.existsSync(modIdPath)) {\n          const content = await fsPromises.readFile(modIdPath, 'utf-8');\n          const modId = content.trim().split(':')[0];\n          if (modId) {\n            if (!modDeps[modId] || modDeps[modId].length === 0) {\n              console.log(`[Rebuild] Fetching deps for ${modId}`);"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_getworkshopitemdetails",
+      "label": ".getWorkshopItemDetails()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L94-L96",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L94"
+        }
+      ],
+      "snippet": "static async getWorkshopItemDetails(modIds: string[]) {\n    return await SteamWebAPI.getWorkshopItemDetails(modIds);\n  }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_getinstalledmods",
+      "label": ".getInstalledMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L98-L182",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L98"
+        }
+      ],
+      "snippet": "static async getInstalledMods(serverId: number) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      if (!(await DayzConfigManager.exists(serverDir))) return [];\n\n      const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n      const mods = folders.filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'));\n      \n      const modDetails = await Promise.all(mods.map(async f => {\n        const modDir = join(serverDir, f.name);\n        const modIdPath = join(modDir, 'modid.txt');\n        const isMapPath = join(modDir, 'is_map.txt');\n        const disabledPath = join(modDir, 'disabled.txt');\n        let title = f.name.substring(1);\n        let idStr = '';\n        if (fs.existsSync(modIdPath)) {\n          const content = fs.readFileSync(modIdPath, 'utf-8').trim();\n          const parts = content.split(':');\n          if (parts.length >= 2) {\n            idStr = parts.shift() || '';\n            title = parts.join(':');\n          }\n        } else {\n          // Fallback to meta.cpp for locally imported mods\n          const metaPath = join(modDir, 'meta.cpp');"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_togglemapmod",
+      "label": ".toggleMapMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L184-L197",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L184"
+        }
+      ],
+      "snippet": "static async toggleMapMod(serverId: number, folderName: string, isMap: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await DayzConfigManager.exists(modDir)) {\n        await fsPromises.writeFile(join(modDir, 'is_map.txt'), isMap ? 'true' : 'false', 'utf-8');\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ map mod', e);\n      return false;\n    }\n  }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_togglemodstatus",
+      "label": ".toggleModStatus()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L199-L219",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L199"
+        }
+      ],
+      "snippet": "static async toggleModStatus(serverId: number, folderName: string, isDisabled: boolean) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const modDir = join(serverDir, folderName);\n      if (await DayzConfigManager.exists(modDir)) {\n        const disabledPath = join(modDir, 'disabled.txt');\n        if (isDisabled) {\n          await fsPromises.writeFile(disabledPath, 'true', 'utf-8');\n        } else {\n          if (await DayzConfigManager.exists(disabledPath)) {\n            await fsPromises.rm(disabledPath);\n          }\n        }\n        return true;\n      }\n      return false;\n    } catch (e) {\n      console.error('Failed to toggle DayZ mod status', e);\n      return false;\n    }\n  }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission",
+      "label": ".fetchDayzMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L221-L289",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L221"
+        }
+      ],
+      "snippet": "static async fetchDayzMission(serverId: number, modId: string) {\n    const repoInfo = DAYZ_MAP_REPOS[modId];\n    if (!repoInfo || !repoInfo.repoZip) {\n      throw new Error('No mission repository found for this map mod.');\n    }\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const mpmissionsDir = join(serverDir, 'mpmissions');\n    \n    if (!(await DayzConfigManager.exists(mpmissionsDir))) {\n      await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n    }\n\n    // Download ZIP\n    const response = await axios({\n      url: repoInfo.repoZip,\n      method: 'GET',\n      responseType: 'arraybuffer'\n    });\n\n    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);\n    await fsPromises.writeFile(tempZipPath, response.data);\n\n    // Extract ZIP\n    const zip = new AdmZip(tempZipPath);"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission_findfolder",
+      "label": "findFolder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L251-L262",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L251"
+        }
+      ],
+      "snippet": "async function findFolder(dir: string, targetFolder: string) {\n      const entries = await fsPromises.readdir(dir, { withFileTypes: true });\n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          if (entry.name.toLowerCase() === targetFolder.toLowerCase()) {\n            foundMissionPath = join(dir, entry.name);\n            return;\n          }\n          await findFolder(join(dir, entry.name), targetFolder);\n        }\n      }\n    }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_extractlocalmission",
+      "label": ".extractLocalMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L291-L334",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L291"
+        }
+      ],
+      "snippet": "static async extractLocalMission(serverId: number, localMissionsPath: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const mpmissionsDir = join(serverDir, 'mpmissions');\n      \n      if (!(await DayzConfigManager.exists(mpmissionsDir))) {\n        await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n      }\n\n      // Read directories in localMissionsPath\n      const entries = await fsPromises.readdir(localMissionsPath, { withFileTypes: true });\n      let firstTemplate = '';\n      \n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          const sourcePath = join(localMissionsPath, entry.name);\n          const destPath = join(mpmissionsDir, entry.name);\n          \n          if (await DayzConfigManager.exists(destPath)) {\n            await fsPromises.rm(destPath, { recursive: true, force: true });\n          }\n          await fsPromises.cp(sourcePath, destPath, { recursive: true });\n          \n          if (!firstTemplate) {\n            firstTemplate = entry.name;"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_selectworkshopfolder",
+      "label": ".selectWorkshopFolder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L336-L345",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L336"
+        }
+      ],
+      "snippet": "static async selectWorkshopFolder() {\n    const result = await dialog.showOpenDialog({\n      properties: ['openDirectory'],\n      title: 'Select DayZ Game Folder'\n    });\n    if (!result.canceled && result.filePaths.length > 0) {\n      return result.filePaths[0];\n    }\n    return null;\n  }"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_importlocalworkshop",
+      "label": ".importLocalWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L347-L411",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L347"
+        }
+      ],
+      "snippet": "static async importLocalWorkshop(serverId: number, workshopPath: string) {\n    try {\n      let actualWorkshopPath = workshopPath;\n      if (!actualWorkshopPath.endsWith('!Workshop') && !actualWorkshopPath.endsWith('!workshop')) {\n        actualWorkshopPath = join(actualWorkshopPath, '!Workshop');\n      }\n\n      if (!(await DayzConfigManager.exists(actualWorkshopPath))) {\n        throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);\n      }\n\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const keysDir = join(serverDir, 'keys');\n      \n      if (!(await DayzConfigManager.exists(keysDir))) {\n        await fsPromises.mkdir(keysDir, { recursive: true });\n      }\n\n      const entries = await fsPromises.readdir(actualWorkshopPath, { withFileTypes: true });\n      let importedCount = 0;\n\n      for (const entry of entries) {\n        if ((entry.isDirectory() || entry.isSymbolicLink()) && entry.name.startsWith('@')) {\n          const modSource = join(actualWorkshopPath, entry.name);\n          const modDest = join(serverDir, entry.name);"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_installmods",
+      "label": ".installMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L413-L500",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L413"
+        }
+      ],
+      "snippet": "static async installMods(serverId: number, modsToInstall: any[], username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n      \n      const modIds = modsToInstall.map((m: any) => m.modId);\n      \n      // 1. Download via SteamCMD\n      await SteamCMDManager.downloadWorkshopItems(serverId, appId, modIds, username, password, steamGuardCode);\n\n      // 2. Copy mod folders from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDManager.getSteamCMDDir();\n\n      for (const m of modsToInstall) {\n        const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), m.modId);\n        \n        if (!(await DayzConfigManager.exists(workshopModDir))) {\n          console.warn(`Mod folder not found after download for ${m.modTitle} (${m.modId})`);\n          continue;\n        }\n\n        // Safe folder name (e.g. @CF)\n        const safeTitle = m.modTitle.replace(/[^a-zA-Z0-9]/g, '');\n        const folderName = `@${safeTitle || m.modId}`;\n        const targetModDir = join(serverDir, folderName);"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_installmod",
+      "label": ".installMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L502-L575",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L502"
+        }
+      ],
+      "snippet": "static async installMod(serverId: number, modId: string, modTitle: string, username?: string, password?: string, steamGuardCode?: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const appId = 221100;\n\n      // 1. Download via SteamCMD\n      await SteamCMDManager.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n\n      // 2. Copy mod folder from SteamCMD cache to server dir\n      const steamCmdDir = SteamCMDManager.getSteamCMDDir();\n      const workshopModDir = join(steamCmdDir, 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (!(await DayzConfigManager.exists(workshopModDir))) {\n        throw new Error('Mod folder not found after download');\n      }\n\n      // Safe folder name (e.g. @CF)\n      const safeTitle = modTitle.replace(/[^a-zA-Z0-9]/g, '');\n      const folderName = `@${safeTitle || modId}`;\n      const targetModDir = join(serverDir, folderName);\n\n      try {\n        await fsPromises.lstat(targetModDir);\n        // If lstat succeeds, it exists (even as a broken symlink)\n        await fsPromises.rm(targetModDir, { recursive: true, force: true });"
+    },
+    {
+      "id": "dayzworkshopmanager_dayzworkshopmanager_uninstallmod",
+      "label": ".uninstallMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L577-L609",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L577"
+        }
+      ],
+      "snippet": "static async uninstallMod(serverId: number, modIdOrFolder: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      \n      // If it's a folder name (starts with @), remove it directly\n      if (modIdOrFolder.startsWith('@')) {\n        const modDir = join(serverDir, modIdOrFolder);\n        if (await DayzConfigManager.exists(modDir)) {\n          // Ideally we'd also delete the .bikey files, but we don't know exactly which ones belong to this mod without parsing\n          await fsPromises.rm(modDir, { recursive: true, force: true });\n        }\n      } else {\n        // Find by modId inside modid.txt\n        const folders = await fsPromises.readdir(serverDir, { withFileTypes: true });\n        const mods = folders.filter(f => f.isDirectory() && f.name.startsWith('@'));\n        for (const f of mods) {\n          const modIdPath = join(serverDir, f.name, 'modid.txt');\n          if (await DayzConfigManager.exists(modIdPath)) {\n            const content = await fsPromises.readFile(modIdPath, 'utf-8');\n            if (content.startsWith(`${modIdOrFolder}:`)) {\n              await fsPromises.rm(join(serverDir, f.name), { recursive: true, force: true });\n              break;\n            }\n          }\n        }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzworkshopmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "adm_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "steamwebapi",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "steamcmdmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "dayzconfigmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L46"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_searchworkshop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L47"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_getmoddependencies",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L51"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_rebuildmoddependencies",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L55"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_getworkshopitemdetails",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L94",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L94"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_getinstalledmods",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L98",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L98"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_togglemapmod",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L184",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L184"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_togglemodstatus",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L199",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L199"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L221",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L221"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission_findfolder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L251",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L251"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_extractlocalmission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L291",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L291"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_selectworkshopfolder",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L336",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L336"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_importlocalworkshop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L347",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L347"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_installmods",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L413",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L413"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_installmod",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L502",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L502"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_uninstallmod",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L577",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L577"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager_rebuildmoddependencies",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_getmoddependencies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L80",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L80"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission_findfolder",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L264",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L264"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager_installmods",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_getmoddependencies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L486",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L486"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzworkshopmanager_dayzworkshopmanager_installmod",
+      "target": "dayzworkshopmanager_dayzworkshopmanager_fetchdayzmission",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+      "source_location": "L563",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzWorkshopManager.ts",
+          "source_location": "L563"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

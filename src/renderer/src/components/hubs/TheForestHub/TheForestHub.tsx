@@ -113,7 +113,7 @@ export const TheForestHub: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >
-              { activeTab === 'overview' && <TheForestOverviewTab serverId={activeServer.id} />}
+              { activeTab === 'overview' && <TheForestOverviewTab />}
               { activeTab === 'console' && <TheForestConsoleTab />}
               { activeTab === 'players' && <TheForestPlayersTab serverId={activeServer.id} />}
               { activeTab === 'admin' && <TheForestAdminTab serverId={activeServer.id} />}

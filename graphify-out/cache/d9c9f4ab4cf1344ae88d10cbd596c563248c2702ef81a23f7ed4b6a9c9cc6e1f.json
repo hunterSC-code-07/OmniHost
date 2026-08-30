@@ -1,1 +1,41 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"animatedbackground","label":"AnimatedBackground.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx","source_location":"L1"}]}],"edges":[{"source":"animatedbackground","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx","source_location":"L1"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "animatedbackground",
+      "label": "AnimatedBackground.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "animatedbackground",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/AnimatedBackground.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

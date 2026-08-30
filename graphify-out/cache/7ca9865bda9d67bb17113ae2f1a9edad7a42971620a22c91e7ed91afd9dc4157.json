@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"patch","label":"patch.js","file_type":"code","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L1"}]},{"id":"patch_scan","label":"scan()","file_type":"code","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L7-L20","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L7"}],"snippet":"function scan(buf, patternStr) {\n    const pattern = patternStr.split(' ').map(p => p === '?' ? -1 : parseInt(p, 16));\n    for (let i = 0; i < buf.length - pattern.length; i++) {\n        let match = true;\n        for (let j = 0; j < pattern.length; j++) {\n            if (pattern[j] !== -1 && buf[i + j] !== pattern[j]) {\n                match = false;\n                break;\n            }\n        }\n        if (match) return i;\n    }\n    return -1;\n}"}],"edges":[{"source":"patch","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L1"}],"weight":1},{"source":"patch","target":"patch_scan","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch/patch.js","source_location":"L7"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "patch",
+      "label": "patch.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/patch.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/patch.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "patch_scan",
+      "label": "scan()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/patch.js",
+      "source_location": "L7-L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/patch.js",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "function scan(buf, patternStr) {\n    const pattern = patternStr.split(' ').map(p => p === '?' ? -1 : parseInt(p, 16));\n    for (let i = 0; i < buf.length - pattern.length; i++) {\n        let match = true;\n        for (let j = 0; j < pattern.length; j++) {\n            if (pattern[j] !== -1 && buf[i + j] !== pattern[j]) {\n                match = false;\n                break;\n            }\n        }\n        if (match) return i;\n    }\n    return -1;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "patch",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/patch.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/patch.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "patch",
+      "target": "patch_scan",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/patch.js",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/patch.js",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

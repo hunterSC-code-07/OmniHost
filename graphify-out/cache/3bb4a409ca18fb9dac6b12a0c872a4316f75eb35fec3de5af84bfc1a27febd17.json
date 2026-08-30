@@ -1,1 +1,257 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"modalscontainer","label":"ModalsContainer.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L1"}]},{"id":"modalscontainer_modalscontainer","label":"ModalsContainer()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9-L34","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9"}],"snippet":"ModalsContainer: React.FC = () => {\n  const {\n    showCreateModal,\n    showSteamLoginModal,\n    serverToDelete,\n    showTunnelModal\n  } = useModalStore();\n\n  const { activeServerId, servers } = useServerStore();\n  \n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = React.useRef(currentServer);\n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n\n  return (\n    <>\n      {showCreateModal && <CreateServerModal />}\n      {showSteamLoginModal && <SteamLoginModal />}\n      {serverToDelete !== null && <DeleteConfirmationModal />}\n      {showTunnelModal && activeServer?.game !== 'DayZ' && <TunnelModal />}\n    </>\n  );","node_kind":"component"}],"edges":[{"source":"modalscontainer","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L1"}],"weight":1},{"source":"modalscontainer","target":"createservermodal","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L2"}],"weight":1},{"source":"modalscontainer","target":"steamloginmodal","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L3"}],"weight":1},{"source":"modalscontainer","target":"deleteconfirmationmodal","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L4"}],"weight":1},{"source":"modalscontainer","target":"tunnelmodal","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L5"}],"weight":1},{"source":"modalscontainer","target":"usemodalstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L6"}],"weight":1},{"source":"modalscontainer","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L7"}],"weight":1},{"source":"modalscontainer","target":"modalscontainer_modalscontainer","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9"}],"weight":1},{"source":"modalscontainer_modalscontainer","target":"CreateServerModal__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9"}],"weight":1},{"source":"modalscontainer_modalscontainer","target":"SteamLoginModal__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9"}],"weight":1},{"source":"modalscontainer_modalscontainer","target":"DeleteConfirmationModal__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9"}],"weight":1},{"source":"modalscontainer_modalscontainer","target":"TunnelModal__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx","source_location":"L9"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "modalscontainer",
+      "label": "ModalsContainer.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "modalscontainer_modalscontainer",
+      "label": "ModalsContainer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L9-L34",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "ModalsContainer: React.FC = () => {\n  const {\n    showCreateModal,\n    showSteamLoginModal,\n    serverToDelete,\n    showTunnelModal\n  } = useModalStore();\n\n  const { activeServerId, servers } = useServerStore();\n  \n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = React.useRef(currentServer);\n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n\n  return (\n    <>\n      {showCreateModal && <CreateServerModal />}\n      {showSteamLoginModal && <SteamLoginModal />}\n      {serverToDelete !== null && <DeleteConfirmationModal />}\n      {showTunnelModal && activeServer?.game !== 'DayZ' && <TunnelModal />}\n    </>\n  );",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "modalscontainer",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "createservermodal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "steamloginmodal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "deleteconfirmationmodal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "tunnelmodal",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "usemodalstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer",
+      "target": "modalscontainer_modalscontainer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer_modalscontainer",
+      "target": "CreateServerModal__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer_modalscontainer",
+      "target": "SteamLoginModal__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer_modalscontainer",
+      "target": "DeleteConfirmationModal__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "modalscontainer_modalscontainer",
+      "target": "TunnelModal__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/modals/ModalsContainer.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

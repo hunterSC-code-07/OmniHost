@@ -1,1 +1,111 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"uselogstore","label":"useLogStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L1"}]},{"id":"uselogstore_logmessage","label":"LogMessage","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L3-L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L3"}],"snippet":"interface LogMessage {\n  id: string;\n  msg: string;\n}"},{"id":"uselogstore_logstore","label":"LogStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L8-L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L8"}],"snippet":"interface LogStore {\n  logs: LogMessage[];\n  addLogs: (id: string, msgs: string[]) => void;\n  clearLogs: (id?: string) => void;\n  setLogs: (logs: LogMessage[]) => void;\n}"}],"edges":[{"source":"uselogstore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L1"}],"weight":1},{"source":"uselogstore","target":"uselogstore_logmessage","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L3"}],"weight":1},{"source":"uselogstore","target":"uselogstore_logstore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useLogStore.ts","source_location":"L8"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "uselogstore",
+      "label": "useLogStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "uselogstore_logmessage",
+      "label": "LogMessage",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+      "source_location": "L3-L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "interface LogMessage {\n  id: string;\n  msg: string;\n}"
+    },
+    {
+      "id": "uselogstore_logstore",
+      "label": "LogStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+      "source_location": "L8-L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "interface LogStore {\n  logs: LogMessage[];\n  addLogs: (id: string, msgs: string[]) => void;\n  clearLogs: (id?: string) => void;\n  setLogs: (logs: LogMessage[]) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "uselogstore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "uselogstore",
+      "target": "uselogstore_logmessage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "uselogstore",
+      "target": "uselogstore_logstore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useLogStore.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

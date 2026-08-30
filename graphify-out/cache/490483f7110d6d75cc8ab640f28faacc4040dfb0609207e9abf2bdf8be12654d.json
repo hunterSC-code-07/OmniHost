@@ -1,1 +1,217 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"db","label":"db.ts","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L1"}]},{"id":"db_getservers","label":"getServers()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L29-L31","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L29"}],"snippet":"export function getServers() {\n  return db.prepare('SELECT * FROM servers').all()\n}"},{"id":"db_createserver","label":"createServer()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L33-L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L33"}],"snippet":"export function createServer(name: string, game: string) {\n  const insert = db.prepare('INSERT INTO servers (name, game, status, players) VALUES (?, ?, ?, ?)')\n  const info = insert.run(name, game, 'Offline', 0)\n  return info.lastInsertRowid\n}"},{"id":"db_deleteserver","label":"deleteServer()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L39-L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L39"}],"snippet":"export function deleteServer(id: number) {\n  const stmt = db.prepare('DELETE FROM servers WHERE id = ?')\n  stmt.run(id)\n}"},{"id":"db_updateserversoftware","label":"updateServerSoftware()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L44-L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L44"}],"snippet":"export function updateServerSoftware(id: number, game: string) {\n  const stmt = db.prepare('UPDATE servers SET game = ? WHERE id = ?')\n  stmt.run(game, id)\n}"}],"edges":[{"source":"db","target":"better_sqlite3","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L1"}],"weight":1},{"source":"db","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L2"}],"weight":1},{"source":"db","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L3"}],"weight":1},{"source":"db","target":"db_getservers","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L29"}],"weight":1},{"source":"db","target":"db_createserver","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L33"}],"weight":1},{"source":"db","target":"db_deleteserver","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L39"}],"weight":1},{"source":"db","target":"db_updateserversoftware","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts","source_location":"L44"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "db",
+      "label": "db.ts",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "db_getservers",
+      "label": "getServers()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L29-L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L29"
+        }
+      ],
+      "snippet": "export function getServers() {\n  return db.prepare('SELECT * FROM servers').all()\n}"
+    },
+    {
+      "id": "db_createserver",
+      "label": "createServer()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L33-L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L33"
+        }
+      ],
+      "snippet": "export function createServer(name: string, game: string) {\n  const insert = db.prepare('INSERT INTO servers (name, game, status, players) VALUES (?, ?, ?, ?)')\n  const info = insert.run(name, game, 'Offline', 0)\n  return info.lastInsertRowid\n}"
+    },
+    {
+      "id": "db_deleteserver",
+      "label": "deleteServer()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L39-L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L39"
+        }
+      ],
+      "snippet": "export function deleteServer(id: number) {\n  const stmt = db.prepare('DELETE FROM servers WHERE id = ?')\n  stmt.run(id)\n}"
+    },
+    {
+      "id": "db_updateserversoftware",
+      "label": "updateServerSoftware()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L44-L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L44"
+        }
+      ],
+      "snippet": "export function updateServerSoftware(id: number, game: string) {\n  const stmt = db.prepare('UPDATE servers SET game = ? WHERE id = ?')\n  stmt.run(game, id)\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "db",
+      "target": "better_sqlite3",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "db",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "db",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "db",
+      "target": "db_getservers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "db",
+      "target": "db_createserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L33"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "db",
+      "target": "db_deleteserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L39"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "db",
+      "target": "db_updateserversoftware",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/db.ts",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

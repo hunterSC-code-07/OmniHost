@@ -1,1 +1,129 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usedayzmodstore","label":"useDayzModStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L1"}]},{"id":"usedayzmodstore_pendingdownload","label":"PendingDownload","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L4-L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L4"}],"snippet":"export interface PendingDownload {\n  mod: any;\n  progress: number;\n  msg: string;\n}"},{"id":"usedayzmodstore_dayzmodstore","label":"DayzModStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L10-L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L10"}],"snippet":"interface DayzModStore {\n  // Keyed by activeServerId, then by modId (or publishedfileid)\n  pendingDownloads: Record<number, Record<string, PendingDownload>>;\n  addPendingDownload: (serverId: number, mod: any) => void;\n  removePendingDownload: (serverId: number, modId: string) => void;\n  updatePendingProgress: (serverId: number, modId: string, progress: number, msg: string) => void;\n  clearPendingDownloads: (serverId: number) => void;\n}"}],"edges":[{"source":"usedayzmodstore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L1"}],"weight":1},{"source":"usedayzmodstore","target":"middleware","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L2"}],"weight":1},{"source":"usedayzmodstore","target":"usedayzmodstore_pendingdownload","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L4"}],"weight":1},{"source":"usedayzmodstore","target":"usedayzmodstore_dayzmodstore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts","source_location":"L10"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usedayzmodstore",
+      "label": "useDayzModStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usedayzmodstore_pendingdownload",
+      "label": "PendingDownload",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L4-L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export interface PendingDownload {\n  mod: any;\n  progress: number;\n  msg: string;\n}"
+    },
+    {
+      "id": "usedayzmodstore_dayzmodstore",
+      "label": "DayzModStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L10-L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "interface DayzModStore {\n  // Keyed by activeServerId, then by modId (or publishedfileid)\n  pendingDownloads: Record<number, Record<string, PendingDownload>>;\n  addPendingDownload: (serverId: number, mod: any) => void;\n  removePendingDownload: (serverId: number, modId: string) => void;\n  updatePendingProgress: (serverId: number, modId: string, progress: number, msg: string) => void;\n  clearPendingDownloads: (serverId: number) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usedayzmodstore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzmodstore",
+      "target": "middleware",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzmodstore",
+      "target": "usedayzmodstore_pendingdownload",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzmodstore",
+      "target": "usedayzmodstore_dayzmodstore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useDayzModStore.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

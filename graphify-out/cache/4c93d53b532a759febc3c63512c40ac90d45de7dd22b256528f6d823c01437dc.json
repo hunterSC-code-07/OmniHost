@@ -1,1 +1,41 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"udp_test_2302","label":"udp_test_2302.js","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js","source_location":"L1"}]}],"edges":[{"source":"udp_test_2302","target":"dgram","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js","source_location":"L1"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "udp_test_2302",
+      "label": "udp_test_2302.js",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "udp_test_2302",
+      "target": "dgram",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/udp_test_2302.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

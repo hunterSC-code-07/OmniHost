@@ -1,1 +1,41 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"fix_escapes","label":"fix_escapes.js","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js","source_location":"L1"}]}],"edges":[{"source":"fix_escapes","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js","source_location":"L1"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "fix_escapes",
+      "label": "fix_escapes.js",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "fix_escapes",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_escapes.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

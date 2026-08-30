@@ -1,1 +1,553 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzfilestab","label":"DayzFilesTab.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L1"}]},{"id":"dayzfilestab_dayzfilestabprops","label":"DayzFilesTabProps","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L4-L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L4"}],"snippet":"interface DayzFilesTabProps {\n  activeServerId: number;\n}"},{"id":"dayzfilestab_fileentry","label":"FileEntry","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L8-L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L8"}],"snippet":"interface FileEntry {\n  name: string;\n  isDirectory: boolean;\n  size: number;\n  mtime: string;\n}"},{"id":"dayzfilestab_dayzfilestab","label":"DayzFilesTab()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L15-L247","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L15"}],"snippet":"DayzFilesTab: React.FC<DayzFilesTabProps> = ({ activeServerId }) => {\n  const [currentPath, setCurrentPath] = useState<string>('');\n  const [files, setFiles] = useState<FileEntry[]>([]);\n  const [loading, setLoading] = useState(false);\n  const [editingFile, setEditingFile] = useState<{ path: string, content: string } | null>(null);\n  const [newFolderName, setNewFolderName] = useState<string | null>(null);\n\n  const fetchDir = async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => {\n    fetchDir('');\n  }, [activeServerId]);\n\n  const handleNavigate = (path: string) => {","node_kind":"component"},{"id":"dayzfilestab_dayzfilestab_fetchdir","label":"fetchDir()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L22-L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L22"}],"snippet":"fetchDir = async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  }"},{"id":"dayzfilestab_dayzfilestab_handlenavigate","label":"handleNavigate()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L39-L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L39"}],"snippet":"handleNavigate = (path: string) => {\n    fetchDir(path);\n  }"},{"id":"dayzfilestab_dayzfilestab_handlenavigateup","label":"handleNavigateUp()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L43-L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L43"}],"snippet":"handleNavigateUp = () => {\n    const parts = currentPath.split(/\\\\|\\//).filter(Boolean);\n    parts.pop();\n    fetchDir(parts.join('/'));\n  }"},{"id":"dayzfilestab_dayzfilestab_handlefileclick","label":"handleFileClick()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L49-L69","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L49"}],"snippet":"handleFileClick = async (file: FileEntry) => {\n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    if (file.isDirectory) {\n      handleNavigate(fullPath);\n    } else {\n      // Basic check to see if it's a text editable file\n      const editableExts = ['.txt', '.json', '.cfg', '.xml', '.yaml', '.yml', '.log'];\n      const isEditable = editableExts.some(ext => file.name.toLowerCase().endsWith(ext));\n      \n      if (isEditable || file.size < 1024 * 1024) { // allow small files to be opened\n        try {\n          const content = await window.api.readFile(activeServerId, fullPath);\n          setEditingFile({ path: fullPath, content });\n        } catch (e) {\n          alert('Could not read file');\n        }\n      } else {\n        alert('File type not supported for editing or too large.');\n      }\n    }\n  }"},{"id":"dayzfilestab_dayzfilestab_handledelete","label":"handleDelete()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L71-L82","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L71"}],"snippet":"handleDelete = async (e: React.MouseEvent, file: FileEntry) => {\n    e.stopPropagation();\n    if (!confirm(`Are you sure you want to delete ${file.name}?`)) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    try {\n      await window.api.deleteItem(activeServerId, fullPath);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to delete item');\n    }\n  }"},{"id":"dayzfilestab_dayzfilestab_handlesavefile","label":"handleSaveFile()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L84-L93","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L84"}],"snippet":"handleSaveFile = async () => {\n    if (!editingFile) return;\n    try {\n      await window.api.writeFile(activeServerId, editingFile.path, editingFile.content);\n      alert('File saved successfully!');\n      setEditingFile(null);\n    } catch (e) {\n      alert('Failed to save file');\n    }\n  }"},{"id":"dayzfilestab_dayzfilestab_handlecreatefolder","label":"handleCreateFolder()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L95-L107","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L95"}],"snippet":"handleCreateFolder = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newFolderName) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;\n    try {\n      await window.api.createFolder(activeServerId, fullPath);\n      setNewFolderName(null);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to create folder');\n    }\n  }"},{"id":"dayzfilestab_dayzfilestab_formatsize","label":"formatSize()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L109-L115","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L109"}],"snippet":"formatSize = (bytes: number) => {\n    if (bytes === 0) return '0 B';\n    const k = 1024;\n    const sizes = ['B', 'KB', 'MB', 'GB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];\n  }"}],"edges":[{"source":"dayzfilestab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L1"}],"weight":1},{"source":"dayzfilestab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L2"}],"weight":1},{"source":"dayzfilestab","target":"dayzfilestab_dayzfilestabprops","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L4"}],"weight":1},{"source":"dayzfilestab","target":"dayzfilestab_fileentry","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L8"}],"weight":1},{"source":"dayzfilestab","target":"dayzfilestab_dayzfilestab","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L15"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_fetchdir","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L22"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_handlenavigate","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L39"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_handlenavigateup","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L43","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L43"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_handlefileclick","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L49"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_handledelete","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L71","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L71"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_handlesavefile","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L84","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L84"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_handlecreatefolder","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L95","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L95"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"dayzfilestab_dayzfilestab_formatsize","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L109","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L109"}],"weight":1},{"source":"dayzfilestab_dayzfilestab","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L15"}],"weight":1},{"source":"dayzfilestab_dayzfilestab_handlenavigate","target":"dayzfilestab_dayzfilestab_fetchdir","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L40"}],"weight":1},{"source":"dayzfilestab_dayzfilestab_handlenavigateup","target":"dayzfilestab_dayzfilestab_fetchdir","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L46","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L46"}],"weight":1},{"source":"dayzfilestab_dayzfilestab_handlefileclick","target":"dayzfilestab_dayzfilestab_handlenavigate","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L52","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L52"}],"weight":1},{"source":"dayzfilestab_dayzfilestab_handledelete","target":"dayzfilestab_dayzfilestab_fetchdir","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L78","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L78"}],"weight":1},{"source":"dayzfilestab_dayzfilestab_handlecreatefolder","target":"dayzfilestab_dayzfilestab_fetchdir","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L103","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L103"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzfilestab",
+      "label": "DayzFilesTab.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzfilestab_dayzfilestabprops",
+      "label": "DayzFilesTabProps",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L4-L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "interface DayzFilesTabProps {\n  activeServerId: number;\n}"
+    },
+    {
+      "id": "dayzfilestab_fileentry",
+      "label": "FileEntry",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L8-L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "interface FileEntry {\n  name: string;\n  isDirectory: boolean;\n  size: number;\n  mtime: string;\n}"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab",
+      "label": "DayzFilesTab()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L15-L247",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "snippet": "DayzFilesTab: React.FC<DayzFilesTabProps> = ({ activeServerId }) => {\n  const [currentPath, setCurrentPath] = useState<string>('');\n  const [files, setFiles] = useState<FileEntry[]>([]);\n  const [loading, setLoading] = useState(false);\n  const [editingFile, setEditingFile] = useState<{ path: string, content: string } | null>(null);\n  const [newFolderName, setNewFolderName] = useState<string | null>(null);\n\n  const fetchDir = async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => {\n    fetchDir('');\n  }, [activeServerId]);\n\n  const handleNavigate = (path: string) => {",
+      "node_kind": "component"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_fetchdir",
+      "label": "fetchDir()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L22-L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L22"
+        }
+      ],
+      "snippet": "fetchDir = async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlenavigate",
+      "label": "handleNavigate()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L39-L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L39"
+        }
+      ],
+      "snippet": "handleNavigate = (path: string) => {\n    fetchDir(path);\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlenavigateup",
+      "label": "handleNavigateUp()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L43-L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L43"
+        }
+      ],
+      "snippet": "handleNavigateUp = () => {\n    const parts = currentPath.split(/\\\\|\\//).filter(Boolean);\n    parts.pop();\n    fetchDir(parts.join('/'));\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlefileclick",
+      "label": "handleFileClick()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L49-L69",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "snippet": "handleFileClick = async (file: FileEntry) => {\n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    if (file.isDirectory) {\n      handleNavigate(fullPath);\n    } else {\n      // Basic check to see if it's a text editable file\n      const editableExts = ['.txt', '.json', '.cfg', '.xml', '.yaml', '.yml', '.log'];\n      const isEditable = editableExts.some(ext => file.name.toLowerCase().endsWith(ext));\n      \n      if (isEditable || file.size < 1024 * 1024) { // allow small files to be opened\n        try {\n          const content = await window.api.readFile(activeServerId, fullPath);\n          setEditingFile({ path: fullPath, content });\n        } catch (e) {\n          alert('Could not read file');\n        }\n      } else {\n        alert('File type not supported for editing or too large.');\n      }\n    }\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handledelete",
+      "label": "handleDelete()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L71-L82",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L71"
+        }
+      ],
+      "snippet": "handleDelete = async (e: React.MouseEvent, file: FileEntry) => {\n    e.stopPropagation();\n    if (!confirm(`Are you sure you want to delete ${file.name}?`)) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    try {\n      await window.api.deleteItem(activeServerId, fullPath);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to delete item');\n    }\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlesavefile",
+      "label": "handleSaveFile()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L84-L93",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L84"
+        }
+      ],
+      "snippet": "handleSaveFile = async () => {\n    if (!editingFile) return;\n    try {\n      await window.api.writeFile(activeServerId, editingFile.path, editingFile.content);\n      alert('File saved successfully!');\n      setEditingFile(null);\n    } catch (e) {\n      alert('Failed to save file');\n    }\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlecreatefolder",
+      "label": "handleCreateFolder()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L95-L107",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L95"
+        }
+      ],
+      "snippet": "handleCreateFolder = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newFolderName) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;\n    try {\n      await window.api.createFolder(activeServerId, fullPath);\n      setNewFolderName(null);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to create folder');\n    }\n  }"
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_formatsize",
+      "label": "formatSize()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L109-L115",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L109"
+        }
+      ],
+      "snippet": "formatSize = (bytes: number) => {\n    if (bytes === 0) return '0 B';\n    const k = 1024;\n    const sizes = ['B', 'KB', 'MB', 'GB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzfilestab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab",
+      "target": "dayzfilestab_dayzfilestabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab",
+      "target": "dayzfilestab_fileentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlenavigate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L39"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlenavigateup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L43",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L43"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlefileclick",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handledelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L71",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L71"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlesavefile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L84",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L84"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlecreatefolder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L95",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L95"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_formatsize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L109",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L109"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlenavigate",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L40"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlenavigateup",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L46"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlefileclick",
+      "target": "dayzfilestab_dayzfilestab_handlenavigate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L52",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L52"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handledelete",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L78",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L78"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlecreatefolder",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L103",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L103"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

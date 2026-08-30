@@ -62,9 +62,9 @@ export function registerSteamCMDIpc() {
   // Database
   ipcMain.handle('send-steamcmd-input', async (_, data: string) => {
     if (SteamDownloader.activeProcess && SteamDownloader.activeProcess.stdin) {
-      SteamDownloader.activeProcess.stdin.write(data + '\n');
+      SteamDownloader.activeProcess.stdin.write(data + '\n')
     } else {
-      SteamWorkshopDownloader.sendInput(data);
+      SteamWorkshopDownloader.sendInput(data)
     }
     return true
   })

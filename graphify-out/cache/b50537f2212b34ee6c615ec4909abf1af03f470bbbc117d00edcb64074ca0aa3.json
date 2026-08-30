@@ -1,1 +1,129 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzmodgraph","label":"DayzModGraph.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L1"}]},{"id":"dayzmodgraph_dayzmodgraph","label":"DayzModGraph","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L4-L96","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L4"}],"snippet":"export class DayzModGraph {\n  static resolveMods(serverDir: string): string[] {\n    const folders = fs.readdirSync(serverDir, { withFileTypes: true });\n    let mods = folders\n      .filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'))\n      .filter(f => !fs.existsSync(join(serverDir, f.name, 'disabled.txt')))\n      .map(f => f.name);\n\n    const depsPath = join(serverDir, 'mod_dependencies.json');\n    let modDeps: Record<string, string[]> = {};\n    if (fs.existsSync(depsPath)) {\n      try { modDeps = JSON.parse(fs.readFileSync(depsPath, 'utf8')); } catch (e) {}\n    }\n\n    // Map folder names to mod IDs\n    const folderToId: Record<string, string> = {};\n    const idToFolder: Record<string, string> = {};\n    for (const folder of mods) {\n      const modIdPath = join(serverDir, folder, 'modid.txt');\n      if (fs.existsSync(modIdPath)) {\n        const content = fs.readFileSync(modIdPath, 'utf-8');\n        const modId = content.trim().split(':')[0];\n        if (modId) {\n          folderToId[folder] = modId;\n          idToFolder[modId] = folder;"},{"id":"dayzmodgraph_dayzmodgraph_resolvemods","label":".resolveMods()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L5-L95","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L5"}],"snippet":"static resolveMods(serverDir: string): string[] {\n    const folders = fs.readdirSync(serverDir, { withFileTypes: true });\n    let mods = folders\n      .filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'))\n      .filter(f => !fs.existsSync(join(serverDir, f.name, 'disabled.txt')))\n      .map(f => f.name);\n\n    const depsPath = join(serverDir, 'mod_dependencies.json');\n    let modDeps: Record<string, string[]> = {};\n    if (fs.existsSync(depsPath)) {\n      try { modDeps = JSON.parse(fs.readFileSync(depsPath, 'utf8')); } catch (e) {}\n    }\n\n    // Map folder names to mod IDs\n    const folderToId: Record<string, string> = {};\n    const idToFolder: Record<string, string> = {};\n    for (const folder of mods) {\n      const modIdPath = join(serverDir, folder, 'modid.txt');\n      if (fs.existsSync(modIdPath)) {\n        const content = fs.readFileSync(modIdPath, 'utf-8');\n        const modId = content.trim().split(':')[0];\n        if (modId) {\n          folderToId[folder] = modId;\n          idToFolder[modId] = folder;\n        }"}],"edges":[{"source":"dayzmodgraph","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L1"}],"weight":1},{"source":"dayzmodgraph","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L2"}],"weight":1},{"source":"dayzmodgraph","target":"dayzmodgraph_dayzmodgraph","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L4"}],"weight":1},{"source":"dayzmodgraph_dayzmodgraph","target":"dayzmodgraph_dayzmodgraph_resolvemods","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzModGraph.ts","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzmodgraph",
+      "label": "DayzModGraph.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzmodgraph_dayzmodgraph",
+      "label": "DayzModGraph",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L4-L96",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export class DayzModGraph {\n  static resolveMods(serverDir: string): string[] {\n    const folders = fs.readdirSync(serverDir, { withFileTypes: true });\n    let mods = folders\n      .filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'))\n      .filter(f => !fs.existsSync(join(serverDir, f.name, 'disabled.txt')))\n      .map(f => f.name);\n\n    const depsPath = join(serverDir, 'mod_dependencies.json');\n    let modDeps: Record<string, string[]> = {};\n    if (fs.existsSync(depsPath)) {\n      try { modDeps = JSON.parse(fs.readFileSync(depsPath, 'utf8')); } catch (e) {}\n    }\n\n    // Map folder names to mod IDs\n    const folderToId: Record<string, string> = {};\n    const idToFolder: Record<string, string> = {};\n    for (const folder of mods) {\n      const modIdPath = join(serverDir, folder, 'modid.txt');\n      if (fs.existsSync(modIdPath)) {\n        const content = fs.readFileSync(modIdPath, 'utf-8');\n        const modId = content.trim().split(':')[0];\n        if (modId) {\n          folderToId[folder] = modId;\n          idToFolder[modId] = folder;"
+    },
+    {
+      "id": "dayzmodgraph_dayzmodgraph_resolvemods",
+      "label": ".resolveMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L5-L95",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "static resolveMods(serverDir: string): string[] {\n    const folders = fs.readdirSync(serverDir, { withFileTypes: true });\n    let mods = folders\n      .filter(f => (f.isDirectory() || f.isSymbolicLink()) && f.name.startsWith('@'))\n      .filter(f => !fs.existsSync(join(serverDir, f.name, 'disabled.txt')))\n      .map(f => f.name);\n\n    const depsPath = join(serverDir, 'mod_dependencies.json');\n    let modDeps: Record<string, string[]> = {};\n    if (fs.existsSync(depsPath)) {\n      try { modDeps = JSON.parse(fs.readFileSync(depsPath, 'utf8')); } catch (e) {}\n    }\n\n    // Map folder names to mod IDs\n    const folderToId: Record<string, string> = {};\n    const idToFolder: Record<string, string> = {};\n    for (const folder of mods) {\n      const modIdPath = join(serverDir, folder, 'modid.txt');\n      if (fs.existsSync(modIdPath)) {\n        const content = fs.readFileSync(modIdPath, 'utf-8');\n        const modId = content.trim().split(':')[0];\n        if (modId) {\n          folderToId[folder] = modId;\n          idToFolder[modId] = folder;\n        }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzmodgraph",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodgraph",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodgraph",
+      "target": "dayzmodgraph_dayzmodgraph",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmodgraph_dayzmodgraph",
+      "target": "dayzmodgraph_dayzmodgraph_resolvemods",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzModGraph.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,199 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"wakeproxy","label":"WakeProxy.ts","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L1"}]},{"id":"wakeproxy_wakeproxy","label":"WakeProxy","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L4-L56","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L4"}],"snippet":"export class WakeProxy {\n  private server: net.Server | null = null;\n  private adapter: MinecraftAdapter;\n  private port: number;\n\n  constructor(adapter: MinecraftAdapter, port: number = 25565) {\n    this.adapter = adapter;\n    this.port = port;\n  }\n\n  startListening() {\n    if (this.server) return; // Already listening\n\n    this.server = net.createServer((socket) => {\n      this.adapter.sendLog(`[WakeProxy] Connection detected from ${socket.remoteAddress}! Waking up server...`);\n      socket.destroy(); // Destroy immediately to free port\n      \n      if (this.server) {\n        this.server.close(() => {\n          this.adapter.sendLog(`[WakeProxy] Port fully released. Starting Minecraft...`);\n          // Use a small delay just to let OS clear TCP TIME_WAIT\n          setTimeout(() => {\n            this.adapter.start();\n          }, 1000);\n        });"},{"id":"wakeproxy_wakeproxy_constructor","label":".constructor()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L9-L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L9"}],"snippet":"constructor(adapter: MinecraftAdapter, port: number = 25565) {\n    this.adapter = adapter;\n    this.port = port;\n  }"},{"id":"wakeproxy_wakeproxy_startlistening","label":".startListening()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L14-L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L14"}],"snippet":"startListening() {\n    if (this.server) return; // Already listening\n\n    this.server = net.createServer((socket) => {\n      this.adapter.sendLog(`[WakeProxy] Connection detected from ${socket.remoteAddress}! Waking up server...`);\n      socket.destroy(); // Destroy immediately to free port\n      \n      if (this.server) {\n        this.server.close(() => {\n          this.adapter.sendLog(`[WakeProxy] Port fully released. Starting Minecraft...`);\n          // Use a small delay just to let OS clear TCP TIME_WAIT\n          setTimeout(() => {\n            this.adapter.start();\n          }, 1000);\n        });\n        this.server = null;\n      }\n    });\n\n    this.server.on('error', (err: any) => {\n      this.adapter.sendLog(`[WakeProxy] Error: ${err.message}`);\n      this.stopListening();\n    });\n\n    try {"},{"id":"wakeproxy_wakeproxy_stoplistening","label":".stopListening()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L47-L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L47"}],"snippet":"stopListening() {\n    if (this.server) {\n      try {\n        this.server.close();\n      } catch (e) {}\n      this.server = null;\n      this.adapter.sendLog(`[WakeProxy] Stopped listening on port ${this.port}.`);\n    }\n  }"}],"edges":[{"source":"wakeproxy","target":"net","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L1"}],"weight":1},{"source":"wakeproxy","target":"minecraftadapter","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L2"}],"weight":1},{"source":"wakeproxy","target":"wakeproxy_wakeproxy","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L4"}],"weight":1},{"source":"wakeproxy_wakeproxy","target":"wakeproxy_wakeproxy_constructor","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L9"}],"weight":1},{"source":"wakeproxy_wakeproxy","target":"wakeproxy_wakeproxy_startlistening","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L14"}],"weight":1},{"source":"wakeproxy_wakeproxy","target":"wakeproxy_wakeproxy_stoplistening","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts","source_location":"L47"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "wakeproxy",
+      "label": "WakeProxy.ts",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "wakeproxy_wakeproxy",
+      "label": "WakeProxy",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L4-L56",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export class WakeProxy {\n  private server: net.Server | null = null;\n  private adapter: MinecraftAdapter;\n  private port: number;\n\n  constructor(adapter: MinecraftAdapter, port: number = 25565) {\n    this.adapter = adapter;\n    this.port = port;\n  }\n\n  startListening() {\n    if (this.server) return; // Already listening\n\n    this.server = net.createServer((socket) => {\n      this.adapter.sendLog(`[WakeProxy] Connection detected from ${socket.remoteAddress}! Waking up server...`);\n      socket.destroy(); // Destroy immediately to free port\n      \n      if (this.server) {\n        this.server.close(() => {\n          this.adapter.sendLog(`[WakeProxy] Port fully released. Starting Minecraft...`);\n          // Use a small delay just to let OS clear TCP TIME_WAIT\n          setTimeout(() => {\n            this.adapter.start();\n          }, 1000);\n        });"
+    },
+    {
+      "id": "wakeproxy_wakeproxy_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L9-L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "constructor(adapter: MinecraftAdapter, port: number = 25565) {\n    this.adapter = adapter;\n    this.port = port;\n  }"
+    },
+    {
+      "id": "wakeproxy_wakeproxy_startlistening",
+      "label": ".startListening()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L14-L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L14"
+        }
+      ],
+      "snippet": "startListening() {\n    if (this.server) return; // Already listening\n\n    this.server = net.createServer((socket) => {\n      this.adapter.sendLog(`[WakeProxy] Connection detected from ${socket.remoteAddress}! Waking up server...`);\n      socket.destroy(); // Destroy immediately to free port\n      \n      if (this.server) {\n        this.server.close(() => {\n          this.adapter.sendLog(`[WakeProxy] Port fully released. Starting Minecraft...`);\n          // Use a small delay just to let OS clear TCP TIME_WAIT\n          setTimeout(() => {\n            this.adapter.start();\n          }, 1000);\n        });\n        this.server = null;\n      }\n    });\n\n    this.server.on('error', (err: any) => {\n      this.adapter.sendLog(`[WakeProxy] Error: ${err.message}`);\n      this.stopListening();\n    });\n\n    try {"
+    },
+    {
+      "id": "wakeproxy_wakeproxy_stoplistening",
+      "label": ".stopListening()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L47-L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L47"
+        }
+      ],
+      "snippet": "stopListening() {\n    if (this.server) {\n      try {\n        this.server.close();\n      } catch (e) {}\n      this.server = null;\n      this.adapter.sendLog(`[WakeProxy] Stopped listening on port ${this.port}.`);\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "wakeproxy",
+      "target": "net",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "wakeproxy",
+      "target": "minecraftadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "wakeproxy",
+      "target": "wakeproxy_wakeproxy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "wakeproxy_wakeproxy",
+      "target": "wakeproxy_wakeproxy_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "wakeproxy_wakeproxy",
+      "target": "wakeproxy_wakeproxy_startlistening",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "wakeproxy_wakeproxy",
+      "target": "wakeproxy_wakeproxy_stoplistening",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+      "source_location": "L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/WakeProxy.ts",
+          "source_location": "L47"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

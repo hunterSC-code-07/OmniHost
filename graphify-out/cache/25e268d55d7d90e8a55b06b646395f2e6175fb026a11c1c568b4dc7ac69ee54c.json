@@ -1,1 +1,623 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usedayzworkshop","label":"useDayzWorkshop.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L1"}]},{"id":"usedayzworkshop_usedayzworkshop","label":"useDayzWorkshop()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L5-L322","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L5"}],"snippet":"useDayzWorkshop = () => {\n  const { activeServerId } = useServerStore();\n  const { pendingDownloads, addPendingDownload, removePendingDownload } = useDayzModStore();\n\n  const [mods, setMods] = useState<any[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [downloadingMission, setDownloadingMission] = useState<string | null>(null);\n\n  const [steamCreds, setSteamCreds] = useState(() => {\n    try {\n      const saved = localStorage.getItem('omnihost_steam_creds');\n      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };\n    } catch {\n      return { username: '', password: '', steamGuard: '' };\n    }\n  });\n  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));\n  const [showCreds, setShowCreds] = useState(false);\n  \n  const [pendingDeps, setPendingDeps] = useState<any[]>([]);\n  const [installingDep, setInstallingDep] = useState<string | null>(null);\n  const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);\n  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);\n  const [isRebuilding, setIsRebuilding] = useState(false);\n  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);"},{"id":"usedayzworkshop_usedayzworkshop_loadinstalledmods","label":"loadInstalledMods()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L31-L71","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L31"}],"snippet":"loadInstalledMods = async () => {\n    if (!activeServerId) return;\n    setLoading(true);\n    try {\n      const basicMods = await window.api.dayz.getInstalledMods(activeServerId);\n\n      const workshopIds = basicMods\n        .filter((m: any) => m.id && /^\\d+$/.test(m.id) && String(m.id) !== '0')\n        .map((m: any) => m.id);\n\n      let detailedMods: any[] = [];\n      if (workshopIds.length > 0) {\n        detailedMods = await window.api.steam.getWorkshopItemDetails(workshopIds);\n      }\n\n      const mergedMods = basicMods.map((basicMod: any) => {\n        const detail = detailedMods.find((d: any) => d.publishedfileid === basicMod.id);\n        if (detail) {\n          return {\n            ...basicMod,\n            title: detail.title || basicMod.title,\n            preview_url: detail.preview_url,\n            file_size: detail.file_size,\n            tags: detail.tags,\n            description: detail.description"},{"id":"usedayzworkshop_usedayzworkshop_handletogglemap","label":"handleToggleMap()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L77-L81","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L77"}],"snippet":"handleToggleMap = async (folderName: string, currentIsMap: boolean) => {\n    if (!activeServerId) return;\n    await window.api.dayz.toggleMapMod(activeServerId, folderName, !currentIsMap);\n    loadInstalledMods();\n  }"},{"id":"usedayzworkshop_usedayzworkshop_handledownloadmission","label":"handleDownloadMission()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L83-L94","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L83"}],"snippet":"handleDownloadMission = async (modId: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.dayz.downloadMission(activeServerId, modId);\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to download mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"},{"id":"usedayzworkshop_usedayzworkshop_handleextractlocalmission","label":"handleExtractLocalMission()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L96-L108","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L96"}],"snippet":"handleExtractLocalMission = async (modId: string, localMissionsPath: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.dayz.extractLocalMission(activeServerId, localMissionsPath);\n      alert('Mission files extracted and applied successfully!');\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to extract mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"},{"id":"usedayzworkshop_usedayzworkshop_handleinstalldependencies","label":"handleInstallDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L110-L159","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L110"}],"snippet":"handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {\n    if (!activeServerId) return;\n    setShowCreds(false);\n\n    if (addPendingDownload) {\n      depsToInstall.forEach(dep => {\n        addPendingDownload(activeServerId, {\n          id: dep.id,\n          title: dep.title,\n          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,\n          tags: []\n        });\n      });\n    } else {\n      setInstallingDep('batch');\n      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });\n    }\n\n    try {\n      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));\n      await window.api.dayz.installMods(\n        activeServerId,\n        modsToInstall,\n        steamCreds.username,\n        steamCreds.password,"},{"id":"usedayzworkshop_usedayzworkshop_handletogglemodstatus","label":"handleToggleModStatus()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L161-L204","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L161"}],"snippet":"handleToggleModStatus = async (mod: any) => {\n    if (!activeServerId) return;\n    const isEnabling = mod.isDisabled;\n    await window.api.dayz.toggleModStatus(activeServerId, mod.folderName, !isEnabling);\n\n    if (isEnabling && mod.id && /^\\d+$/.test(mod.id)) {\n      try {\n        const dependencies = await window.api.steam.getModDependencies(mod.id);\n        if (dependencies && dependencies.length > 0) {\n          const installedDeps = mods.filter(m => dependencies.includes(m.id));\n          const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));\n\n          let enabledCount = 0;\n          for (const installedDep of installedDeps) {\n            if (installedDep.isDisabled) {\n              await window.api.dayz.toggleModStatus(activeServerId, installedDep.folderName, false);\n              enabledCount++;\n            }\n          }\n\n          if (missingDepIds.length > 0) {\n            const depDetails = await window.api.steam.getWorkshopItemDetails(missingDepIds);\n            if (depDetails && depDetails.length > 0) {\n              const depNames = depDetails.map((d: any) => d.title).join(', ');\n              const confirmInstall = confirm(`This mod requires the following missing dependencies:\\n\\n${depNames}\\n\\nDo you want to install them automatically?`);"},{"id":"usedayzworkshop_usedayzworkshop_handlecheckdependencies","label":"handleCheckDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L206-L234","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L206"}],"snippet":"handleCheckDependencies = async (mod: any) => {\n    setCheckingDeps(mod.id);\n    try {\n      const depIds = await window.api.steam.getModDependencies(mod.id);\n      if (!depIds || depIds.length === 0) {\n        alert('No dependencies required for this mod.');\n        setCheckingDeps(null);\n        return;\n      }\n\n      const details = await window.api.steam.getWorkshopItemDetails(depIds);\n\n      const results = details.map((d: any) => {\n        const localMod = mods.find(m => String(m.id) === String(d.id));\n        return {\n          id: d.id,\n          title: d.title,\n          isInstalled: !!localMod,\n          isDisabled: localMod ? localMod.isDisabled : false\n        };\n      });\n\n      setDependencyResult({ modTitle: mod.title, deps: results });\n    } catch (e: any) {\n      alert('Failed to check dependencies: ' + e.message);"},{"id":"usedayzworkshop_usedayzworkshop_handleuninstall","label":"handleUninstall()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L236-L246","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L236"}],"snippet":"handleUninstall = async (modId: string, modName: string) => {\n    if (!activeServerId) return;\n    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {\n      try {\n        await window.api.dayz.uninstallMod(activeServerId, modId);\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall mod: ${e.message}`);\n      }\n    }\n  }"},{"id":"usedayzworkshop_usedayzworkshop_handleuninstallall","label":"handleUninstallAll()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L248-L263","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L248"}],"snippet":"handleUninstallAll = async () => {\n    if (mods.length === 0 || !activeServerId) return;\n    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\\n\\nAre you sure you want to proceed? This cannot be undone.`)) {\n      setLoading(true);\n      try {\n        for (const mod of mods) {\n          await window.api.dayz.uninstallMod(activeServerId, mod.folderName || mod.id);\n        }\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall some mods: ${e.message}`);\n        await loadInstalledMods();\n      }\n      setLoading(false);\n    }\n  }"},{"id":"usedayzworkshop_usedayzworkshop_handlerebuildloadorder","label":"handleRebuildLoadOrder()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L265-L277","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L265"}],"snippet":"handleRebuildLoadOrder = async () => {\n    if (!activeServerId) return;\n    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {\n      setIsRebuilding(true);\n      try {\n        await window.api.dayz.rebuildModDependencies(activeServerId);\n        alert('Successfully rebuilt load order dependency graph!');\n      } catch (e: any) {\n        alert('Failed to rebuild load order: ' + e.message);\n      }\n      setIsRebuilding(false);\n    }\n  }"},{"id":"usedayzworkshop_usedayzworkshop_savecredentials","label":"saveCredentials()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L279-L290","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L279"}],"snippet":"saveCredentials = () => {\n    if (steamCreds.username && steamCreds.password) {\n      if (rememberMe) {\n        localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));\n      } else {\n        localStorage.removeItem('omnihost_steam_creds');\n      }\n      handleInstallDependencies();\n    } else {\n      alert('Username and password are required.');\n    }\n  }"}],"edges":[{"source":"usedayzworkshop","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L1"}],"weight":1},{"source":"usedayzworkshop","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L2"}],"weight":1},{"source":"usedayzworkshop","target":"usedayzmodstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L3"}],"weight":1},{"source":"usedayzworkshop","target":"usedayzworkshop_usedayzworkshop","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L5"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_loadinstalledmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L31","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L31"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handletogglemap","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L77","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L77"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handledownloadmission","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L83","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L83"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handleextractlocalmission","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L96","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L96"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handleinstalldependencies","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L110","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L110"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handletogglemodstatus","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L161","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L161"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handlecheckdependencies","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L206","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L206"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handleuninstall","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L236","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L236"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handleuninstallall","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L248","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L248"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_handlerebuildloadorder","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L265","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L265"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop","target":"usedayzworkshop_usedayzworkshop_savecredentials","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L279","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L279"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_handletogglemap","target":"usedayzworkshop_usedayzworkshop_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L80","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L80"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_handleinstalldependencies","target":"usedayzworkshop_usedayzworkshop_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L158","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L158"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_handletogglemodstatus","target":"usedayzworkshop_usedayzworkshop_handleinstalldependencies","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L191","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L191"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_handletogglemodstatus","target":"usedayzworkshop_usedayzworkshop_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L203","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L203"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_handleuninstall","target":"usedayzworkshop_usedayzworkshop_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L241","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L241"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_handleuninstallall","target":"usedayzworkshop_usedayzworkshop_loadinstalledmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L256","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L256"}],"weight":1},{"source":"usedayzworkshop_usedayzworkshop_savecredentials","target":"usedayzworkshop_usedayzworkshop_handleinstalldependencies","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L286","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts","source_location":"L286"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usedayzworkshop",
+      "label": "useDayzWorkshop.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop",
+      "label": "useDayzWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L5-L322",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "useDayzWorkshop = () => {\n  const { activeServerId } = useServerStore();\n  const { pendingDownloads, addPendingDownload, removePendingDownload } = useDayzModStore();\n\n  const [mods, setMods] = useState<any[]>([]);\n  const [loading, setLoading] = useState(true);\n  const [downloadingMission, setDownloadingMission] = useState<string | null>(null);\n\n  const [steamCreds, setSteamCreds] = useState(() => {\n    try {\n      const saved = localStorage.getItem('omnihost_steam_creds');\n      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };\n    } catch {\n      return { username: '', password: '', steamGuard: '' };\n    }\n  });\n  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));\n  const [showCreds, setShowCreds] = useState(false);\n  \n  const [pendingDeps, setPendingDeps] = useState<any[]>([]);\n  const [installingDep, setInstallingDep] = useState<string | null>(null);\n  const [depProgress, setDepProgress] = useState<{ percent: number, msg: string } | null>(null);\n  const [checkingDeps, setCheckingDeps] = useState<string | null>(null);\n  const [isRebuilding, setIsRebuilding] = useState(false);\n  const [dependencyResult, setDependencyResult] = useState<{ modTitle: string, deps: any[] } | null>(null);"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "label": "loadInstalledMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L31-L71",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L31"
+        }
+      ],
+      "snippet": "loadInstalledMods = async () => {\n    if (!activeServerId) return;\n    setLoading(true);\n    try {\n      const basicMods = await window.api.dayz.getInstalledMods(activeServerId);\n\n      const workshopIds = basicMods\n        .filter((m: any) => m.id && /^\\d+$/.test(m.id) && String(m.id) !== '0')\n        .map((m: any) => m.id);\n\n      let detailedMods: any[] = [];\n      if (workshopIds.length > 0) {\n        detailedMods = await window.api.steam.getWorkshopItemDetails(workshopIds);\n      }\n\n      const mergedMods = basicMods.map((basicMod: any) => {\n        const detail = detailedMods.find((d: any) => d.publishedfileid === basicMod.id);\n        if (detail) {\n          return {\n            ...basicMod,\n            title: detail.title || basicMod.title,\n            preview_url: detail.preview_url,\n            file_size: detail.file_size,\n            tags: detail.tags,\n            description: detail.description"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handletogglemap",
+      "label": "handleToggleMap()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L77-L81",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L77"
+        }
+      ],
+      "snippet": "handleToggleMap = async (folderName: string, currentIsMap: boolean) => {\n    if (!activeServerId) return;\n    await window.api.dayz.toggleMapMod(activeServerId, folderName, !currentIsMap);\n    loadInstalledMods();\n  }"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handledownloadmission",
+      "label": "handleDownloadMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L83-L94",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L83"
+        }
+      ],
+      "snippet": "handleDownloadMission = async (modId: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.dayz.downloadMission(activeServerId, modId);\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to download mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handleextractlocalmission",
+      "label": "handleExtractLocalMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L96-L108",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L96"
+        }
+      ],
+      "snippet": "handleExtractLocalMission = async (modId: string, localMissionsPath: string) => {\n    if (downloadingMission || !activeServerId) return;\n    setDownloadingMission(modId);\n    try {\n      await window.api.dayz.extractLocalMission(activeServerId, localMissionsPath);\n      alert('Mission files extracted and applied successfully!');\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to extract mission files: ' + e.message);\n    } finally {\n      setDownloadingMission(null);\n    }\n  }"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handleinstalldependencies",
+      "label": "handleInstallDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L110-L159",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L110"
+        }
+      ],
+      "snippet": "handleInstallDependencies = async (depsToInstall: any[] = pendingDeps) => {\n    if (!activeServerId) return;\n    setShowCreds(false);\n\n    if (addPendingDownload) {\n      depsToInstall.forEach(dep => {\n        addPendingDownload(activeServerId, {\n          id: dep.id,\n          title: dep.title,\n          folderName: `@${dep.title.replace(/[^a-zA-Z0-9]/g, '') || dep.id}`,\n          tags: []\n        });\n      });\n    } else {\n      setInstallingDep('batch');\n      setDepProgress({ percent: 0, msg: `Starting batch download for ${depsToInstall.length} dependencies...` });\n    }\n\n    try {\n      const modsToInstall = depsToInstall.map(m => ({ modId: m.id, modTitle: m.title }));\n      await window.api.dayz.installMods(\n        activeServerId,\n        modsToInstall,\n        steamCreds.username,\n        steamCreds.password,"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handletogglemodstatus",
+      "label": "handleToggleModStatus()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L161-L204",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L161"
+        }
+      ],
+      "snippet": "handleToggleModStatus = async (mod: any) => {\n    if (!activeServerId) return;\n    const isEnabling = mod.isDisabled;\n    await window.api.dayz.toggleModStatus(activeServerId, mod.folderName, !isEnabling);\n\n    if (isEnabling && mod.id && /^\\d+$/.test(mod.id)) {\n      try {\n        const dependencies = await window.api.steam.getModDependencies(mod.id);\n        if (dependencies && dependencies.length > 0) {\n          const installedDeps = mods.filter(m => dependencies.includes(m.id));\n          const missingDepIds = dependencies.filter(depId => !mods.find(m => m.id === depId));\n\n          let enabledCount = 0;\n          for (const installedDep of installedDeps) {\n            if (installedDep.isDisabled) {\n              await window.api.dayz.toggleModStatus(activeServerId, installedDep.folderName, false);\n              enabledCount++;\n            }\n          }\n\n          if (missingDepIds.length > 0) {\n            const depDetails = await window.api.steam.getWorkshopItemDetails(missingDepIds);\n            if (depDetails && depDetails.length > 0) {\n              const depNames = depDetails.map((d: any) => d.title).join(', ');\n              const confirmInstall = confirm(`This mod requires the following missing dependencies:\\n\\n${depNames}\\n\\nDo you want to install them automatically?`);"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handlecheckdependencies",
+      "label": "handleCheckDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L206-L234",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L206"
+        }
+      ],
+      "snippet": "handleCheckDependencies = async (mod: any) => {\n    setCheckingDeps(mod.id);\n    try {\n      const depIds = await window.api.steam.getModDependencies(mod.id);\n      if (!depIds || depIds.length === 0) {\n        alert('No dependencies required for this mod.');\n        setCheckingDeps(null);\n        return;\n      }\n\n      const details = await window.api.steam.getWorkshopItemDetails(depIds);\n\n      const results = details.map((d: any) => {\n        const localMod = mods.find(m => String(m.id) === String(d.id));\n        return {\n          id: d.id,\n          title: d.title,\n          isInstalled: !!localMod,\n          isDisabled: localMod ? localMod.isDisabled : false\n        };\n      });\n\n      setDependencyResult({ modTitle: mod.title, deps: results });\n    } catch (e: any) {\n      alert('Failed to check dependencies: ' + e.message);"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handleuninstall",
+      "label": "handleUninstall()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L236-L246",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L236"
+        }
+      ],
+      "snippet": "handleUninstall = async (modId: string, modName: string) => {\n    if (!activeServerId) return;\n    if (confirm(`Are you sure you want to uninstall ${modName}?`)) {\n      try {\n        await window.api.dayz.uninstallMod(activeServerId, modId);\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall mod: ${e.message}`);\n      }\n    }\n  }"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handleuninstallall",
+      "label": "handleUninstallAll()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L248-L263",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L248"
+        }
+      ],
+      "snippet": "handleUninstallAll = async () => {\n    if (mods.length === 0 || !activeServerId) return;\n    if (confirm(`WARNING: You are about to uninstall ALL ${mods.length} mods from this server.\\n\\nAre you sure you want to proceed? This cannot be undone.`)) {\n      setLoading(true);\n      try {\n        for (const mod of mods) {\n          await window.api.dayz.uninstallMod(activeServerId, mod.folderName || mod.id);\n        }\n        await loadInstalledMods();\n      } catch (e: any) {\n        alert(`Failed to uninstall some mods: ${e.message}`);\n        await loadInstalledMods();\n      }\n      setLoading(false);\n    }\n  }"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_handlerebuildloadorder",
+      "label": "handleRebuildLoadOrder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L265-L277",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L265"
+        }
+      ],
+      "snippet": "handleRebuildLoadOrder = async () => {\n    if (!activeServerId) return;\n    if (confirm('This will rebuild the dependency graph for all installed mods to ensure the server starts without crashing. It may take a minute if you have many mods. Proceed?')) {\n      setIsRebuilding(true);\n      try {\n        await window.api.dayz.rebuildModDependencies(activeServerId);\n        alert('Successfully rebuilt load order dependency graph!');\n      } catch (e: any) {\n        alert('Failed to rebuild load order: ' + e.message);\n      }\n      setIsRebuilding(false);\n    }\n  }"
+    },
+    {
+      "id": "usedayzworkshop_usedayzworkshop_savecredentials",
+      "label": "saveCredentials()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L279-L290",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L279"
+        }
+      ],
+      "snippet": "saveCredentials = () => {\n    if (steamCreds.username && steamCreds.password) {\n      if (rememberMe) {\n        localStorage.setItem('omnihost_steam_creds', btoa(JSON.stringify({ username: steamCreds.username, password: steamCreds.password, steamGuard: '' })));\n      } else {\n        localStorage.removeItem('omnihost_steam_creds');\n      }\n      handleInstallDependencies();\n    } else {\n      alert('Username and password are required.');\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usedayzworkshop",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop",
+      "target": "usedayzmodstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L31"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handletogglemap",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L77",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L77"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handledownloadmission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L83"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handleextractlocalmission",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L96",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L96"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handleinstalldependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L110",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L110"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handletogglemodstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L161",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L161"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handlecheckdependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L206",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L206"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handleuninstall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L236",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L236"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handleuninstallall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L248",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L248"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_handlerebuildloadorder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L265",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L265"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop",
+      "target": "usedayzworkshop_usedayzworkshop_savecredentials",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L279",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L279"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_handletogglemap",
+      "target": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L80",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L80"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_handleinstalldependencies",
+      "target": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L158",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L158"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_handletogglemodstatus",
+      "target": "usedayzworkshop_usedayzworkshop_handleinstalldependencies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L191",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L191"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_handletogglemodstatus",
+      "target": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L203",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L203"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_handleuninstall",
+      "target": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L241",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L241"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_handleuninstallall",
+      "target": "usedayzworkshop_usedayzworkshop_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L256",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L256"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzworkshop_usedayzworkshop_savecredentials",
+      "target": "usedayzworkshop_usedayzworkshop_handleinstalldependencies",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+      "source_location": "L286",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzWorkshop.ts",
+          "source_location": "L286"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

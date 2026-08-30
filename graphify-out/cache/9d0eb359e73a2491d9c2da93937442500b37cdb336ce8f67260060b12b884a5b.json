@@ -1,1 +1,95 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"gamebackgrounds","label":"GameBackgrounds.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L1"}]},{"id":"gamebackgrounds_gamebackgrounds","label":"GameBackgrounds()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L4-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L4"}],"snippet":"GameBackgrounds: React.FC = () => {\n  const { activeGameHub, hoveredGame } = useUiStore();\n\n  return (\n    <>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#0a1f0a] via-[#1b5e20] to-[#051105] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Minecraft' || activeGameHub === 'Minecraft' ? 'opacity-100' : 'opacity-0'}`}></div>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#42c0ff]/40 via-[#fcb746]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Palworld' || activeGameHub === 'Palworld' ? 'opacity-100' : 'opacity-0'}`}></div>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#8b0000]/30 via-[#3a0000]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'DayZ' || activeGameHub === 'DayZ' ? 'opacity-100' : 'opacity-0'}`}></div>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#fa9549]/35 via-[#7c2d12]/25 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Satisfactory' || activeGameHub === 'Satisfactory' ? 'opacity-100' : 'opacity-0'}`}></div>\n    </>\n  );\n}","node_kind":"component"}],"edges":[{"source":"gamebackgrounds","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L1"}],"weight":1},{"source":"gamebackgrounds","target":"useuistore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L2"}],"weight":1},{"source":"gamebackgrounds","target":"gamebackgrounds_gamebackgrounds","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx","source_location":"L4"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "gamebackgrounds",
+      "label": "GameBackgrounds.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "gamebackgrounds_gamebackgrounds",
+      "label": "GameBackgrounds()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+      "source_location": "L4-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "GameBackgrounds: React.FC = () => {\n  const { activeGameHub, hoveredGame } = useUiStore();\n\n  return (\n    <>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#0a1f0a] via-[#1b5e20] to-[#051105] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Minecraft' || activeGameHub === 'Minecraft' ? 'opacity-100' : 'opacity-0'}`}></div>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#42c0ff]/40 via-[#fcb746]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Palworld' || activeGameHub === 'Palworld' ? 'opacity-100' : 'opacity-0'}`}></div>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#8b0000]/30 via-[#3a0000]/20 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'DayZ' || activeGameHub === 'DayZ' ? 'opacity-100' : 'opacity-0'}`}></div>\n      <div className={`absolute inset-0 bg-gradient-to-br from-[#fa9549]/35 via-[#7c2d12]/25 to-[#050505] pointer-events-none transition-opacity duration-700 ease-in-out ${hoveredGame === 'Satisfactory' || activeGameHub === 'Satisfactory' ? 'opacity-100' : 'opacity-0'}`}></div>\n    </>\n  );\n}",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "gamebackgrounds",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "gamebackgrounds",
+      "target": "useuistore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "gamebackgrounds",
+      "target": "gamebackgrounds_gamebackgrounds",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/layout/GameBackgrounds.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

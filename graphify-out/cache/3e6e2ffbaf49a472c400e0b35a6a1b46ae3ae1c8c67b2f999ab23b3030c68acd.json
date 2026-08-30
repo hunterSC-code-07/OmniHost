@@ -1,1 +1,2024 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"main_app","label":"main_App.tsx","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L1"}]},{"id":"main_app_isgamesupported","label":"isGameSupported()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L18"}],"snippet":"isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false)"},{"id":"main_app_getgameimageurl","label":"getGameImageUrl()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L20-L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L20"}],"snippet":"getGameImageUrl = (game: string) => {\n  if (game.toLowerCase().includes('minecraft')) return minecraftBg;\n  if (game.toLowerCase().includes('palworld')) return palworldBg;\n  if (game.toLowerCase().includes('dayz')) return dayzBg;\n  if (game.toLowerCase().includes('satisfactory')) return satisfactoryBg;\n  return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';\n}"},{"id":"main_app_getgamethemecolor","label":"getGameThemeColor()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L28-L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L28"}],"snippet":"getGameThemeColor = (game: string | null) => {\n  if (!game) return { omni: '#ffffff', host: '#cccccc' };\n  const g = game.toLowerCase();\n  if (g.includes('minecraft')) return { omni: '#4ade80', host: '#bbf7d0' }; // text-green-400 / 200\n  if (g.includes('palworld')) return { omni: '#3b82f6', host: '#bfdbfe' }; // text-blue-500 / 200\n  if (g.includes('dayz')) return { omni: '#ef4444', host: '#fecaca' }; // text-red-500 / 200\n  if (g.includes('satisfactory')) return { omni: '#eab308', host: '#fef08a' }; // text-yellow-500 / 200\n  return { omni: '#ffffff', host: '#cccccc' };\n}"},{"id":"main_app_app","label":"App()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49-L2091","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"snippet":"function App() {\n  const [servers, setServers] = useState<any[]>([])\n  const [logs, setLogs] = useState<{id: string, msg: string}[]>([])\n  const [tunnelStatus, setTunnelStatus] = useState('Offline')\n\n  const [activeServerId, setActiveServerId] = useState<number | null>(null)\n  const [activeGameHub, setActiveGameHub] = useState<string | null>(null)\n  const [lastGameHub, setLastGameHub] = useState<string | null>(null)\n\n  useEffect(() => {\n    if (activeGameHub) setLastGameHub(activeGameHub)\n  }, [activeGameHub])\n  const [hoveredGame, setHoveredGame] = useState<string | null>(null)\n  \n  const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview')\n  const [tabDirection, setTabDirection] = useState(0)\n  const [isTabTransitioning, setIsTabTransitioning] = useState(false)\n\n  const handleTabChange = (newTab: typeof activeTab) => {\n    if (newTab === activeTab) return;\n    const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setIsTabTransitioning(true);","node_kind":"component"},{"id":"main_app_app_handletabchange","label":"handleTabChange()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L67-L76","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L67"}],"snippet":"handleTabChange = (newTab: typeof activeTab) => {\n    if (newTab === activeTab) return;\n    const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setIsTabTransitioning(true);\n    setActiveTab(newTab);\n    setTimeout(() => setIsTabTransitioning(false), 350);\n  }"},{"id":"main_app_app_fetchinitialdata","label":"fetchInitialData()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L159-L187","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L159"}],"snippet":"fetchInitialData = async () => {\n      // @ts-ignore\n      const data = await window.api.getServers()\n      setServers(data)\n      \n      const initialLogs: {id: string, msg: string}[] = [];\n      const initialOnlinePlayers: Record<string, string[]> = {};\n      \n      data.forEach((s: any) => {\n         if (s.logs) {\n            s.logs.forEach((msg: string) => {\n               initialLogs.push({ id: s.id.toString(), msg });\n            });\n         }\n         if (s.onlinePlayers && s.onlinePlayers.length > 0) {\n            initialOnlinePlayers[s.id.toString()] = s.onlinePlayers;\n         }\n      });\n      \n      setLogs(initialLogs);\n      setOnlinePlayers(initialOnlinePlayers);\n      \n      // @ts-ignore\n      if (window.api.getTunnelStatus) {\n        // @ts-ignore"},{"id":"main_app_app_fetchcachesize","label":"fetchCacheSize()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L190-L198","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L190"}],"snippet":"fetchCacheSize = async () => {\n      try {\n        // @ts-ignore\n        const size = await window.api.getCacheInfo()\n        setCacheSize(size)\n      } catch (e) {\n        console.error('Failed to get cache size:', e)\n      }\n    }"},{"id":"main_app_app_fetchversions","label":"fetchVersions()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L239-L256","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L239"}],"snippet":"fetchVersions = async () => {\n        let versions: string[] = []\n        // @ts-ignore\n        if (newServerType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore\n        else if (newServerType === 'Paper') versions = await window.api.getPaperVersions();\n        // @ts-ignore\n        else if (newServerType === 'Fabric') versions = await window.api.getFabricVersions();\n        // @ts-ignore\n        else if (newServerType === 'Forge') versions = await window.api.getForgeVersions();\n        // @ts-ignore\n        else if (newServerType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n        \n        setAvailableVersions(versions);\n        if (versions.length > 0) {\n           setNewServerVersion(prev => versions.includes(prev) ? prev : versions[0]);\n        }\n      }"},{"id":"main_app_app_fetchloaderversions","label":"fetchLoaderVersions()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L299-L304","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L299"}],"snippet":"fetchLoaderVersions = async () => {\n        // @ts-ignore\n        const loaders = await window.api.getLoaderVersions(newServerType, newServerVersion);\n        setAvailableLoaderVersions(loaders);\n        setNewServerLoaderVersion(loaders.length > 0 ? loaders[0] : '');\n      }"},{"id":"main_app_app_search","label":"search()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L335-L341","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L335"}],"snippet":"search = async () => {\n        setIsSearchingPacks(true);\n        // @ts-ignore\n        const res = await window.api.searchModpacks(modpackSearch, modpackVersionFilter, modpackLoaderFilter);\n        setModpacks(res);\n        setIsSearchingPacks(false);\n      }"},{"id":"main_app_app_fetchinv","label":"fetchInv()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L363-L367","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L363"}],"snippet":"fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      }"},{"id":"main_app_app_fetchservermeta","label":"fetchServerMeta()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L376-L381","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L376"}],"snippet":"fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }"},{"id":"main_app_app_fetchmods","label":"fetchMods()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L392-L413","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L392"}],"snippet":"fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods\n    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins\n    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs\n    \n    setActiveClassId(defaultClassId);\n\n    setIsSearchingMods(true);\n    console.log('[DEBUG] Calling searchCurseforgeMods', { search: '', type: serverMeta.type, version: serverMeta.version, classId: defaultClassId, sortField: activeSortField });\n    // @ts-ignore\n    const results = await window.api.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);\n    console.log('[DEBUG] searchCurseforgeMods returned:', results?.length);\n    setModResults(results);\n    setTotalModCount(results?.length > 0 ? 10000 : 0);\n    setIsSearchingMods(false);\n  }"},{"id":"main_app_app_handlesearchmods","label":"handleSearchMods()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L427-L445","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L427"}],"snippet":"handleSearchMods = async (e?: React.FormEvent, cId?: number, sField?: number) => {\n    if (e) e.preventDefault();\n    if (!serverMeta) return;\n    setIsSearchingMods(true);\n    const targetClassId = cId !== undefined ? cId : activeClassId;\n    const targetSortField = sField !== undefined ? sField : activeSortField;\n    // @ts-ignore\n    try {\n      console.log('[DEBUG] Calling searchCurseforgeMods (handleSearch)', { search: modSearchQuery, type: serverMeta.type, version: serverMeta.version, classId: targetClassId, sortField: targetSortField });\n      // @ts-ignore\n      const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);\n      console.log('[DEBUG] handleSearch returned:', results?.length);\n      setModResults(results);\n      setTotalModCount(results?.length > 0 ? 10000 : 0);\n    } catch (error) {\n      console.error('[ERROR] handleSearchMods failed', error);\n    }\n    setIsSearchingMods(false);\n  }"},{"id":"main_app_app_handleinstallmod","label":"handleInstallMod()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L447-L514","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L447"}],"snippet":"handleInstallMod = async (mod: any) => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // Check if we are already installing something else (prevent double clicks)\n    if (installingModId !== null) return;\n    \n    setInstallingModId(mod.id);\n    setInstallProgressText('Resolving dependencies...');\n    \n    // Recursive function to install a mod and its dependencies\n    const installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);"},{"id":"main_app_app_handleinstallmod_installwithdeps","label":"installWithDeps()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L457-L504","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L457"}],"snippet":"installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];\n      \n      if (!targetFile || !targetFile.downloadUrl) {\n         if (depth === 0) showToast(`Failed to find compatible file for ${targetMod.name}`);\n         return;\n      }"},{"id":"main_app_app_handledeletemod","label":"handleDeleteMod()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L516-L521","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L516"}],"snippet":"handleDeleteMod = async (fileName: string) => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    await window.api.deleteMod(activeServerId, fileName);\n    fetchMods();\n  }"},{"id":"main_app_app_showtoast","label":"showToast()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L523-L527","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L523"}],"snippet":"showToast = (message: string) => {\n    const id = Date.now();\n    setToasts(prev => [...prev, { id, message }]);\n    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);\n  }"},{"id":"main_app_app_handletunnel","label":"handleTunnel()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L529-L542","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L529"}],"snippet":"handleTunnel = async () => {\n    if (tunnelStatus === 'Offline') {\n      setTunnelStatus('Starting...');\n      // @ts-ignore\n      await window.api.startTunnel(tunnelIp);\n      setTunnelStatus('Online');\n      showToast(\"Tunnel connected!\");\n    } else {\n      // @ts-ignore\n      await window.api.stopTunnel();\n      setTunnelStatus('Offline');\n      showToast(\"Tunnel disconnected.\");\n    }\n  }"},{"id":"main_app_app_handlecreateserver","label":"handleCreateServer()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L546-L606","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L546"}],"snippet":"handleCreateServer = async () => {\n    if (!newServerName || (newServerType !== 'CurseForge Modpack' && !newServerVersion)) return;\n    if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;\n    \n    setIsCreatingServer(true);\n    setDownloadProgress(0);\n\n    try {\n      if (newServerType === 'CurseForge Modpack') {\n        const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));\n        // @ts-ignore\n        const newId = await window.api.createServer(newServerName, 'Forge', versionFilter); // Dummy values, updated below\n        \n        // @ts-ignore\n        window.api.onDownloadProgress(newId, (progress: number, text?: string) => {\n          setDownloadProgress(progress)\n          if (text) setDownloadText(text)\n        });\n\n        // @ts-ignore\n        const result = await window.api.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);\n        \n        if (result && result.isClientPack) {\n          // @ts-ignore\n          window.api.onDownloadProgress(newId, (progress: number, text?: string) => {"},{"id":"main_app_app_handledelete","label":"handleDelete()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L608-L610","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L608"}],"snippet":"handleDelete = (id: number) => {\n    setServerToDelete(id);\n  }"},{"id":"main_app_app_confirmdeleteserver","label":"confirmDeleteServer()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L612-L628","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L612"}],"snippet":"confirmDeleteServer = async () => {\n    if (serverToDelete === null) return;\n    try {\n      // @ts-ignore\n      await window.api.deleteServer(serverToDelete);\n      if (activeServerId === serverToDelete) {\n        setActiveServerId(null);\n      }\n      // @ts-ignore\n      const data = await window.api.getServers();\n      setServers(data);\n    } catch (e: any) {\n      alert(\"Failed to delete server: \" + e.message);\n    } finally {\n      setServerToDelete(null);\n    }\n  }"},{"id":"main_app_app_handlestart","label":"handleStart()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L630-L639","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L630"}],"snippet":"handleStart = async (id: number) => {\n    try {\n      // @ts-ignore\n      await window.api.startServer(id);\n      setServers(servers.map(s => s.id === id ? { ...s, status: 'Online' } : s));\n      showToast(\"Server is starting...\");\n    } catch (error) {\n      alert(\"Backend Error: \" + error);\n    }\n  }"},{"id":"main_app_app_handleclearlogs","label":"handleClearLogs()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L641-L645","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L641"}],"snippet":"handleClearLogs = () => {\n    if (activeServerId !== null) {\n      setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));\n    }\n  }"},{"id":"main_app_app_handlestop","label":"handleStop()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L647-L652","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L647"}],"snippet":"handleStop = async (id: number) => {\n    // @ts-ignore\n    await window.api.stopServer(id);\n    setServers(servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s));\n    showToast(\"Server has been stopped.\");\n  }"},{"id":"main_app_app_handlerestart","label":"handleRestart()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L654-L670","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L654"}],"snippet":"handleRestart = async (id: number) => {\n    try {\n      // @ts-ignore\n      await window.api.stopServer(id);\n      setServers(servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s));\n      showToast(\"Server is restarting...\");\n      \n      // Give the server a moment to fully shut down before starting again\n      setTimeout(async () => {\n        // @ts-ignore\n        await window.api.startServer(id);\n        setServers(servers.map(s => s.id === id ? { ...s, status: 'Online' } : s));\n      }, 3000);\n    } catch (error) {\n      alert(\"Backend Error: \" + error);\n    }\n  }"},{"id":"main_app_app_sendplayercommand","label":"sendPlayerCommand()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L679-L685","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L679"}],"snippet":"sendPlayerCommand = async (cmd: string, successMsg: string) => {\n    if (activeServerId !== null && selectedPlayer) {\n      // @ts-ignore\n      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));\n      showToast(successMsg.replace('{player}', selectedPlayer));\n    }\n  }"},{"id":"main_app_app_loadconfig","label":"loadConfig()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L687-L699","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L687"}],"snippet":"loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  }"},{"id":"main_app_app_handlesaveconfig","label":"handleSaveConfig()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L701-L716","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L701"}],"snippet":"handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');\n        if (regex.test(finalData)) {\n          finalData = finalData.replace(regex, `${key}=${props[key]}`);\n        } else {\n          finalData += `\\n${key}=${props[key]}`;\n        }\n      });\n      // @ts-ignore\n      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);\n      showToast(\"Settings saved! Restart server to apply.\");\n    }\n  }"},{"id":"main_app_app_loadplayers","label":"loadPlayers()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L718-L728","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L718"}],"snippet":"loadPlayers = async (id: number, type: string) => {\n    if (type === 'history') {\n      // @ts-ignore\n      const stats = await window.api.getPlayerStats(id);\n      setPlayerData(Object.values(stats));\n    } else {\n      // @ts-ignore\n      const data = await window.api.readJson(id, type);\n      setPlayerData(data);\n    }\n  }"},{"id":"main_app_app_handleaddplayer","label":"handleAddPlayer()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L730-L765","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L730"}],"snippet":"handleAddPlayer = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;\n    setIsProcessing(true);\n\n    let uuid = \"00000000-0000-0000-0000-000000000000\";\n    let name = newPlayerName.trim();\n\n    if (playerListType !== 'banned-ips') {\n      try {\n        const res = await fetch(`https://api.ashcon.app/mojang/v2/user/${name}`);\n        if (res.ok) {\n          const profile = await res.json();\n          uuid = profile.uuid;\n          name = profile.username;\n        }\n      } catch (err) { }\n    }\n\n    let newEntry: any = { uuid, name };\n    if (playerListType === 'ops') newEntry = { uuid, name, level: 4, bypassesPlayerLimit: false };\n    else if (playerListType === 'banned-players') newEntry = { uuid, name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n    else if (playerListType === 'banned-ips') newEntry = { ip: name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n\n    const exists = playerData.some(p => p.name === name || p.ip === name);"},{"id":"main_app_app_handleremoveplayer","label":"handleRemovePlayer()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L767-L774","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L767"}],"snippet":"handleRemovePlayer = async (targetName: string) => {\n    if (activeServerId === null) return;\n    const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);\n    setPlayerData(updatedList);\n    // @ts-ignore\n    await window.api.writeJson(activeServerId, playerListType, updatedList);\n    showToast(`Removed ${targetName}`);\n  }"},{"id":"main_app_app_handleclearcache","label":"handleClearCache()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L781-L793","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L781"}],"snippet":"handleClearCache = async () => {\n    setIsClearingCache(true);\n    try {\n      // @ts-ignore\n      await window.api.clearCache();\n      setCacheSize(0);\n      showToast('Cache successfully cleared!');\n    } catch (e: any) {\n      showToast(`Failed to clear cache: ${e.message || e}`);\n    } finally {\n      setIsClearingCache(false);\n    }\n  }"},{"id":"main_app_app_formatbytes","label":"formatBytes()","file_type":"code","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L795-L802","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L795"}],"snippet":"formatBytes = (bytes: number, decimals = 2) => {\n    if (!+bytes) return '0 Bytes'\n    const k = 1024\n    const dm = decimals < 0 ? 0 : decimals\n    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']\n    const i = Math.floor(Math.log(bytes) / Math.log(k))\n    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`\n  }"}],"edges":[{"source":"main_app","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L1"}],"weight":1},{"source":"main_app","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L2"}],"weight":1},{"source":"main_app","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L4"}],"weight":1},{"source":"main_app","target":"consoletab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L5"}],"weight":1},{"source":"main_app","target":"optionstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L6"}],"weight":1},{"source":"main_app","target":"playerstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L7"}],"weight":1},{"source":"main_app","target":"filestab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L8"}],"weight":1},{"source":"main_app","target":"backupstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L9"}],"weight":1},{"source":"main_app","target":"overviewtab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L10"}],"weight":1},{"source":"main_app","target":"animatedbackground","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L11"}],"weight":1},{"source":"main_app","target":"minecraft_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L12"}],"weight":1},{"source":"main_app","target":"palworld_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L13"}],"weight":1},{"source":"main_app","target":"dayz_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L14"}],"weight":1},{"source":"main_app","target":"satisfactory_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L15"}],"weight":1},{"source":"main_app","target":"main_app_isgamesupported","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L18"}],"weight":1},{"source":"main_app","target":"main_app_getgameimageurl","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L20"}],"weight":1},{"source":"main_app","target":"main_app_getgamethemecolor","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L28","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L28"}],"weight":1},{"source":"main_app","target":"main_app_app","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handletabchange","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L67","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L67"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchinitialdata","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L159","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L159"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchcachesize","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L190","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L190"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchversions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L239","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L239"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchversions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L275","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L275"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchloaderversions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L299","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L299"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchloaderversions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L314","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L314"}],"weight":1},{"source":"main_app_app","target":"main_app_app_search","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L335","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L335"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchinv","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L363","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L363"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchservermeta","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L376","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L376"}],"weight":1},{"source":"main_app_app","target":"main_app_app_fetchmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L392","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L392"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handlesearchmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L427","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L427"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handleinstallmod","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L447","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L447"}],"weight":1},{"source":"main_app_app_handleinstallmod","target":"main_app_app_handleinstallmod_installwithdeps","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L457","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L457"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handledeletemod","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L516","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L516"}],"weight":1},{"source":"main_app_app","target":"main_app_app_showtoast","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L523","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L523"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handletunnel","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L529","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L529"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handlecreateserver","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L546","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L546"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handledelete","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L608","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L608"}],"weight":1},{"source":"main_app_app","target":"main_app_app_confirmdeleteserver","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L612","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L612"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handlestart","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L630","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L630"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handleclearlogs","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L641","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L641"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handlestop","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L647","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L647"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handlerestart","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L654","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L654"}],"weight":1},{"source":"main_app_app","target":"main_app_app_sendplayercommand","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L679","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L679"}],"weight":1},{"source":"main_app_app","target":"main_app_app_loadconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L687","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L687"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handlesaveconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L701","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L701"}],"weight":1},{"source":"main_app_app","target":"main_app_app_loadplayers","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L718","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L718"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handleaddplayer","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L730","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L730"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handleremoveplayer","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L767","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L767"}],"weight":1},{"source":"main_app_app","target":"main_app_app_handleclearcache","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L781","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L781"}],"weight":1},{"source":"main_app_app","target":"main_app_app_formatbytes","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L795","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L795"}],"weight":1},{"source":"main_app_app","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"AnimatedBackground__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"OverviewTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"ConsoleTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"OptionsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"PlayersTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"FilesTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"BackupsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"React.Fragment__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L49"}],"weight":1},{"source":"main_app_app","target":"main_app_getgamethemecolor","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L826","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L826"}],"weight":1},{"source":"main_app_app","target":"main_app_app_formatbytes","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L860","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L860"}],"weight":1},{"source":"main_app_app","target":"main_app_getgameimageurl","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L907","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L907"}],"weight":1},{"source":"main_app_app","target":"main_app_isgamesupported","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L1021","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L1021"}],"weight":1},{"source":"main_app_app_handleinstallmod","target":"main_app_app_handleinstallmod_installwithdeps","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L506","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L506"}],"weight":1},{"source":"main_app_app_handleinstallmod","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L508","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L508"}],"weight":1},{"source":"main_app_app_handleinstallmod","target":"main_app_app_fetchmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L509","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L509"}],"weight":1},{"source":"main_app_app_handleinstallmod_installwithdeps","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L478","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L478"}],"weight":1},{"source":"main_app_app_handledeletemod","target":"main_app_app_fetchmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L520","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L520"}],"weight":1},{"source":"main_app_app_handletunnel","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L535","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L535"}],"weight":1},{"source":"main_app_app_handlecreateserver","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L591","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L591"}],"weight":1},{"source":"main_app_app_handlestart","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L635","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L635"}],"weight":1},{"source":"main_app_app_handlestop","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L651","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L651"}],"weight":1},{"source":"main_app_app_handlerestart","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L659","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L659"}],"weight":1},{"source":"main_app_app_sendplayercommand","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L683","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L683"}],"weight":1},{"source":"main_app_app_handlesaveconfig","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L714","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L714"}],"weight":1},{"source":"main_app_app_handleaddplayer","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L760","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L760"}],"weight":1},{"source":"main_app_app_handleremoveplayer","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L773","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L773"}],"weight":1},{"source":"main_app_app_handleclearcache","target":"main_app_app_showtoast","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L787","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/main_App.tsx","source_location":"L787"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "main_app",
+      "label": "main_App.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "main_app_isgamesupported",
+      "label": "isGameSupported()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L18"
+        }
+      ],
+      "snippet": "isGameSupported = (game: string | null) => (game ? supportedGameHubs.includes(game) : false)"
+    },
+    {
+      "id": "main_app_getgameimageurl",
+      "label": "getGameImageUrl()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L20-L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L20"
+        }
+      ],
+      "snippet": "getGameImageUrl = (game: string) => {\n  if (game.toLowerCase().includes('minecraft')) return minecraftBg;\n  if (game.toLowerCase().includes('palworld')) return palworldBg;\n  if (game.toLowerCase().includes('dayz')) return dayzBg;\n  if (game.toLowerCase().includes('satisfactory')) return satisfactoryBg;\n  return 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=1000';\n}"
+    },
+    {
+      "id": "main_app_getgamethemecolor",
+      "label": "getGameThemeColor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L28-L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L28"
+        }
+      ],
+      "snippet": "getGameThemeColor = (game: string | null) => {\n  if (!game) return { omni: '#ffffff', host: '#cccccc' };\n  const g = game.toLowerCase();\n  if (g.includes('minecraft')) return { omni: '#4ade80', host: '#bbf7d0' }; // text-green-400 / 200\n  if (g.includes('palworld')) return { omni: '#3b82f6', host: '#bfdbfe' }; // text-blue-500 / 200\n  if (g.includes('dayz')) return { omni: '#ef4444', host: '#fecaca' }; // text-red-500 / 200\n  if (g.includes('satisfactory')) return { omni: '#eab308', host: '#fef08a' }; // text-yellow-500 / 200\n  return { omni: '#ffffff', host: '#cccccc' };\n}"
+    },
+    {
+      "id": "main_app_app",
+      "label": "App()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49-L2091",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "snippet": "function App() {\n  const [servers, setServers] = useState<any[]>([])\n  const [logs, setLogs] = useState<{id: string, msg: string}[]>([])\n  const [tunnelStatus, setTunnelStatus] = useState('Offline')\n\n  const [activeServerId, setActiveServerId] = useState<number | null>(null)\n  const [activeGameHub, setActiveGameHub] = useState<string | null>(null)\n  const [lastGameHub, setLastGameHub] = useState<string | null>(null)\n\n  useEffect(() => {\n    if (activeGameHub) setLastGameHub(activeGameHub)\n  }, [activeGameHub])\n  const [hoveredGame, setHoveredGame] = useState<string | null>(null)\n  \n  const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview')\n  const [tabDirection, setTabDirection] = useState(0)\n  const [isTabTransitioning, setIsTabTransitioning] = useState(false)\n\n  const handleTabChange = (newTab: typeof activeTab) => {\n    if (newTab === activeTab) return;\n    const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setIsTabTransitioning(true);",
+      "node_kind": "component"
+    },
+    {
+      "id": "main_app_app_handletabchange",
+      "label": "handleTabChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L67-L76",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L67"
+        }
+      ],
+      "snippet": "handleTabChange = (newTab: typeof activeTab) => {\n    if (newTab === activeTab) return;\n    const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setIsTabTransitioning(true);\n    setActiveTab(newTab);\n    setTimeout(() => setIsTabTransitioning(false), 350);\n  }"
+    },
+    {
+      "id": "main_app_app_fetchinitialdata",
+      "label": "fetchInitialData()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L159-L187",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L159"
+        }
+      ],
+      "snippet": "fetchInitialData = async () => {\n      // @ts-ignore\n      const data = await window.api.getServers()\n      setServers(data)\n      \n      const initialLogs: {id: string, msg: string}[] = [];\n      const initialOnlinePlayers: Record<string, string[]> = {};\n      \n      data.forEach((s: any) => {\n         if (s.logs) {\n            s.logs.forEach((msg: string) => {\n               initialLogs.push({ id: s.id.toString(), msg });\n            });\n         }\n         if (s.onlinePlayers && s.onlinePlayers.length > 0) {\n            initialOnlinePlayers[s.id.toString()] = s.onlinePlayers;\n         }\n      });\n      \n      setLogs(initialLogs);\n      setOnlinePlayers(initialOnlinePlayers);\n      \n      // @ts-ignore\n      if (window.api.getTunnelStatus) {\n        // @ts-ignore"
+    },
+    {
+      "id": "main_app_app_fetchcachesize",
+      "label": "fetchCacheSize()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L190-L198",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L190"
+        }
+      ],
+      "snippet": "fetchCacheSize = async () => {\n      try {\n        // @ts-ignore\n        const size = await window.api.getCacheInfo()\n        setCacheSize(size)\n      } catch (e) {\n        console.error('Failed to get cache size:', e)\n      }\n    }"
+    },
+    {
+      "id": "main_app_app_fetchversions",
+      "label": "fetchVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L239-L256",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L239"
+        }
+      ],
+      "snippet": "fetchVersions = async () => {\n        let versions: string[] = []\n        // @ts-ignore\n        if (newServerType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore\n        else if (newServerType === 'Paper') versions = await window.api.getPaperVersions();\n        // @ts-ignore\n        else if (newServerType === 'Fabric') versions = await window.api.getFabricVersions();\n        // @ts-ignore\n        else if (newServerType === 'Forge') versions = await window.api.getForgeVersions();\n        // @ts-ignore\n        else if (newServerType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n        \n        setAvailableVersions(versions);\n        if (versions.length > 0) {\n           setNewServerVersion(prev => versions.includes(prev) ? prev : versions[0]);\n        }\n      }"
+    },
+    {
+      "id": "main_app_app_fetchloaderversions",
+      "label": "fetchLoaderVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L299-L304",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L299"
+        }
+      ],
+      "snippet": "fetchLoaderVersions = async () => {\n        // @ts-ignore\n        const loaders = await window.api.getLoaderVersions(newServerType, newServerVersion);\n        setAvailableLoaderVersions(loaders);\n        setNewServerLoaderVersion(loaders.length > 0 ? loaders[0] : '');\n      }"
+    },
+    {
+      "id": "main_app_app_search",
+      "label": "search()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L335-L341",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L335"
+        }
+      ],
+      "snippet": "search = async () => {\n        setIsSearchingPacks(true);\n        // @ts-ignore\n        const res = await window.api.searchModpacks(modpackSearch, modpackVersionFilter, modpackLoaderFilter);\n        setModpacks(res);\n        setIsSearchingPacks(false);\n      }"
+    },
+    {
+      "id": "main_app_app_fetchinv",
+      "label": "fetchInv()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L363-L367",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L363"
+        }
+      ],
+      "snippet": "fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      }"
+    },
+    {
+      "id": "main_app_app_fetchservermeta",
+      "label": "fetchServerMeta()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L376-L381",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L376"
+        }
+      ],
+      "snippet": "fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }"
+    },
+    {
+      "id": "main_app_app_fetchmods",
+      "label": "fetchMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L392-L413",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L392"
+        }
+      ],
+      "snippet": "fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods\n    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins\n    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs\n    \n    setActiveClassId(defaultClassId);\n\n    setIsSearchingMods(true);\n    console.log('[DEBUG] Calling searchCurseforgeMods', { search: '', type: serverMeta.type, version: serverMeta.version, classId: defaultClassId, sortField: activeSortField });\n    // @ts-ignore\n    const results = await window.api.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);\n    console.log('[DEBUG] searchCurseforgeMods returned:', results?.length);\n    setModResults(results);\n    setTotalModCount(results?.length > 0 ? 10000 : 0);\n    setIsSearchingMods(false);\n  }"
+    },
+    {
+      "id": "main_app_app_handlesearchmods",
+      "label": "handleSearchMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L427-L445",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L427"
+        }
+      ],
+      "snippet": "handleSearchMods = async (e?: React.FormEvent, cId?: number, sField?: number) => {\n    if (e) e.preventDefault();\n    if (!serverMeta) return;\n    setIsSearchingMods(true);\n    const targetClassId = cId !== undefined ? cId : activeClassId;\n    const targetSortField = sField !== undefined ? sField : activeSortField;\n    // @ts-ignore\n    try {\n      console.log('[DEBUG] Calling searchCurseforgeMods (handleSearch)', { search: modSearchQuery, type: serverMeta.type, version: serverMeta.version, classId: targetClassId, sortField: targetSortField });\n      // @ts-ignore\n      const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);\n      console.log('[DEBUG] handleSearch returned:', results?.length);\n      setModResults(results);\n      setTotalModCount(results?.length > 0 ? 10000 : 0);\n    } catch (error) {\n      console.error('[ERROR] handleSearchMods failed', error);\n    }\n    setIsSearchingMods(false);\n  }"
+    },
+    {
+      "id": "main_app_app_handleinstallmod",
+      "label": "handleInstallMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L447-L514",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L447"
+        }
+      ],
+      "snippet": "handleInstallMod = async (mod: any) => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // Check if we are already installing something else (prevent double clicks)\n    if (installingModId !== null) return;\n    \n    setInstallingModId(mod.id);\n    setInstallProgressText('Resolving dependencies...');\n    \n    // Recursive function to install a mod and its dependencies\n    const installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);"
+    },
+    {
+      "id": "main_app_app_handleinstallmod_installwithdeps",
+      "label": "installWithDeps()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L457-L504",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L457"
+        }
+      ],
+      "snippet": "installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];\n      \n      if (!targetFile || !targetFile.downloadUrl) {\n         if (depth === 0) showToast(`Failed to find compatible file for ${targetMod.name}`);\n         return;\n      }"
+    },
+    {
+      "id": "main_app_app_handledeletemod",
+      "label": "handleDeleteMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L516-L521",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L516"
+        }
+      ],
+      "snippet": "handleDeleteMod = async (fileName: string) => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    await window.api.deleteMod(activeServerId, fileName);\n    fetchMods();\n  }"
+    },
+    {
+      "id": "main_app_app_showtoast",
+      "label": "showToast()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L523-L527",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L523"
+        }
+      ],
+      "snippet": "showToast = (message: string) => {\n    const id = Date.now();\n    setToasts(prev => [...prev, { id, message }]);\n    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);\n  }"
+    },
+    {
+      "id": "main_app_app_handletunnel",
+      "label": "handleTunnel()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L529-L542",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L529"
+        }
+      ],
+      "snippet": "handleTunnel = async () => {\n    if (tunnelStatus === 'Offline') {\n      setTunnelStatus('Starting...');\n      // @ts-ignore\n      await window.api.startTunnel(tunnelIp);\n      setTunnelStatus('Online');\n      showToast(\"Tunnel connected!\");\n    } else {\n      // @ts-ignore\n      await window.api.stopTunnel();\n      setTunnelStatus('Offline');\n      showToast(\"Tunnel disconnected.\");\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_handlecreateserver",
+      "label": "handleCreateServer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L546-L606",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L546"
+        }
+      ],
+      "snippet": "handleCreateServer = async () => {\n    if (!newServerName || (newServerType !== 'CurseForge Modpack' && !newServerVersion)) return;\n    if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;\n    \n    setIsCreatingServer(true);\n    setDownloadProgress(0);\n\n    try {\n      if (newServerType === 'CurseForge Modpack') {\n        const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));\n        // @ts-ignore\n        const newId = await window.api.createServer(newServerName, 'Forge', versionFilter); // Dummy values, updated below\n        \n        // @ts-ignore\n        window.api.onDownloadProgress(newId, (progress: number, text?: string) => {\n          setDownloadProgress(progress)\n          if (text) setDownloadText(text)\n        });\n\n        // @ts-ignore\n        const result = await window.api.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);\n        \n        if (result && result.isClientPack) {\n          // @ts-ignore\n          window.api.onDownloadProgress(newId, (progress: number, text?: string) => {"
+    },
+    {
+      "id": "main_app_app_handledelete",
+      "label": "handleDelete()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L608-L610",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L608"
+        }
+      ],
+      "snippet": "handleDelete = (id: number) => {\n    setServerToDelete(id);\n  }"
+    },
+    {
+      "id": "main_app_app_confirmdeleteserver",
+      "label": "confirmDeleteServer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L612-L628",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L612"
+        }
+      ],
+      "snippet": "confirmDeleteServer = async () => {\n    if (serverToDelete === null) return;\n    try {\n      // @ts-ignore\n      await window.api.deleteServer(serverToDelete);\n      if (activeServerId === serverToDelete) {\n        setActiveServerId(null);\n      }\n      // @ts-ignore\n      const data = await window.api.getServers();\n      setServers(data);\n    } catch (e: any) {\n      alert(\"Failed to delete server: \" + e.message);\n    } finally {\n      setServerToDelete(null);\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_handlestart",
+      "label": "handleStart()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L630-L639",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L630"
+        }
+      ],
+      "snippet": "handleStart = async (id: number) => {\n    try {\n      // @ts-ignore\n      await window.api.startServer(id);\n      setServers(servers.map(s => s.id === id ? { ...s, status: 'Online' } : s));\n      showToast(\"Server is starting...\");\n    } catch (error) {\n      alert(\"Backend Error: \" + error);\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_handleclearlogs",
+      "label": "handleClearLogs()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L641-L645",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L641"
+        }
+      ],
+      "snippet": "handleClearLogs = () => {\n    if (activeServerId !== null) {\n      setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_handlestop",
+      "label": "handleStop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L647-L652",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L647"
+        }
+      ],
+      "snippet": "handleStop = async (id: number) => {\n    // @ts-ignore\n    await window.api.stopServer(id);\n    setServers(servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s));\n    showToast(\"Server has been stopped.\");\n  }"
+    },
+    {
+      "id": "main_app_app_handlerestart",
+      "label": "handleRestart()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L654-L670",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L654"
+        }
+      ],
+      "snippet": "handleRestart = async (id: number) => {\n    try {\n      // @ts-ignore\n      await window.api.stopServer(id);\n      setServers(servers.map(s => s.id === id ? { ...s, status: 'Offline' } : s));\n      showToast(\"Server is restarting...\");\n      \n      // Give the server a moment to fully shut down before starting again\n      setTimeout(async () => {\n        // @ts-ignore\n        await window.api.startServer(id);\n        setServers(servers.map(s => s.id === id ? { ...s, status: 'Online' } : s));\n      }, 3000);\n    } catch (error) {\n      alert(\"Backend Error: \" + error);\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_sendplayercommand",
+      "label": "sendPlayerCommand()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L679-L685",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L679"
+        }
+      ],
+      "snippet": "sendPlayerCommand = async (cmd: string, successMsg: string) => {\n    if (activeServerId !== null && selectedPlayer) {\n      // @ts-ignore\n      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));\n      showToast(successMsg.replace('{player}', selectedPlayer));\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_loadconfig",
+      "label": "loadConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L687-L699",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L687"
+        }
+      ],
+      "snippet": "loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  }"
+    },
+    {
+      "id": "main_app_app_handlesaveconfig",
+      "label": "handleSaveConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L701-L716",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L701"
+        }
+      ],
+      "snippet": "handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');\n        if (regex.test(finalData)) {\n          finalData = finalData.replace(regex, `${key}=${props[key]}`);\n        } else {\n          finalData += `\\n${key}=${props[key]}`;\n        }\n      });\n      // @ts-ignore\n      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);\n      showToast(\"Settings saved! Restart server to apply.\");\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_loadplayers",
+      "label": "loadPlayers()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L718-L728",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L718"
+        }
+      ],
+      "snippet": "loadPlayers = async (id: number, type: string) => {\n    if (type === 'history') {\n      // @ts-ignore\n      const stats = await window.api.getPlayerStats(id);\n      setPlayerData(Object.values(stats));\n    } else {\n      // @ts-ignore\n      const data = await window.api.readJson(id, type);\n      setPlayerData(data);\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_handleaddplayer",
+      "label": "handleAddPlayer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L730-L765",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L730"
+        }
+      ],
+      "snippet": "handleAddPlayer = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;\n    setIsProcessing(true);\n\n    let uuid = \"00000000-0000-0000-0000-000000000000\";\n    let name = newPlayerName.trim();\n\n    if (playerListType !== 'banned-ips') {\n      try {\n        const res = await fetch(`https://api.ashcon.app/mojang/v2/user/${name}`);\n        if (res.ok) {\n          const profile = await res.json();\n          uuid = profile.uuid;\n          name = profile.username;\n        }\n      } catch (err) { }\n    }\n\n    let newEntry: any = { uuid, name };\n    if (playerListType === 'ops') newEntry = { uuid, name, level: 4, bypassesPlayerLimit: false };\n    else if (playerListType === 'banned-players') newEntry = { uuid, name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n    else if (playerListType === 'banned-ips') newEntry = { ip: name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n\n    const exists = playerData.some(p => p.name === name || p.ip === name);"
+    },
+    {
+      "id": "main_app_app_handleremoveplayer",
+      "label": "handleRemovePlayer()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L767-L774",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L767"
+        }
+      ],
+      "snippet": "handleRemovePlayer = async (targetName: string) => {\n    if (activeServerId === null) return;\n    const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);\n    setPlayerData(updatedList);\n    // @ts-ignore\n    await window.api.writeJson(activeServerId, playerListType, updatedList);\n    showToast(`Removed ${targetName}`);\n  }"
+    },
+    {
+      "id": "main_app_app_handleclearcache",
+      "label": "handleClearCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L781-L793",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L781"
+        }
+      ],
+      "snippet": "handleClearCache = async () => {\n    setIsClearingCache(true);\n    try {\n      // @ts-ignore\n      await window.api.clearCache();\n      setCacheSize(0);\n      showToast('Cache successfully cleared!');\n    } catch (e: any) {\n      showToast(`Failed to clear cache: ${e.message || e}`);\n    } finally {\n      setIsClearingCache(false);\n    }\n  }"
+    },
+    {
+      "id": "main_app_app_formatbytes",
+      "label": "formatBytes()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L795-L802",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L795"
+        }
+      ],
+      "snippet": "formatBytes = (bytes: number, decimals = 2) => {\n    if (!+bytes) return '0 Bytes'\n    const k = 1024\n    const dm = decimals < 0 ? 0 : decimals\n    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']\n    const i = Math.floor(Math.log(bytes) / Math.log(k))\n    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "main_app",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "consoletab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "optionstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "playerstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "filestab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "backupstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "overviewtab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "animatedbackground",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "minecraft_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "palworld_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L13"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "dayz_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "satisfactory_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "main_app_isgamesupported",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L18"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "main_app_getgameimageurl",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L20"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "main_app_getgamethemecolor",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L28",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L28"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app",
+      "target": "main_app_app",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handletabchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L67",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L67"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchinitialdata",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L159",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L159"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchcachesize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L190",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L190"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L239",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L239"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L275",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L275"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchloaderversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L299",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L299"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchloaderversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L314",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L314"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_search",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L335",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L335"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchinv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L363",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L363"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchservermeta",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L376",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L376"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_fetchmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L392",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L392"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handlesearchmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L427",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L427"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handleinstallmod",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L447",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L447"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleinstallmod",
+      "target": "main_app_app_handleinstallmod_installwithdeps",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L457",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L457"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handledeletemod",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L516",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L516"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_showtoast",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L523",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L523"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handletunnel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L529",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L529"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handlecreateserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L546",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L546"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handledelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L608",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L608"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_confirmdeleteserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L612",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L612"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handlestart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L630",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L630"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handleclearlogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L641",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L641"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handlestop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L647",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L647"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handlerestart",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L654",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L654"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_sendplayercommand",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L679",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L679"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_loadconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L687",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L687"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handlesaveconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L701",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L701"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_loadplayers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L718",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L718"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handleaddplayer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L730",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L730"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handleremoveplayer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L767",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L767"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_handleclearcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L781",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L781"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_formatbytes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L795",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L795"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "AnimatedBackground__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "OverviewTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "ConsoleTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "OptionsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "PlayersTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "FilesTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "BackupsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "React.Fragment__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_getgamethemecolor",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L826",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L826"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_app_formatbytes",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L860",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L860"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_getgameimageurl",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L907",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L907"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app",
+      "target": "main_app_isgamesupported",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L1021",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L1021"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleinstallmod",
+      "target": "main_app_app_handleinstallmod_installwithdeps",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L506",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L506"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleinstallmod",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L508",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L508"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleinstallmod",
+      "target": "main_app_app_fetchmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L509",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L509"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleinstallmod_installwithdeps",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L478",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L478"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handledeletemod",
+      "target": "main_app_app_fetchmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L520",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L520"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handletunnel",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L535",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L535"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handlecreateserver",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L591",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L591"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handlestart",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L635",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L635"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handlestop",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L651",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L651"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handlerestart",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L659",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L659"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_sendplayercommand",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L683",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L683"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handlesaveconfig",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L714",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L714"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleaddplayer",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L760",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L760"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleremoveplayer",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L773",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L773"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "main_app_app_handleclearcache",
+      "target": "main_app_app_showtoast",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+      "source_location": "L787",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/main_App.tsx",
+          "source_location": "L787"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

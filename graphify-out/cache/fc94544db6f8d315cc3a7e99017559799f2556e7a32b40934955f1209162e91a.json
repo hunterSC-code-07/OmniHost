@@ -1,1 +1,24 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"file_bytes":1807,"content_type":"image/svg+xml","id":"wavy_lines","label":"wavy-lines.svg","file_type":"image","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/wavy-lines.svg","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:image","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/wavy-lines.svg","source_location":"L1"}]}],"edges":[]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "file_bytes": 1807,
+      "content_type": "image/svg+xml",
+      "id": "wavy_lines",
+      "label": "wavy-lines.svg",
+      "file_type": "image",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/wavy-lines.svg",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:image",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/assets/wavy-lines.svg",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

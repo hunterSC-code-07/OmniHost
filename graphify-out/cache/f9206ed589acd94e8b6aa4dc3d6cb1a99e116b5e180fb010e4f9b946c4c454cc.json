@@ -1,1 +1,130 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"optionstab","label":"OptionsTab.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L1"}]},{"id":"optionstab_optionstabprops","label":"OptionsTabProps","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L6-L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L6"}],"snippet":"interface OptionsTabProps {\n  advancedMode: boolean;\n  setAdvancedMode: React.Dispatch<React.SetStateAction<boolean>>;\n  handleSaveConfig: () => void;\n  rawConfigText: string;\n  setRawConfigText: React.Dispatch<React.SetStateAction<string>>;\n  props: Record<string, string>;\n  setProps: React.Dispatch<React.SetStateAction<Record<string, string>>>;\n  serverId: number;\n  onConfigSaved?: () => void;\n}"}],"edges":[{"source":"optionstab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L1"}],"weight":1},{"source":"optionstab","target":"lucide_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L2"}],"weight":1},{"source":"optionstab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L3"}],"weight":1},{"source":"optionstab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L4"}],"weight":1},{"source":"optionstab","target":"optionstab_optionstabprops","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx","source_location":"L6"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "optionstab",
+      "label": "OptionsTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "optionstab_optionstabprops",
+      "label": "OptionsTabProps",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L6-L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "interface OptionsTabProps {\n  advancedMode: boolean;\n  setAdvancedMode: React.Dispatch<React.SetStateAction<boolean>>;\n  handleSaveConfig: () => void;\n  rawConfigText: string;\n  setRawConfigText: React.Dispatch<React.SetStateAction<string>>;\n  props: Record<string, string>;\n  setProps: React.Dispatch<React.SetStateAction<Record<string, string>>>;\n  serverId: number;\n  onConfigSaved?: () => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "optionstab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "optionstab",
+      "target": "lucide_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "optionstab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "optionstab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "optionstab",
+      "target": "optionstab_optionstabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/tabs/OptionsTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

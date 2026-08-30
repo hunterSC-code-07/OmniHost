@@ -1,1 +1,377 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"backupstab","label":"BackupsTab.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L1"}]},{"id":"backupstab_backupstabprops","label":"BackupsTabProps","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L5-L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L5"}],"snippet":"interface BackupsTabProps {\n  activeServerId: number | null;\n}"},{"id":"backupstab_backupstab","label":"BackupsTab()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L9-L166","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L9"}],"snippet":"BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {\n  const [backups, setBackups] = useState<any[]>([]);\n  const [newBackupName, setNewBackupName] = useState('');\n  const [isProcessing, setIsProcessing] = useState(false);\n  const [progressText, setProgressText] = useState('');\n\n  const fetchBackups = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const data = await window.api.getBackups(activeServerId);\n    setBackups(data);\n  };\n\n  useEffect(() => {\n    fetchBackups();\n  }, [activeServerId]);\n\n  const handleCreate = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (activeServerId === null) return;\n    setIsProcessing(true);\n    setProgressText('Creating backup (this may take a moment)...');\n    try {\n      // @ts-ignore\n      await window.api.createBackup(activeServerId, newBackupName);","node_kind":"component"},{"id":"backupstab_backupstab_fetchbackups","label":"fetchBackups()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L15-L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L15"}],"snippet":"fetchBackups = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const data = await window.api.getBackups(activeServerId);\n    setBackups(data);\n  }"},{"id":"backupstab_backupstab_handlecreate","label":"handleCreate()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L26-L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L26"}],"snippet":"handleCreate = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (activeServerId === null) return;\n    setIsProcessing(true);\n    setProgressText('Creating backup (this may take a moment)...');\n    try {\n      // @ts-ignore\n      await window.api.createBackup(activeServerId, newBackupName);\n      setNewBackupName('');\n      await fetchBackups();\n    } catch (e: any) {\n      alert('Failed to create backup: ' + e.message);\n    } finally {\n      setIsProcessing(false);\n      setProgressText('');\n    }\n  }"},{"id":"backupstab_backupstab_handlerestore","label":"handleRestore()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L44-L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L44"}],"snippet":"handleRestore = async (filename: string) => {\n    if (activeServerId === null) return;\n    if (!confirm(`Are you sure you want to restore ${filename}? This will OVERWRITE your current world and cannot be undone!`)) return;\n    \n    setIsProcessing(true);\n    setProgressText(`Restoring ${filename}...`);\n    try {\n      // @ts-ignore\n      await window.api.restoreBackup(activeServerId, filename);\n      alert('Backup restored successfully! Make sure to restart your server if it is running.');\n    } catch (e: any) {\n      alert('Failed to restore backup: ' + e.message);\n    } finally {\n      setIsProcessing(false);\n      setProgressText('');\n    }\n  }"},{"id":"backupstab_backupstab_handledelete","label":"handleDelete()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L62-L76","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L62"}],"snippet":"handleDelete = async (filename: string) => {\n    if (activeServerId === null) return;\n    if (!confirm(`Are you sure you want to delete ${filename}?`)) return;\n    \n    setIsProcessing(true);\n    try {\n      // @ts-ignore\n      await window.api.deleteBackup(activeServerId, filename);\n      await fetchBackups();\n    } catch (e: any) {\n      alert('Failed to delete backup: ' + e.message);\n    } finally {\n      setIsProcessing(false);\n    }\n  }"},{"id":"backupstab_backupstab_formatbytes","label":"formatBytes()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L78-L84","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L78"}],"snippet":"formatBytes = (bytes: number) => {\n    if (!+bytes) return '0 Bytes';\n    const k = 1024;\n    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;\n  }"}],"edges":[{"source":"backupstab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L1"}],"weight":1},{"source":"backupstab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L2"}],"weight":1},{"source":"backupstab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L3"}],"weight":1},{"source":"backupstab","target":"backupstab_backupstabprops","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L5"}],"weight":1},{"source":"backupstab","target":"backupstab_backupstab","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L9"}],"weight":1},{"source":"backupstab_backupstab","target":"backupstab_backupstab_fetchbackups","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L15"}],"weight":1},{"source":"backupstab_backupstab","target":"backupstab_backupstab_handlecreate","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L26"}],"weight":1},{"source":"backupstab_backupstab","target":"backupstab_backupstab_handlerestore","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L44"}],"weight":1},{"source":"backupstab_backupstab","target":"backupstab_backupstab_handledelete","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L62","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L62"}],"weight":1},{"source":"backupstab_backupstab","target":"backupstab_backupstab_formatbytes","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L78","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L78"}],"weight":1},{"source":"backupstab_backupstab","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L9"}],"weight":1},{"source":"backupstab_backupstab_handlecreate","target":"backupstab_backupstab_fetchbackups","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L35","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L35"}],"weight":1},{"source":"backupstab_backupstab_handledelete","target":"backupstab_backupstab_fetchbackups","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L70","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx","source_location":"L70"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "backupstab",
+      "label": "BackupsTab.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "backupstab_backupstabprops",
+      "label": "BackupsTabProps",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L5-L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "interface BackupsTabProps {\n  activeServerId: number | null;\n}"
+    },
+    {
+      "id": "backupstab_backupstab",
+      "label": "BackupsTab()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L9-L166",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "BackupsTab: React.FC<BackupsTabProps> = ({ activeServerId }) => {\n  const [backups, setBackups] = useState<any[]>([]);\n  const [newBackupName, setNewBackupName] = useState('');\n  const [isProcessing, setIsProcessing] = useState(false);\n  const [progressText, setProgressText] = useState('');\n\n  const fetchBackups = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const data = await window.api.getBackups(activeServerId);\n    setBackups(data);\n  };\n\n  useEffect(() => {\n    fetchBackups();\n  }, [activeServerId]);\n\n  const handleCreate = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (activeServerId === null) return;\n    setIsProcessing(true);\n    setProgressText('Creating backup (this may take a moment)...');\n    try {\n      // @ts-ignore\n      await window.api.createBackup(activeServerId, newBackupName);",
+      "node_kind": "component"
+    },
+    {
+      "id": "backupstab_backupstab_fetchbackups",
+      "label": "fetchBackups()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L15-L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "snippet": "fetchBackups = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const data = await window.api.getBackups(activeServerId);\n    setBackups(data);\n  }"
+    },
+    {
+      "id": "backupstab_backupstab_handlecreate",
+      "label": "handleCreate()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L26-L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "handleCreate = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (activeServerId === null) return;\n    setIsProcessing(true);\n    setProgressText('Creating backup (this may take a moment)...');\n    try {\n      // @ts-ignore\n      await window.api.createBackup(activeServerId, newBackupName);\n      setNewBackupName('');\n      await fetchBackups();\n    } catch (e: any) {\n      alert('Failed to create backup: ' + e.message);\n    } finally {\n      setIsProcessing(false);\n      setProgressText('');\n    }\n  }"
+    },
+    {
+      "id": "backupstab_backupstab_handlerestore",
+      "label": "handleRestore()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L44-L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L44"
+        }
+      ],
+      "snippet": "handleRestore = async (filename: string) => {\n    if (activeServerId === null) return;\n    if (!confirm(`Are you sure you want to restore ${filename}? This will OVERWRITE your current world and cannot be undone!`)) return;\n    \n    setIsProcessing(true);\n    setProgressText(`Restoring ${filename}...`);\n    try {\n      // @ts-ignore\n      await window.api.restoreBackup(activeServerId, filename);\n      alert('Backup restored successfully! Make sure to restart your server if it is running.');\n    } catch (e: any) {\n      alert('Failed to restore backup: ' + e.message);\n    } finally {\n      setIsProcessing(false);\n      setProgressText('');\n    }\n  }"
+    },
+    {
+      "id": "backupstab_backupstab_handledelete",
+      "label": "handleDelete()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L62-L76",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L62"
+        }
+      ],
+      "snippet": "handleDelete = async (filename: string) => {\n    if (activeServerId === null) return;\n    if (!confirm(`Are you sure you want to delete ${filename}?`)) return;\n    \n    setIsProcessing(true);\n    try {\n      // @ts-ignore\n      await window.api.deleteBackup(activeServerId, filename);\n      await fetchBackups();\n    } catch (e: any) {\n      alert('Failed to delete backup: ' + e.message);\n    } finally {\n      setIsProcessing(false);\n    }\n  }"
+    },
+    {
+      "id": "backupstab_backupstab_formatbytes",
+      "label": "formatBytes()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L78-L84",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L78"
+        }
+      ],
+      "snippet": "formatBytes = (bytes: number) => {\n    if (!+bytes) return '0 Bytes';\n    const k = 1024;\n    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "backupstab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab",
+      "target": "backupstab_backupstabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab",
+      "target": "backupstab_backupstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab",
+      "target": "backupstab_backupstab_fetchbackups",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab",
+      "target": "backupstab_backupstab_handlecreate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab",
+      "target": "backupstab_backupstab_handlerestore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab",
+      "target": "backupstab_backupstab_handledelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L62",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L62"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab",
+      "target": "backupstab_backupstab_formatbytes",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L78",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L78"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab_handlecreate",
+      "target": "backupstab_backupstab_fetchbackups",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L35",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L35"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "backupstab_backupstab_handledelete",
+      "target": "backupstab_backupstab_fetchbackups",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+      "source_location": "L70",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/BackupsTab.tsx",
+          "source_location": "L70"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

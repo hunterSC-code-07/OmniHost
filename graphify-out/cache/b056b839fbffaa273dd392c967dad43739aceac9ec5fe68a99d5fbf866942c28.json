@@ -1,1 +1,570 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecraftdownloader","label":"MinecraftDownloader.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L1"}]},{"id":"minecraftdownloader_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L10-L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L10"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"minecraftdownloader_minecraftdownloader","label":"MinecraftDownloader","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L19-L353","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L19"}],"snippet":"export class MinecraftDownloader {\n  static async getVanillaVersions() {\n    try {\n      const res = await axios.get(\n        'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n      )\n      const releases = res.data.versions.filter((v: any) => v.type === 'release')\n      return releases\n        .map((v: any) => v.id)\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }\n\n  static async getPaperVersions() {\n    try {\n      const res = await axios.get('https://fill.papermc.io/v3/projects/paper', {\n        headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' }\n      })\n      const versionsObj = res.data.versions\n      let allVersions: string[] = []"},{"id":"minecraftdownloader_minecraftdownloader_getvanillaversions","label":".getVanillaVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L20-L35","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L20"}],"snippet":"static async getVanillaVersions() {\n    try {\n      const res = await axios.get(\n        'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n      )\n      const releases = res.data.versions.filter((v: any) => v.type === 'release')\n      return releases\n        .map((v: any) => v.id)\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_getpaperversions","label":".getPaperVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L37-L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L37"}],"snippet":"static async getPaperVersions() {\n    try {\n      const res = await axios.get('https://fill.papermc.io/v3/projects/paper', {\n        headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' }\n      })\n      const versionsObj = res.data.versions\n      let allVersions: string[] = []\n      for (const key of Object.keys(versionsObj)) {\n        allVersions = allVersions.concat(versionsObj[key])\n      }\n      return allVersions\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n        .sort((a, b) => {\n          const cA = semver.coerce(a)\n          const cB = semver.coerce(b)\n          return cA && cB ? semver.rcompare(cA, cB) : 0\n        }) // newest first\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_getfabricversions","label":".getFabricVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L62-L69","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L62"}],"snippet":"static async getFabricVersions() {\n    try {\n      const res = await axios.get('https://meta.fabricmc.net/v2/versions/game')\n      return res.data.filter((v: any) => v.stable).map((v: any) => v.version)\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_getforgeversions","label":".getForgeVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L71-L87","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L71"}],"snippet":"static async getForgeVersions() {\n    try {\n      const res = await axios.get(\n        'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json'\n      )\n      const promos = res.data.promos\n      const versions = new Set<string>()\n      for (const key of Object.keys(promos)) {\n        if (key.endsWith('-latest')) {\n          versions.add(key.replace('-latest', ''))\n        }\n      }\n      return Array.from(versions).reverse()\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_getneoforgeversions","label":".getNeoForgeVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L89-L110","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L89"}],"snippet":"static async getNeoForgeVersions() {\n    try {\n      const res = await axios.get(\n        'https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge'\n      )\n      const all: string[] = res.data.versions\n      const mcVersions = new Set<string>()\n      for (const v of all) {\n        const parts = v.split('.')\n        if (parts.length >= 2) {\n          if (parts[0] === '20' || parts[0] === '21') {\n            mcVersions.add('1.' + parts[0] + '.' + parts[1])\n          } else {\n            mcVersions.add(parts[0] + '.' + parts[1])\n          }\n        }\n      }\n      return Array.from(mcVersions).reverse()\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_getloaderversions","label":".getLoaderVersions()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L112-L183","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L112"}],"snippet":"static async getLoaderVersions(type: string, mcVersion: string) {\n    try {\n      if (type === 'Forge') {\n        const promoRes = await axios.get(\n          'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json'\n        )\n        const recommended = promoRes.data.promos[`${mcVersion}-recommended`]\n\n        const mavenRes = await axios.get(\n          'https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml'\n        )\n        const xml = mavenRes.data\n        const versionMatches = xml.match(/<version>(.*?)<\\/version>/g) || []\n\n        const versions = new Set<string>()\n        for (const vTag of versionMatches) {\n          const v = vTag.replace('<version>', '').replace('</version>', '')\n          if (v.startsWith(mcVersion + '-')) {\n            versions.add(v.replace(mcVersion + '-', ''))\n          }\n        }\n\n        let result = Array.from(versions).sort((a, b) => {\n          const vA = a.split('.').map(Number)\n          const vB = b.split('.').map(Number)"},{"id":"minecraftdownloader_minecraftdownloader_searchmodpacks","label":".searchModpacks()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L185-L205","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L185"}],"snippet":"static async searchModpacks(query: string, version: string, modloader: string) {\n    try {\n      let url = `https://api.curseforge.com/v1/mods/search?gameId=432&classId=4471&sortField=2&sortOrder=desc`\n      if (query) url += `&searchFilter=${encodeURIComponent(query)}`\n      if (version) {\n        const cfVersion =\n          version.endsWith('.0') && version.split('.').length === 3 ? version.slice(0, -2) : version\n        url += `&gameVersion=${encodeURIComponent(cfVersion)}`\n      }\n      if (modloader) {\n        if (modloader === 'Forge') url += '&modLoaderType=1'\n        else if (modloader === 'Fabric') url += '&modLoaderType=4'\n        else if (modloader === 'NeoForge') url += '&modLoaderType=6'\n      }\n\n      const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } })\n      return res.data.data\n    } catch (e: any) {\n      console.error('Error searching modpacks:', e.message)\n      return []\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_getmodpackdetails","label":".getModpackDetails()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L207-L216","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L207"}],"snippet":"static async getModpackDetails(modId: string) {\n    try {\n      const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {\n        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }\n      })\n      return res.data.data\n    } catch (e: any) {\n      console.error(e.message)\n      return null\n    }  }"},{"id":"minecraftdownloader_minecraftdownloader_downloadserverjar","label":".downloadServerJar()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L218-L352","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L218"}],"snippet":"static async downloadServerJar(event: any, id: number, type: string, version: string, loaderVersion: string) {\n    const serverDir = join(app.getPath('userData'), 'servers', id.toString())\n    const jarPath = join(serverDir, 'server.jar')\n    const installerPath = join(serverDir, 'installer.jar')\n\n    try {\n      let downloadUrl = ''\n      let isInstaller = false\n      let installerArgs: string[] = []\n      let buildNumberStr = ''\n\n      if (type === 'Vanilla') {\n        const manifestRes = await axios.get(\n          'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n        )\n        const vData = manifestRes.data.versions.find((v: any) => v.id === version)\n        if (!vData) throw new Error('Version not found')\n        const vRes = await axios.get(vData.url)\n        downloadUrl = vRes.data.downloads.server.url\n      } else if (type === 'Paper') {\n        const buildsRes = await axios.get(\n          `https://fill.papermc.io/v3/projects/paper/versions/${version}`,\n          { headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' } }\n        )\n        const build = buildsRes.data.builds[0]"}],"edges":[{"source":"minecraftdownloader","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L1"}],"weight":1},{"source":"minecraftdownloader","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L2"}],"weight":1},{"source":"minecraftdownloader","target":"semver","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L3"}],"weight":1},{"source":"minecraftdownloader","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L4"}],"weight":1},{"source":"minecraftdownloader","target":"cachemanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L5"}],"weight":1},{"source":"minecraftdownloader","target":"javamanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L6"}],"weight":1},{"source":"minecraftdownloader","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L7"}],"weight":1},{"source":"minecraftdownloader","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L8"}],"weight":1},{"source":"minecraftdownloader","target":"minecraftdownloader_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L10"}],"weight":1},{"source":"minecraftdownloader","target":"minecraftdownloader_minecraftdownloader","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L19"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getvanillaversions","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L20"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getpaperversions","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L37"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getfabricversions","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L62","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L62"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getforgeversions","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L71","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L71"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getneoforgeversions","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L89","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L89"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getloaderversions","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L112","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L112"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_searchmodpacks","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L185","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L185"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_getmodpackdetails","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L207","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L207"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader","target":"minecraftdownloader_minecraftdownloader_downloadserverjar","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L218","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L218"}],"weight":1},{"source":"minecraftdownloader_minecraftdownloader_downloadserverjar","target":"minecraftdownloader_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L343","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts","source_location":"L343"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecraftdownloader",
+      "label": "MinecraftDownloader.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecraftdownloader_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L10-L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader",
+      "label": "MinecraftDownloader",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L19-L353",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L19"
+        }
+      ],
+      "snippet": "export class MinecraftDownloader {\n  static async getVanillaVersions() {\n    try {\n      const res = await axios.get(\n        'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n      )\n      const releases = res.data.versions.filter((v: any) => v.type === 'release')\n      return releases\n        .map((v: any) => v.id)\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }\n\n  static async getPaperVersions() {\n    try {\n      const res = await axios.get('https://fill.papermc.io/v3/projects/paper', {\n        headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' }\n      })\n      const versionsObj = res.data.versions\n      let allVersions: string[] = []"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getvanillaversions",
+      "label": ".getVanillaVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L20-L35",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L20"
+        }
+      ],
+      "snippet": "static async getVanillaVersions() {\n    try {\n      const res = await axios.get(\n        'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n      )\n      const releases = res.data.versions.filter((v: any) => v.type === 'release')\n      return releases\n        .map((v: any) => v.id)\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getpaperversions",
+      "label": ".getPaperVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L37-L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L37"
+        }
+      ],
+      "snippet": "static async getPaperVersions() {\n    try {\n      const res = await axios.get('https://fill.papermc.io/v3/projects/paper', {\n        headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' }\n      })\n      const versionsObj = res.data.versions\n      let allVersions: string[] = []\n      for (const key of Object.keys(versionsObj)) {\n        allVersions = allVersions.concat(versionsObj[key])\n      }\n      return allVersions\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n        .sort((a, b) => {\n          const cA = semver.coerce(a)\n          const cB = semver.coerce(b)\n          return cA && cB ? semver.rcompare(cA, cB) : 0\n        }) // newest first\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getfabricversions",
+      "label": ".getFabricVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L62-L69",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L62"
+        }
+      ],
+      "snippet": "static async getFabricVersions() {\n    try {\n      const res = await axios.get('https://meta.fabricmc.net/v2/versions/game')\n      return res.data.filter((v: any) => v.stable).map((v: any) => v.version)\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getforgeversions",
+      "label": ".getForgeVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L71-L87",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L71"
+        }
+      ],
+      "snippet": "static async getForgeVersions() {\n    try {\n      const res = await axios.get(\n        'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json'\n      )\n      const promos = res.data.promos\n      const versions = new Set<string>()\n      for (const key of Object.keys(promos)) {\n        if (key.endsWith('-latest')) {\n          versions.add(key.replace('-latest', ''))\n        }\n      }\n      return Array.from(versions).reverse()\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getneoforgeversions",
+      "label": ".getNeoForgeVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L89-L110",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L89"
+        }
+      ],
+      "snippet": "static async getNeoForgeVersions() {\n    try {\n      const res = await axios.get(\n        'https://maven.neoforged.net/api/maven/versions/releases/net/neoforged/neoforge'\n      )\n      const all: string[] = res.data.versions\n      const mcVersions = new Set<string>()\n      for (const v of all) {\n        const parts = v.split('.')\n        if (parts.length >= 2) {\n          if (parts[0] === '20' || parts[0] === '21') {\n            mcVersions.add('1.' + parts[0] + '.' + parts[1])\n          } else {\n            mcVersions.add(parts[0] + '.' + parts[1])\n          }\n        }\n      }\n      return Array.from(mcVersions).reverse()\n    } catch (e) {\n      console.error(e)\n      return []\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getloaderversions",
+      "label": ".getLoaderVersions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L112-L183",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L112"
+        }
+      ],
+      "snippet": "static async getLoaderVersions(type: string, mcVersion: string) {\n    try {\n      if (type === 'Forge') {\n        const promoRes = await axios.get(\n          'https://files.minecraftforge.net/net/minecraftforge/forge/promotions_slim.json'\n        )\n        const recommended = promoRes.data.promos[`${mcVersion}-recommended`]\n\n        const mavenRes = await axios.get(\n          'https://maven.minecraftforge.net/net/minecraftforge/forge/maven-metadata.xml'\n        )\n        const xml = mavenRes.data\n        const versionMatches = xml.match(/<version>(.*?)<\\/version>/g) || []\n\n        const versions = new Set<string>()\n        for (const vTag of versionMatches) {\n          const v = vTag.replace('<version>', '').replace('</version>', '')\n          if (v.startsWith(mcVersion + '-')) {\n            versions.add(v.replace(mcVersion + '-', ''))\n          }\n        }\n\n        let result = Array.from(versions).sort((a, b) => {\n          const vA = a.split('.').map(Number)\n          const vB = b.split('.').map(Number)"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_searchmodpacks",
+      "label": ".searchModpacks()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L185-L205",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L185"
+        }
+      ],
+      "snippet": "static async searchModpacks(query: string, version: string, modloader: string) {\n    try {\n      let url = `https://api.curseforge.com/v1/mods/search?gameId=432&classId=4471&sortField=2&sortOrder=desc`\n      if (query) url += `&searchFilter=${encodeURIComponent(query)}`\n      if (version) {\n        const cfVersion =\n          version.endsWith('.0') && version.split('.').length === 3 ? version.slice(0, -2) : version\n        url += `&gameVersion=${encodeURIComponent(cfVersion)}`\n      }\n      if (modloader) {\n        if (modloader === 'Forge') url += '&modLoaderType=1'\n        else if (modloader === 'Fabric') url += '&modLoaderType=4'\n        else if (modloader === 'NeoForge') url += '&modLoaderType=6'\n      }\n\n      const res = await axios.get(url, { headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' } })\n      return res.data.data\n    } catch (e: any) {\n      console.error('Error searching modpacks:', e.message)\n      return []\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_getmodpackdetails",
+      "label": ".getModpackDetails()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L207-L216",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L207"
+        }
+      ],
+      "snippet": "static async getModpackDetails(modId: string) {\n    try {\n      const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {\n        headers: { 'x-api-key': process.env.CURSEFORGE_API_KEY || '' }\n      })\n      return res.data.data\n    } catch (e: any) {\n      console.error(e.message)\n      return null\n    }  }"
+    },
+    {
+      "id": "minecraftdownloader_minecraftdownloader_downloadserverjar",
+      "label": ".downloadServerJar()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L218-L352",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L218"
+        }
+      ],
+      "snippet": "static async downloadServerJar(event: any, id: number, type: string, version: string, loaderVersion: string) {\n    const serverDir = join(app.getPath('userData'), 'servers', id.toString())\n    const jarPath = join(serverDir, 'server.jar')\n    const installerPath = join(serverDir, 'installer.jar')\n\n    try {\n      let downloadUrl = ''\n      let isInstaller = false\n      let installerArgs: string[] = []\n      let buildNumberStr = ''\n\n      if (type === 'Vanilla') {\n        const manifestRes = await axios.get(\n          'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n        )\n        const vData = manifestRes.data.versions.find((v: any) => v.id === version)\n        if (!vData) throw new Error('Version not found')\n        const vRes = await axios.get(vData.url)\n        downloadUrl = vRes.data.downloads.server.url\n      } else if (type === 'Paper') {\n        const buildsRes = await axios.get(\n          `https://fill.papermc.io/v3/projects/paper/versions/${version}`,\n          { headers: { 'User-Agent': 'OmniHost/1.0.0 (contact@example.com)' } }\n        )\n        const build = buildsRes.data.builds[0]"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecraftdownloader",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "semver",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "cachemanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "javamanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "minecraftdownloader_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L19"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getvanillaversions",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L20"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getpaperversions",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L37"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getfabricversions",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L62",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L62"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getforgeversions",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L71",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L71"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getneoforgeversions",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L89",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L89"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getloaderversions",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L112",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L112"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_searchmodpacks",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L185",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L185"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_getmodpackdetails",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L207",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L207"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader",
+      "target": "minecraftdownloader_minecraftdownloader_downloadserverjar",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L218",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L218"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftdownloader_minecraftdownloader_downloadserverjar",
+      "target": "minecraftdownloader_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+      "source_location": "L343",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftDownloader.ts",
+          "source_location": "L343"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

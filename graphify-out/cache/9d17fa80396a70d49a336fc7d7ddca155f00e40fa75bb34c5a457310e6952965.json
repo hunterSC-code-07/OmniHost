@@ -1,1 +1,41 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"patch_playerstab","label":"patch-playerstab.js","file_type":"code","source_file":"D:/github/OmniHost/patch-playerstab.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/patch-playerstab.js","source_location":"L1"}]}],"edges":[{"source":"patch_playerstab","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/patch-playerstab.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/patch-playerstab.js","source_location":"L1"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "patch_playerstab",
+      "label": "patch-playerstab.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/patch-playerstab.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/patch-playerstab.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "patch_playerstab",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/patch-playerstab.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/patch-playerstab.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

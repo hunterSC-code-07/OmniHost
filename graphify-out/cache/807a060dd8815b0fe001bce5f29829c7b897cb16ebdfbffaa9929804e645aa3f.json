@@ -1,1 +1,257 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"motion_faqs_accordion","label":"motion-faqs-accordion.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L1"}]},{"id":"motion_faqs_accordion_motionaccordionitem","label":"MotionAccordionItem","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L8-L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L8"}],"snippet":"export interface MotionAccordionItem {\n  question: React.ReactNode;\n  answer: React.ReactNode;\n}"},{"id":"motion_faqs_accordion_accordionitem","label":"AccordionItem()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L15-L141","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L15"}],"snippet":"function AccordionItem({\n  item,\n  isOpen,\n  onToggle,\n  itemId,\n  panelId,\n}: {\n  item: MotionAccordionItem;\n  isOpen: boolean;\n  onToggle: () => void;\n  itemId: string;\n  panelId: string;\n}) {\n  const contentRef = React.useRef<HTMLDivElement>(null);\n  const [contentH, setContentH] = React.useState(0);\n\n  React.useEffect(() => {\n    const el = contentRef.current;\n    if (!el) return;\n    const ro = new ResizeObserver(() => setContentH(el.scrollHeight));\n    ro.observe(el);\n    setContentH(el.scrollHeight);\n    return () => ro.disconnect();\n  }, []);","node_kind":"component"},{"id":"motion_faqs_accordion_motionaccordionprops","label":"MotionAccordionProps","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L143-L150","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L143"}],"snippet":"export interface MotionAccordionProps {\n  items: MotionAccordionItem[];\n  /** @default 10 */\n  gap?: number;\n  className?: string;\n  value?: number | null;\n  onValueChange?: (value: number | null) => void;\n}"},{"id":"motion_faqs_accordion_motionaccordion","label":"MotionAccordion()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L152-L193","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L152"}],"snippet":"export function MotionAccordion({\n  items,\n  gap = 10,\n  className,\n  value,\n  onValueChange,\n}: MotionAccordionProps) {\n  const rawId = React.useId();\n  const baseId = `accordion-${rawId.replace(/:/g, \"\")}`;\n\n  const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(null);\n\n  const isControlled = value !== undefined;\n  const openIndex = isControlled ? value : internalOpenIndex;\n\n  const toggle = (i: number) => {\n    const newValue = openIndex === i ? null : i;\n    if (!isControlled) {\n      setInternalOpenIndex(newValue);\n    }\n    if (onValueChange) {\n      onValueChange(newValue);\n    }\n  };","node_kind":"function","framework":"nextjs","framework_role":"next_client_component","runtime_boundary":"client"},{"id":"motion_faqs_accordion_motionaccordion_toggle","label":"toggle()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L167-L175","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L167"}],"snippet":"toggle = (i: number) => {\n    const newValue = openIndex === i ? null : i;\n    if (!isControlled) {\n      setInternalOpenIndex(newValue);\n    }\n    if (onValueChange) {\n      onValueChange(newValue);\n    }\n  }"}],"edges":[{"source":"motion_faqs_accordion","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L3"}],"weight":1},{"source":"motion_faqs_accordion","target":"utils","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L6"}],"weight":1},{"source":"motion_faqs_accordion","target":"motion_faqs_accordion_motionaccordionitem","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L8"}],"weight":1},{"source":"motion_faqs_accordion","target":"motion_faqs_accordion_accordionitem","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L15"}],"weight":1},{"source":"motion_faqs_accordion","target":"motion_faqs_accordion_motionaccordionprops","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L143","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L143"}],"weight":1},{"source":"motion_faqs_accordion","target":"motion_faqs_accordion_motionaccordion","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L152","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L152"}],"weight":1},{"source":"motion_faqs_accordion_motionaccordion","target":"motion_faqs_accordion_motionaccordion_toggle","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L167","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L167"}],"weight":1},{"source":"motion_faqs_accordion_motionaccordion","target":"AccordionItem__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L152","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx","source_location":"L152"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "motion_faqs_accordion",
+      "label": "motion-faqs-accordion.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "motion_faqs_accordion_motionaccordionitem",
+      "label": "MotionAccordionItem",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L8-L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "export interface MotionAccordionItem {\n  question: React.ReactNode;\n  answer: React.ReactNode;\n}"
+    },
+    {
+      "id": "motion_faqs_accordion_accordionitem",
+      "label": "AccordionItem()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L15-L141",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "snippet": "function AccordionItem({\n  item,\n  isOpen,\n  onToggle,\n  itemId,\n  panelId,\n}: {\n  item: MotionAccordionItem;\n  isOpen: boolean;\n  onToggle: () => void;\n  itemId: string;\n  panelId: string;\n}) {\n  const contentRef = React.useRef<HTMLDivElement>(null);\n  const [contentH, setContentH] = React.useState(0);\n\n  React.useEffect(() => {\n    const el = contentRef.current;\n    if (!el) return;\n    const ro = new ResizeObserver(() => setContentH(el.scrollHeight));\n    ro.observe(el);\n    setContentH(el.scrollHeight);\n    return () => ro.disconnect();\n  }, []);",
+      "node_kind": "component"
+    },
+    {
+      "id": "motion_faqs_accordion_motionaccordionprops",
+      "label": "MotionAccordionProps",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L143-L150",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L143"
+        }
+      ],
+      "snippet": "export interface MotionAccordionProps {\n  items: MotionAccordionItem[];\n  /** @default 10 */\n  gap?: number;\n  className?: string;\n  value?: number | null;\n  onValueChange?: (value: number | null) => void;\n}"
+    },
+    {
+      "id": "motion_faqs_accordion_motionaccordion",
+      "label": "MotionAccordion()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L152-L193",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L152"
+        }
+      ],
+      "snippet": "export function MotionAccordion({\n  items,\n  gap = 10,\n  className,\n  value,\n  onValueChange,\n}: MotionAccordionProps) {\n  const rawId = React.useId();\n  const baseId = `accordion-${rawId.replace(/:/g, \"\")}`;\n\n  const [internalOpenIndex, setInternalOpenIndex] = React.useState<number | null>(null);\n\n  const isControlled = value !== undefined;\n  const openIndex = isControlled ? value : internalOpenIndex;\n\n  const toggle = (i: number) => {\n    const newValue = openIndex === i ? null : i;\n    if (!isControlled) {\n      setInternalOpenIndex(newValue);\n    }\n    if (onValueChange) {\n      onValueChange(newValue);\n    }\n  };",
+      "node_kind": "function",
+      "framework": "nextjs",
+      "framework_role": "next_client_component",
+      "runtime_boundary": "client"
+    },
+    {
+      "id": "motion_faqs_accordion_motionaccordion_toggle",
+      "label": "toggle()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L167-L175",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L167"
+        }
+      ],
+      "snippet": "toggle = (i: number) => {\n    const newValue = openIndex === i ? null : i;\n    if (!isControlled) {\n      setInternalOpenIndex(newValue);\n    }\n    if (onValueChange) {\n      onValueChange(newValue);\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "motion_faqs_accordion",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion",
+      "target": "utils",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion",
+      "target": "motion_faqs_accordion_motionaccordionitem",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion",
+      "target": "motion_faqs_accordion_accordionitem",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion",
+      "target": "motion_faqs_accordion_motionaccordionprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L143",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L143"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion",
+      "target": "motion_faqs_accordion_motionaccordion",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L152",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L152"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion_motionaccordion",
+      "target": "motion_faqs_accordion_motionaccordion_toggle",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L167",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L167"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "motion_faqs_accordion_motionaccordion",
+      "target": "AccordionItem__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+      "source_location": "L152",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx",
+          "source_location": "L152"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

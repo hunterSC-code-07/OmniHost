@@ -1,1 +1,22 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"test3","label":"test3.js","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test3.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test3.js","source_location":"L1"}]}],"edges":[]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "test3",
+      "label": "test3.js",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test3.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test3.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

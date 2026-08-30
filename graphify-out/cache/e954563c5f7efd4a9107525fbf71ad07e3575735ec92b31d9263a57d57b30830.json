@@ -1,1 +1,128 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamauth","label":"SteamAuth.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L1"}]},{"id":"steamauth_steamauth","label":"SteamAuth","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L1-L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L1"}],"snippet":"export class SteamAuth {\n  static getLoginArgs(username?: string, password?: string, steamGuardCode?: string): string[] {\n    if (username && password) {\n      if (steamGuardCode) {\n        return ['+login', username, password, steamGuardCode];\n      }\n      return ['+login', username, password];\n    }\n    return ['+login', 'anonymous'];\n  }\n\n  static isSteamGuardPrompt(output: string): boolean {\n    const lower = output.toLowerCase();\n    return lower.includes('steam guard') || lower.includes('two-factor') || lower.includes('enter the current code');\n  }\n}"},{"id":"steamauth_steamauth_getloginargs","label":".getLoginArgs()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L2-L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L2"}],"snippet":"static getLoginArgs(username?: string, password?: string, steamGuardCode?: string): string[] {\n    if (username && password) {\n      if (steamGuardCode) {\n        return ['+login', username, password, steamGuardCode];\n      }\n      return ['+login', username, password];\n    }\n    return ['+login', 'anonymous'];\n  }"},{"id":"steamauth_steamauth_issteamguardprompt","label":".isSteamGuardPrompt()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L12-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L12"}],"snippet":"static isSteamGuardPrompt(output: string): boolean {\n    const lower = output.toLowerCase();\n    return lower.includes('steam guard') || lower.includes('two-factor') || lower.includes('enter the current code');\n  }"}],"edges":[{"source":"steamauth","target":"steamauth_steamauth","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L1"}],"weight":1},{"source":"steamauth_steamauth","target":"steamauth_steamauth_getloginargs","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L2"}],"weight":1},{"source":"steamauth_steamauth","target":"steamauth_steamauth_issteamguardprompt","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamAuth.ts","source_location":"L12"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamauth",
+      "label": "SteamAuth.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamauth_steamauth",
+      "label": "SteamAuth",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L1-L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L1"
+        }
+      ],
+      "snippet": "export class SteamAuth {\n  static getLoginArgs(username?: string, password?: string, steamGuardCode?: string): string[] {\n    if (username && password) {\n      if (steamGuardCode) {\n        return ['+login', username, password, steamGuardCode];\n      }\n      return ['+login', username, password];\n    }\n    return ['+login', 'anonymous'];\n  }\n\n  static isSteamGuardPrompt(output: string): boolean {\n    const lower = output.toLowerCase();\n    return lower.includes('steam guard') || lower.includes('two-factor') || lower.includes('enter the current code');\n  }\n}"
+    },
+    {
+      "id": "steamauth_steamauth_getloginargs",
+      "label": ".getLoginArgs()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L2-L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L2"
+        }
+      ],
+      "snippet": "static getLoginArgs(username?: string, password?: string, steamGuardCode?: string): string[] {\n    if (username && password) {\n      if (steamGuardCode) {\n        return ['+login', username, password, steamGuardCode];\n      }\n      return ['+login', username, password];\n    }\n    return ['+login', 'anonymous'];\n  }"
+    },
+    {
+      "id": "steamauth_steamauth_issteamguardprompt",
+      "label": ".isSteamGuardPrompt()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L12-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L12"
+        }
+      ],
+      "snippet": "static isSteamGuardPrompt(output: string): boolean {\n    const lower = output.toLowerCase();\n    return lower.includes('steam guard') || lower.includes('two-factor') || lower.includes('enter the current code');\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamauth",
+      "target": "steamauth_steamauth",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamauth_steamauth",
+      "target": "steamauth_steamauth_getloginargs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamauth_steamauth",
+      "target": "steamauth_steamauth_issteamguardprompt",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamAuth.ts",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

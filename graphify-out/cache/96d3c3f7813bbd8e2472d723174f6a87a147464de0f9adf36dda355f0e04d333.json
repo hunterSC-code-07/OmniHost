@@ -1,1 +1,271 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamworkshopdownloader","label":"SteamWorkshopDownloader.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L1"}]},{"id":"steamworkshopdownloader_steamworkshopdownloader","label":"SteamWorkshopDownloader","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L7-L225","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L7"}],"snippet":"export class SteamWorkshopDownloader {\n  static activeProcess: ChildProcess | null = null;\n\n  static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }\n\n  static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    // Fetch total size from Steam API for accurate progress calculation\n    let totalSize = 0;\n    try {\n      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;\n      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {\n        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }\n      });\n      const fileDetails = res.data?.response?.publishedfiledetails?.[0];\n      if (fileDetails && fileDetails.file_size) {\n        totalSize = parseInt(fileDetails.file_size, 10);\n      }\n    } catch (e) {\n      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);"},{"id":"steamworkshopdownloader_steamworkshopdownloader_sendinput","label":".sendInput()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L10-L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L10"}],"snippet":"static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }"},{"id":"steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitem","label":".downloadWorkshopItem()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L16-L198","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L16"}],"snippet":"static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    // Fetch total size from Steam API for accurate progress calculation\n    let totalSize = 0;\n    try {\n      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;\n      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {\n        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }\n      });\n      const fileDetails = res.data?.response?.publishedfiledetails?.[0];\n      if (fileDetails && fileDetails.file_size) {\n        totalSize = parseInt(fileDetails.file_size, 10);\n      }\n    } catch (e) {\n      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);\n    }\n\n    let retries = 0;\n    const maxRetries = 10;\n    let tryCached = !!(username && password && !steamGuardCode);\n\n    while (retries < maxRetries) {\n      if (this.activeProcess) {\n        try {"},{"id":"steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitems","label":".downloadWorkshopItems()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L200-L224","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L200"}],"snippet":"static async downloadWorkshopItems(serverId: number, appId: number, modIds: string[], username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    for (let i = 0; i < modIds.length; i++) {\n      const modId = modIds[i];\n      const targetDir = join(SteamCMDSetup.getSteamCMDDir(), 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {\n        SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Mod already downloaded, skipping...`);\n        console.log(`[SteamCMD Batch] Mod ${modId} already exists in ${targetDir}, skipping.`);\n        continue;\n      }\n\n      SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Downloading mod ${i + 1} of ${modIds.length}...`);\n      try {\n        await this.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n      } catch (e: any) {\n        console.error(`[SteamCMD Batch] Failed to download mod ${modId}:`, e);\n        throw e;\n      }\n    }\n\n    SteamCMDSetup.sendLog(serverId, 100, 'Batch Download Complete!');\n    return true;\n  }"}],"edges":[{"source":"steamworkshopdownloader","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L1"}],"weight":1},{"source":"steamworkshopdownloader","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L2"}],"weight":1},{"source":"steamworkshopdownloader","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L3"}],"weight":1},{"source":"steamworkshopdownloader","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L4"}],"weight":1},{"source":"steamworkshopdownloader","target":"steamcmdsetup","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L5"}],"weight":1},{"source":"steamworkshopdownloader","target":"steamworkshopdownloader_steamworkshopdownloader","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L7"}],"weight":1},{"source":"steamworkshopdownloader_steamworkshopdownloader","target":"steamworkshopdownloader_steamworkshopdownloader_sendinput","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L10"}],"weight":1},{"source":"steamworkshopdownloader_steamworkshopdownloader","target":"steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitem","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L16"}],"weight":1},{"source":"steamworkshopdownloader_steamworkshopdownloader","target":"steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitems","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L200","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L200"}],"weight":1},{"source":"steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitems","target":"steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitem","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L215","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts","source_location":"L215"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamworkshopdownloader",
+      "label": "SteamWorkshopDownloader.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamworkshopdownloader_steamworkshopdownloader",
+      "label": "SteamWorkshopDownloader",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L7-L225",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export class SteamWorkshopDownloader {\n  static activeProcess: ChildProcess | null = null;\n\n  static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }\n\n  static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    // Fetch total size from Steam API for accurate progress calculation\n    let totalSize = 0;\n    try {\n      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;\n      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {\n        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }\n      });\n      const fileDetails = res.data?.response?.publishedfiledetails?.[0];\n      if (fileDetails && fileDetails.file_size) {\n        totalSize = parseInt(fileDetails.file_size, 10);\n      }\n    } catch (e) {\n      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);"
+    },
+    {
+      "id": "steamworkshopdownloader_steamworkshopdownloader_sendinput",
+      "label": ".sendInput()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L10-L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "static sendInput(data: string) {\n    if (this.activeProcess && this.activeProcess.stdin) {\n      this.activeProcess.stdin.write(data + '\\n');\n    }\n  }"
+    },
+    {
+      "id": "steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitem",
+      "label": ".downloadWorkshopItem()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L16-L198",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L16"
+        }
+      ],
+      "snippet": "static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    // Fetch total size from Steam API for accurate progress calculation\n    let totalSize = 0;\n    try {\n      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;\n      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {\n        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }\n      });\n      const fileDetails = res.data?.response?.publishedfiledetails?.[0];\n      if (fileDetails && fileDetails.file_size) {\n        totalSize = parseInt(fileDetails.file_size, 10);\n      }\n    } catch (e) {\n      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);\n    }\n\n    let retries = 0;\n    const maxRetries = 10;\n    let tryCached = !!(username && password && !steamGuardCode);\n\n    while (retries < maxRetries) {\n      if (this.activeProcess) {\n        try {"
+    },
+    {
+      "id": "steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitems",
+      "label": ".downloadWorkshopItems()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L200-L224",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L200"
+        }
+      ],
+      "snippet": "static async downloadWorkshopItems(serverId: number, appId: number, modIds: string[], username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    for (let i = 0; i < modIds.length; i++) {\n      const modId = modIds[i];\n      const targetDir = join(SteamCMDSetup.getSteamCMDDir(), 'steamapps', 'workshop', 'content', appId.toString(), modId);\n      \n      if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {\n        SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Mod already downloaded, skipping...`);\n        console.log(`[SteamCMD Batch] Mod ${modId} already exists in ${targetDir}, skipping.`);\n        continue;\n      }\n\n      SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Downloading mod ${i + 1} of ${modIds.length}...`);\n      try {\n        await this.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);\n      } catch (e: any) {\n        console.error(`[SteamCMD Batch] Failed to download mod ${modId}:`, e);\n        throw e;\n      }\n    }\n\n    SteamCMDSetup.sendLog(serverId, 100, 'Batch Download Complete!');\n    return true;\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamworkshopdownloader",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader",
+      "target": "steamcmdsetup",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader",
+      "target": "steamworkshopdownloader_steamworkshopdownloader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader_steamworkshopdownloader",
+      "target": "steamworkshopdownloader_steamworkshopdownloader_sendinput",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader_steamworkshopdownloader",
+      "target": "steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitem",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader_steamworkshopdownloader",
+      "target": "steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitems",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L200",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L200"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitems",
+      "target": "steamworkshopdownloader_steamworkshopdownloader_downloadworkshopitem",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+      "source_location": "L215",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamWorkshopDownloader.ts",
+          "source_location": "L215"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

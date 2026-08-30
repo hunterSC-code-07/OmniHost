@@ -1,1 +1,501 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"cachemanager","label":"CacheManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L1"}]},{"id":"cachemanager_cachemanager","label":"CacheManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L7-L107","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L7"}],"snippet":"export class CacheManager {\n  static getCacheDir() {\n    return path.join(app.getPath('userData'), 'omnihost-cache');\n  }\n\n  static getCategoryDir(category: 'java' | 'jars' | 'mods' | 'modpacks') {\n    const dir = path.join(this.getCacheDir(), category);\n    if (!fs.existsSync(dir)) {\n      fs.mkdirSync(dir, { recursive: true });\n    }\n    return dir;\n  }\n\n  static getSafeFilename(downloadUrl: string, originalFilename: string) {\n    const hash = crypto.createHash('md5').update(downloadUrl).digest('hex').substring(0, 8);\n    return `${hash}-${originalFilename}`;\n  }\n\n  static getCacheSize(): number {\n    const dir = this.getCacheDir();\n    if (!fs.existsSync(dir)) return 0;\n\n    let totalSize = 0;\n    const calculateSize = (folderPath: string) => {\n      const files = fs.readdirSync(folderPath);"},{"id":"cachemanager_cachemanager_getcachedir","label":".getCacheDir()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L8-L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L8"}],"snippet":"static getCacheDir() {\n    return path.join(app.getPath('userData'), 'omnihost-cache');\n  }"},{"id":"cachemanager_cachemanager_getcategorydir","label":".getCategoryDir()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L12-L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L12"}],"snippet":"static getCategoryDir(category: 'java' | 'jars' | 'mods' | 'modpacks') {\n    const dir = path.join(this.getCacheDir(), category);\n    if (!fs.existsSync(dir)) {\n      fs.mkdirSync(dir, { recursive: true });\n    }\n    return dir;\n  }"},{"id":"cachemanager_cachemanager_getsafefilename","label":".getSafeFilename()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L20-L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L20"}],"snippet":"static getSafeFilename(downloadUrl: string, originalFilename: string) {\n    const hash = crypto.createHash('md5').update(downloadUrl).digest('hex').substring(0, 8);\n    return `${hash}-${originalFilename}`;\n  }"},{"id":"cachemanager_cachemanager_getcachesize","label":".getCacheSize()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L25-L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L25"}],"snippet":"static getCacheSize(): number {\n    const dir = this.getCacheDir();\n    if (!fs.existsSync(dir)) return 0;\n\n    let totalSize = 0;\n    const calculateSize = (folderPath: string) => {\n      const files = fs.readdirSync(folderPath);\n      for (const file of files) {\n        const fullPath = path.join(folderPath, file);\n        const stats = fs.statSync(fullPath);\n        if (stats.isDirectory()) {\n          calculateSize(fullPath);\n        } else {\n          totalSize += stats.size;\n        }\n      }\n    };\n    calculateSize(dir);\n    return totalSize; // in bytes\n  }"},{"id":"cachemanager_cachemanager_getcachesize_calculatesize","label":"calculateSize()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L30-L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L30"}],"snippet":"calculateSize = (folderPath: string) => {\n      const files = fs.readdirSync(folderPath);\n      for (const file of files) {\n        const fullPath = path.join(folderPath, file);\n        const stats = fs.statSync(fullPath);\n        if (stats.isDirectory()) {\n          calculateSize(fullPath);\n        } else {\n          totalSize += stats.size;\n        }\n      }\n    }"},{"id":"cachemanager_cachemanager_clearcache","label":".clearCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L46-L51","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L46"}],"snippet":"static clearCache() {\n    const dir = this.getCacheDir();\n    if (fs.existsSync(dir)) {\n      fs.rmSync(dir, { recursive: true, force: true });\n    }\n  }"},{"id":"cachemanager_cachemanager_getordownload","label":".getOrDownload()","file_type":"code","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L56-L106","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L56"}],"snippet":"static async getOrDownload(\n    category: 'java' | 'jars' | 'mods' | 'modpacks',\n    downloadUrl: string,\n    originalFilename: string,\n    onProgress?: (progress: number, text?: string) => void,\n    progressText?: string\n  ): Promise<string> {\n    const categoryDir = this.getCategoryDir(category);\n    const safeFilename = this.getSafeFilename(downloadUrl, originalFilename);\n    const cachedFilePath = path.join(categoryDir, safeFilename);\n\n    if (fs.existsSync(cachedFilePath)) {\n      console.log(`[CacheManager] Cache hit for ${category}/${originalFilename}`);\n      if (onProgress) onProgress(100, progressText || 'Copied from cache...');\n      return cachedFilePath;\n    }\n\n    console.log(`[CacheManager] Cache miss for ${category}/${originalFilename}. Downloading...`);\n    if (onProgress) onProgress(0, progressText || 'Downloading...');\n\n    const response = await axios({\n      method: 'GET',\n      url: downloadUrl,\n      responseType: 'stream'\n    });"}],"edges":[{"source":"cachemanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L1"}],"weight":1},{"source":"cachemanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L2"}],"weight":1},{"source":"cachemanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L3"}],"weight":1},{"source":"cachemanager","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L4"}],"weight":1},{"source":"cachemanager","target":"crypto","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L5"}],"weight":1},{"source":"cachemanager","target":"cachemanager_cachemanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L7"}],"weight":1},{"source":"cachemanager_cachemanager","target":"cachemanager_cachemanager_getcachedir","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L8"}],"weight":1},{"source":"cachemanager_cachemanager","target":"cachemanager_cachemanager_getcategorydir","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L12"}],"weight":1},{"source":"cachemanager_cachemanager","target":"cachemanager_cachemanager_getsafefilename","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L20"}],"weight":1},{"source":"cachemanager_cachemanager","target":"cachemanager_cachemanager_getcachesize","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L25","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L25"}],"weight":1},{"source":"cachemanager_cachemanager_getcachesize","target":"cachemanager_cachemanager_getcachesize_calculatesize","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L30","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L30"}],"weight":1},{"source":"cachemanager_cachemanager","target":"cachemanager_cachemanager_clearcache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L46","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L46"}],"weight":1},{"source":"cachemanager_cachemanager","target":"cachemanager_cachemanager_getordownload","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L56","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L56"}],"weight":1},{"source":"cachemanager_cachemanager_getcategorydir","target":"cachemanager_cachemanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L13"}],"weight":1},{"source":"cachemanager_cachemanager_getcachesize","target":"cachemanager_cachemanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L26"}],"weight":1},{"source":"cachemanager_cachemanager_getcachesize","target":"cachemanager_cachemanager_getcachesize_calculatesize","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L42"}],"weight":1},{"source":"cachemanager_cachemanager_clearcache","target":"cachemanager_cachemanager_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L47"}],"weight":1},{"source":"cachemanager_cachemanager_getordownload","target":"cachemanager_cachemanager_getcategorydir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L63","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L63"}],"weight":1},{"source":"cachemanager_cachemanager_getordownload","target":"cachemanager_cachemanager_getsafefilename","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L64","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/CacheManager.ts","source_location":"L64"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "cachemanager",
+      "label": "CacheManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "cachemanager_cachemanager",
+      "label": "CacheManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L7-L107",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export class CacheManager {\n  static getCacheDir() {\n    return path.join(app.getPath('userData'), 'omnihost-cache');\n  }\n\n  static getCategoryDir(category: 'java' | 'jars' | 'mods' | 'modpacks') {\n    const dir = path.join(this.getCacheDir(), category);\n    if (!fs.existsSync(dir)) {\n      fs.mkdirSync(dir, { recursive: true });\n    }\n    return dir;\n  }\n\n  static getSafeFilename(downloadUrl: string, originalFilename: string) {\n    const hash = crypto.createHash('md5').update(downloadUrl).digest('hex').substring(0, 8);\n    return `${hash}-${originalFilename}`;\n  }\n\n  static getCacheSize(): number {\n    const dir = this.getCacheDir();\n    if (!fs.existsSync(dir)) return 0;\n\n    let totalSize = 0;\n    const calculateSize = (folderPath: string) => {\n      const files = fs.readdirSync(folderPath);"
+    },
+    {
+      "id": "cachemanager_cachemanager_getcachedir",
+      "label": ".getCacheDir()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L8-L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "static getCacheDir() {\n    return path.join(app.getPath('userData'), 'omnihost-cache');\n  }"
+    },
+    {
+      "id": "cachemanager_cachemanager_getcategorydir",
+      "label": ".getCategoryDir()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L12-L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L12"
+        }
+      ],
+      "snippet": "static getCategoryDir(category: 'java' | 'jars' | 'mods' | 'modpacks') {\n    const dir = path.join(this.getCacheDir(), category);\n    if (!fs.existsSync(dir)) {\n      fs.mkdirSync(dir, { recursive: true });\n    }\n    return dir;\n  }"
+    },
+    {
+      "id": "cachemanager_cachemanager_getsafefilename",
+      "label": ".getSafeFilename()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L20-L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L20"
+        }
+      ],
+      "snippet": "static getSafeFilename(downloadUrl: string, originalFilename: string) {\n    const hash = crypto.createHash('md5').update(downloadUrl).digest('hex').substring(0, 8);\n    return `${hash}-${originalFilename}`;\n  }"
+    },
+    {
+      "id": "cachemanager_cachemanager_getcachesize",
+      "label": ".getCacheSize()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L25-L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L25"
+        }
+      ],
+      "snippet": "static getCacheSize(): number {\n    const dir = this.getCacheDir();\n    if (!fs.existsSync(dir)) return 0;\n\n    let totalSize = 0;\n    const calculateSize = (folderPath: string) => {\n      const files = fs.readdirSync(folderPath);\n      for (const file of files) {\n        const fullPath = path.join(folderPath, file);\n        const stats = fs.statSync(fullPath);\n        if (stats.isDirectory()) {\n          calculateSize(fullPath);\n        } else {\n          totalSize += stats.size;\n        }\n      }\n    };\n    calculateSize(dir);\n    return totalSize; // in bytes\n  }"
+    },
+    {
+      "id": "cachemanager_cachemanager_getcachesize_calculatesize",
+      "label": "calculateSize()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L30-L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L30"
+        }
+      ],
+      "snippet": "calculateSize = (folderPath: string) => {\n      const files = fs.readdirSync(folderPath);\n      for (const file of files) {\n        const fullPath = path.join(folderPath, file);\n        const stats = fs.statSync(fullPath);\n        if (stats.isDirectory()) {\n          calculateSize(fullPath);\n        } else {\n          totalSize += stats.size;\n        }\n      }\n    }"
+    },
+    {
+      "id": "cachemanager_cachemanager_clearcache",
+      "label": ".clearCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L46-L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L46"
+        }
+      ],
+      "snippet": "static clearCache() {\n    const dir = this.getCacheDir();\n    if (fs.existsSync(dir)) {\n      fs.rmSync(dir, { recursive: true, force: true });\n    }\n  }"
+    },
+    {
+      "id": "cachemanager_cachemanager_getordownload",
+      "label": ".getOrDownload()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L56-L106",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L56"
+        }
+      ],
+      "snippet": "static async getOrDownload(\n    category: 'java' | 'jars' | 'mods' | 'modpacks',\n    downloadUrl: string,\n    originalFilename: string,\n    onProgress?: (progress: number, text?: string) => void,\n    progressText?: string\n  ): Promise<string> {\n    const categoryDir = this.getCategoryDir(category);\n    const safeFilename = this.getSafeFilename(downloadUrl, originalFilename);\n    const cachedFilePath = path.join(categoryDir, safeFilename);\n\n    if (fs.existsSync(cachedFilePath)) {\n      console.log(`[CacheManager] Cache hit for ${category}/${originalFilename}`);\n      if (onProgress) onProgress(100, progressText || 'Copied from cache...');\n      return cachedFilePath;\n    }\n\n    console.log(`[CacheManager] Cache miss for ${category}/${originalFilename}. Downloading...`);\n    if (onProgress) onProgress(0, progressText || 'Downloading...');\n\n    const response = await axios({\n      method: 'GET',\n      url: downloadUrl,\n      responseType: 'stream'\n    });"
+    }
+  ],
+  "edges": [
+    {
+      "source": "cachemanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager",
+      "target": "crypto",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager",
+      "target": "cachemanager_cachemanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager",
+      "target": "cachemanager_cachemanager_getcachedir",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager",
+      "target": "cachemanager_cachemanager_getcategorydir",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager",
+      "target": "cachemanager_cachemanager_getsafefilename",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L20"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager",
+      "target": "cachemanager_cachemanager_getcachesize",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L25",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L25"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_getcachesize",
+      "target": "cachemanager_cachemanager_getcachesize_calculatesize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L30",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L30"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager",
+      "target": "cachemanager_cachemanager_clearcache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L46"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager",
+      "target": "cachemanager_cachemanager_getordownload",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L56",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L56"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_getcategorydir",
+      "target": "cachemanager_cachemanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L13"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_getcachesize",
+      "target": "cachemanager_cachemanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_getcachesize",
+      "target": "cachemanager_cachemanager_getcachesize_calculatesize",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L42"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_clearcache",
+      "target": "cachemanager_cachemanager_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L47"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_getordownload",
+      "target": "cachemanager_cachemanager_getcategorydir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L63",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L63"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "cachemanager_cachemanager_getordownload",
+      "target": "cachemanager_cachemanager_getsafefilename",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+      "source_location": "L64",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/CacheManager.ts",
+          "source_location": "L64"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

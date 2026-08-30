@@ -1,1 +1,75 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"fix_app_animations","label":"fix_app_animations.py","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:python","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L1"}]},{"id":"fix_app_animations_main","label":"main()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:python","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L3"}]}],"edges":[{"source":"fix_app_animations","target":"re","relation":"imports","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:python","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L1"}],"weight":1},{"source":"fix_app_animations","target":"fix_app_animations_main","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:python","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py","source_location":"L3"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "fix_app_animations",
+      "label": "fix_app_animations.py",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:python",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "fix_app_animations_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:python",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+          "source_location": "L3"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "fix_app_animations",
+      "target": "re",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:python",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "fix_app_animations",
+      "target": "fix_app_animations_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:python",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_app_animations.py",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

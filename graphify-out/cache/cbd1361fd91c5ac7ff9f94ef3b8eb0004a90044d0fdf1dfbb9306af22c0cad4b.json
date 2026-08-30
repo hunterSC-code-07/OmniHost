@@ -1,1 +1,129 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecraftconfigmanager","label":"MinecraftConfigManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L1"}]},{"id":"minecraftconfigmanager_minecraftconfigmanager","label":"MinecraftConfigManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L4-L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L4"}],"snippet":"export class MinecraftConfigManager {\n  static async init(serverDir: string) {\n    if (!fs.existsSync(serverDir)) {\n      fs.mkdirSync(serverDir, { recursive: true });\n    }\n    \n    // Auto-accept EULA\n    fs.writeFileSync(join(serverDir, 'eula.txt'), 'eula=true\\n');\n\n    const propsPath = join(serverDir, 'server.properties');\n    if (fs.existsSync(propsPath)) {\n      let props = fs.readFileSync(propsPath, 'utf-8');\n      let modified = false;\n\n      if (props.includes('broadcast-console-to-ops=true')) {\n        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');\n        modified = true;\n      } else if (!props.includes('broadcast-console-to-ops=')) {\n        props += '\\nbroadcast-console-to-ops=false\\n';\n        modified = true;\n      }\n\n      if (!props.includes('online-mode=')) {\n        props += '\\nonline-mode=false\\n';\n        modified = true;"},{"id":"minecraftconfigmanager_minecraftconfigmanager_init","label":".init()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L5-L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L5"}],"snippet":"static async init(serverDir: string) {\n    if (!fs.existsSync(serverDir)) {\n      fs.mkdirSync(serverDir, { recursive: true });\n    }\n    \n    // Auto-accept EULA\n    fs.writeFileSync(join(serverDir, 'eula.txt'), 'eula=true\\n');\n\n    const propsPath = join(serverDir, 'server.properties');\n    if (fs.existsSync(propsPath)) {\n      let props = fs.readFileSync(propsPath, 'utf-8');\n      let modified = false;\n\n      if (props.includes('broadcast-console-to-ops=true')) {\n        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');\n        modified = true;\n      } else if (!props.includes('broadcast-console-to-ops=')) {\n        props += '\\nbroadcast-console-to-ops=false\\n';\n        modified = true;\n      }\n\n      if (!props.includes('online-mode=')) {\n        props += '\\nonline-mode=false\\n';\n        modified = true;\n      }"}],"edges":[{"source":"minecraftconfigmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L1"}],"weight":1},{"source":"minecraftconfigmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L2"}],"weight":1},{"source":"minecraftconfigmanager","target":"minecraftconfigmanager_minecraftconfigmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L4"}],"weight":1},{"source":"minecraftconfigmanager_minecraftconfigmanager","target":"minecraftconfigmanager_minecraftconfigmanager_init","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecraftconfigmanager",
+      "label": "MinecraftConfigManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecraftconfigmanager_minecraftconfigmanager",
+      "label": "MinecraftConfigManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L4-L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export class MinecraftConfigManager {\n  static async init(serverDir: string) {\n    if (!fs.existsSync(serverDir)) {\n      fs.mkdirSync(serverDir, { recursive: true });\n    }\n    \n    // Auto-accept EULA\n    fs.writeFileSync(join(serverDir, 'eula.txt'), 'eula=true\\n');\n\n    const propsPath = join(serverDir, 'server.properties');\n    if (fs.existsSync(propsPath)) {\n      let props = fs.readFileSync(propsPath, 'utf-8');\n      let modified = false;\n\n      if (props.includes('broadcast-console-to-ops=true')) {\n        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');\n        modified = true;\n      } else if (!props.includes('broadcast-console-to-ops=')) {\n        props += '\\nbroadcast-console-to-ops=false\\n';\n        modified = true;\n      }\n\n      if (!props.includes('online-mode=')) {\n        props += '\\nonline-mode=false\\n';\n        modified = true;"
+    },
+    {
+      "id": "minecraftconfigmanager_minecraftconfigmanager_init",
+      "label": ".init()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L5-L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "static async init(serverDir: string) {\n    if (!fs.existsSync(serverDir)) {\n      fs.mkdirSync(serverDir, { recursive: true });\n    }\n    \n    // Auto-accept EULA\n    fs.writeFileSync(join(serverDir, 'eula.txt'), 'eula=true\\n');\n\n    const propsPath = join(serverDir, 'server.properties');\n    if (fs.existsSync(propsPath)) {\n      let props = fs.readFileSync(propsPath, 'utf-8');\n      let modified = false;\n\n      if (props.includes('broadcast-console-to-ops=true')) {\n        props = props.replace('broadcast-console-to-ops=true', 'broadcast-console-to-ops=false');\n        modified = true;\n      } else if (!props.includes('broadcast-console-to-ops=')) {\n        props += '\\nbroadcast-console-to-ops=false\\n';\n        modified = true;\n      }\n\n      if (!props.includes('online-mode=')) {\n        props += '\\nonline-mode=false\\n';\n        modified = true;\n      }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecraftconfigmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftconfigmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftconfigmanager",
+      "target": "minecraftconfigmanager_minecraftconfigmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftconfigmanager_minecraftconfigmanager",
+      "target": "minecraftconfigmanager_minecraftconfigmanager_init",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftConfigManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

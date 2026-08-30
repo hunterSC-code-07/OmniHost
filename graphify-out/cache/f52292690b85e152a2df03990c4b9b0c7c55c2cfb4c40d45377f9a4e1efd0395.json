@@ -1,1 +1,181 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzadapter","label":"DayzAdapter.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1"}]},{"id":"dayzadapter_dayzadapter","label":"DayzAdapter","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L3-L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L3"}],"snippet":"export class DayzAdapter {\n  serverId: number;\n  private processManager: DayzProcessManager;\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.processManager = new DayzProcessManager(serverId);\n  }\n\n  async start() {\n    await this.processManager.start();\n  }\n\n  stop() {\n    this.processManager.stop();\n  }\n\n  get process() {\n    return this.processManager.process;\n  }\n}"},{"id":"dayzadapter_dayzadapter_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L7-L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L7"}],"snippet":"constructor(serverId: number) {\n    this.serverId = serverId;\n    this.processManager = new DayzProcessManager(serverId);\n  }"},{"id":"dayzadapter_dayzadapter_start","label":".start()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L12-L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L12"}],"snippet":"async start() {\n    await this.processManager.start();\n  }"},{"id":"dayzadapter_dayzadapter_stop","label":".stop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L16-L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L16"}],"snippet":"stop() {\n    this.processManager.stop();\n  }"}],"edges":[{"source":"dayzadapter","target":"dayzprocessmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1"}],"weight":1},{"source":"dayzadapter","target":"dayzadapter_dayzadapter","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L3"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L7"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_start","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L12"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_stop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L16"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzadapter",
+      "label": "DayzAdapter.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzadapter_dayzadapter",
+      "label": "DayzAdapter",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L3-L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "export class DayzAdapter {\n  serverId: number;\n  private processManager: DayzProcessManager;\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.processManager = new DayzProcessManager(serverId);\n  }\n\n  async start() {\n    await this.processManager.start();\n  }\n\n  stop() {\n    this.processManager.stop();\n  }\n\n  get process() {\n    return this.processManager.process;\n  }\n}"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L7-L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "constructor(serverId: number) {\n    this.serverId = serverId;\n    this.processManager = new DayzProcessManager(serverId);\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L12-L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L12"
+        }
+      ],
+      "snippet": "async start() {\n    await this.processManager.start();\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L16-L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L16"
+        }
+      ],
+      "snippet": "stop() {\n    this.processManager.stop();\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzadapter",
+      "target": "dayzprocessmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter",
+      "target": "dayzadapter_dayzadapter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

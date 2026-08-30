@@ -1,1 +1,94 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usedayzmoddownloader","label":"useDayzModDownloader.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L1"}]},{"id":"usedayzmoddownloader_usedayzmoddownloader","label":"useDayzModDownloader()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L4-L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L4"}],"snippet":"export function useDayzModDownloader(activeServerId: number | null) {\n  const { updatePendingProgress } = useDayzModStore();\n\n  useEffect(() => {\n    if (!activeServerId) return;\n\n    // Listen to IPC events from main process regarding download progress\n    window.api.server.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {\n      let currentModId: string | null = null;\n      let cleanMsg = msg || '';\n      \n      const match = cleanMsg.match(/^\\[MOD:(\\d+)\\]\\s*(.*)$/);\n      if (match) {\n        currentModId = match[1];\n        cleanMsg = match[2];\n      }\n\n      if (currentModId) {\n        if (cleanMsg.includes('already downloaded')) {\n          updatePendingProgress(activeServerId, currentModId, 100, 'Cached, waiting for batch...');\n        } else {\n          updatePendingProgress(activeServerId, currentModId, percent, cleanMsg);\n        }\n      }\n    });"}],"edges":[{"source":"usedayzmoddownloader","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L1"}],"weight":1},{"source":"usedayzmoddownloader","target":"usedayzmodstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L2"}],"weight":1},{"source":"usedayzmoddownloader","target":"usedayzmoddownloader_usedayzmoddownloader","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts","source_location":"L4"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usedayzmoddownloader",
+      "label": "useDayzModDownloader.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usedayzmoddownloader_usedayzmoddownloader",
+      "label": "useDayzModDownloader()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+      "source_location": "L4-L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export function useDayzModDownloader(activeServerId: number | null) {\n  const { updatePendingProgress } = useDayzModStore();\n\n  useEffect(() => {\n    if (!activeServerId) return;\n\n    // Listen to IPC events from main process regarding download progress\n    window.api.server.onDownloadProgress(activeServerId, (percent: number, msg?: string) => {\n      let currentModId: string | null = null;\n      let cleanMsg = msg || '';\n      \n      const match = cleanMsg.match(/^\\[MOD:(\\d+)\\]\\s*(.*)$/);\n      if (match) {\n        currentModId = match[1];\n        cleanMsg = match[2];\n      }\n\n      if (currentModId) {\n        if (cleanMsg.includes('already downloaded')) {\n          updatePendingProgress(activeServerId, currentModId, 100, 'Cached, waiting for batch...');\n        } else {\n          updatePendingProgress(activeServerId, currentModId, percent, cleanMsg);\n        }\n      }\n    });"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usedayzmoddownloader",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzmoddownloader",
+      "target": "usedayzmodstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzmoddownloader",
+      "target": "usedayzmoddownloader_usedayzmoddownloader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzModDownloader.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

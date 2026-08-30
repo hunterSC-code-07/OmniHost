@@ -1,1 +1,183 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useipclisteners","label":"useIpcListeners.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L1"}]},{"id":"useipclisteners_useipclisteners","label":"useIpcListeners()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L7-L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L7"}],"snippet":"export function useIpcListeners() {\n  useEffect(() => {\n    const fetchServers = async () => {\n      // @ts-ignore\n      const data = await window.api.getServers();\n      useServerStore.getState().setServers(data);\n    };\n    fetchServers();\n\n    // @ts-ignore\n    window.api.onServersUpdate((data: any[]) => {\n      useServerStore.getState().setServers(data);\n    });\n\n    // @ts-ignore\n    window.api.onConsoleLog((data: any) => {\n      const msgs = data.msg ? data.msg.split('\\n').filter((l: string) => l.trim() !== '') : [];\n      useLogStore.getState().addLogs(data.id.toString(), msgs);\n    });\n\n    // @ts-ignore\n    window.api.onOnlinePlayers((data: any) => {\n      usePlayerStore.getState().setOnlinePlayers(data.id.toString(), data.players);\n    });"},{"id":"useipclisteners_useipclisteners_fetchservers","label":"fetchServers()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L9-L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L9"}],"snippet":"fetchServers = async () => {\n      // @ts-ignore\n      const data = await window.api.getServers();\n      useServerStore.getState().setServers(data);\n    }"}],"edges":[{"source":"useipclisteners","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L1"}],"weight":1},{"source":"useipclisteners","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L2"}],"weight":1},{"source":"useipclisteners","target":"uselogstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L3"}],"weight":1},{"source":"useipclisteners","target":"useplayerstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L4"}],"weight":1},{"source":"useipclisteners","target":"usestatsstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L5"}],"weight":1},{"source":"useipclisteners","target":"useipclisteners_useipclisteners","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L7"}],"weight":1},{"source":"useipclisteners_useipclisteners","target":"useipclisteners_useipclisteners_fetchservers","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts","source_location":"L9"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useipclisteners",
+      "label": "useIpcListeners.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useipclisteners_useipclisteners",
+      "label": "useIpcListeners()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L7-L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export function useIpcListeners() {\n  useEffect(() => {\n    const fetchServers = async () => {\n      // @ts-ignore\n      const data = await window.api.getServers();\n      useServerStore.getState().setServers(data);\n    };\n    fetchServers();\n\n    // @ts-ignore\n    window.api.onServersUpdate((data: any[]) => {\n      useServerStore.getState().setServers(data);\n    });\n\n    // @ts-ignore\n    window.api.onConsoleLog((data: any) => {\n      const msgs = data.msg ? data.msg.split('\\n').filter((l: string) => l.trim() !== '') : [];\n      useLogStore.getState().addLogs(data.id.toString(), msgs);\n    });\n\n    // @ts-ignore\n    window.api.onOnlinePlayers((data: any) => {\n      usePlayerStore.getState().setOnlinePlayers(data.id.toString(), data.players);\n    });"
+    },
+    {
+      "id": "useipclisteners_useipclisteners_fetchservers",
+      "label": "fetchServers()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L9-L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "fetchServers = async () => {\n      // @ts-ignore\n      const data = await window.api.getServers();\n      useServerStore.getState().setServers(data);\n    }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useipclisteners",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useipclisteners",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useipclisteners",
+      "target": "uselogstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useipclisteners",
+      "target": "useplayerstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useipclisteners",
+      "target": "usestatsstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useipclisteners",
+      "target": "useipclisteners_useipclisteners",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useipclisteners_useipclisteners",
+      "target": "useipclisteners_useipclisteners_fetchservers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useIpcListeners.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -18,6 +18,22 @@ const DayzModStatus = ({ serverId }: { serverId: number }) => {
   );
 };
 
+const PalworldModStatus = ({ serverId }: { serverId: number }) => {
+  const [modCount, setModCount] = useState<number | null>(null);
+  useEffect(() => {
+    // @ts-ignore
+    window.api.palworld.getInstalledMods(serverId).then((mods: any[]) => {
+      setModCount(mods.length);
+    }).catch(() => setModCount(0));
+  }, [serverId]);
+
+  return (
+    <span className="text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest">
+      {modCount === null ? 'Checking...' : modCount > 0 ? `${modCount} Detected` : 'None'}
+    </span>
+  );
+};
+
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 import { useToastStore } from '../../../store/useToastStore';
@@ -98,11 +114,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
         <div className="px-gutter pt-stack-lg pb-stack-lg relative z-10">
           <div className="flex items-center justify-between mb-6">
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Active Deployments</h2>
-            <div className="flex items-center gap-2">
-              <button className="flex items-center gap-2 text-on-surface-variant hover:text-on-surface transition-colors font-label-sm">
-                <span className="material-symbols-outlined text-[18px]">filter_list</span> Filter
-              </button>
-            </div>
+
           </div>
           
           <div className="bg-surface-container/30 border border-outline-variant/30 rounded-2xl overflow-hidden backdrop-blur-md">
@@ -311,7 +323,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                             </div>
                             
                             <div className="flex flex-col gap-3 mt-4">
-                              {server.game !== 'DayZ' && (
+                              {server.game !== 'DayZ' && server.game !== 'Palworld' && (
                                 <div className="flex items-center gap-2 text-on-surface-variant font-label-md text-label-md">
                                   <span className="material-symbols-outlined text-lg text-primary">cell_tower</span>
                                   <span className="font-mono text-on-surface tracking-wider">{tunnelIp}:{server.port || 25565}</span>
@@ -326,6 +338,14 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                       Mods:
                                     </span>
                                     <DayzModStatus serverId={server.id} />
+                                  </div>
+                                ) : server.game === 'Palworld' ? (
+                                  <div className="flex items-center justify-between text-xs text-on-surface-variant font-label-sm">
+                                    <span className="flex items-center gap-1.5">
+                                      <span className="material-symbols-outlined text-base opacity-70">extension</span>
+                                      Mods:
+                                    </span>
+                                    <PalworldModStatus serverId={server.id} />
                                   </div>
                                 ) : (
                                   <>

@@ -1,1 +1,273 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecraftipc","label":"MinecraftIpc.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L1"}]},{"id":"minecraftipc_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L12-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L12"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"minecraftipc_registerminecraftipc","label":"registerMinecraftIpc()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L22-L805","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L22"}],"snippet":"export function registerMinecraftIpc(activeServers: Record<number, any>) {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  // Versions & Downloads\n  ipcMain.handle('get-vanilla-versions', async () => {\n    try {\n      const res = await axios.get(\n        'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n      )\n      const releases = res.data.versions.filter((v: any) => v.type === 'release')\n      return releases\n        .map((v: any) => v.id)\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n    } catch (e) {\n      console.error(e)\n      return []\n    }\n  })\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---"}],"edges":[{"source":"minecraftipc","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L1"}],"weight":1},{"source":"minecraftipc","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L2"}],"weight":1},{"source":"minecraftipc","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L3"}],"weight":1},{"source":"minecraftipc","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L4"}],"weight":1},{"source":"minecraftipc","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L5"}],"weight":1},{"source":"minecraftipc","target":"semver","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L6"}],"weight":1},{"source":"minecraftipc","target":"extract_zip","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L7"}],"weight":1},{"source":"minecraftipc","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L8"}],"weight":1},{"source":"minecraftipc","target":"cachemanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L9"}],"weight":1},{"source":"minecraftipc","target":"javamanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L10"}],"weight":1},{"source":"minecraftipc","target":"minecraftipc_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L12"}],"weight":1},{"source":"minecraftipc","target":"minecraftipc_registerminecraftipc","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts","source_location":"L22"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecraftipc",
+      "label": "MinecraftIpc.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecraftipc_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L12-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L12"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "minecraftipc_registerminecraftipc",
+      "label": "registerMinecraftIpc()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L22-L805",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L22"
+        }
+      ],
+      "snippet": "export function registerMinecraftIpc(activeServers: Record<number, any>) {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  // Versions & Downloads\n  ipcMain.handle('get-vanilla-versions', async () => {\n    try {\n      const res = await axios.get(\n        'https://launchermeta.mojang.com/mc/game/version_manifest_v2.json'\n      )\n      const releases = res.data.versions.filter((v: any) => v.type === 'release')\n      return releases\n        .map((v: any) => v.id)\n        .filter((v: string) => {\n          const coerced = semver.coerce(v)\n          return coerced && semver.gte(coerced, '1.16.0')\n        })\n    } catch (e) {\n      console.error(e)\n      return []\n    }\n  })\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecraftipc",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "semver",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "extract_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "cachemanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "javamanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "minecraftipc_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftipc",
+      "target": "minecraftipc_registerminecraftipc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/MinecraftIpc.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,236 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamdownloader","label":"SteamDownloader.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L1"}]},{"id":"steamdownloader_steamdownloader","label":"SteamDownloader","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L7-L81","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L7"}],"snippet":"export class SteamDownloader {\n  static activeProcess: ChildProcess | null = null;\n\n  static async updateCache(serverId: number, appId: number, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    return new Promise((resolve, reject) => {\n      SteamCMDSetup.sendLog(serverId, 0, `Starting SteamCMD download for App ${appId}...`);\n\n      const exePath = SteamCMDSetup.getExePath();\n      const loginArgs = SteamAuth.getLoginArgs(username, password, steamGuardCode);\n      const cacheDir = SteamCache.getCacheDir(appId);\n\n      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });\n\n      const args: string[] = [\n        '+force_install_dir', cacheDir,\n        ...loginArgs,\n        '+app_update', appId.toString(), 'validate',\n        '+quit'\n      ];\n\n      const proc = spawn(exePath, args, { cwd: SteamCMDSetup.getSteamCMDDir() });\n      this.activeProcess = proc;"},{"id":"steamdownloader_steamdownloader_updatecache","label":".updateCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L10-L72","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L10"}],"snippet":"static async updateCache(serverId: number, appId: number, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    return new Promise((resolve, reject) => {\n      SteamCMDSetup.sendLog(serverId, 0, `Starting SteamCMD download for App ${appId}...`);\n\n      const exePath = SteamCMDSetup.getExePath();\n      const loginArgs = SteamAuth.getLoginArgs(username, password, steamGuardCode);\n      const cacheDir = SteamCache.getCacheDir(appId);\n\n      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });\n\n      const args: string[] = [\n        '+force_install_dir', cacheDir,\n        ...loginArgs,\n        '+app_update', appId.toString(), 'validate',\n        '+quit'\n      ];\n\n      const proc = spawn(exePath, args, { cwd: SteamCMDSetup.getSteamCMDDir() });\n      this.activeProcess = proc;\n\n      let steamGuardRequested = false;\n\n      proc.stdout?.on('data', (data) => {"},{"id":"steamdownloader_steamdownloader_installapp","label":".installApp()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L74-L80","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L74"}],"snippet":"static async installApp(serverId: number, appId: number, installDir: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.updateCache(serverId, appId, username, password, steamGuardCode);\n    SteamCMDSetup.sendLog(serverId, 99, 'Copying from cache to server directory...');\n    await SteamCache.copyFromCache(serverId, appId, installDir);\n    SteamCMDSetup.sendLog(serverId, 100, 'Download and Setup Complete!');\n    return true;\n  }"}],"edges":[{"source":"steamdownloader","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L1"}],"weight":1},{"source":"steamdownloader","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L2"}],"weight":1},{"source":"steamdownloader","target":"steamauth","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L3"}],"weight":1},{"source":"steamdownloader","target":"steamcache","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L4"}],"weight":1},{"source":"steamdownloader","target":"steamcmdsetup","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L5"}],"weight":1},{"source":"steamdownloader","target":"steamdownloader_steamdownloader","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L7"}],"weight":1},{"source":"steamdownloader_steamdownloader","target":"steamdownloader_steamdownloader_updatecache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L10"}],"weight":1},{"source":"steamdownloader_steamdownloader","target":"steamdownloader_steamdownloader_installapp","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L74","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L74"}],"weight":1},{"source":"steamdownloader_steamdownloader_installapp","target":"steamdownloader_steamdownloader_updatecache","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L75","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamDownloader.ts","source_location":"L75"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamdownloader",
+      "label": "SteamDownloader.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamdownloader_steamdownloader",
+      "label": "SteamDownloader",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L7-L81",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "export class SteamDownloader {\n  static activeProcess: ChildProcess | null = null;\n\n  static async updateCache(serverId: number, appId: number, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    return new Promise((resolve, reject) => {\n      SteamCMDSetup.sendLog(serverId, 0, `Starting SteamCMD download for App ${appId}...`);\n\n      const exePath = SteamCMDSetup.getExePath();\n      const loginArgs = SteamAuth.getLoginArgs(username, password, steamGuardCode);\n      const cacheDir = SteamCache.getCacheDir(appId);\n\n      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });\n\n      const args: string[] = [\n        '+force_install_dir', cacheDir,\n        ...loginArgs,\n        '+app_update', appId.toString(), 'validate',\n        '+quit'\n      ];\n\n      const proc = spawn(exePath, args, { cwd: SteamCMDSetup.getSteamCMDDir() });\n      this.activeProcess = proc;"
+    },
+    {
+      "id": "steamdownloader_steamdownloader_updatecache",
+      "label": ".updateCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L10-L72",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "static async updateCache(serverId: number, appId: number, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await SteamCMDSetup.ensureInstalled(serverId);\n\n    return new Promise((resolve, reject) => {\n      SteamCMDSetup.sendLog(serverId, 0, `Starting SteamCMD download for App ${appId}...`);\n\n      const exePath = SteamCMDSetup.getExePath();\n      const loginArgs = SteamAuth.getLoginArgs(username, password, steamGuardCode);\n      const cacheDir = SteamCache.getCacheDir(appId);\n\n      if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true });\n\n      const args: string[] = [\n        '+force_install_dir', cacheDir,\n        ...loginArgs,\n        '+app_update', appId.toString(), 'validate',\n        '+quit'\n      ];\n\n      const proc = spawn(exePath, args, { cwd: SteamCMDSetup.getSteamCMDDir() });\n      this.activeProcess = proc;\n\n      let steamGuardRequested = false;\n\n      proc.stdout?.on('data', (data) => {"
+    },
+    {
+      "id": "steamdownloader_steamdownloader_installapp",
+      "label": ".installApp()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L74-L80",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L74"
+        }
+      ],
+      "snippet": "static async installApp(serverId: number, appId: number, installDir: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {\n    await this.updateCache(serverId, appId, username, password, steamGuardCode);\n    SteamCMDSetup.sendLog(serverId, 99, 'Copying from cache to server directory...');\n    await SteamCache.copyFromCache(serverId, appId, installDir);\n    SteamCMDSetup.sendLog(serverId, 100, 'Download and Setup Complete!');\n    return true;\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamdownloader",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader",
+      "target": "steamauth",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader",
+      "target": "steamcache",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader",
+      "target": "steamcmdsetup",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader",
+      "target": "steamdownloader_steamdownloader",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader_steamdownloader",
+      "target": "steamdownloader_steamdownloader_updatecache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader_steamdownloader",
+      "target": "steamdownloader_steamdownloader_installapp",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L74",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L74"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamdownloader_steamdownloader_installapp",
+      "target": "steamdownloader_steamdownloader_updatecache",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+      "source_location": "L75",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamDownloader.ts",
+          "source_location": "L75"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

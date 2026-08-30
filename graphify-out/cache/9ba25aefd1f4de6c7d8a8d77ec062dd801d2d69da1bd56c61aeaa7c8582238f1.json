@@ -1,1 +1,115 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"list_view_icon","label":"list-view-icon.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L1"}]},{"id":"list_view_icon_listviewiconprops","label":"ListViewIconProps","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L14-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L14"}],"snippet":"export interface ListViewIconProps {\n  /** Whether the icon is in its active (animated) state. */\n  isActive: boolean;\n  /** Extra classes applied to the root element. */\n  className?: string;\n}"},{"id":"list_view_icon_listviewicon","label":"ListViewIcon()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L21-L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L21"}],"snippet":"export function ListViewIcon({ isActive, className }: ListViewIconProps) {\n  return (\n    <motion.span\n      className={`inline-flex h-4 w-4 flex-col items-center justify-center gap-[3px] ${className ?? \"\"}`}\n      aria-hidden=\"true\"\n    >\n      {[0, 1, 2].map((i) => (\n        <motion.span\n          key={i}\n          className=\"h-[2px] w-3 rounded-full bg-current\"\n          animate={\n            isActive\n              ? { y: LINE_TRAVEL[i], opacity: [0.55, 1, 1] }\n              : { y: 0, opacity: 0.9 }\n          }\n          transition={{\n            duration: 0.36,\n            delay: i === 0 ? 0 : i * LINE_DELAY_STEP,\n            ease: \"easeOut\",\n          }}\n        />\n      ))}\n    </motion.span>\n  );\n}","node_kind":"function","framework":"nextjs","framework_role":"next_client_component","runtime_boundary":"client"}],"edges":[{"source":"list_view_icon","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L3"}],"weight":1},{"source":"list_view_icon","target":"list_view_icon_listviewiconprops","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L14"}],"weight":1},{"source":"list_view_icon","target":"list_view_icon_listviewicon","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx","source_location":"L21"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "list_view_icon",
+      "label": "list-view-icon.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "list_view_icon_listviewiconprops",
+      "label": "ListViewIconProps",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+      "source_location": "L14-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+          "source_location": "L14"
+        }
+      ],
+      "snippet": "export interface ListViewIconProps {\n  /** Whether the icon is in its active (animated) state. */\n  isActive: boolean;\n  /** Extra classes applied to the root element. */\n  className?: string;\n}"
+    },
+    {
+      "id": "list_view_icon_listviewicon",
+      "label": "ListViewIcon()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+      "source_location": "L21-L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "export function ListViewIcon({ isActive, className }: ListViewIconProps) {\n  return (\n    <motion.span\n      className={`inline-flex h-4 w-4 flex-col items-center justify-center gap-[3px] ${className ?? \"\"}`}\n      aria-hidden=\"true\"\n    >\n      {[0, 1, 2].map((i) => (\n        <motion.span\n          key={i}\n          className=\"h-[2px] w-3 rounded-full bg-current\"\n          animate={\n            isActive\n              ? { y: LINE_TRAVEL[i], opacity: [0.55, 1, 1] }\n              : { y: 0, opacity: 0.9 }\n          }\n          transition={{\n            duration: 0.36,\n            delay: i === 0 ? 0 : i * LINE_DELAY_STEP,\n            ease: \"easeOut\",\n          }}\n        />\n      ))}\n    </motion.span>\n  );\n}",
+      "node_kind": "function",
+      "framework": "nextjs",
+      "framework_role": "next_client_component",
+      "runtime_boundary": "client"
+    }
+  ],
+  "edges": [
+    {
+      "source": "list_view_icon",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "list_view_icon",
+      "target": "list_view_icon_listviewiconprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "list_view_icon",
+      "target": "list_view_icon_listviewicon",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/unlumen-ui/list-view-icon.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

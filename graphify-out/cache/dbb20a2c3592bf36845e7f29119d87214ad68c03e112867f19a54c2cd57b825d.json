@@ -1,1 +1,306 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzconfigmanager","label":"DayzConfigManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L1"}]},{"id":"dayzconfigmanager_dayzconfigmanager","label":"DayzConfigManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L6-L77","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L6"}],"snippet":"export class DayzConfigManager {\n  \n  static async exists(path: string) {\n    try {\n      await fsPromises.access(path)\n      return true\n    } catch {\n      return false\n    }\n  }\n\n  static async ensureDefaultConfig(serverDir: string) {\n    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });\n    \n    const cfgPath = join(serverDir, 'serverDZ.cfg');\n    if (!fs.existsSync(cfgPath)) {\n      const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility\nsteamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel\nhostname = \"OmniHost DayZ Server\";  // Server name\npassword = \"\";              // Password to connect to the server\npasswordAdmin = \"\";         // Password to become a server admin\nmaxPlayers = 60;            // Maximum amount of players\nverifySignatures = 2;       // Verifies .pbos against .bisign files. (only 2 is supported)\nforceSameBuild = 1;         // When enabled, the server will allow the connection only to clients with same the .exe revision as the server (value 0-1)\ndisableVoN = 0;             // Enable/disable voice over network (value 0-1)"},{"id":"dayzconfigmanager_dayzconfigmanager_exists","label":".exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L8-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L8"}],"snippet":"static async exists(path: string) {\n    try {\n      await fsPromises.access(path)\n      return true\n    } catch {\n      return false\n    }\n  }"},{"id":"dayzconfigmanager_dayzconfigmanager_ensuredefaultconfig","label":".ensureDefaultConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L17-L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L17"}],"snippet":"static async ensureDefaultConfig(serverDir: string) {\n    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });\n    \n    const cfgPath = join(serverDir, 'serverDZ.cfg');\n    if (!fs.existsSync(cfgPath)) {\n      const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility\nsteamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel\nhostname = \"OmniHost DayZ Server\";  // Server name\npassword = \"\";              // Password to connect to the server\npasswordAdmin = \"\";         // Password to become a server admin\nmaxPlayers = 60;            // Maximum amount of players\nverifySignatures = 2;       // Verifies .pbos against .bisign files. (only 2 is supported)\nforceSameBuild = 1;         // When enabled, the server will allow the connection only to clients with same the .exe revision as the server (value 0-1)\ndisableVoN = 0;             // Enable/disable voice over network (value 0-1)\nvonCodecQuality = 20;       // Voice over network codec quality, the higher the better (values 0-30)\ndisable3rdPerson=0;         // Toggles the 3rd person view for players (value 0-1)\ndisableCrosshair=0;         // Toggles the cross-hair (value 0-1)\nserverTime=\"SystemTime\";    // Initial in-game time of the server. \"SystemTime\" means the local time of the machine. Another possibility is to set the time to some value in \"YYYY/MM/DD/HH/MM\" format, f.e. \"2015/4/8/17/23\"\nserverTimeAcceleration=1;   // Accelerated Time (value 0-24)\nserverNightTimeAcceleration=1; // Accelerated Nigh Time\nserverTimePersistent=0;     // Persistent Time\nguaranteedUpdates=1;        // Communication protocol used with game server (use only number 1)\nloginQueueConcurrentPlayers=5; // The number of players concurrently processed during the login process.\nloginQueueMaxPlayers=500;   // The maximum number of players that can wait in login queue\ninstanceId = 1;             // DayZ server instance id, to identify the number of instances per box and the..."},{"id":"dayzconfigmanager_dayzconfigmanager_readconfig","label":".readConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L57-L65","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L57"}],"snippet":"static async readConfig(serverId: number) {\n    if (serverId == null) return null;\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())\n    const cfgPath = join(serverDir, 'serverDZ.cfg')\n    if (await this.exists(cfgPath)) {\n      return await fsPromises.readFile(cfgPath, 'utf-8')\n    }\n    return null\n  }"},{"id":"dayzconfigmanager_dayzconfigmanager_writeconfig","label":".writeConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L67-L76","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L67"}],"snippet":"static async writeConfig(serverId: number, content: string) {\n    if (serverId == null) return false;\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())\n    const cfgPath = join(serverDir, 'serverDZ.cfg')\n    if (await this.exists(cfgPath)) {\n      await fsPromises.writeFile(cfgPath, content)\n      return true\n    }\n    return false\n  }"}],"edges":[{"source":"dayzconfigmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L1"}],"weight":1},{"source":"dayzconfigmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L2"}],"weight":1},{"source":"dayzconfigmanager","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L3"}],"weight":1},{"source":"dayzconfigmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L4"}],"weight":1},{"source":"dayzconfigmanager","target":"dayzconfigmanager_dayzconfigmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L6"}],"weight":1},{"source":"dayzconfigmanager_dayzconfigmanager","target":"dayzconfigmanager_dayzconfigmanager_exists","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L8"}],"weight":1},{"source":"dayzconfigmanager_dayzconfigmanager","target":"dayzconfigmanager_dayzconfigmanager_ensuredefaultconfig","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L17"}],"weight":1},{"source":"dayzconfigmanager_dayzconfigmanager","target":"dayzconfigmanager_dayzconfigmanager_readconfig","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L57","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L57"}],"weight":1},{"source":"dayzconfigmanager_dayzconfigmanager","target":"dayzconfigmanager_dayzconfigmanager_writeconfig","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L67","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L67"}],"weight":1},{"source":"dayzconfigmanager_dayzconfigmanager_readconfig","target":"dayzconfigmanager_dayzconfigmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L61","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L61"}],"weight":1},{"source":"dayzconfigmanager_dayzconfigmanager_writeconfig","target":"dayzconfigmanager_dayzconfigmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L71","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts","source_location":"L71"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzconfigmanager",
+      "label": "DayzConfigManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzconfigmanager_dayzconfigmanager",
+      "label": "DayzConfigManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L6-L77",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "export class DayzConfigManager {\n  \n  static async exists(path: string) {\n    try {\n      await fsPromises.access(path)\n      return true\n    } catch {\n      return false\n    }\n  }\n\n  static async ensureDefaultConfig(serverDir: string) {\n    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });\n    \n    const cfgPath = join(serverDir, 'serverDZ.cfg');\n    if (!fs.existsSync(cfgPath)) {\n      const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility\nsteamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel\nhostname = \"OmniHost DayZ Server\";  // Server name\npassword = \"\";              // Password to connect to the server\npasswordAdmin = \"\";         // Password to become a server admin\nmaxPlayers = 60;            // Maximum amount of players\nverifySignatures = 2;       // Verifies .pbos against .bisign files. (only 2 is supported)\nforceSameBuild = 1;         // When enabled, the server will allow the connection only to clients with same the .exe revision as the server (value 0-1)\ndisableVoN = 0;             // Enable/disable voice over network (value 0-1)"
+    },
+    {
+      "id": "dayzconfigmanager_dayzconfigmanager_exists",
+      "label": ".exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L8-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "static async exists(path: string) {\n    try {\n      await fsPromises.access(path)\n      return true\n    } catch {\n      return false\n    }\n  }"
+    },
+    {
+      "id": "dayzconfigmanager_dayzconfigmanager_ensuredefaultconfig",
+      "label": ".ensureDefaultConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L17-L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "static async ensureDefaultConfig(serverDir: string) {\n    if (!fs.existsSync(serverDir)) fs.mkdirSync(serverDir, { recursive: true });\n    \n    const cfgPath = join(serverDir, 'serverDZ.cfg');\n    if (!fs.existsSync(cfgPath)) {\n      const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility\nsteamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel\nhostname = \"OmniHost DayZ Server\";  // Server name\npassword = \"\";              // Password to connect to the server\npasswordAdmin = \"\";         // Password to become a server admin\nmaxPlayers = 60;            // Maximum amount of players\nverifySignatures = 2;       // Verifies .pbos against .bisign files. (only 2 is supported)\nforceSameBuild = 1;         // When enabled, the server will allow the connection only to clients with same the .exe revision as the server (value 0-1)\ndisableVoN = 0;             // Enable/disable voice over network (value 0-1)\nvonCodecQuality = 20;       // Voice over network codec quality, the higher the better (values 0-30)\ndisable3rdPerson=0;         // Toggles the 3rd person view for players (value 0-1)\ndisableCrosshair=0;         // Toggles the cross-hair (value 0-1)\nserverTime=\"SystemTime\";    // Initial in-game time of the server. \"SystemTime\" means the local time of the machine. Another possibility is to set the time to some value in \"YYYY/MM/DD/HH/MM\" format, f.e. \"2015/4/8/17/23\"\nserverTimeAcceleration=1;   // Accelerated Time (value 0-24)\nserverNightTimeAcceleration=1; // Accelerated Nigh Time\nserverTimePersistent=0;     // Persistent Time\nguaranteedUpdates=1;        // Communication protocol used with game server (use only number 1)\nloginQueueConcurrentPlayers=5; // The number of players concurrently processed during the login process.\nloginQueueMaxPlayers=500;   // The maximum number of players that can wait in login queue\ninstanceId = 1;             // DayZ server instance id, to identify the number of instances per box and the..."
+    },
+    {
+      "id": "dayzconfigmanager_dayzconfigmanager_readconfig",
+      "label": ".readConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L57-L65",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L57"
+        }
+      ],
+      "snippet": "static async readConfig(serverId: number) {\n    if (serverId == null) return null;\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())\n    const cfgPath = join(serverDir, 'serverDZ.cfg')\n    if (await this.exists(cfgPath)) {\n      return await fsPromises.readFile(cfgPath, 'utf-8')\n    }\n    return null\n  }"
+    },
+    {
+      "id": "dayzconfigmanager_dayzconfigmanager_writeconfig",
+      "label": ".writeConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L67-L76",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L67"
+        }
+      ],
+      "snippet": "static async writeConfig(serverId: number, content: string) {\n    if (serverId == null) return false;\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())\n    const cfgPath = join(serverDir, 'serverDZ.cfg')\n    if (await this.exists(cfgPath)) {\n      await fsPromises.writeFile(cfgPath, content)\n      return true\n    }\n    return false\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzconfigmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager",
+      "target": "dayzconfigmanager_dayzconfigmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager_dayzconfigmanager",
+      "target": "dayzconfigmanager_dayzconfigmanager_exists",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager_dayzconfigmanager",
+      "target": "dayzconfigmanager_dayzconfigmanager_ensuredefaultconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager_dayzconfigmanager",
+      "target": "dayzconfigmanager_dayzconfigmanager_readconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L57",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L57"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager_dayzconfigmanager",
+      "target": "dayzconfigmanager_dayzconfigmanager_writeconfig",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L67",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L67"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager_dayzconfigmanager_readconfig",
+      "target": "dayzconfigmanager_dayzconfigmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L61",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L61"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzconfigmanager_dayzconfigmanager_writeconfig",
+      "target": "dayzconfigmanager_dayzconfigmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+      "source_location": "L71",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzConfigManager.ts",
+          "source_location": "L71"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

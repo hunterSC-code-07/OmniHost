@@ -1,1 +1,359 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamcache","label":"SteamCache.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L1"}]},{"id":"steamcache_steamcache","label":"SteamCache","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L5-L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L5"}],"snippet":"export class SteamCache {\n  static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }\n\n  static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);\n    return files.length > 0;\n  }\n\n  static async deleteCache(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (fs.existsSync(cacheDir)) {\n      await fs.promises.rm(cacheDir, { recursive: true, force: true });\n    }\n    return true;\n  }\n\n  static async copyFromCache(serverId: number, appId: number, installDir: string): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    this.sendLog(serverId, 50, 'Copying server files from cache...');\n    await fs.promises.cp(cacheDir, installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Server files copied!');"},{"id":"steamcache_steamcache_getcachedir","label":".getCacheDir()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L6-L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L6"}],"snippet":"static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }"},{"id":"steamcache_steamcache_iscached","label":".isCached()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L10-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L10"}],"snippet":"static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);\n    return files.length > 0;\n  }"},{"id":"steamcache_steamcache_deletecache","label":".deleteCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L17-L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L17"}],"snippet":"static async deleteCache(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (fs.existsSync(cacheDir)) {\n      await fs.promises.rm(cacheDir, { recursive: true, force: true });\n    }\n    return true;\n  }"},{"id":"steamcache_steamcache_copyfromcache","label":".copyFromCache()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L25-L31","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L25"}],"snippet":"static async copyFromCache(serverId: number, appId: number, installDir: string): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    this.sendLog(serverId, 50, 'Copying server files from cache...');\n    await fs.promises.cp(cacheDir, installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Server files copied!');\n    return true;\n  }"},{"id":"steamcache_steamcache_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L33-L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L33"}],"snippet":"static sendLog(serverId: number, progress: number, msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send(`download-progress-${serverId}`, progress, msg);\n    }\n  }"}],"edges":[{"source":"steamcache","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L1"}],"weight":1},{"source":"steamcache","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L2"}],"weight":1},{"source":"steamcache","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L3"}],"weight":1},{"source":"steamcache","target":"steamcache_steamcache","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L5"}],"weight":1},{"source":"steamcache_steamcache","target":"steamcache_steamcache_getcachedir","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L6"}],"weight":1},{"source":"steamcache_steamcache","target":"steamcache_steamcache_iscached","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L10"}],"weight":1},{"source":"steamcache_steamcache","target":"steamcache_steamcache_deletecache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L17"}],"weight":1},{"source":"steamcache_steamcache","target":"steamcache_steamcache_copyfromcache","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L25","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L25"}],"weight":1},{"source":"steamcache_steamcache","target":"steamcache_steamcache_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L33"}],"weight":1},{"source":"steamcache_steamcache_iscached","target":"steamcache_steamcache_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L11"}],"weight":1},{"source":"steamcache_steamcache_deletecache","target":"steamcache_steamcache_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L18"}],"weight":1},{"source":"steamcache_steamcache_copyfromcache","target":"steamcache_steamcache_getcachedir","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L26"}],"weight":1},{"source":"steamcache_steamcache_copyfromcache","target":"steamcache_steamcache_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/steam/SteamCache.ts","source_location":"L27"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamcache",
+      "label": "SteamCache.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamcache_steamcache",
+      "label": "SteamCache",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L5-L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export class SteamCache {\n  static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }\n\n  static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);\n    return files.length > 0;\n  }\n\n  static async deleteCache(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (fs.existsSync(cacheDir)) {\n      await fs.promises.rm(cacheDir, { recursive: true, force: true });\n    }\n    return true;\n  }\n\n  static async copyFromCache(serverId: number, appId: number, installDir: string): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    this.sendLog(serverId, 50, 'Copying server files from cache...');\n    await fs.promises.cp(cacheDir, installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Server files copied!');"
+    },
+    {
+      "id": "steamcache_steamcache_getcachedir",
+      "label": ".getCacheDir()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L6-L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "static getCacheDir(appId: number) {\n    return join(app.getPath('userData'), 'steam_cache', appId.toString());\n  }"
+    },
+    {
+      "id": "steamcache_steamcache_iscached",
+      "label": ".isCached()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L10-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "static async isCached(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (!fs.existsSync(cacheDir)) return false;\n    const files = fs.readdirSync(cacheDir);\n    return files.length > 0;\n  }"
+    },
+    {
+      "id": "steamcache_steamcache_deletecache",
+      "label": ".deleteCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L17-L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "static async deleteCache(appId: number): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    if (fs.existsSync(cacheDir)) {\n      await fs.promises.rm(cacheDir, { recursive: true, force: true });\n    }\n    return true;\n  }"
+    },
+    {
+      "id": "steamcache_steamcache_copyfromcache",
+      "label": ".copyFromCache()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L25-L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L25"
+        }
+      ],
+      "snippet": "static async copyFromCache(serverId: number, appId: number, installDir: string): Promise<boolean> {\n    const cacheDir = this.getCacheDir(appId);\n    this.sendLog(serverId, 50, 'Copying server files from cache...');\n    await fs.promises.cp(cacheDir, installDir, { recursive: true });\n    this.sendLog(serverId, 100, 'Server files copied!');\n    return true;\n  }"
+    },
+    {
+      "id": "steamcache_steamcache_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L33-L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L33"
+        }
+      ],
+      "snippet": "static sendLog(serverId: number, progress: number, msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send(`download-progress-${serverId}`, progress, msg);\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamcache",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache",
+      "target": "steamcache_steamcache",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache",
+      "target": "steamcache_steamcache_getcachedir",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache",
+      "target": "steamcache_steamcache_iscached",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache",
+      "target": "steamcache_steamcache_deletecache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache",
+      "target": "steamcache_steamcache_copyfromcache",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L25",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L25"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache",
+      "target": "steamcache_steamcache_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L33"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache_iscached",
+      "target": "steamcache_steamcache_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache_deletecache",
+      "target": "steamcache_steamcache_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L18"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache_copyfromcache",
+      "target": "steamcache_steamcache_getcachedir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamcache_steamcache_copyfromcache",
+      "target": "steamcache_steamcache_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+      "source_location": "L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/steam/SteamCache.ts",
+          "source_location": "L27"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

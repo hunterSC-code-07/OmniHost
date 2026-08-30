@@ -1,1 +1,464 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzlogparser","label":"DayzLogParser.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L1"}]},{"id":"dayzlogparser_dayzlogparser","label":"DayzLogParser","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L8-L124","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L8"}],"snippet":"export class DayzLogParser {\n  private logWatcher: NodeJS.Timeout | null = null;\n  private logFd: number | null = null;\n  private lastLogPos: number = 0;\n  private logBuffer: string = '';\n\n  constructor(\n    private serverDir: string,\n    private startTime: number,\n    private onLog: LogCallback,\n    private onPlayerUpdate: PlayerCallback\n  ) {}\n\n  setupLogWatcher(process: ChildProcess | null) {\n    const profilesDir = join(this.serverDir, 'Profiles');\n    this.onLog(`[System] Initializing Log Watcher at: ${profilesDir}`);\n    if (!fs.existsSync(profilesDir)) {\n      fs.mkdirSync(profilesDir, { recursive: true });\n    }\n    this.pollForLogFile(profilesDir, process);\n  }\n\n  private pollForLogFile(profilesDir: string, process: ChildProcess | null) {\n    const checkFile = () => {\n      if (!process) return; // Stop if server process exited"},{"id":"dayzlogparser_dayzlogparser_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L14-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L14"}],"snippet":"constructor(\n    private serverDir: string,\n    private startTime: number,\n    private onLog: LogCallback,\n    private onPlayerUpdate: PlayerCallback\n  ) {}"},{"id":"dayzlogparser_dayzlogparser_setuplogwatcher","label":".setupLogWatcher()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L21-L28","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L21"}],"snippet":"setupLogWatcher(process: ChildProcess | null) {\n    const profilesDir = join(this.serverDir, 'Profiles');\n    this.onLog(`[System] Initializing Log Watcher at: ${profilesDir}`);\n    if (!fs.existsSync(profilesDir)) {\n      fs.mkdirSync(profilesDir, { recursive: true });\n    }\n    this.pollForLogFile(profilesDir, process);\n  }"},{"id":"dayzlogparser_dayzlogparser_pollforlogfile","label":".pollForLogFile()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L30-L53","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L30"}],"snippet":"private pollForLogFile(profilesDir: string, process: ChildProcess | null) {\n    const checkFile = () => {\n      if (!process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    };\n    setTimeout(checkFile, 2000);\n  }"},{"id":"dayzlogparser_dayzlogparser_pollforlogfile_checkfile","label":"checkFile()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L31-L51","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L31"}],"snippet":"checkFile = () => {\n      if (!process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    }"},{"id":"dayzlogparser_dayzlogparser_taillogfile","label":".tailLogFile()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L55-L71","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L55"}],"snippet":"private tailLogFile(filePath: string) {\n    this.onLog(`[System] Attaching to DayZ Admin Log: ${filePath}`);\n    \n    try {\n      this.logFd = fs.openSync(filePath, 'r');\n      this.lastLogPos = 0; // Read from start to catch existing players\n      this.logBuffer = ''; // Clear buffer on new file\n      this.readNewLogs();\n\n      // Use setInterval instead of fs.watch for much faster and more reliable updates on Windows\n      this.logWatcher = setInterval(() => {\n        this.readNewLogs();\n      }, 500);\n    } catch (e) {\n      this.onLog(`[System Error] Failed to tail log: ${e}`);\n    }\n  }"},{"id":"dayzlogparser_dayzlogparser_readnewlogs","label":".readNewLogs()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L73-L98","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L73"}],"snippet":"private readNewLogs() {\n    if (this.logFd === null) return;\n    try {\n      const stats = fs.fstatSync(this.logFd);\n      if (stats.size > this.lastLogPos) {\n        const length = stats.size - this.lastLogPos;\n        const buffer = Buffer.alloc(length);\n        fs.readSync(this.logFd, buffer, 0, length, this.lastLogPos);\n        this.lastLogPos = stats.size;\n        \n        const content = buffer.toString('utf8');\n        this.logBuffer += content;\n        \n        let newlineIdx;\n        while ((newlineIdx = this.logBuffer.indexOf('\\n')) !== -1) {\n          const line = this.logBuffer.substring(0, newlineIdx).trim();\n          this.logBuffer = this.logBuffer.substring(newlineIdx + 1);\n          \n          if (line) {\n            this.onLog(`[DayZ] ${line}`);\n            this.parseLogLine(line);\n          }\n        }\n      }\n    } catch (e) {}"},{"id":"dayzlogparser_dayzlogparser_parselogline","label":".parseLogLine()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L100-L112","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L100"}],"snippet":"private parseLogLine(line: string) {\n    const connectedMatch = line.match(/Player \"([^\"]+)\" .*?is connected/i);\n    if (connectedMatch) {\n      const pName = connectedMatch[1];\n      this.onPlayerUpdate(pName, true);\n    }\n    \n    const disconnectedMatch = line.match(/Player \"([^\"]+)\" .*?has been disconnected/i);\n    if (disconnectedMatch) {\n      const pName = disconnectedMatch[1];\n      this.onPlayerUpdate(pName, false);\n    }\n  }"},{"id":"dayzlogparser_dayzlogparser_cleanup","label":".cleanup()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L114-L123","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L114"}],"snippet":"cleanup() {\n    if (this.logWatcher) {\n      clearInterval(this.logWatcher);\n      this.logWatcher = null;\n    }\n    if (this.logFd !== null) {\n      fs.closeSync(this.logFd);\n      this.logFd = null;\n    }\n  }"}],"edges":[{"source":"dayzlogparser","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L1"}],"weight":1},{"source":"dayzlogparser","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L2"}],"weight":1},{"source":"dayzlogparser","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L3"}],"weight":1},{"source":"dayzlogparser","target":"dayzlogparser_dayzlogparser","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L8"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L14"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_setuplogwatcher","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L21"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_pollforlogfile","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L30","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L30"}],"weight":1},{"source":"dayzlogparser_dayzlogparser_pollforlogfile","target":"dayzlogparser_dayzlogparser_pollforlogfile_checkfile","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L31","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L31"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_taillogfile","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L55"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_readnewlogs","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L73","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L73"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_parselogline","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L100","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L100"}],"weight":1},{"source":"dayzlogparser_dayzlogparser","target":"dayzlogparser_dayzlogparser_cleanup","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L114","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L114"}],"weight":1},{"source":"dayzlogparser_dayzlogparser_setuplogwatcher","target":"dayzlogparser_dayzlogparser_pollforlogfile","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L27"}],"weight":1},{"source":"dayzlogparser_dayzlogparser_pollforlogfile_checkfile","target":"dayzlogparser_dayzlogparser_taillogfile","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L44"}],"weight":1},{"source":"dayzlogparser_dayzlogparser_taillogfile","target":"dayzlogparser_dayzlogparser_readnewlogs","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L62","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L62"}],"weight":1},{"source":"dayzlogparser_dayzlogparser_readnewlogs","target":"dayzlogparser_dayzlogparser_parselogline","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L93","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/DayzLogParser.ts","source_location":"L93"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzlogparser",
+      "label": "DayzLogParser.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser",
+      "label": "DayzLogParser",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L8-L124",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "export class DayzLogParser {\n  private logWatcher: NodeJS.Timeout | null = null;\n  private logFd: number | null = null;\n  private lastLogPos: number = 0;\n  private logBuffer: string = '';\n\n  constructor(\n    private serverDir: string,\n    private startTime: number,\n    private onLog: LogCallback,\n    private onPlayerUpdate: PlayerCallback\n  ) {}\n\n  setupLogWatcher(process: ChildProcess | null) {\n    const profilesDir = join(this.serverDir, 'Profiles');\n    this.onLog(`[System] Initializing Log Watcher at: ${profilesDir}`);\n    if (!fs.existsSync(profilesDir)) {\n      fs.mkdirSync(profilesDir, { recursive: true });\n    }\n    this.pollForLogFile(profilesDir, process);\n  }\n\n  private pollForLogFile(profilesDir: string, process: ChildProcess | null) {\n    const checkFile = () => {\n      if (!process) return; // Stop if server process exited"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L14-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L14"
+        }
+      ],
+      "snippet": "constructor(\n    private serverDir: string,\n    private startTime: number,\n    private onLog: LogCallback,\n    private onPlayerUpdate: PlayerCallback\n  ) {}"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_setuplogwatcher",
+      "label": ".setupLogWatcher()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L21-L28",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "setupLogWatcher(process: ChildProcess | null) {\n    const profilesDir = join(this.serverDir, 'Profiles');\n    this.onLog(`[System] Initializing Log Watcher at: ${profilesDir}`);\n    if (!fs.existsSync(profilesDir)) {\n      fs.mkdirSync(profilesDir, { recursive: true });\n    }\n    this.pollForLogFile(profilesDir, process);\n  }"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_pollforlogfile",
+      "label": ".pollForLogFile()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L30-L53",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L30"
+        }
+      ],
+      "snippet": "private pollForLogFile(profilesDir: string, process: ChildProcess | null) {\n    const checkFile = () => {\n      if (!process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    };\n    setTimeout(checkFile, 2000);\n  }"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_pollforlogfile_checkfile",
+      "label": "checkFile()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L31-L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L31"
+        }
+      ],
+      "snippet": "checkFile = () => {\n      if (!process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    }"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_taillogfile",
+      "label": ".tailLogFile()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L55-L71",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "private tailLogFile(filePath: string) {\n    this.onLog(`[System] Attaching to DayZ Admin Log: ${filePath}`);\n    \n    try {\n      this.logFd = fs.openSync(filePath, 'r');\n      this.lastLogPos = 0; // Read from start to catch existing players\n      this.logBuffer = ''; // Clear buffer on new file\n      this.readNewLogs();\n\n      // Use setInterval instead of fs.watch for much faster and more reliable updates on Windows\n      this.logWatcher = setInterval(() => {\n        this.readNewLogs();\n      }, 500);\n    } catch (e) {\n      this.onLog(`[System Error] Failed to tail log: ${e}`);\n    }\n  }"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_readnewlogs",
+      "label": ".readNewLogs()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L73-L98",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L73"
+        }
+      ],
+      "snippet": "private readNewLogs() {\n    if (this.logFd === null) return;\n    try {\n      const stats = fs.fstatSync(this.logFd);\n      if (stats.size > this.lastLogPos) {\n        const length = stats.size - this.lastLogPos;\n        const buffer = Buffer.alloc(length);\n        fs.readSync(this.logFd, buffer, 0, length, this.lastLogPos);\n        this.lastLogPos = stats.size;\n        \n        const content = buffer.toString('utf8');\n        this.logBuffer += content;\n        \n        let newlineIdx;\n        while ((newlineIdx = this.logBuffer.indexOf('\\n')) !== -1) {\n          const line = this.logBuffer.substring(0, newlineIdx).trim();\n          this.logBuffer = this.logBuffer.substring(newlineIdx + 1);\n          \n          if (line) {\n            this.onLog(`[DayZ] ${line}`);\n            this.parseLogLine(line);\n          }\n        }\n      }\n    } catch (e) {}"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_parselogline",
+      "label": ".parseLogLine()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L100-L112",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L100"
+        }
+      ],
+      "snippet": "private parseLogLine(line: string) {\n    const connectedMatch = line.match(/Player \"([^\"]+)\" .*?is connected/i);\n    if (connectedMatch) {\n      const pName = connectedMatch[1];\n      this.onPlayerUpdate(pName, true);\n    }\n    \n    const disconnectedMatch = line.match(/Player \"([^\"]+)\" .*?has been disconnected/i);\n    if (disconnectedMatch) {\n      const pName = disconnectedMatch[1];\n      this.onPlayerUpdate(pName, false);\n    }\n  }"
+    },
+    {
+      "id": "dayzlogparser_dayzlogparser_cleanup",
+      "label": ".cleanup()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L114-L123",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L114"
+        }
+      ],
+      "snippet": "cleanup() {\n    if (this.logWatcher) {\n      clearInterval(this.logWatcher);\n      this.logWatcher = null;\n    }\n    if (this.logFd !== null) {\n      fs.closeSync(this.logFd);\n      this.logFd = null;\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzlogparser",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_setuplogwatcher",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_pollforlogfile",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L30",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L30"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser_pollforlogfile",
+      "target": "dayzlogparser_dayzlogparser_pollforlogfile_checkfile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L31"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_taillogfile",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L55"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_readnewlogs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L73",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L73"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_parselogline",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L100",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L100"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser",
+      "target": "dayzlogparser_dayzlogparser_cleanup",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L114",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L114"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser_setuplogwatcher",
+      "target": "dayzlogparser_dayzlogparser_pollforlogfile",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L27"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser_pollforlogfile_checkfile",
+      "target": "dayzlogparser_dayzlogparser_taillogfile",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser_taillogfile",
+      "target": "dayzlogparser_dayzlogparser_readnewlogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L62",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L62"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzlogparser_dayzlogparser_readnewlogs",
+      "target": "dayzlogparser_dayzlogparser_parselogline",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+      "source_location": "L93",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/DayzLogParser.ts",
+          "source_location": "L93"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

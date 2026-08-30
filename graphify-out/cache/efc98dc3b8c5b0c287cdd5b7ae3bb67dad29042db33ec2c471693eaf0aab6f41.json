@@ -1,1 +1,199 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"steamwebapi","label":"SteamWebAPI.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L1"}]},{"id":"steamwebapi_steamwebapi","label":"SteamWebAPI","file_type":"code","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L4-L130","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L4"}],"snippet":"export class SteamWebAPI {\n  static async searchWorkshop(query: string, appId: number = 221100, page: number = 1, queryType: number = 9, requiredTags: string[] = []) {\n    try {\n      let browsesort = 'trend';\n      if (queryType === 14) browsesort = 'totaluniquesubscribers';\n      else if (queryType === 1) browsesort = 'mostrecent';\n\n      let url = `https://steamcommunity.com/workshop/browse/?appid=${appId}&searchtext=${encodeURIComponent(query)}&childpublishedfileid=0&browsesort=${browsesort}&section=readytouseitems&p=${page}`;\n      \n      if (requiredTags && requiredTags.length > 0) {\n        requiredTags.forEach(tag => {\n          url += `&requiredtags[]=${encodeURIComponent(tag)}`;\n        });\n      }\n\n      const response = await axios.get(url);\n      const html = response.data;\n      \n      // Extract IDs from HTML using regex\n      const regex = /https:\\/\\/steamcommunity\\.com\\/sharedfiles\\/filedetails\\/\\?id=(\\d+)/g;\n      const matches = [...html.matchAll(regex)].map(m => m[1]);\n      const uniqueIds = [...new Set(matches)];\n      \n      if (uniqueIds.length === 0) return [];"},{"id":"steamwebapi_steamwebapi_searchworkshop","label":".searchWorkshop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L5-L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L5"}],"snippet":"static async searchWorkshop(query: string, appId: number = 221100, page: number = 1, queryType: number = 9, requiredTags: string[] = []) {\n    try {\n      let browsesort = 'trend';\n      if (queryType === 14) browsesort = 'totaluniquesubscribers';\n      else if (queryType === 1) browsesort = 'mostrecent';\n\n      let url = `https://steamcommunity.com/workshop/browse/?appid=${appId}&searchtext=${encodeURIComponent(query)}&childpublishedfileid=0&browsesort=${browsesort}&section=readytouseitems&p=${page}`;\n      \n      if (requiredTags && requiredTags.length > 0) {\n        requiredTags.forEach(tag => {\n          url += `&requiredtags[]=${encodeURIComponent(tag)}`;\n        });\n      }\n\n      const response = await axios.get(url);\n      const html = response.data;\n      \n      // Extract IDs from HTML using regex\n      const regex = /https:\\/\\/steamcommunity\\.com\\/sharedfiles\\/filedetails\\/\\?id=(\\d+)/g;\n      const matches = [...html.matchAll(regex)].map(m => m[1]);\n      const uniqueIds = [...new Set(matches)];\n      \n      if (uniqueIds.length === 0) return [];\n      \n      // Fetch details using the non-key endpoint"},{"id":"steamwebapi_steamwebapi_getmoddependencies","label":".getModDependencies()","file_type":"code","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L40-L83","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L40"}],"snippet":"static async getModDependencies(modId: string): Promise<string[]> {\n    try {\n      console.log(`[getModDependencies] Fetching for modId: ${modId}`);\n      const url = `https://steamcommunity.com/sharedfiles/filedetails/?id=${modId}`;\n      const response = await axios.get(url, {\n        headers: {\n          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',\n          'Cookie': 'birthtime=283993201; lastagecheckage=1-January-1979'\n        }\n      });\n      const html = response.data;\n      \n      if (!html || typeof html !== 'string') {\n        console.log(`[getModDependencies] HTML is empty for ${modId}`);\n        return [];\n      }\n\n      const parts = html.split('class=\"requiredItemsContainer\"');\n      if (parts.length > 1) {\n        let block = parts[1];\n        // Ensure we don't accidentally match items from 'More from this author' section\n        const endPart = block.indexOf('</div>'); // Actually requiredItemsContainer ends shortly, but regex matching filedetails is robust\n        if (endPart !== -1) {\n            block = block.substring(0, 5000); // 5000 chars is plenty for all immediate dependencies\n        }"},{"id":"steamwebapi_steamwebapi_getworkshopitemdetails","label":".getWorkshopItemDetails()","file_type":"code","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L85-L129","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L85"}],"snippet":"static async getWorkshopItemDetails(modIds: string[]) {\n    try {\n      modIds = modIds.filter(id => id && String(id) !== '0' && /^\\d+$/.test(String(id)));\n      if (modIds.length === 0) return [];\n      \n      const BATCH_SIZE = 25;\n      let allDetails: any[] = [];\n\n      for (let i = 0; i < modIds.length; i += BATCH_SIZE) {\n        const batch = modIds.slice(i, i + BATCH_SIZE);\n        let paramsStr = `itemcount=${batch.length}`;\n        batch.forEach((id, index) => {\n          paramsStr += `&publishedfileids[${index}]=${id}`;\n        });\n\n        const response = await axios.post(`https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/`, paramsStr, {\n          headers: {\n            'Content-Type': 'application/x-www-form-urlencoded'\n          }\n        });\n        \n        const details = (response.data?.response?.publishedfiledetails || []).filter((mod: any) => mod.result === 1);\n        allDetails = allDetails.concat(details.map((mod: any) => ({\n          id: mod.publishedfileid,\n          publishedfileid: mod.publishedfileid,"}],"edges":[{"source":"steamwebapi","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L1"}],"weight":1},{"source":"steamwebapi","target":"steamwebapi_steamwebapi","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L4"}],"weight":1},{"source":"steamwebapi_steamwebapi","target":"steamwebapi_steamwebapi_searchworkshop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L5"}],"weight":1},{"source":"steamwebapi_steamwebapi","target":"steamwebapi_steamwebapi_getmoddependencies","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L40"}],"weight":1},{"source":"steamwebapi_steamwebapi","target":"steamwebapi_steamwebapi_getworkshopitemdetails","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L85","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L85"}],"weight":1},{"source":"steamwebapi_steamwebapi_searchworkshop","target":"steamwebapi_steamwebapi_getworkshopitemdetails","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L30","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/api/SteamWebAPI.ts","source_location":"L30"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "steamwebapi",
+      "label": "SteamWebAPI.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "steamwebapi_steamwebapi",
+      "label": "SteamWebAPI",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L4-L130",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export class SteamWebAPI {\n  static async searchWorkshop(query: string, appId: number = 221100, page: number = 1, queryType: number = 9, requiredTags: string[] = []) {\n    try {\n      let browsesort = 'trend';\n      if (queryType === 14) browsesort = 'totaluniquesubscribers';\n      else if (queryType === 1) browsesort = 'mostrecent';\n\n      let url = `https://steamcommunity.com/workshop/browse/?appid=${appId}&searchtext=${encodeURIComponent(query)}&childpublishedfileid=0&browsesort=${browsesort}&section=readytouseitems&p=${page}`;\n      \n      if (requiredTags && requiredTags.length > 0) {\n        requiredTags.forEach(tag => {\n          url += `&requiredtags[]=${encodeURIComponent(tag)}`;\n        });\n      }\n\n      const response = await axios.get(url);\n      const html = response.data;\n      \n      // Extract IDs from HTML using regex\n      const regex = /https:\\/\\/steamcommunity\\.com\\/sharedfiles\\/filedetails\\/\\?id=(\\d+)/g;\n      const matches = [...html.matchAll(regex)].map(m => m[1]);\n      const uniqueIds = [...new Set(matches)];\n      \n      if (uniqueIds.length === 0) return [];"
+    },
+    {
+      "id": "steamwebapi_steamwebapi_searchworkshop",
+      "label": ".searchWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L5-L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "static async searchWorkshop(query: string, appId: number = 221100, page: number = 1, queryType: number = 9, requiredTags: string[] = []) {\n    try {\n      let browsesort = 'trend';\n      if (queryType === 14) browsesort = 'totaluniquesubscribers';\n      else if (queryType === 1) browsesort = 'mostrecent';\n\n      let url = `https://steamcommunity.com/workshop/browse/?appid=${appId}&searchtext=${encodeURIComponent(query)}&childpublishedfileid=0&browsesort=${browsesort}&section=readytouseitems&p=${page}`;\n      \n      if (requiredTags && requiredTags.length > 0) {\n        requiredTags.forEach(tag => {\n          url += `&requiredtags[]=${encodeURIComponent(tag)}`;\n        });\n      }\n\n      const response = await axios.get(url);\n      const html = response.data;\n      \n      // Extract IDs from HTML using regex\n      const regex = /https:\\/\\/steamcommunity\\.com\\/sharedfiles\\/filedetails\\/\\?id=(\\d+)/g;\n      const matches = [...html.matchAll(regex)].map(m => m[1]);\n      const uniqueIds = [...new Set(matches)];\n      \n      if (uniqueIds.length === 0) return [];\n      \n      // Fetch details using the non-key endpoint"
+    },
+    {
+      "id": "steamwebapi_steamwebapi_getmoddependencies",
+      "label": ".getModDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L40-L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L40"
+        }
+      ],
+      "snippet": "static async getModDependencies(modId: string): Promise<string[]> {\n    try {\n      console.log(`[getModDependencies] Fetching for modId: ${modId}`);\n      const url = `https://steamcommunity.com/sharedfiles/filedetails/?id=${modId}`;\n      const response = await axios.get(url, {\n        headers: {\n          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',\n          'Cookie': 'birthtime=283993201; lastagecheckage=1-January-1979'\n        }\n      });\n      const html = response.data;\n      \n      if (!html || typeof html !== 'string') {\n        console.log(`[getModDependencies] HTML is empty for ${modId}`);\n        return [];\n      }\n\n      const parts = html.split('class=\"requiredItemsContainer\"');\n      if (parts.length > 1) {\n        let block = parts[1];\n        // Ensure we don't accidentally match items from 'More from this author' section\n        const endPart = block.indexOf('</div>'); // Actually requiredItemsContainer ends shortly, but regex matching filedetails is robust\n        if (endPart !== -1) {\n            block = block.substring(0, 5000); // 5000 chars is plenty for all immediate dependencies\n        }"
+    },
+    {
+      "id": "steamwebapi_steamwebapi_getworkshopitemdetails",
+      "label": ".getWorkshopItemDetails()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L85-L129",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L85"
+        }
+      ],
+      "snippet": "static async getWorkshopItemDetails(modIds: string[]) {\n    try {\n      modIds = modIds.filter(id => id && String(id) !== '0' && /^\\d+$/.test(String(id)));\n      if (modIds.length === 0) return [];\n      \n      const BATCH_SIZE = 25;\n      let allDetails: any[] = [];\n\n      for (let i = 0; i < modIds.length; i += BATCH_SIZE) {\n        const batch = modIds.slice(i, i + BATCH_SIZE);\n        let paramsStr = `itemcount=${batch.length}`;\n        batch.forEach((id, index) => {\n          paramsStr += `&publishedfileids[${index}]=${id}`;\n        });\n\n        const response = await axios.post(`https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/`, paramsStr, {\n          headers: {\n            'Content-Type': 'application/x-www-form-urlencoded'\n          }\n        });\n        \n        const details = (response.data?.response?.publishedfiledetails || []).filter((mod: any) => mod.result === 1);\n        allDetails = allDetails.concat(details.map((mod: any) => ({\n          id: mod.publishedfileid,\n          publishedfileid: mod.publishedfileid,"
+    }
+  ],
+  "edges": [
+    {
+      "source": "steamwebapi",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamwebapi",
+      "target": "steamwebapi_steamwebapi",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamwebapi_steamwebapi",
+      "target": "steamwebapi_steamwebapi_searchworkshop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamwebapi_steamwebapi",
+      "target": "steamwebapi_steamwebapi_getmoddependencies",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L40"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamwebapi_steamwebapi",
+      "target": "steamwebapi_steamwebapi_getworkshopitemdetails",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L85",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L85"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "steamwebapi_steamwebapi_searchworkshop",
+      "target": "steamwebapi_steamwebapi_getworkshopitemdetails",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+      "source_location": "L30",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/api/SteamWebAPI.ts",
+          "source_location": "L30"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

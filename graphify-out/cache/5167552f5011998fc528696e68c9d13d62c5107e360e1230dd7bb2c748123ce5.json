@@ -1,1 +1,341 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useminecraftmods","label":"useMinecraftMods.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L1"}]},{"id":"useminecraftmods_useminecraftmods","label":"useMinecraftMods()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L5-L156","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L5"}],"snippet":"export function useMinecraftMods(activeServerId: number | null, serverMeta: any, activeTab: string) {\n  const [modSearchQuery, setModSearchQuery] = useState('');\n  const [modResults, setModResults] = useState<any[]>([]);\n  const [isSearchingMods, setIsSearchingMods] = useState(false);\n  const [installedMods, setInstalledMods] = useState<any[]>([]);\n  const [installingModId, setInstallingModId] = useState<number | null>(null);\n  const [installProgressText, setInstallProgressText] = useState<string>('');\n  const [modViewType, setModViewType] = useState<'browse' | 'installed'>('browse');\n  const [activeClassId, setActiveClassId] = useState<number>(6);\n  const [activeSortField, setActiveSortField] = useState<number>(2);\n  const [isClassMenuOpen, setIsClassMenuOpen] = useState(false);\n  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);\n  const [totalModCount, setTotalModCount] = useState<number>(0);\n\n  const { showToast } = useToastStore();\n  const { setCacheSize } = useUiStore();\n\n  const fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.minecraft.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods"},{"id":"useminecraftmods_useminecraftmods_fetchmods","label":"fetchMods()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L22-L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L22"}],"snippet":"fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.minecraft.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods\n    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins\n    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs\n    \n    setActiveClassId(defaultClassId);\n\n    setIsSearchingMods(true);\n    // @ts-ignore\n    const results = await window.api.minecraft.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);\n    setModResults(results);\n    setTotalModCount(results?.length > 0 ? 10000 : 0);\n    setIsSearchingMods(false);\n  }"},{"id":"useminecraftmods_useminecraftmods_handlesearchmods","label":"handleSearchMods()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L55-L70","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L55"}],"snippet":"handleSearchMods = async (e?: React.FormEvent, cId?: number, sField?: number) => {\n    if (e) e.preventDefault();\n    if (!serverMeta) return;\n    setIsSearchingMods(true);\n    const targetClassId = cId !== undefined ? cId : activeClassId;\n    const targetSortField = sField !== undefined ? sField : activeSortField;\n    try {\n      // @ts-ignore\n      const results = await window.api.minecraft.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);\n      setModResults(results);\n      setTotalModCount(results?.length > 0 ? 10000 : 0);\n    } catch (error) {\n      console.error('[ERROR] handleSearchMods failed', error);\n    }\n    setIsSearchingMods(false);\n  }"},{"id":"useminecraftmods_useminecraftmods_handleinstallmod","label":"handleInstallMod()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L72-L132","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L72"}],"snippet":"handleInstallMod = async (mod: any) => {\n    if (activeServerId === null || !serverMeta) return;\n    if (installingModId !== null) return;\n    \n    setInstallingModId(mod.id);\n    setInstallProgressText('Resolving dependencies...');\n    \n    const installWithDeps = async (targetMod: any, depth = 0) => {\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.minecraft.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];"},{"id":"useminecraftmods_useminecraftmods_handleinstallmod_installwithdeps","label":"installWithDeps()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L79-L122","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L79"}],"snippet":"installWithDeps = async (targetMod: any, depth = 0) => {\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.minecraft.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];\n      \n      if (!targetFile || !targetFile.downloadUrl) {\n         if (depth === 0) showToast(`Failed to find compatible file for ${targetMod.name}`);\n         return;\n      }\n\n      const isAlreadyInstalled = installedMods.some(m => m.name.toLowerCase().includes(targetMod.slug?.replace(/-/g, '') || targetMod.name.toLowerCase().replace(/ /g, '')));"},{"id":"useminecraftmods_useminecraftmods_handledeletemod","label":"handleDeleteMod()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L134-L139","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L134"}],"snippet":"handleDeleteMod = async (fileName: string) => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    await window.api.minecraft.deleteMod(activeServerId, fileName);\n    fetchMods();\n  }"}],"edges":[{"source":"useminecraftmods","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L1"}],"weight":1},{"source":"useminecraftmods","target":"usetoaststore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L2"}],"weight":1},{"source":"useminecraftmods","target":"useuistore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L3"}],"weight":1},{"source":"useminecraftmods","target":"useminecraftmods_useminecraftmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L5"}],"weight":1},{"source":"useminecraftmods_useminecraftmods","target":"useminecraftmods_useminecraftmods_fetchmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L22"}],"weight":1},{"source":"useminecraftmods_useminecraftmods","target":"useminecraftmods_useminecraftmods_handlesearchmods","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L55"}],"weight":1},{"source":"useminecraftmods_useminecraftmods","target":"useminecraftmods_useminecraftmods_handleinstallmod","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L72","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L72"}],"weight":1},{"source":"useminecraftmods_useminecraftmods_handleinstallmod","target":"useminecraftmods_useminecraftmods_handleinstallmod_installwithdeps","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L79","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L79"}],"weight":1},{"source":"useminecraftmods_useminecraftmods","target":"useminecraftmods_useminecraftmods_handledeletemod","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L134","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L134"}],"weight":1},{"source":"useminecraftmods_useminecraftmods_handleinstallmod","target":"useminecraftmods_useminecraftmods_handleinstallmod_installwithdeps","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L124","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L124"}],"weight":1},{"source":"useminecraftmods_useminecraftmods_handleinstallmod","target":"useminecraftmods_useminecraftmods_fetchmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L127","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L127"}],"weight":1},{"source":"useminecraftmods_useminecraftmods_handledeletemod","target":"useminecraftmods_useminecraftmods_fetchmods","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L138","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts","source_location":"L138"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useminecraftmods",
+      "label": "useMinecraftMods.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useminecraftmods_useminecraftmods",
+      "label": "useMinecraftMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L5-L156",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export function useMinecraftMods(activeServerId: number | null, serverMeta: any, activeTab: string) {\n  const [modSearchQuery, setModSearchQuery] = useState('');\n  const [modResults, setModResults] = useState<any[]>([]);\n  const [isSearchingMods, setIsSearchingMods] = useState(false);\n  const [installedMods, setInstalledMods] = useState<any[]>([]);\n  const [installingModId, setInstallingModId] = useState<number | null>(null);\n  const [installProgressText, setInstallProgressText] = useState<string>('');\n  const [modViewType, setModViewType] = useState<'browse' | 'installed'>('browse');\n  const [activeClassId, setActiveClassId] = useState<number>(6);\n  const [activeSortField, setActiveSortField] = useState<number>(2);\n  const [isClassMenuOpen, setIsClassMenuOpen] = useState(false);\n  const [isSortMenuOpen, setIsSortMenuOpen] = useState(false);\n  const [totalModCount, setTotalModCount] = useState<number>(0);\n\n  const { showToast } = useToastStore();\n  const { setCacheSize } = useUiStore();\n\n  const fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.minecraft.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods"
+    },
+    {
+      "id": "useminecraftmods_useminecraftmods_fetchmods",
+      "label": "fetchMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L22-L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L22"
+        }
+      ],
+      "snippet": "fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.minecraft.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods\n    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins\n    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs\n    \n    setActiveClassId(defaultClassId);\n\n    setIsSearchingMods(true);\n    // @ts-ignore\n    const results = await window.api.minecraft.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);\n    setModResults(results);\n    setTotalModCount(results?.length > 0 ? 10000 : 0);\n    setIsSearchingMods(false);\n  }"
+    },
+    {
+      "id": "useminecraftmods_useminecraftmods_handlesearchmods",
+      "label": "handleSearchMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L55-L70",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "handleSearchMods = async (e?: React.FormEvent, cId?: number, sField?: number) => {\n    if (e) e.preventDefault();\n    if (!serverMeta) return;\n    setIsSearchingMods(true);\n    const targetClassId = cId !== undefined ? cId : activeClassId;\n    const targetSortField = sField !== undefined ? sField : activeSortField;\n    try {\n      // @ts-ignore\n      const results = await window.api.minecraft.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);\n      setModResults(results);\n      setTotalModCount(results?.length > 0 ? 10000 : 0);\n    } catch (error) {\n      console.error('[ERROR] handleSearchMods failed', error);\n    }\n    setIsSearchingMods(false);\n  }"
+    },
+    {
+      "id": "useminecraftmods_useminecraftmods_handleinstallmod",
+      "label": "handleInstallMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L72-L132",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L72"
+        }
+      ],
+      "snippet": "handleInstallMod = async (mod: any) => {\n    if (activeServerId === null || !serverMeta) return;\n    if (installingModId !== null) return;\n    \n    setInstallingModId(mod.id);\n    setInstallProgressText('Resolving dependencies...');\n    \n    const installWithDeps = async (targetMod: any, depth = 0) => {\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.minecraft.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];"
+    },
+    {
+      "id": "useminecraftmods_useminecraftmods_handleinstallmod_installwithdeps",
+      "label": "installWithDeps()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L79-L122",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L79"
+        }
+      ],
+      "snippet": "installWithDeps = async (targetMod: any, depth = 0) => {\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.minecraft.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];\n      \n      if (!targetFile || !targetFile.downloadUrl) {\n         if (depth === 0) showToast(`Failed to find compatible file for ${targetMod.name}`);\n         return;\n      }\n\n      const isAlreadyInstalled = installedMods.some(m => m.name.toLowerCase().includes(targetMod.slug?.replace(/-/g, '') || targetMod.name.toLowerCase().replace(/ /g, '')));"
+    },
+    {
+      "id": "useminecraftmods_useminecraftmods_handledeletemod",
+      "label": "handleDeleteMod()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L134-L139",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L134"
+        }
+      ],
+      "snippet": "handleDeleteMod = async (fileName: string) => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    await window.api.minecraft.deleteMod(activeServerId, fileName);\n    fetchMods();\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useminecraftmods",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods",
+      "target": "usetoaststore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods",
+      "target": "useuistore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods",
+      "target": "useminecraftmods_useminecraftmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods",
+      "target": "useminecraftmods_useminecraftmods_fetchmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods",
+      "target": "useminecraftmods_useminecraftmods_handlesearchmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L55"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods",
+      "target": "useminecraftmods_useminecraftmods_handleinstallmod",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L72",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L72"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods_handleinstallmod",
+      "target": "useminecraftmods_useminecraftmods_handleinstallmod_installwithdeps",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L79",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L79"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods",
+      "target": "useminecraftmods_useminecraftmods_handledeletemod",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L134",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L134"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods_handleinstallmod",
+      "target": "useminecraftmods_useminecraftmods_handleinstallmod_installwithdeps",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L124",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L124"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods_handleinstallmod",
+      "target": "useminecraftmods_useminecraftmods_fetchmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L127",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L127"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftmods_useminecraftmods_handledeletemod",
+      "target": "useminecraftmods_useminecraftmods_fetchmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+      "source_location": "L138",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftMods.ts",
+          "source_location": "L138"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

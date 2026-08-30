@@ -1,1 +1,112 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"playerstab","label":"PlayersTab.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L1"}]},{"id":"playerstab_playerstabprops","label":"PlayersTabProps","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L5-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L5"}],"snippet":"interface PlayersTabProps {\n  selectedPlayer: string | null;\n  setSelectedPlayer: React.Dispatch<React.SetStateAction<string | null>>;\n  playerListType: 'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips';\n  setPlayerListType: React.Dispatch<React.SetStateAction<'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>>;\n  newPlayerName: string;\n  setNewPlayerName: React.Dispatch<React.SetStateAction<string>>;\n  isProcessing: boolean;\n  onlinePlayers: string[];\n  playerData: any[];\n  handleAddPlayer: (e: React.FormEvent) => Promise<void>;\n  handleRemovePlayer: (targetName: string) => Promise<void>;\n  playerInventory: any[] | null;\n  sendPlayerCommand: (cmd: string, successMsg: string) => Promise<void>;\n}"}],"edges":[{"source":"playerstab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L1"}],"weight":1},{"source":"playerstab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L2"}],"weight":1},{"source":"playerstab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L3"}],"weight":1},{"source":"playerstab","target":"playerstab_playerstabprops","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "playerstab",
+      "label": "PlayersTab.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "playerstab_playerstabprops",
+      "label": "PlayersTabProps",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+      "source_location": "L5-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "interface PlayersTabProps {\n  selectedPlayer: string | null;\n  setSelectedPlayer: React.Dispatch<React.SetStateAction<string | null>>;\n  playerListType: 'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips';\n  setPlayerListType: React.Dispatch<React.SetStateAction<'live' | 'history' | 'whitelist' | 'ops' | 'banned-players' | 'banned-ips'>>;\n  newPlayerName: string;\n  setNewPlayerName: React.Dispatch<React.SetStateAction<string>>;\n  isProcessing: boolean;\n  onlinePlayers: string[];\n  playerData: any[];\n  handleAddPlayer: (e: React.FormEvent) => Promise<void>;\n  handleRemovePlayer: (targetName: string) => Promise<void>;\n  playerInventory: any[] | null;\n  sendPlayerCommand: (cmd: string, successMsg: string) => Promise<void>;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "playerstab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playerstab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playerstab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "playerstab",
+      "target": "playerstab_playerstabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/PlayersTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

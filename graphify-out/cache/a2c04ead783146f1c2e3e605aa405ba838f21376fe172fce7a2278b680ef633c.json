@@ -1,1 +1,111 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useserverstore","label":"useServerStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L1"}]},{"id":"useserverstore_server","label":"Server","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L3-L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L3"}],"snippet":"export interface Server {\n  id: number;\n  name: string;\n  game: string;\n  status: string;\n  [key: string]: any;\n}"},{"id":"useserverstore_serverstore","label":"ServerStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L11-L30","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L11"}],"snippet":"interface ServerStore {\n  servers: Server[];\n  activeServerId: number | null;\n  activeGameHub: string | null;\n  lastGameHub: string | null;\n  hoveredGame: string | null;\n  \n  setServers: (servers: Server[]) => void;\n  setActiveServerId: (id: number | null) => void;\n  setActiveGameHub: (hub: string | null) => void;\n  setLastGameHub: (hub: string | null) => void;\n  setHoveredGame: (game: string | null) => void;\n  \n  // Actions\n  startServer: (id: number) => Promise<void>;\n  stopServer: (id: number) => Promise<void>;\n  restartServer: (id: number) => Promise<void>;\n  deleteServer: (id: number) => Promise<void>;\n  fetchServers: () => Promise<void>;\n}"}],"edges":[{"source":"useserverstore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L1"}],"weight":1},{"source":"useserverstore","target":"useserverstore_server","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L3"}],"weight":1},{"source":"useserverstore","target":"useserverstore_serverstore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useServerStore.ts","source_location":"L11"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useserverstore",
+      "label": "useServerStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useserverstore_server",
+      "label": "Server",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+      "source_location": "L3-L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "export interface Server {\n  id: number;\n  name: string;\n  game: string;\n  status: string;\n  [key: string]: any;\n}"
+    },
+    {
+      "id": "useserverstore_serverstore",
+      "label": "ServerStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+      "source_location": "L11-L30",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+          "source_location": "L11"
+        }
+      ],
+      "snippet": "interface ServerStore {\n  servers: Server[];\n  activeServerId: number | null;\n  activeGameHub: string | null;\n  lastGameHub: string | null;\n  hoveredGame: string | null;\n  \n  setServers: (servers: Server[]) => void;\n  setActiveServerId: (id: number | null) => void;\n  setActiveGameHub: (hub: string | null) => void;\n  setLastGameHub: (hub: string | null) => void;\n  setHoveredGame: (game: string | null) => void;\n  \n  // Actions\n  startServer: (id: number) => Promise<void>;\n  stopServer: (id: number) => Promise<void>;\n  restartServer: (id: number) => Promise<void>;\n  deleteServer: (id: number) => Promise<void>;\n  fetchServers: () => Promise<void>;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useserverstore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useserverstore",
+      "target": "useserverstore_server",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useserverstore",
+      "target": "useserverstore_serverstore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useServerStore.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,112 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"overviewtab","label":"OverviewTab.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1"}]},{"id":"overviewtab_overviewtabprops","label":"OverviewTabProps","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L5-L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L5"}],"snippet":"interface OverviewTabProps {\n  statsHistory: { cpu: number; ram: number }[];\n  serverStatus: 'Online' | 'Offline';\n  serverVersion: string;\n  onlinePlayers: string[];\n  maxPlayers?: number;\n  logs: string[];\n  maxRam?: number;\n  maxCpu?: number;\n}"}],"edges":[{"source":"overviewtab","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L1"}],"weight":1},{"source":"overviewtab","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L2"}],"weight":1},{"source":"overviewtab","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L3"}],"weight":1},{"source":"overviewtab","target":"overviewtab_overviewtabprops","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "overviewtab",
+      "label": "OverviewTab.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "overviewtab_overviewtabprops",
+      "label": "OverviewTabProps",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L5-L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "interface OverviewTabProps {\n  statsHistory: { cpu: number; ram: number }[];\n  serverStatus: 'Online' | 'Offline';\n  serverVersion: string;\n  onlinePlayers: string[];\n  maxPlayers?: number;\n  logs: string[];\n  maxRam?: number;\n  maxCpu?: number;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "overviewtab",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "overviewtab",
+      "target": "overviewtab_overviewtabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/tabs/OverviewTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

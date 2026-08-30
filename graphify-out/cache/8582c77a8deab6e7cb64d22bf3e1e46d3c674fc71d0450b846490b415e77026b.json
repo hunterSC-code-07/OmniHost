@@ -1,1 +1,59 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"inject_wake_proxy","label":"inject-wake-proxy.js","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js","source_location":"L1"}]}],"edges":[{"source":"inject_wake_proxy","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js","source_location":"L1"}],"weight":1},{"source":"inject_wake_proxy","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js","source_location":"L2"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "inject_wake_proxy",
+      "label": "inject-wake-proxy.js",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "inject_wake_proxy",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "inject_wake_proxy",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/inject-wake-proxy.js",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

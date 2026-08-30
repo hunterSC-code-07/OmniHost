@@ -1,1 +1,667 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecrafthub","label":"MinecraftHub.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1"}]},{"id":"minecrafthub_minecrafthub","label":"MinecraftHub()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21-L275","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"snippet":"export function MinecraftHub() {\n  const { activeServerId, setActiveServerId, servers, startServer, stopServer, restartServer, deleteServer } = useServerStore();\n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = useRef(currentServer);\n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n  \n  if (!activeServer) return null;\n  const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();\n  const { setShowTunnelModal } = useModalStore();\n  const handleStart = startServer;\n  const handleStop = stopServer;\n  const handleRestart = restartServer;\n  const handleDelete = deleteServer;\n  const handleTunnel = async () => {};\n  const onRedirectToCreateModpack = () => {};\n\n        const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview');\n        const [tabDirection, setTabDirection] = useState(0);\n        const handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);","node_kind":"component"},{"id":"minecrafthub_minecrafthub_handletunnel","label":"handleTunnel()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L37"}],"snippet":"handleTunnel = async () => {}"},{"id":"minecrafthub_minecrafthub_onredirecttocreatemodpack","label":"onRedirectToCreateModpack()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L38"}],"snippet":"onRedirectToCreateModpack = () => {}"},{"id":"minecrafthub_minecrafthub_handletabchange","label":"handleTabChange()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L42-L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L42"}],"snippet":"handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setActiveTab(newTab);\n        }"},{"id":"minecrafthub_minecrafthub_fetchservermeta","label":"fetchServerMeta()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L55-L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L55"}],"snippet":"fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.server.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }"}],"edges":[{"source":"minecrafthub","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1"}],"weight":1},{"source":"minecrafthub","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L3"}],"weight":1},{"source":"minecrafthub","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L4"}],"weight":1},{"source":"minecrafthub","target":"consoletab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L5"}],"weight":1},{"source":"minecrafthub","target":"optionstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L6"}],"weight":1},{"source":"minecrafthub","target":"playerstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L7"}],"weight":1},{"source":"minecrafthub","target":"filestab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L8"}],"weight":1},{"source":"minecrafthub","target":"backupstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L9"}],"weight":1},{"source":"minecrafthub","target":"overviewtab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L10"}],"weight":1},{"source":"minecrafthub","target":"animatedbackground","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L11"}],"weight":1},{"source":"minecrafthub","target":"modstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L13"}],"weight":1},{"source":"minecrafthub","target":"softwaretab","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L14"}],"weight":1},{"source":"minecrafthub","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L16"}],"weight":1},{"source":"minecrafthub","target":"useuistore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L17"}],"weight":1},{"source":"minecrafthub","target":"usemodalstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L19"}],"weight":1},{"source":"minecrafthub","target":"minecrafthub_minecrafthub","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handletunnel","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L37"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_onredirecttocreatemodpack","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L38"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handletabchange","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L42"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_fetchservermeta","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L55"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"AnimatedBackground__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"OverviewTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"ConsoleTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"OptionsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"PlayersTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"FilesTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"BackupsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"ModsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"SoftwareTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L21"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecrafthub",
+      "label": "MinecraftHub.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecrafthub_minecrafthub",
+      "label": "MinecraftHub()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21-L275",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "export function MinecraftHub() {\n  const { activeServerId, setActiveServerId, servers, startServer, stopServer, restartServer, deleteServer } = useServerStore();\n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = useRef(currentServer);\n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n  \n  if (!activeServer) return null;\n  const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();\n  const { setShowTunnelModal } = useModalStore();\n  const handleStart = startServer;\n  const handleStop = stopServer;\n  const handleRestart = restartServer;\n  const handleDelete = deleteServer;\n  const handleTunnel = async () => {};\n  const onRedirectToCreateModpack = () => {};\n\n        const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview');\n        const [tabDirection, setTabDirection] = useState(0);\n        const handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);",
+      "node_kind": "component"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handletunnel",
+      "label": "handleTunnel()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L37"
+        }
+      ],
+      "snippet": "handleTunnel = async () => {}"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_onredirecttocreatemodpack",
+      "label": "onRedirectToCreateModpack()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L38"
+        }
+      ],
+      "snippet": "onRedirectToCreateModpack = () => {}"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handletabchange",
+      "label": "handleTabChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L42-L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L42"
+        }
+      ],
+      "snippet": "handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setActiveTab(newTab);\n        }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchservermeta",
+      "label": "fetchServerMeta()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L55-L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.server.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecrafthub",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "consoletab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "optionstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "playerstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "filestab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "backupstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "overviewtab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "animatedbackground",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "modstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L13"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "softwaretab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "useuistore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "usemodalstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L19"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "minecrafthub_minecrafthub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handletunnel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L37"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_onredirecttocreatemodpack",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L38"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handletabchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L42"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchservermeta",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L55"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "AnimatedBackground__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "OverviewTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "ConsoleTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "OptionsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "PlayersTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "FilesTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "BackupsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "ModsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "SoftwareTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

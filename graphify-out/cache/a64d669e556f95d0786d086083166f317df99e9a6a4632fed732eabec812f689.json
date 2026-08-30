@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"test","label":"test.js","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L1"}]},{"id":"test_getmoddependencies","label":"getModDependencies()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L3-L31","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L3"}],"snippet":"async function getModDependencies(modId, visited = new Set()) {\n    if (visited.has(modId)) return [];\n    visited.add(modId);\n    try {\n      const r = await fetch('https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId);\n      const html = await r.text();\n      const parts = html.split('class=\"requiredItemsContainer\"');\n      if (parts.length > 1) {\n        let block = parts[1];\n        const endPart = block.indexOf('class=\"rightDetailsBlock\"');\n        if (endPart !== -1) {\n            block = block.substring(0, endPart);\n        }\n        const idRegex = /filedetails\\/\\?id=(\\d+)/g;\n        const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];\n        console.log(`MOD ${modId} parsed ids:`, ids);\n        let allDeps = [...ids];\n        for (const id of ids) {\n          const subDeps = await getModDependencies(id, visited);\n          allDeps = allDeps.concat(subDeps);\n        }\n        return [...new Set(allDeps)];\n      }\n      return [];\n    } catch (e) {"}],"edges":[{"source":"test","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L1"}],"weight":1},{"source":"test","target":"test_getmoddependencies","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test.js","source_location":"L3"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "test",
+      "label": "test.js",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "test_getmoddependencies",
+      "label": "getModDependencies()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+      "source_location": "L3-L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "async function getModDependencies(modId, visited = new Set()) {\n    if (visited.has(modId)) return [];\n    visited.add(modId);\n    try {\n      const r = await fetch('https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId);\n      const html = await r.text();\n      const parts = html.split('class=\"requiredItemsContainer\"');\n      if (parts.length > 1) {\n        let block = parts[1];\n        const endPart = block.indexOf('class=\"rightDetailsBlock\"');\n        if (endPart !== -1) {\n            block = block.substring(0, endPart);\n        }\n        const idRegex = /filedetails\\/\\?id=(\\d+)/g;\n        const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];\n        console.log(`MOD ${modId} parsed ids:`, ids);\n        let allDeps = [...ids];\n        for (const id of ids) {\n          const subDeps = await getModDependencies(id, visited);\n          allDeps = allDeps.concat(subDeps);\n        }\n        return [...new Set(allDeps)];\n      }\n      return [];\n    } catch (e) {"
+    }
+  ],
+  "edges": [
+    {
+      "source": "test",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "test",
+      "target": "test_getmoddependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test.js",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

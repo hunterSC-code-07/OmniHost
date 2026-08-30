@@ -10,6 +10,7 @@ import { registerMinecraftIpc } from '../ipc/MinecraftIpc';
 import { registerCacheIpc } from '../ipc/CacheIpc';
 import { registerLogIpc } from '../ipc/LogIpc';
 import { registerNetworkIpc } from '../ipc/NetworkIpc';
+import { registerPalworldIpc } from '../ipc/PalworldIpc';
 import { registerSevenDaysToDieIpc } from '../ipc/SevenDaysToDieIpc';
 import { getServers } from '../db';
 
@@ -34,5 +35,6 @@ export function registerAllIpcs(): void {
   registerNetworkIpc(radminVpnProvider);
   registerSystemIpc(activeServers, getServers);
   registerMinecraftIpc();
+  registerPalworldIpc();
   registerSevenDaysToDieIpc();
 }

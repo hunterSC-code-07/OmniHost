@@ -1,1 +1,199 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usedayzeconomy","label":"useDayzEconomy.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L1"}]},{"id":"usedayzeconomy_usedayzeconomy","label":"useDayzEconomy()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L4-L84","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L4"}],"snippet":"export function useDayzEconomy() {\n  const { activeServerId } = useServerStore();\n  const [isLoading, setIsLoading] = useState(true);\n  const [isSaving, setIsSaving] = useState(false);\n  const [error, setError] = useState<string | null>(null);\n\n  // Economy State\n  const [pristineLoot, setPristineLoot] = useState(false);\n  \n  // Default multipliers are 1\n  const [multipliers, setMultipliers] = useState<Record<string, number>>({\n    food: 1.0,\n    weapons: 1.0,\n    clothes: 1.0,\n    tools: 1.0,\n    vehiclesparts: 1.0,\n  });\n\n  useEffect(() => {\n    loadEconomy();\n  }, [activeServerId]);\n\n  const loadEconomy = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);"},{"id":"usedayzeconomy_usedayzeconomy_loadeconomy","label":"loadEconomy()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L26-L43","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L26"}],"snippet":"loadEconomy = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);\n    setError(null);\n    try {\n      const data = await (window.api as any).getDayzEconomy(activeServerId);\n      if (data) {\n        setPristineLoot(data.pristineLoot);\n      } else {\n        setError('Could not read economy files. Make sure the server has been started at least once so the mission files exist.');\n      }\n    } catch (e) {\n      console.error(\"Failed to load DayZ economy\", e);\n      setError('An error occurred while reading economy files.');\n    } finally {\n      setIsLoading(false);\n    }\n  }"},{"id":"usedayzeconomy_usedayzeconomy_handlemultiplierchange","label":"handleMultiplierChange()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L45-L50","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L45"}],"snippet":"handleMultiplierChange = (category: string, value: number) => {\n    setMultipliers(prev => ({\n      ...prev,\n      [category]: value\n    }));\n  }"},{"id":"usedayzeconomy_usedayzeconomy_handlesave","label":"handleSave()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L52-L72","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L52"}],"snippet":"handleSave = async () => {\n    setIsSaving(true);\n    try {\n      const settings = {\n        pristineLoot,\n        multipliers\n      };\n      \n      const success = await (window.api as any).updateDayzEconomy(activeServerId, settings);\n      if (success) {\n        alert('Economy settings updated successfully! Original XML files were backed up.');\n      } else {\n        alert('Failed to update economy settings. Mission files might be missing.');\n      }\n    } catch (e) {\n      console.error(\"Failed to save DayZ economy\", e);\n      alert('An error occurred while saving.');\n    } finally {\n      setIsSaving(false);\n    }\n  }"}],"edges":[{"source":"usedayzeconomy","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L1"}],"weight":1},{"source":"usedayzeconomy","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L2"}],"weight":1},{"source":"usedayzeconomy","target":"usedayzeconomy_usedayzeconomy","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L4"}],"weight":1},{"source":"usedayzeconomy_usedayzeconomy","target":"usedayzeconomy_usedayzeconomy_loadeconomy","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L26"}],"weight":1},{"source":"usedayzeconomy_usedayzeconomy","target":"usedayzeconomy_usedayzeconomy_handlemultiplierchange","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L45"}],"weight":1},{"source":"usedayzeconomy_usedayzeconomy","target":"usedayzeconomy_usedayzeconomy_handlesave","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L52","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts","source_location":"L52"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usedayzeconomy",
+      "label": "useDayzEconomy.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usedayzeconomy_usedayzeconomy",
+      "label": "useDayzEconomy()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L4-L84",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export function useDayzEconomy() {\n  const { activeServerId } = useServerStore();\n  const [isLoading, setIsLoading] = useState(true);\n  const [isSaving, setIsSaving] = useState(false);\n  const [error, setError] = useState<string | null>(null);\n\n  // Economy State\n  const [pristineLoot, setPristineLoot] = useState(false);\n  \n  // Default multipliers are 1\n  const [multipliers, setMultipliers] = useState<Record<string, number>>({\n    food: 1.0,\n    weapons: 1.0,\n    clothes: 1.0,\n    tools: 1.0,\n    vehiclesparts: 1.0,\n  });\n\n  useEffect(() => {\n    loadEconomy();\n  }, [activeServerId]);\n\n  const loadEconomy = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);"
+    },
+    {
+      "id": "usedayzeconomy_usedayzeconomy_loadeconomy",
+      "label": "loadEconomy()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L26-L43",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "loadEconomy = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);\n    setError(null);\n    try {\n      const data = await (window.api as any).getDayzEconomy(activeServerId);\n      if (data) {\n        setPristineLoot(data.pristineLoot);\n      } else {\n        setError('Could not read economy files. Make sure the server has been started at least once so the mission files exist.');\n      }\n    } catch (e) {\n      console.error(\"Failed to load DayZ economy\", e);\n      setError('An error occurred while reading economy files.');\n    } finally {\n      setIsLoading(false);\n    }\n  }"
+    },
+    {
+      "id": "usedayzeconomy_usedayzeconomy_handlemultiplierchange",
+      "label": "handleMultiplierChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L45-L50",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L45"
+        }
+      ],
+      "snippet": "handleMultiplierChange = (category: string, value: number) => {\n    setMultipliers(prev => ({\n      ...prev,\n      [category]: value\n    }));\n  }"
+    },
+    {
+      "id": "usedayzeconomy_usedayzeconomy_handlesave",
+      "label": "handleSave()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L52-L72",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L52"
+        }
+      ],
+      "snippet": "handleSave = async () => {\n    setIsSaving(true);\n    try {\n      const settings = {\n        pristineLoot,\n        multipliers\n      };\n      \n      const success = await (window.api as any).updateDayzEconomy(activeServerId, settings);\n      if (success) {\n        alert('Economy settings updated successfully! Original XML files were backed up.');\n      } else {\n        alert('Failed to update economy settings. Mission files might be missing.');\n      }\n    } catch (e) {\n      console.error(\"Failed to save DayZ economy\", e);\n      alert('An error occurred while saving.');\n    } finally {\n      setIsSaving(false);\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usedayzeconomy",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzeconomy",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzeconomy",
+      "target": "usedayzeconomy_usedayzeconomy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzeconomy_usedayzeconomy",
+      "target": "usedayzeconomy_usedayzeconomy_loadeconomy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzeconomy_usedayzeconomy",
+      "target": "usedayzeconomy_usedayzeconomy_handlemultiplierchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L45"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzeconomy_usedayzeconomy",
+      "target": "usedayzeconomy_usedayzeconomy_handlesave",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+      "source_location": "L52",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzEconomy.ts",
+          "source_location": "L52"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

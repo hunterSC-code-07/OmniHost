@@ -1,1 +1,253 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"createservermodal","label":"CreateServerModal.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L1"}]},{"id":"createservermodal_createservermodal","label":"CreateServerModal()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L5-L462","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L5"}],"snippet":"export function CreateServerModal({ initialServerType, setShowCreateModal, setServers, servers, activeGameHub, showToast, setSteamLoginAction, setShowSteamLoginModal, steamUsername, steamPassword, setSteamPassword, steamGuardCode, setSteamGuardCode, isSteamGuardRequired, setIsSteamGuardRequired, setActiveServerId }: any) {\n    const [newServerName, setNewServerName] = useState('')\n    const [newServerType, setNewServerType] = useState(initialServerType || 'Vanilla')\n    const [newServerVersion, setNewServerVersion] = useState('')\n    const [availableVersions, setAvailableVersions] = useState<string[]>([])\n    const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')\n    const [availableLoaderVersions, setAvailableLoaderVersions] = useState<string[]>([])\n    const [isNewServerTypeMenuOpen, setIsNewServerTypeMenuOpen] = useState(false)\n    const [isNewServerVersionMenuOpen, setIsNewServerVersionMenuOpen] = useState(false)\n    const [isNewServerLoaderMenuOpen, setIsNewServerLoaderMenuOpen] = useState(false)\n    const [isCreatingServer, setIsCreatingServer] = useState(false)\n    const [downloadProgress, setDownloadProgress] = useState(0)\n    const [downloadText, setDownloadText] = useState('Downloading server.jar...')\n    const [modpackSearch, setModpackSearch] = useState('')\n    const [isSearchingPacks, setIsSearchingPacks] = useState(false)\n    const [modpacks, setModpacks] = useState<any[]>([])\n    const [selectedModpack, setSelectedModpack] = useState<any>(null)\n    const [isModpackVersionMenuOpen, setIsModpackVersionMenuOpen] = useState(false)\n    const [modpackVersionFilter, setModpackVersionFilter] = useState('')\n    const [isModpackLoaderMenuOpen, setIsModpackLoaderMenuOpen] = useState(false)\n    const [modpackLoaderFilter, setModpackLoaderFilter] = useState('')\n    const handleCreateServer = async () => {\n        if (!newServerName) return;\n        if (activeGameHub !== 'DayZ') {\n          if (newServerType !== 'CurseForge Modpack' && !newServerV...","node_kind":"component"},{"id":"createservermodal_createservermodal_handlecreateserver","label":"handleCreateServer()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L26-L150","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L26"}],"snippet":"handleCreateServer = async () => {\n        if (!newServerName) return;\n        if (activeGameHub !== 'DayZ') {\n          if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;\n          if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;\n        }\n        \n        setIsCreatingServer(true);\n        setDownloadProgress(0);\n\n        try {\n          if (newServerType === 'CurseForge Modpack') {\n            const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));\n            // @ts-ignore\n            const newId = await window.api.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);\n            \n            // @ts-ignore\n            window.api.onDownloadProgress(newId, (progress: number, text?: string) => {\n              setDownloadProgress(progress)\n              if (text) setDownloadText(text)\n            });\n\n            // @ts-ignore\n            const result = await window.api.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);"},{"id":"createservermodal_createservermodal_fetchmodpacks","label":"fetchModpacks()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L152-L167","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L152"}],"snippet":"fetchModpacks = async () => {\n          if (newServerType !== 'CurseForge Modpack') return;\n          setIsSearchingPacks(true);\n          try {\n            const typeStr = modpackLoaderFilter || 'Any';\n            const versionStr = modpackVersionFilter || '';\n            // @ts-ignore\n            const results = await window.api.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);\n            setModpacks(results || []);\n          } catch (e) {\n            console.error(e);\n            setModpacks([]);\n          } finally {\n            setIsSearchingPacks(false);\n          }\n        }"},{"id":"createservermodal_createservermodal_fetchversions","label":"fetchVersions()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L176-L193","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L176"}],"snippet":"fetchVersions = async () => {\n            let versions: string[] = []\n            // @ts-ignore\n            if (newServerType === 'Vanilla') versions = await window.api.getVanillaVersions();\n            // @ts-ignore\n            else if (newServerType === 'Paper') versions = await window.api.getPaperVersions();\n            // @ts-ignore\n            else if (newServerType === 'Fabric') versions = await window.api.getFabricVersions();\n            // @ts-ignore\n            else if (newServerType === 'Forge') versions = await window.api.getForgeVersions();\n            // @ts-ignore\n            else if (newServerType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n            \n            setAvailableVersions(versions);\n            if (versions.length > 0) {\n               setNewServerVersion(prev => versions.includes(prev) ? prev : versions[0]);\n            }\n          }"},{"id":"createservermodal_createservermodal_fetchloaderversions","label":"fetchLoaderVersions()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L203-L217","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L203"}],"snippet":"fetchLoaderVersions = async () => {\n          if (!newServerVersion) return;\n          if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {\n            setAvailableLoaderVersions([]);\n            // @ts-ignore\n            const versions = await window.api.getLoaderVersions(newServerType, newServerVersion);\n            setAvailableLoaderVersions(versions);\n            if (versions && versions.length > 0) {\n              setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);\n            }\n          } else {\n            setAvailableLoaderVersions([]);\n            setNewServerLoaderVersion('');\n          }\n        }"}],"edges":[{"source":"createservermodal","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L1"}],"weight":1},{"source":"createservermodal","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L3"}],"weight":1},{"source":"createservermodal","target":"createservermodal_createservermodal","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L5"}],"weight":1},{"source":"createservermodal_createservermodal","target":"createservermodal_createservermodal_handlecreateserver","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L26"}],"weight":1},{"source":"createservermodal_createservermodal","target":"createservermodal_createservermodal_fetchmodpacks","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L152","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L152"}],"weight":1},{"source":"createservermodal_createservermodal","target":"createservermodal_createservermodal_fetchversions","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L176","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L176"}],"weight":1},{"source":"createservermodal_createservermodal","target":"createservermodal_createservermodal_fetchloaderversions","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L203","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L203"}],"weight":1},{"source":"createservermodal_createservermodal","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "createservermodal",
+      "label": "CreateServerModal.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "createservermodal_createservermodal",
+      "label": "CreateServerModal()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L5-L462",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export function CreateServerModal({ initialServerType, setShowCreateModal, setServers, servers, activeGameHub, showToast, setSteamLoginAction, setShowSteamLoginModal, steamUsername, steamPassword, setSteamPassword, steamGuardCode, setSteamGuardCode, isSteamGuardRequired, setIsSteamGuardRequired, setActiveServerId }: any) {\n    const [newServerName, setNewServerName] = useState('')\n    const [newServerType, setNewServerType] = useState(initialServerType || 'Vanilla')\n    const [newServerVersion, setNewServerVersion] = useState('')\n    const [availableVersions, setAvailableVersions] = useState<string[]>([])\n    const [newServerLoaderVersion, setNewServerLoaderVersion] = useState('')\n    const [availableLoaderVersions, setAvailableLoaderVersions] = useState<string[]>([])\n    const [isNewServerTypeMenuOpen, setIsNewServerTypeMenuOpen] = useState(false)\n    const [isNewServerVersionMenuOpen, setIsNewServerVersionMenuOpen] = useState(false)\n    const [isNewServerLoaderMenuOpen, setIsNewServerLoaderMenuOpen] = useState(false)\n    const [isCreatingServer, setIsCreatingServer] = useState(false)\n    const [downloadProgress, setDownloadProgress] = useState(0)\n    const [downloadText, setDownloadText] = useState('Downloading server.jar...')\n    const [modpackSearch, setModpackSearch] = useState('')\n    const [isSearchingPacks, setIsSearchingPacks] = useState(false)\n    const [modpacks, setModpacks] = useState<any[]>([])\n    const [selectedModpack, setSelectedModpack] = useState<any>(null)\n    const [isModpackVersionMenuOpen, setIsModpackVersionMenuOpen] = useState(false)\n    const [modpackVersionFilter, setModpackVersionFilter] = useState('')\n    const [isModpackLoaderMenuOpen, setIsModpackLoaderMenuOpen] = useState(false)\n    const [modpackLoaderFilter, setModpackLoaderFilter] = useState('')\n    const handleCreateServer = async () => {\n        if (!newServerName) return;\n        if (activeGameHub !== 'DayZ') {\n          if (newServerType !== 'CurseForge Modpack' && !newServerV...",
+      "node_kind": "component"
+    },
+    {
+      "id": "createservermodal_createservermodal_handlecreateserver",
+      "label": "handleCreateServer()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L26-L150",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "handleCreateServer = async () => {\n        if (!newServerName) return;\n        if (activeGameHub !== 'DayZ') {\n          if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;\n          if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;\n        }\n        \n        setIsCreatingServer(true);\n        setDownloadProgress(0);\n\n        try {\n          if (newServerType === 'CurseForge Modpack') {\n            const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));\n            // @ts-ignore\n            const newId = await window.api.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);\n            \n            // @ts-ignore\n            window.api.onDownloadProgress(newId, (progress: number, text?: string) => {\n              setDownloadProgress(progress)\n              if (text) setDownloadText(text)\n            });\n\n            // @ts-ignore\n            const result = await window.api.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);"
+    },
+    {
+      "id": "createservermodal_createservermodal_fetchmodpacks",
+      "label": "fetchModpacks()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L152-L167",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L152"
+        }
+      ],
+      "snippet": "fetchModpacks = async () => {\n          if (newServerType !== 'CurseForge Modpack') return;\n          setIsSearchingPacks(true);\n          try {\n            const typeStr = modpackLoaderFilter || 'Any';\n            const versionStr = modpackVersionFilter || '';\n            // @ts-ignore\n            const results = await window.api.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);\n            setModpacks(results || []);\n          } catch (e) {\n            console.error(e);\n            setModpacks([]);\n          } finally {\n            setIsSearchingPacks(false);\n          }\n        }"
+    },
+    {
+      "id": "createservermodal_createservermodal_fetchversions",
+      "label": "fetchVersions()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L176-L193",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L176"
+        }
+      ],
+      "snippet": "fetchVersions = async () => {\n            let versions: string[] = []\n            // @ts-ignore\n            if (newServerType === 'Vanilla') versions = await window.api.getVanillaVersions();\n            // @ts-ignore\n            else if (newServerType === 'Paper') versions = await window.api.getPaperVersions();\n            // @ts-ignore\n            else if (newServerType === 'Fabric') versions = await window.api.getFabricVersions();\n            // @ts-ignore\n            else if (newServerType === 'Forge') versions = await window.api.getForgeVersions();\n            // @ts-ignore\n            else if (newServerType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n            \n            setAvailableVersions(versions);\n            if (versions.length > 0) {\n               setNewServerVersion(prev => versions.includes(prev) ? prev : versions[0]);\n            }\n          }"
+    },
+    {
+      "id": "createservermodal_createservermodal_fetchloaderversions",
+      "label": "fetchLoaderVersions()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L203-L217",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L203"
+        }
+      ],
+      "snippet": "fetchLoaderVersions = async () => {\n          if (!newServerVersion) return;\n          if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {\n            setAvailableLoaderVersions([]);\n            // @ts-ignore\n            const versions = await window.api.getLoaderVersions(newServerType, newServerVersion);\n            setAvailableLoaderVersions(versions);\n            if (versions && versions.length > 0) {\n              setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);\n            }\n          } else {\n            setAvailableLoaderVersions([]);\n            setNewServerLoaderVersion('');\n          }\n        }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "createservermodal",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal",
+      "target": "createservermodal_createservermodal",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal_createservermodal",
+      "target": "createservermodal_createservermodal_handlecreateserver",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal_createservermodal",
+      "target": "createservermodal_createservermodal_fetchmodpacks",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L152",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L152"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal_createservermodal",
+      "target": "createservermodal_createservermodal_fetchversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L176",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L176"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal_createservermodal",
+      "target": "createservermodal_createservermodal_fetchloaderversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L203",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L203"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "createservermodal_createservermodal",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/modals/CreateServerModal.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

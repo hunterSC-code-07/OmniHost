@@ -7,7 +7,7 @@ import { usePlayerStore } from '../../../../store/usePlayerStore';
 import { useStatsStore } from '../../../../store/useStatsStore';
 
 interface SevenDaysToDieOverviewTabProps {
-  serverId: string;
+  serverId: number;
 }
 
 export const SevenDaysToDieOverviewTab: React.FC<SevenDaysToDieOverviewTabProps> = React.memo(({ serverId }) => {

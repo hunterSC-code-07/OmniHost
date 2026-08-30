@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useuistore","label":"useUiStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L1"}]},{"id":"useuistore_uistore","label":"UiStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L3-L25","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L3"}],"snippet":"interface UiStore {\n  activeGameHub: string | null;\n  lastGameHub: string | null;\n  hoveredGame: string | null;\n  tunnelStatus: string;\n  tunnelIp: string;\n  tempTunnelIp: string;\n  radminIp: string;\n  isClearingCache: boolean;\n  cacheSize: number;\n  isDayzCached: boolean | null;\n  \n  setActiveGameHub: (hub: string | null) => void;\n  setLastGameHub: (hub: string | null) => void;\n  setHoveredGame: (game: string | null) => void;\n  setTunnelStatus: (status: string) => void;\n  setTunnelIp: (ip: string) => void;\n  setTempTunnelIp: (ip: string) => void;\n  setRadminIp: (ip: string) => void;\n  setIsClearingCache: (isClearing: boolean) => void;\n  setCacheSize: (size: number) => void;\n  setIsDayzCached: (isCached: boolean | null) => void;\n}"}],"edges":[{"source":"useuistore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L1"}],"weight":1},{"source":"useuistore","target":"useuistore_uistore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useUiStore.ts","source_location":"L3"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useuistore",
+      "label": "useUiStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useuistore_uistore",
+      "label": "UiStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+      "source_location": "L3-L25",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "interface UiStore {\n  activeGameHub: string | null;\n  lastGameHub: string | null;\n  hoveredGame: string | null;\n  tunnelStatus: string;\n  tunnelIp: string;\n  tempTunnelIp: string;\n  radminIp: string;\n  isClearingCache: boolean;\n  cacheSize: number;\n  isDayzCached: boolean | null;\n  \n  setActiveGameHub: (hub: string | null) => void;\n  setLastGameHub: (hub: string | null) => void;\n  setHoveredGame: (game: string | null) => void;\n  setTunnelStatus: (status: string) => void;\n  setTunnelIp: (ip: string) => void;\n  setTempTunnelIp: (ip: string) => void;\n  setRadminIp: (ip: string) => void;\n  setIsClearingCache: (isClearing: boolean) => void;\n  setCacheSize: (size: number) => void;\n  setIsDayzCached: (isCached: boolean | null) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useuistore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useuistore",
+      "target": "useuistore_uistore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useUiStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

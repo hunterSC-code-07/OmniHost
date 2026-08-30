@@ -1,1 +1,111 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usetoaststore","label":"useToastStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L1"}]},{"id":"usetoaststore_toast","label":"Toast","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L3-L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L3"}],"snippet":"export interface Toast {\n  id: number;\n  message: string;\n  type?: 'success' | 'error' | 'info';\n}"},{"id":"usetoaststore_toaststore","label":"ToastStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L9-L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L9"}],"snippet":"interface ToastStore {\n  toasts: Toast[];\n  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;\n  removeToast: (id: number) => void;\n}"}],"edges":[{"source":"usetoaststore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L1"}],"weight":1},{"source":"usetoaststore","target":"usetoaststore_toast","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L3"}],"weight":1},{"source":"usetoaststore","target":"usetoaststore_toaststore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useToastStore.ts","source_location":"L9"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usetoaststore",
+      "label": "useToastStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usetoaststore_toast",
+      "label": "Toast",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+      "source_location": "L3-L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "export interface Toast {\n  id: number;\n  message: string;\n  type?: 'success' | 'error' | 'info';\n}"
+    },
+    {
+      "id": "usetoaststore_toaststore",
+      "label": "ToastStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+      "source_location": "L9-L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+          "source_location": "L9"
+        }
+      ],
+      "snippet": "interface ToastStore {\n  toasts: Toast[];\n  showToast: (message: string, type?: 'success' | 'error' | 'info') => void;\n  removeToast: (id: number) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usetoaststore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usetoaststore",
+      "target": "usetoaststore_toast",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usetoaststore",
+      "target": "usetoaststore_toaststore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useToastStore.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,41 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"scratch_test8","label":"scratch_test8.js","file_type":"code","source_file":"D:/github/OmniHost/scratch_test8.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch_test8.js","source_location":"L1"}]}],"edges":[{"source":"scratch_test8","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch_test8.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch_test8.js","source_location":"L1"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "scratch_test8",
+      "label": "scratch_test8.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch_test8.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch_test8.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "scratch_test8",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch_test8.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch_test8.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

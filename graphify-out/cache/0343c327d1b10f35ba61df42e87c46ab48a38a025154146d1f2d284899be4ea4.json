@@ -1,1 +1,392 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usedayzfiles","label":"useDayzFiles.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L1"}]},{"id":"usedayzfiles_fileentry","label":"FileEntry","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L4-L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L4"}],"snippet":"export interface FileEntry {\n  name: string;\n  isDirectory: boolean;\n  size: number;\n  mtime: string;\n}"},{"id":"usedayzfiles_usedayzfiles","label":"useDayzFiles()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L11-L129","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L11"}],"snippet":"export function useDayzFiles() {\n  const { activeServerId } = useServerStore();\n  const [currentPath, setCurrentPath] = useState<string>('');\n  const [files, setFiles] = useState<FileEntry[]>([]);\n  const [loading, setLoading] = useState(false);\n  const [editingFile, setEditingFile] = useState<{ path: string, content: string } | null>(null);\n  const [newFolderName, setNewFolderName] = useState<string | null>(null);\n\n  const fetchDir = useCallback(async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.fs.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  }, [activeServerId]);\n\n  useEffect(() => {\n    fetchDir('');\n  }, [fetchDir]);"},{"id":"usedayzfiles_usedayzfiles_handlenavigate","label":"handleNavigate()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L36-L38","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L36"}],"snippet":"handleNavigate = (path: string) => {\n    fetchDir(path);\n  }"},{"id":"usedayzfiles_usedayzfiles_handlenavigateup","label":"handleNavigateUp()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L40-L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L40"}],"snippet":"handleNavigateUp = () => {\n    const parts = currentPath.split(/\\\\|\\//).filter(Boolean);\n    parts.pop();\n    fetchDir(parts.join('/'));\n  }"},{"id":"usedayzfiles_usedayzfiles_handlefileclick","label":"handleFileClick()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L46-L65","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L46"}],"snippet":"handleFileClick = async (file: FileEntry) => {\n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    if (file.isDirectory) {\n      handleNavigate(fullPath);\n    } else {\n      const editableExts = ['.txt', '.json', '.cfg', '.xml', '.yaml', '.yml', '.log'];\n      const isEditable = editableExts.some(ext => file.name.toLowerCase().endsWith(ext));\n      \n      if (isEditable || file.size < 1024 * 1024) {\n        try {\n          const content = await window.api.fs.readFile(activeServerId, fullPath);\n          setEditingFile({ path: fullPath, content });\n        } catch (e) {\n          alert('Could not read file');\n        }\n      } else {\n        alert('File type not supported for editing or too large.');\n      }\n    }\n  }"},{"id":"usedayzfiles_usedayzfiles_handledelete","label":"handleDelete()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L67-L78","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L67"}],"snippet":"handleDelete = async (e: React.MouseEvent, file: FileEntry) => {\n    e.stopPropagation();\n    if (!confirm(`Are you sure you want to delete ${file.name}?`)) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    try {\n      await window.api.fs.deleteItem(activeServerId, fullPath);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to delete item');\n    }\n  }"},{"id":"usedayzfiles_usedayzfiles_handlesavefile","label":"handleSaveFile()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L80-L89","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L80"}],"snippet":"handleSaveFile = async () => {\n    if (!editingFile) return;\n    try {\n      await window.api.fs.writeFile(activeServerId, editingFile.path, editingFile.content);\n      alert('File saved successfully!');\n      setEditingFile(null);\n    } catch (e) {\n      alert('Failed to save file');\n    }\n  }"},{"id":"usedayzfiles_usedayzfiles_handlecreatefolder","label":"handleCreateFolder()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L91-L103","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L91"}],"snippet":"handleCreateFolder = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newFolderName) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;\n    try {\n      await window.api.fs.createFolder(activeServerId, fullPath);\n      setNewFolderName(null);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to create folder');\n    }\n  }"},{"id":"usedayzfiles_usedayzfiles_formatsize","label":"formatSize()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L105-L111","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L105"}],"snippet":"formatSize = (bytes: number) => {\n    if (bytes === 0) return '0 B';\n    const k = 1024;\n    const sizes = ['B', 'KB', 'MB', 'GB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];\n  }"}],"edges":[{"source":"usedayzfiles","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L1"}],"weight":1},{"source":"usedayzfiles","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L2"}],"weight":1},{"source":"usedayzfiles","target":"usedayzfiles_fileentry","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L4"}],"weight":1},{"source":"usedayzfiles","target":"usedayzfiles_usedayzfiles","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L11"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_handlenavigate","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L36"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_handlenavigateup","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L40"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_handlefileclick","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L46","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L46"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_handledelete","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L67","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L67"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_handlesavefile","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L80","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L80"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_handlecreatefolder","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L91","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L91"}],"weight":1},{"source":"usedayzfiles_usedayzfiles","target":"usedayzfiles_usedayzfiles_formatsize","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L105","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L105"}],"weight":1},{"source":"usedayzfiles_usedayzfiles_handlefileclick","target":"usedayzfiles_usedayzfiles_handlenavigate","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts","source_location":"L49"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usedayzfiles",
+      "label": "useDayzFiles.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usedayzfiles_fileentry",
+      "label": "FileEntry",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L4-L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export interface FileEntry {\n  name: string;\n  isDirectory: boolean;\n  size: number;\n  mtime: string;\n}"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles",
+      "label": "useDayzFiles()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L11-L129",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L11"
+        }
+      ],
+      "snippet": "export function useDayzFiles() {\n  const { activeServerId } = useServerStore();\n  const [currentPath, setCurrentPath] = useState<string>('');\n  const [files, setFiles] = useState<FileEntry[]>([]);\n  const [loading, setLoading] = useState(false);\n  const [editingFile, setEditingFile] = useState<{ path: string, content: string } | null>(null);\n  const [newFolderName, setNewFolderName] = useState<string | null>(null);\n\n  const fetchDir = useCallback(async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.fs.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  }, [activeServerId]);\n\n  useEffect(() => {\n    fetchDir('');\n  }, [fetchDir]);"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_handlenavigate",
+      "label": "handleNavigate()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L36-L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L36"
+        }
+      ],
+      "snippet": "handleNavigate = (path: string) => {\n    fetchDir(path);\n  }"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_handlenavigateup",
+      "label": "handleNavigateUp()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L40-L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L40"
+        }
+      ],
+      "snippet": "handleNavigateUp = () => {\n    const parts = currentPath.split(/\\\\|\\//).filter(Boolean);\n    parts.pop();\n    fetchDir(parts.join('/'));\n  }"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_handlefileclick",
+      "label": "handleFileClick()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L46-L65",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L46"
+        }
+      ],
+      "snippet": "handleFileClick = async (file: FileEntry) => {\n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    if (file.isDirectory) {\n      handleNavigate(fullPath);\n    } else {\n      const editableExts = ['.txt', '.json', '.cfg', '.xml', '.yaml', '.yml', '.log'];\n      const isEditable = editableExts.some(ext => file.name.toLowerCase().endsWith(ext));\n      \n      if (isEditable || file.size < 1024 * 1024) {\n        try {\n          const content = await window.api.fs.readFile(activeServerId, fullPath);\n          setEditingFile({ path: fullPath, content });\n        } catch (e) {\n          alert('Could not read file');\n        }\n      } else {\n        alert('File type not supported for editing or too large.');\n      }\n    }\n  }"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_handledelete",
+      "label": "handleDelete()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L67-L78",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L67"
+        }
+      ],
+      "snippet": "handleDelete = async (e: React.MouseEvent, file: FileEntry) => {\n    e.stopPropagation();\n    if (!confirm(`Are you sure you want to delete ${file.name}?`)) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    try {\n      await window.api.fs.deleteItem(activeServerId, fullPath);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to delete item');\n    }\n  }"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_handlesavefile",
+      "label": "handleSaveFile()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L80-L89",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L80"
+        }
+      ],
+      "snippet": "handleSaveFile = async () => {\n    if (!editingFile) return;\n    try {\n      await window.api.fs.writeFile(activeServerId, editingFile.path, editingFile.content);\n      alert('File saved successfully!');\n      setEditingFile(null);\n    } catch (e) {\n      alert('Failed to save file');\n    }\n  }"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_handlecreatefolder",
+      "label": "handleCreateFolder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L91-L103",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L91"
+        }
+      ],
+      "snippet": "handleCreateFolder = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newFolderName) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;\n    try {\n      await window.api.fs.createFolder(activeServerId, fullPath);\n      setNewFolderName(null);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to create folder');\n    }\n  }"
+    },
+    {
+      "id": "usedayzfiles_usedayzfiles_formatsize",
+      "label": "formatSize()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L105-L111",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L105"
+        }
+      ],
+      "snippet": "formatSize = (bytes: number) => {\n    if (bytes === 0) return '0 B';\n    const k = 1024;\n    const sizes = ['B', 'KB', 'MB', 'GB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usedayzfiles",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles",
+      "target": "usedayzfiles_fileentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_handlenavigate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L36"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_handlenavigateup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L40"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_handlefileclick",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L46"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_handledelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L67",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L67"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_handlesavefile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L80",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L80"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_handlecreatefolder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L91",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L91"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles",
+      "target": "usedayzfiles_usedayzfiles_formatsize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L105",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L105"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzfiles_usedayzfiles_handlefileclick",
+      "target": "usedayzfiles_usedayzfiles_handlenavigate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzFiles.ts",
+          "source_location": "L49"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

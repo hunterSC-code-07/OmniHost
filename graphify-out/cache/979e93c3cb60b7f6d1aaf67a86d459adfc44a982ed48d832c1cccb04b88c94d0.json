@@ -1,1 +1,376 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"radminvpnadapter","label":"RadminVpnAdapter.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L1"}]},{"id":"radminvpnadapter_radminvpnadapter","label":"RadminVpnAdapter","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L5-L78","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L5"}],"snippet":"export class RadminVpnAdapter {\n  private exePath: string = 'C:\\\\Program Files (x86)\\\\Radmin VPN\\\\RvRvpnGui.exe';\n\n  constructor() {}\n\n  private sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', msg);\n    }\n  }\n\n  public isInstalled(): boolean {\n    return fs.existsSync(this.exePath);\n  }\n\n  public install() {\n    this.sendLog('[System] Opening Radmin VPN download page...');\n    shell.openExternal('https://www.radmin-vpn.com/download/Radmin_VPN.exe');\n  }\n\n  public async open(): Promise<boolean> {\n    if (!this.isInstalled()) return false;\n    \n    this.sendLog(`[Radmin VPN] Launching Radmin VPN application...`);"},{"id":"radminvpnadapter_radminvpnadapter_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L8"}],"snippet":"constructor() {}"},{"id":"radminvpnadapter_radminvpnadapter_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L10-L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L10"}],"snippet":"private sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', msg);\n    }\n  }"},{"id":"radminvpnadapter_radminvpnadapter_isinstalled","label":".isInstalled()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L17-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L17"}],"snippet":"public isInstalled(): boolean {\n    return fs.existsSync(this.exePath);\n  }"},{"id":"radminvpnadapter_radminvpnadapter_install","label":".install()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L21-L24","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L21"}],"snippet":"public install() {\n    this.sendLog('[System] Opening Radmin VPN download page...');\n    shell.openExternal('https://www.radmin-vpn.com/download/Radmin_VPN.exe');\n  }"},{"id":"radminvpnadapter_radminvpnadapter_open","label":".open()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L26-L43","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L26"}],"snippet":"public async open(): Promise<boolean> {\n    if (!this.isInstalled()) return false;\n    \n    this.sendLog(`[Radmin VPN] Launching Radmin VPN application...`);\n    \n    return new Promise((resolve) => {\n      exec(`\"${this.exePath}\"`, () => {\n        // We ignore errors here because Radmin VPN's GUI executable often returns \n        // non-zero exit codes (e.g. if an instance is already running) even though it succeeds.\n      });\n      // The exec callback might not fire until the app is closed, \n      // so we resolve immediately after spawning it\n      setTimeout(() => {\n        this.sendLog(`[Radmin VPN] Successfully launched application.`);\n        resolve(true);\n      }, 1000);\n    });\n  }"},{"id":"radminvpnadapter_radminvpnadapter_getip","label":".getIp()","file_type":"code","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L45-L77","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L45"}],"snippet":"public async getIp(): Promise<string | null> {\n    return new Promise((resolve) => {\n      exec('ipconfig /all', (error, stdout) => {\n        if (error) {\n          resolve(null);\n          return;\n        }\n\n        const lines = stdout.split('\\n').map(l => l.trim());\n        let inRadminAdapter = false;\n        \n        for (const line of lines) {\n          if (line.includes('Famatech Radmin VPN Ethernet Adapter')) {\n            inRadminAdapter = true;\n          } else if (line.startsWith('Ethernet adapter') || line.startsWith('Unknown adapter') || line.startsWith('Wireless LAN adapter')) {\n            if (inRadminAdapter) {\n              break; \n            }\n          } else if (inRadminAdapter && line.startsWith('IPv4 Address')) {\n            const parts = line.split(':');\n            if (parts.length > 1) {\n              const ipWithExtra = parts[1].trim();\n              const ip = ipWithExtra.split('(')[0].trim();\n              resolve(ip);\n              return;"}],"edges":[{"source":"radminvpnadapter","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L1"}],"weight":1},{"source":"radminvpnadapter","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L2"}],"weight":1},{"source":"radminvpnadapter","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L3"}],"weight":1},{"source":"radminvpnadapter","target":"radminvpnadapter_radminvpnadapter","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L5"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter","target":"radminvpnadapter_radminvpnadapter_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L8"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter","target":"radminvpnadapter_radminvpnadapter_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L10"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter","target":"radminvpnadapter_radminvpnadapter_isinstalled","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L17","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L17"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter","target":"radminvpnadapter_radminvpnadapter_install","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L21"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter","target":"radminvpnadapter_radminvpnadapter_open","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L26"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter","target":"radminvpnadapter_radminvpnadapter_getip","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L45"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter_install","target":"radminvpnadapter_radminvpnadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L22"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter_open","target":"radminvpnadapter_radminvpnadapter_isinstalled","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L27"}],"weight":1},{"source":"radminvpnadapter_radminvpnadapter_open","target":"radminvpnadapter_radminvpnadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts","source_location":"L29"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "radminvpnadapter",
+      "label": "RadminVpnAdapter.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter",
+      "label": "RadminVpnAdapter",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L5-L78",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export class RadminVpnAdapter {\n  private exePath: string = 'C:\\\\Program Files (x86)\\\\Radmin VPN\\\\RvRvpnGui.exe';\n\n  constructor() {}\n\n  private sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', msg);\n    }\n  }\n\n  public isInstalled(): boolean {\n    return fs.existsSync(this.exePath);\n  }\n\n  public install() {\n    this.sendLog('[System] Opening Radmin VPN download page...');\n    shell.openExternal('https://www.radmin-vpn.com/download/Radmin_VPN.exe');\n  }\n\n  public async open(): Promise<boolean> {\n    if (!this.isInstalled()) return false;\n    \n    this.sendLog(`[Radmin VPN] Launching Radmin VPN application...`);"
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L8"
+        }
+      ],
+      "snippet": "constructor() {}"
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L10-L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "private sendLog(msg: string) {\n    const windows = BrowserWindow.getAllWindows();\n    if (windows.length > 0) {\n      windows[0].webContents.send('console-log', msg);\n    }\n  }"
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter_isinstalled",
+      "label": ".isInstalled()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L17-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L17"
+        }
+      ],
+      "snippet": "public isInstalled(): boolean {\n    return fs.existsSync(this.exePath);\n  }"
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter_install",
+      "label": ".install()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L21-L24",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "public install() {\n    this.sendLog('[System] Opening Radmin VPN download page...');\n    shell.openExternal('https://www.radmin-vpn.com/download/Radmin_VPN.exe');\n  }"
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter_open",
+      "label": ".open()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L26-L43",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "public async open(): Promise<boolean> {\n    if (!this.isInstalled()) return false;\n    \n    this.sendLog(`[Radmin VPN] Launching Radmin VPN application...`);\n    \n    return new Promise((resolve) => {\n      exec(`\"${this.exePath}\"`, () => {\n        // We ignore errors here because Radmin VPN's GUI executable often returns \n        // non-zero exit codes (e.g. if an instance is already running) even though it succeeds.\n      });\n      // The exec callback might not fire until the app is closed, \n      // so we resolve immediately after spawning it\n      setTimeout(() => {\n        this.sendLog(`[Radmin VPN] Successfully launched application.`);\n        resolve(true);\n      }, 1000);\n    });\n  }"
+    },
+    {
+      "id": "radminvpnadapter_radminvpnadapter_getip",
+      "label": ".getIp()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L45-L77",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L45"
+        }
+      ],
+      "snippet": "public async getIp(): Promise<string | null> {\n    return new Promise((resolve) => {\n      exec('ipconfig /all', (error, stdout) => {\n        if (error) {\n          resolve(null);\n          return;\n        }\n\n        const lines = stdout.split('\\n').map(l => l.trim());\n        let inRadminAdapter = false;\n        \n        for (const line of lines) {\n          if (line.includes('Famatech Radmin VPN Ethernet Adapter')) {\n            inRadminAdapter = true;\n          } else if (line.startsWith('Ethernet adapter') || line.startsWith('Unknown adapter') || line.startsWith('Wireless LAN adapter')) {\n            if (inRadminAdapter) {\n              break; \n            }\n          } else if (inRadminAdapter && line.startsWith('IPv4 Address')) {\n            const parts = line.split(':');\n            if (parts.length > 1) {\n              const ipWithExtra = parts[1].trim();\n              const ip = ipWithExtra.split('(')[0].trim();\n              resolve(ip);\n              return;"
+    }
+  ],
+  "edges": [
+    {
+      "source": "radminvpnadapter",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter_isinstalled",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L17",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L17"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter_install",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter_open",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter",
+      "target": "radminvpnadapter_radminvpnadapter_getip",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L45"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter_install",
+      "target": "radminvpnadapter_radminvpnadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter_open",
+      "target": "radminvpnadapter_radminvpnadapter_isinstalled",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L27"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "radminvpnadapter_radminvpnadapter_open",
+      "target": "radminvpnadapter_radminvpnadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/adapters/RadminVpnAdapter.ts",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

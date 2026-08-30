@@ -1,1 +1,22 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"test_stalker","label":"test_stalker.js","file_type":"code","source_file":"D:/github/OmniHost/test_stalker.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/test_stalker.js","source_location":"L1"}]}],"edges":[]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "test_stalker",
+      "label": "test_stalker.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/test_stalker.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/test_stalker.js",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

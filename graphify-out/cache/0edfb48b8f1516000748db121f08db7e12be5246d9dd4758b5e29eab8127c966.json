@@ -1,1 +1,255 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"systemipc","label":"SystemIpc.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L1"}]},{"id":"systemipc_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L11-L18","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L11"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"systemipc_registersystemipc","label":"registerSystemIpc()","file_type":"code","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L20-L566","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L20"}],"snippet":"export function registerSystemIpc(\n  tunnelProvider: FrpAdapter,\n  radminVpnProvider: RadminVpnAdapter,\n  activeServers: Record<number, any>\n) {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  // Versions & Downloads\n  ipcMain.handle('get-system-info', () => {\n    return {\n      totalMem: os.totalmem(),\n      cpus: os.cpus().length\n    }\n  })\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  // Versions & Downloads\n  ipcMain.handle('update-server-meta', async (_, id, changes) => {\n    const serverDir = join(app.getPath('userData'), 'servers', id.toString())\n    const metaPath = join(serverDir, 'omnihost.json')\n    let meta = {}\n    if (fs.existsSync(metaPath)) {"}],"edges":[{"source":"systemipc","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L1"}],"weight":1},{"source":"systemipc","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L2"}],"weight":1},{"source":"systemipc","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L3"}],"weight":1},{"source":"systemipc","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L4"}],"weight":1},{"source":"systemipc","target":"os","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L5"}],"weight":1},{"source":"systemipc","target":"cachemanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L6"}],"weight":1},{"source":"systemipc","target":"frpadapter","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L7"}],"weight":1},{"source":"systemipc","target":"radminvpnadapter","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L8"}],"weight":1},{"source":"systemipc","target":"db","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L9"}],"weight":1},{"source":"systemipc","target":"systemipc_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L11"}],"weight":1},{"source":"systemipc","target":"systemipc_registersystemipc","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L20","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/ipc/SystemIpc.ts","source_location":"L20"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "systemipc",
+      "label": "SystemIpc.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "systemipc_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L11-L18",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L11"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "systemipc_registersystemipc",
+      "label": "registerSystemIpc()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L20-L566",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L20"
+        }
+      ],
+      "snippet": "export function registerSystemIpc(\n  tunnelProvider: FrpAdapter,\n  radminVpnProvider: RadminVpnAdapter,\n  activeServers: Record<number, any>\n) {\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  // Versions & Downloads\n  ipcMain.handle('get-system-info', () => {\n    return {\n      totalMem: os.totalmem(),\n      cpus: os.cpus().length\n    }\n  })\n\n  // --- 2. IPC HANDLERS (THE BRIDGE) ---\n\n  // Database\n  // Versions & Downloads\n  ipcMain.handle('update-server-meta', async (_, id, changes) => {\n    const serverDir = join(app.getPath('userData'), 'servers', id.toString())\n    const metaPath = join(serverDir, 'omnihost.json')\n    let meta = {}\n    if (fs.existsSync(metaPath)) {"
+    }
+  ],
+  "edges": [
+    {
+      "source": "systemipc",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "os",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "cachemanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "frpadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "radminvpnadapter",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "db",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "systemipc_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "systemipc",
+      "target": "systemipc_registersystemipc",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+      "source_location": "L20",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/ipc/SystemIpc.ts",
+          "source_location": "L20"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

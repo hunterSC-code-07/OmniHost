@@ -1,1 +1,131 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dashboardhub_perfect","label":"DashboardHub_perfect.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L1"}]},{"id":"dashboardhub_perfect_dashboardhub","label":"DashboardHub()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5-L419","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5"}],"snippet":"export function DashboardHub({ \n  servers, \n  activeGameHub, \n  hoveredGame, \n  setHoveredGame, \n  setActiveGameHub, \n  setActiveServerId, \n  handleStart, \n  handleStop, \n  handleRestart, \n  handleDelete, \n  handleTunnel, \n  tunnelStatus, \n  tunnelIp, \n  getGameImageUrl,\n  setShowCreateModal,\n  setShowSteamLoginModal,\n  isGameSupported,\n  isDayzCached,\n  setIsDayzCached,\n  setSteamLoginAction,\n  showToast\n}: any) {\n\n  return (","node_kind":"component"}],"edges":[{"source":"dashboardhub_perfect","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L1"}],"weight":1},{"source":"dashboardhub_perfect","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L2"}],"weight":1},{"source":"dashboardhub_perfect","target":"dashboardhub_perfect_dashboardhub","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5"}],"weight":1},{"source":"dashboardhub_perfect_dashboardhub","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5"}],"weight":1},{"source":"dashboardhub_perfect_dashboardhub","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dashboardhub_perfect",
+      "label": "DashboardHub_perfect.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dashboardhub_perfect_dashboardhub",
+      "label": "DashboardHub()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L5-L419",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export function DashboardHub({ \n  servers, \n  activeGameHub, \n  hoveredGame, \n  setHoveredGame, \n  setActiveGameHub, \n  setActiveServerId, \n  handleStart, \n  handleStop, \n  handleRestart, \n  handleDelete, \n  handleTunnel, \n  tunnelStatus, \n  tunnelIp, \n  getGameImageUrl,\n  setShowCreateModal,\n  setShowSteamLoginModal,\n  isGameSupported,\n  isDayzCached,\n  setIsDayzCached,\n  setSteamLoginAction,\n  showToast\n}: any) {\n\n  return (",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dashboardhub_perfect",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_perfect",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_perfect",
+      "target": "dashboardhub_perfect_dashboardhub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_perfect_dashboardhub",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_perfect_dashboardhub",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/DashboardHub_perfect.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

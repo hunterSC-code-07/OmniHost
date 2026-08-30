@@ -1,1 +1,24 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"file_bytes":423943,"content_type":"image/jpeg","id":"palworld_bg","label":"palworld-bg.jpg","file_type":"image","source_file":"D:/github/OmniHost/src/renderer/src/assets/palworld-bg.jpg","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:image","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/assets/palworld-bg.jpg","source_location":"L1"}]}],"edges":[]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "file_bytes": 423943,
+      "content_type": "image/jpeg",
+      "id": "palworld_bg",
+      "label": "palworld-bg.jpg",
+      "file_type": "image",
+      "source_file": "D:/github/OmniHost/src/renderer/src/assets/palworld-bg.jpg",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:image",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/assets/palworld-bg.jpg",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": []
+}

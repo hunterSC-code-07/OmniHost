@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"scratch_test3","label":"scratch_test3.js","file_type":"code","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L1"}]},{"id":"scratch_test3_test","label":"test()","file_type":"code","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L2-L27","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L2"}],"snippet":"async function test() {\n  const modId = '3089074633';\n  const url = 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId;\n  const response = await axios.get(url, {\n    headers: {\n      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',\n      'Cookie': 'birthtime=283993201; lastagecheckage=1-January-1979'\n    }\n  });\n  const html = response.data;\n  \n  const parts = html.split('class=\"requiredItemsContainer\"');\n  if (parts.length > 1) {\n    let block = parts[1];\n    const endPart = block.indexOf('</div>'); \n    if (endPart !== -1) {\n        block = block.substring(0, 5000); \n    }\n    \n    const idRegex = /filedetails\\/\\?id=(\\d+)/g;\n    const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];\n    console.log(\"Found:\", ids);\n  } else {\n    console.log(\"No requiredItemsContainer found.\");\n  }"}],"edges":[{"source":"scratch_test3","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L1"}],"weight":1},{"source":"scratch_test3","target":"scratch_test3_test","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/scratch_test3.js","source_location":"L2"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "scratch_test3",
+      "label": "scratch_test3.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch_test3.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch_test3.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "scratch_test3_test",
+      "label": "test()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch_test3.js",
+      "source_location": "L2-L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch_test3.js",
+          "source_location": "L2"
+        }
+      ],
+      "snippet": "async function test() {\n  const modId = '3089074633';\n  const url = 'https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId;\n  const response = await axios.get(url, {\n    headers: {\n      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',\n      'Cookie': 'birthtime=283993201; lastagecheckage=1-January-1979'\n    }\n  });\n  const html = response.data;\n  \n  const parts = html.split('class=\"requiredItemsContainer\"');\n  if (parts.length > 1) {\n    let block = parts[1];\n    const endPart = block.indexOf('</div>'); \n    if (endPart !== -1) {\n        block = block.substring(0, 5000); \n    }\n    \n    const idRegex = /filedetails\\/\\?id=(\\d+)/g;\n    const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];\n    console.log(\"Found:\", ids);\n  } else {\n    console.log(\"No requiredItemsContainer found.\");\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "scratch_test3",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch_test3.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch_test3.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "scratch_test3",
+      "target": "scratch_test3_test",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch_test3.js",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch_test3.js",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

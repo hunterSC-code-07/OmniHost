@@ -1,639 +1,2400 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<title>graphify-ts</title>
-<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
-<style>
-  :root {
-    color-scheme: light;
-    --panel-border: #d7dce5;
-    --panel-bg: #fbfcfe;
-    --text-muted: #5b6473;
-    --accent: #2553d8;
-  }
+  <head>
+    <meta charset="UTF-8" />
+    <title>graphify-ts</title>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --panel-border: #d7dce5;
+        --panel-bg: #fbfcfe;
+        --text-muted: #5b6473;
+        --accent: #2553d8;
+      }
 
-  * { box-sizing: border-box; }
-  body {
-    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    margin: 0;
-    display: flex;
-    height: 100vh;
-    color: #111827;
-    background: #eef2f7;
-  }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        margin: 0;
+        display: flex;
+        height: 100vh;
+        color: #111827;
+        background: #eef2f7;
+      }
 
-  #graph {
-    flex: 1;
-    min-width: 0;
-    background: linear-gradient(180deg, #f8fbff 0%, #eef2f7 100%);
-  }
+      #graph {
+        flex: 1;
+        min-width: 0;
+        background: linear-gradient(180deg, #f8fbff 0%, #eef2f7 100%);
+      }
 
-  #sidebar {
-    width: 360px;
-    border-left: 1px solid var(--panel-border);
-    padding: 16px;
-    overflow: auto;
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(8px);
-  }
+      #sidebar {
+        width: 360px;
+        border-left: 1px solid var(--panel-border);
+        padding: 16px;
+        overflow: auto;
+        background: rgba(255, 255, 255, 0.94);
+        backdrop-filter: blur(8px);
+      }
 
-  h1, h2, h3, p { margin: 0; }
-  h1 { font-size: 1.15rem; }
-  h2 { font-size: 0.96rem; margin-bottom: 10px; }
-  .lede { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-top: 8px; }
-  .panel {
-    border: 1px solid var(--panel-border);
-    border-radius: 14px;
-    background: var(--panel-bg);
-    padding: 14px;
-    margin-bottom: 14px;
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-  }
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+      h1 {
+        font-size: 1.15rem;
+      }
+      h2 {
+        font-size: 0.96rem;
+        margin-bottom: 10px;
+      }
+      .lede {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-top: 8px;
+      }
+      .panel {
+        border: 1px solid var(--panel-border);
+        border-radius: 14px;
+        background: var(--panel-bg);
+        padding: 14px;
+        margin-bottom: 14px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      }
 
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 10px;
-    margin-top: 12px;
-  }
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
 
-  .stat {
-    border-radius: 10px;
-    padding: 10px;
-    background: white;
-    border: 1px solid #e6ebf2;
-  }
+      .stat {
+        border-radius: 10px;
+        padding: 10px;
+        background: white;
+        border: 1px solid #e6ebf2;
+      }
 
-  .stat strong {
-    display: block;
-    font-size: 1rem;
-    margin-top: 3px;
-  }
+      .stat strong {
+        display: block;
+        font-size: 1rem;
+        margin-top: 3px;
+      }
 
-  .muted { color: var(--text-muted); font-size: 0.85rem; }
-  .back-link { color: var(--accent); text-decoration: none; }
+      .muted {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+      }
+      .back-link {
+        color: var(--accent);
+        text-decoration: none;
+      }
 
-  #search {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 10px;
-    border-radius: 10px;
-    border: 1px solid #cdd6e3;
-    background: white;
-  }
+      #search {
+        width: 100%;
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        border-radius: 10px;
+        border: 1px solid #cdd6e3;
+        background: white;
+      }
 
-  .toolbar {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-    flex-wrap: wrap;
-  }
+      .toolbar {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
+        flex-wrap: wrap;
+      }
 
-  button {
-    appearance: none;
-    border: 1px solid #cbd5e1;
-    background: white;
-    color: #111827;
-    border-radius: 10px;
-    padding: 8px 10px;
-    cursor: pointer;
-    font: inherit;
-  }
+      button {
+        appearance: none;
+        border: 1px solid #cbd5e1;
+        background: white;
+        color: #111827;
+        border-radius: 10px;
+        padding: 8px 10px;
+        cursor: pointer;
+        font: inherit;
+      }
 
-  button:hover { border-color: var(--accent); color: var(--accent); }
-  button.primary {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-  }
+      button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      button.primary {
+        background: var(--accent);
+        color: white;
+        border-color: var(--accent);
+      }
 
-  button.small {
-    font-size: 0.82rem;
-    padding: 6px 8px;
-  }
+      button.small {
+        font-size: 0.82rem;
+        padding: 6px 8px;
+      }
 
-  .list, #legend, #matches {
-    display: grid;
-    gap: 8px;
-  }
+      .list,
+      #legend,
+      #matches {
+        display: grid;
+        gap: 8px;
+      }
 
-  .legend-button,
-  .match-button,
-  .neighbor-button {
-    width: 100%;
-    text-align: left;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
+      .legend-button,
+      .match-button,
+      .neighbor-button {
+        width: 100%;
+        text-align: left;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
 
-  .legend-chip {
-    width: 10px;
-    height: 10px;
-    border-radius: 999px;
-    flex: 0 0 auto;
-  }
+      .legend-chip {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        flex: 0 0 auto;
+      }
 
-  .meta-grid {
-    display: grid;
-    grid-template-columns: minmax(90px, auto) 1fr;
-    gap: 8px 12px;
-    font-size: 0.9rem;
-  }
+      .meta-grid {
+        display: grid;
+        grid-template-columns: minmax(90px, auto) 1fr;
+        gap: 8px 12px;
+        font-size: 0.9rem;
+      }
 
-  .meta-grid dt { color: var(--text-muted); }
-  .meta-grid dd { margin: 0; word-break: break-word; }
-  .meta-grid a { color: var(--accent); word-break: break-all; }
+      .meta-grid dt {
+        color: var(--text-muted);
+      }
+      .meta-grid dd {
+        margin: 0;
+        word-break: break-word;
+      }
+      .meta-grid a {
+        color: var(--accent);
+        word-break: break-all;
+      }
 
-  .empty {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    line-height: 1.5;
-  }
+      .empty {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.5;
+      }
 
-  .neighbor-meta,
-  .match-meta {
-    color: var(--text-muted);
-    font-size: 0.78rem;
-  }
+      .neighbor-meta,
+      .match-meta {
+        color: var(--text-muted);
+        font-size: 0.78rem;
+      }
 
-  code {
-    background: #eef2ff;
-    padding: 0.15rem 0.35rem;
-    border-radius: 6px;
-  }
-</style>
-</head>
-<body>
-<div id="graph"></div>
-<div id="sidebar">
-  <section class="panel">
-    
-    <h1>graphify-ts</h1>
-    <p class="lede">Explore the generated graph, inspect node evidence, and hop through neighbors without leaving the HTML export.</p>
-    <div class="stats" id="stats"></div>
-  </section>
+      code {
+        background: #eef2ff;
+        padding: 0.15rem 0.35rem;
+        border-radius: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="graph"></div>
+    <div id="sidebar">
+      <section class="panel">
+        <h1>graphify-ts</h1>
+        <p class="lede">
+          Explore the generated graph, inspect node evidence, and hop through neighbors without
+          leaving the HTML export.
+        </p>
+        <div class="stats" id="stats"></div>
+      </section>
 
-  <section class="panel">
-    <h2>Search</h2>
-    <input id="search" placeholder="Search nodes by label or file..." />
-    <div id="matches" class="list"></div>
-    <div class="toolbar">
-      <button id="resetView" class="small">Reset view</button>
-      <button id="clearSelection" class="small">Clear selection</button>
+      <section class="panel">
+        <h2>Search</h2>
+        <input id="search" placeholder="Search nodes by label or file..." />
+        <div id="matches" class="list"></div>
+        <div class="toolbar">
+          <button id="resetView" class="small">Reset view</button>
+          <button id="clearSelection" class="small">Clear selection</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Selected node</h2>
+        <p id="selectionEmpty" class="empty">
+          Click a node in the graph, choose a search match, or follow a neighbor to inspect it here.
+        </p>
+        <div id="selectionDetails" hidden>
+          <h3 id="selectedLabel"></h3>
+          <p id="selectedSummary" class="lede"></p>
+          <dl class="meta-grid">
+            <dt>Source</dt>
+            <dd id="selectedSource"></dd>
+            <dt id="selectedDocumentTitleLabel" hidden>Title</dt>
+            <dd id="selectedDocumentTitle" hidden></dd>
+            <dt id="selectedSourceUrlLabel" hidden>Source URL</dt>
+            <dd id="selectedSourceUrl" hidden></dd>
+            <dt id="selectedAuthorLabel" hidden>Author</dt>
+            <dd id="selectedAuthor" hidden></dd>
+            <dt id="selectedContributorLabel" hidden>Contributor</dt>
+            <dd id="selectedContributor" hidden></dd>
+            <dt id="selectedCapturedAtLabel" hidden>Captured</dt>
+            <dd id="selectedCapturedAt" hidden></dd>
+            <dt id="selectedQuestionLabel" hidden>Question</dt>
+            <dd id="selectedQuestion" hidden></dd>
+            <dt id="selectedArxivIdLabel" hidden>arXiv</dt>
+            <dd id="selectedArxivId" hidden></dd>
+            <dt>Type</dt>
+            <dd id="selectedType"></dd>
+            <dt>Community</dt>
+            <dd id="selectedCommunity"></dd>
+            <dt>Confidence</dt>
+            <dd id="selectedConfidence"></dd>
+            <dt>Degree</dt>
+            <dd id="selectedDegree"></dd>
+            <dt id="selectedGlobalDegreeLabel" hidden>Global degree</dt>
+            <dd id="selectedGlobalDegree" hidden></dd>
+            <dt id="selectedConnectedCommunitiesLabel" hidden>Connected communities</dt>
+            <dd id="selectedConnectedCommunities" hidden></dd>
+          </dl>
+          <div class="toolbar">
+            <button id="focusNeighborhood" class="primary small">Focus neighborhood</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Neighbors</h2>
+        <p id="neighborsEmpty" class="empty">
+          Neighbor navigation appears here once a node is selected.
+        </p>
+        <div id="neighborList" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Communities</h2>
+        <div id="legend"></div>
+      </section>
     </div>
-  </section>
+    <script>
+      const RAW_NODES = [
+        {
+          id: 'dayzanimatedbackground',
+          label: 'DayzAnimatedBackground.tsx',
+          title: 'DayzAnimatedBackground.tsx',
+          color: { background: '#EDC948', border: '#EDC948' },
+          community: 5,
+          community_name: 'Tabs Dayz Animated Background',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzAnimatedBackground.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzhub',
+          label: 'DayzHub.tsx',
+          title: 'DayzHub.tsx',
+          color: { background: '#EDC948', border: '#EDC948' },
+          community: 5,
+          community_name: 'Tabs Dayz Animated Background',
+          source_file: 'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 14,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzhub_dayzhubcontent',
+          label: 'DayzHubContent()',
+          title: 'DayzHubContent()',
+          color: { background: '#BAB0AC', border: '#BAB0AC' },
+          community: 9,
+          community_name: 'Dayz Hub',
+          source_file: 'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx',
+          source_location: 'L19-L163',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 7,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzhub_dayzhub',
+          label: 'DayzHub()',
+          title: 'DayzHub()',
+          color: { background: '#BAB0AC', border: '#BAB0AC' },
+          community: 9,
+          community_name: 'Dayz Hub',
+          source_file: 'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx',
+          source_location: 'L165-L171',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzconsoletab',
+          label: 'DayzConsoleTab.tsx',
+          title: 'DayzConsoleTab.tsx',
+          color: { background: '#EDC948', border: '#EDC948' },
+          community: 5,
+          community_name: 'Tabs Dayz Animated Background',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzeconomytab',
+          label: 'DayzEconomyTab.tsx',
+          title: 'DayzEconomyTab.tsx',
+          color: { background: '#E15759', border: '#E15759' },
+          community: 2,
+          community_name: 'Tabs Dayz Economy Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzeconomytab_dayzeconomytab',
+          label: 'DayzEconomyTab()',
+          title: 'DayzEconomyTab()',
+          color: { background: '#E15759', border: '#E15759' },
+          community: 2,
+          community_name: 'Tabs Dayz Economy Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx',
+          source_location: 'L6-L236',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 7,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzeconomytab_dayzeconomytab_loadeconomy',
+          label: 'loadEconomy()',
+          title: 'loadEconomy()',
+          color: { background: '#E15759', border: '#E15759' },
+          community: 2,
+          community_name: 'Tabs Dayz Economy Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx',
+          source_location: 'L28-L46',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzeconomytab_dayzeconomytab_handlemultiplierchange',
+          label: 'handleMultiplierChange()',
+          title: 'handleMultiplierChange()',
+          color: { background: '#E15759', border: '#E15759' },
+          community: 2,
+          community_name: 'Tabs Dayz Economy Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx',
+          source_location: 'L48-L53',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzeconomytab_dayzeconomytab_handlesave',
+          label: 'handleSave()',
+          title: 'handleSave()',
+          color: { background: '#E15759', border: '#E15759' },
+          community: 2,
+          community_name: 'Tabs Dayz Economy Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx',
+          source_location: 'L55-L76',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzeconomytab_dayzeconomytab_renderslider',
+          label: 'renderSlider()',
+          title: 'renderSlider()',
+          color: { background: '#E15759', border: '#E15759' },
+          community: 2,
+          community_name: 'Tabs Dayz Economy Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx',
+          source_location: 'L104-L125',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab',
+          label: 'DayzFilesTab.tsx',
+          title: 'DayzFilesTab.tsx',
+          color: { background: '#9C755F', border: '#9C755F' },
+          community: 8,
+          community_name: 'Tabs Dayz Files Tab — Dayz',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 3,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_fileentry',
+          label: 'FileEntry',
+          title: 'FileEntry',
+          color: { background: '#9C755F', border: '#9C755F' },
+          community: 8,
+          community_name: 'Tabs Dayz Files Tab — Dayz',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L6-L11',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab',
+          label: 'DayzFilesTab()',
+          title: 'DayzFilesTab()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L13-L246',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 11,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_fetchdir',
+          label: 'fetchDir()',
+          title: 'fetchDir()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L21-L32',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 5,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_handlenavigate',
+          label: 'handleNavigate()',
+          title: 'handleNavigate()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L38-L40',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 3,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_handlenavigateup',
+          label: 'handleNavigateUp()',
+          title: 'handleNavigateUp()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L42-L46',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_handlefileclick',
+          label: 'handleFileClick()',
+          title: 'handleFileClick()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L48-L68',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_handledelete',
+          label: 'handleDelete()',
+          title: 'handleDelete()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L70-L81',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_handlesavefile',
+          label: 'handleSaveFile()',
+          title: 'handleSaveFile()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L83-L92',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_handlecreatefolder',
+          label: 'handleCreateFolder()',
+          title: 'handleCreateFolder()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L94-L106',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzfilestab_dayzfilestab_formatsize',
+          label: 'formatSize()',
+          title: 'formatSize()',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 0,
+          community_name: 'Tabs Dayz Files Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx',
+          source_location: 'L108-L114',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzinstalledmodstab',
+          label: 'DayzInstalledModsTab.tsx',
+          title: 'DayzInstalledModsTab.tsx',
+          color: { background: '#B07AA1', border: '#B07AA1' },
+          community: 6,
+          community_name: 'Tabs Dayz Installed Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzinstalledmodstab_dayzinstalledmodstab',
+          label: 'DayzInstalledModsTab()',
+          title: 'DayzInstalledModsTab()',
+          color: { background: '#B07AA1', border: '#B07AA1' },
+          community: 6,
+          community_name: 'Tabs Dayz Installed Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx',
+          source_location: 'L5-L375',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 4,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage',
+          label: 'openWorkshopPage()',
+          title: 'openWorkshopPage()',
+          color: { background: '#B07AA1', border: '#B07AA1' },
+          community: 6,
+          community_name: 'Tabs Dayz Installed Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx',
+          source_location: 'L37-L41',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab',
+          label: 'DayzModsTab.tsx',
+          title: 'DayzModsTab.tsx',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 10,
+          community_name: 'Tabs Dayz Mods Tab — Dayz',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 3,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstabprops',
+          label: 'DayzModsTabProps',
+          title: 'DayzModsTabProps',
+          color: { background: '#4E79A7', border: '#4E79A7' },
+          community: 10,
+          community_name: 'Tabs Dayz Mods Tab — Dayz',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L7-L9',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab',
+          label: 'DayzModsTab()',
+          title: 'DayzModsTab()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L11-L549',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 11,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_loadinstalledmods',
+          label: 'loadInstalledMods()',
+          title: 'loadInstalledMods()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L60-L66',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 4,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_handlesearch',
+          label: 'handleSearch()',
+          title: 'handleSearch()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 11,
+          community_name: 'Tabs Dayz Mods Tab — Handle',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L68-L92',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_handlecategorychange',
+          label: 'handleCategoryChange()',
+          title: 'handleCategoryChange()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 11,
+          community_name: 'Tabs Dayz Mods Tab — Handle',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L94-L97',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_handleinstall',
+          label: 'handleInstall()',
+          title: 'handleInstall()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L120-L224',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_handleuninstall',
+          label: 'handleUninstall()',
+          title: 'handleUninstall()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L226-L232',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_handlebrowseworkshop',
+          label: 'handleBrowseWorkshop()',
+          title: 'handleBrowseWorkshop()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L234-L239',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_handleimportworkshop',
+          label: 'handleImportWorkshop()',
+          title: 'handleImportWorkshop()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L241-L254',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzmodstab_dayzmodstab_stripbbcode',
+          label: 'stripBBCode()',
+          title: 'stripBBCode()',
+          color: { background: '#F28E2B', border: '#F28E2B' },
+          community: 1,
+          community_name: 'Tabs Dayz Mods Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx',
+          source_location: 'L256-L259',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab',
+          label: 'DayzOptionsTab.tsx',
+          title: 'DayzOptionsTab.tsx',
+          color: { background: '#76B7B2', border: '#76B7B2' },
+          community: 3,
+          community_name: 'Tabs Dayz Options Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L1',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 4,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_customselect',
+          label: 'CustomSelect()',
+          title: 'CustomSelect()',
+          color: { background: '#76B7B2', border: '#76B7B2' },
+          community: 3,
+          community_name: 'Tabs Dayz Options Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L5-L46',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 3,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_customselect_handleclickoutside',
+          label: 'handleClickOutside()',
+          title: 'handleClickOutside()',
+          color: { background: '#76B7B2', border: '#76B7B2' },
+          community: 3,
+          community_name: 'Tabs Dayz Options Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L10-L14',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_customnumberinput',
+          label: 'CustomNumberInput()',
+          title: 'CustomNumberInput()',
+          color: { background: '#76B7B2', border: '#76B7B2' },
+          community: 3,
+          community_name: 'Tabs Dayz Options Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L49-L79',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab',
+          label: 'DayzOptionsTab()',
+          title: 'DayzOptionsTab()',
+          color: { background: '#76B7B2', border: '#76B7B2' },
+          community: 3,
+          community_name: 'Tabs Dayz Options Tab',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L83-L337',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 8,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_loadconfig',
+          label: 'loadConfig()',
+          title: 'loadConfig()',
+          color: { background: '#59A14F', border: '#59A14F' },
+          community: 4,
+          community_name: 'Tabs Dayz Options Tab — Config',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L106-L134',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 2,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_parseconfig',
+          label: 'parseConfig()',
+          title: 'parseConfig()',
+          color: { background: '#59A14F', border: '#59A14F' },
+          community: 4,
+          community_name: 'Tabs Dayz Options Tab — Config',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L136-L157',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 4,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_parseconfig_extractstring',
+          label: 'extractString()',
+          title: 'extractString()',
+          color: { background: '#59A14F', border: '#59A14F' },
+          community: 4,
+          community_name: 'Tabs Dayz Options Tab — Config',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L137-L140',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_parseconfig_extractnumber',
+          label: 'extractNumber()',
+          title: 'extractNumber()',
+          color: { background: '#59A14F', border: '#59A14F' },
+          community: 4,
+          community_name: 'Tabs Dayz Options Tab — Config',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L141-L144',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_handlesave',
+          label: 'handleSave()',
+          title: 'handleSave()',
+          color: { background: '#FF9DA7', border: '#FF9DA7' },
+          community: 7,
+          community_name: 'Tabs Dayz Options Tab — Replace',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L159-L205',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 3,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_handlesave_replacestring',
+          label: 'replaceString()',
+          title: 'replaceString()',
+          color: { background: '#FF9DA7', border: '#FF9DA7' },
+          community: 7,
+          community_name: 'Tabs Dayz Options Tab — Replace',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L164-L171',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        },
+        {
+          id: 'dayzoptionstab_dayzoptionstab_handlesave_replacenumber',
+          label: 'replaceNumber()',
+          title: 'replaceNumber()',
+          color: { background: '#FF9DA7', border: '#FF9DA7' },
+          community: 7,
+          community_name: 'Tabs Dayz Options Tab — Replace',
+          source_file:
+            'D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx',
+          source_location: 'L173-L180',
+          source_url: '',
+          safe_source_url: '',
+          document_title: '',
+          author: '',
+          contributor: '',
+          captured_at: '',
+          question: '',
+          arxiv_id: '',
+          file_type: 'code',
+          degree: 1,
+          confidence: 'EXTRACTED'
+        }
+      ]
+      const RAW_EDGES = [
+        {
+          from: 'dayzhub',
+          to: 'dayzconsoletab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzoptionstab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzeconomytab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzmodstab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzinstalledmodstab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzfilestab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzanimatedbackground',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzhub_dayzhubcontent',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub_dayzhubcontent',
+          to: 'dayzoptionstab_dayzoptionstab',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub_dayzhubcontent',
+          to: 'dayzeconomytab_dayzeconomytab',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub_dayzhubcontent',
+          to: 'dayzmodstab_dayzmodstab',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub_dayzhubcontent',
+          to: 'dayzinstalledmodstab_dayzinstalledmodstab',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub_dayzhubcontent',
+          to: 'dayzfilestab_dayzfilestab',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzhub_dayzhub',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub_dayzhub',
+          to: 'dayzhub_dayzhubcontent',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzeconomytab',
+          to: 'dayzeconomytab_dayzeconomytab',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzeconomytab_dayzeconomytab',
+          to: 'dayzeconomytab_dayzeconomytab_loadeconomy',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzeconomytab_dayzeconomytab',
+          to: 'dayzeconomytab_dayzeconomytab_handlemultiplierchange',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzeconomytab_dayzeconomytab',
+          to: 'dayzeconomytab_dayzeconomytab_handlesave',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzeconomytab_dayzeconomytab',
+          to: 'dayzeconomytab_dayzeconomytab_renderslider',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab',
+          to: 'dayzfilestab_fileentry',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_fetchdir',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_handlenavigate',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_handlenavigateup',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_handlefileclick',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_handledelete',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_handlesavefile',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_handlecreatefolder',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab',
+          to: 'dayzfilestab_dayzfilestab_formatsize',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab_handlenavigate',
+          to: 'dayzfilestab_dayzfilestab_fetchdir',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab_handlenavigateup',
+          to: 'dayzfilestab_dayzfilestab_fetchdir',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab_handlefileclick',
+          to: 'dayzfilestab_dayzfilestab_handlenavigate',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab_handledelete',
+          to: 'dayzfilestab_dayzfilestab_fetchdir',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzfilestab_dayzfilestab_handlecreatefolder',
+          to: 'dayzfilestab_dayzfilestab_fetchdir',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzinstalledmodstab',
+          to: 'dayzinstalledmodstab_dayzinstalledmodstab',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzinstalledmodstab_dayzinstalledmodstab',
+          to: 'dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab',
+          to: 'dayzmodstab_dayzmodstabprops',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_loadinstalledmods',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_handlesearch',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_handlecategorychange',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_handleinstall',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_handleuninstall',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_handlebrowseworkshop',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_handleimportworkshop',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab',
+          to: 'dayzmodstab_dayzmodstab_stripbbcode',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab_handlecategorychange',
+          to: 'dayzmodstab_dayzmodstab_handlesearch',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab_handleinstall',
+          to: 'dayzmodstab_dayzmodstab_loadinstalledmods',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab_handleuninstall',
+          to: 'dayzmodstab_dayzmodstab_loadinstalledmods',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzmodstab_dayzmodstab_handleimportworkshop',
+          to: 'dayzmodstab_dayzmodstab_loadinstalledmods',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab',
+          to: 'dayzoptionstab_customselect',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_customselect',
+          to: 'dayzoptionstab_customselect_handleclickoutside',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab',
+          to: 'dayzoptionstab_customnumberinput',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab',
+          to: 'dayzoptionstab_dayzoptionstab',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab',
+          to: 'dayzoptionstab_dayzoptionstab_loadconfig',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab',
+          to: 'dayzoptionstab_dayzoptionstab_parseconfig',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab_parseconfig',
+          to: 'dayzoptionstab_dayzoptionstab_parseconfig_extractstring',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab_parseconfig',
+          to: 'dayzoptionstab_dayzoptionstab_parseconfig_extractnumber',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab',
+          to: 'dayzoptionstab_dayzoptionstab_handlesave',
+          label: 'contains',
+          title: 'contains [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab_handlesave',
+          to: 'dayzoptionstab_dayzoptionstab_handlesave_replacestring',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab_handlesave',
+          to: 'dayzoptionstab_dayzoptionstab_handlesave_replacenumber',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab',
+          to: 'dayzoptionstab_customnumberinput',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab',
+          to: 'dayzoptionstab_customselect',
+          label: 'renders',
+          title: 'renders [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzoptionstab_dayzoptionstab_loadconfig',
+          to: 'dayzoptionstab_dayzoptionstab_parseconfig',
+          label: 'calls',
+          title: 'calls [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzoptionstab_dayzoptionstab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzeconomytab_dayzeconomytab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzmodstab_dayzmodstab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzinstalledmodstab_dayzinstalledmodstab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        },
+        {
+          from: 'dayzhub',
+          to: 'dayzfilestab_dayzfilestab',
+          label: 'imports_from',
+          title: 'imports_from [EXTRACTED]',
+          confidence: 'EXTRACTED',
+          dashes: false
+        }
+      ]
+      const LEGEND = [
+        { cid: 0, color: '#4E79A7', label: 'Tabs Dayz Files Tab', count: 9 },
+        { cid: 1, color: '#F28E2B', label: 'Tabs Dayz Mods Tab', count: 7 },
+        { cid: 2, color: '#E15759', label: 'Tabs Dayz Economy Tab', count: 6 },
+        { cid: 3, color: '#76B7B2', label: 'Tabs Dayz Options Tab', count: 5 },
+        { cid: 4, color: '#59A14F', label: 'Tabs Dayz Options Tab — Config', count: 4 },
+        { cid: 5, color: '#EDC948', label: 'Tabs Dayz Animated Background', count: 3 },
+        { cid: 6, color: '#B07AA1', label: 'Tabs Dayz Installed Mods Tab', count: 3 },
+        { cid: 7, color: '#FF9DA7', label: 'Tabs Dayz Options Tab — Replace', count: 3 },
+        { cid: 8, color: '#9C755F', label: 'Tabs Dayz Files Tab — Dayz', count: 2 },
+        { cid: 9, color: '#BAB0AC', label: 'Dayz Hub', count: 2 },
+        { cid: 10, color: '#4E79A7', label: 'Tabs Dayz Mods Tab — Dayz', count: 2 },
+        { cid: 11, color: '#F28E2B', label: 'Tabs Dayz Mods Tab — Handle', count: 2 }
+      ]
+      const STATS = { nodes: 48, edges: 70, communities: 12 }
+      const IS_DIRECTED = false
+      const EDGE_ARROWS = {}
+      const PRIMARY_DEGREE_LABEL = 'Degree'
+      const INITIAL_SELECTED_NODE_ID = null
 
-  <section class="panel">
-    <h2>Selected node</h2>
-    <p id="selectionEmpty" class="empty">Click a node in the graph, choose a search match, or follow a neighbor to inspect it here.</p>
-    <div id="selectionDetails" hidden>
-      <h3 id="selectedLabel"></h3>
-      <p id="selectedSummary" class="lede"></p>
-      <dl class="meta-grid">
-        <dt>Source</dt><dd id="selectedSource"></dd>
-        <dt id="selectedDocumentTitleLabel" hidden>Title</dt><dd id="selectedDocumentTitle" hidden></dd>
-        <dt id="selectedSourceUrlLabel" hidden>Source URL</dt><dd id="selectedSourceUrl" hidden></dd>
-        <dt id="selectedAuthorLabel" hidden>Author</dt><dd id="selectedAuthor" hidden></dd>
-        <dt id="selectedContributorLabel" hidden>Contributor</dt><dd id="selectedContributor" hidden></dd>
-        <dt id="selectedCapturedAtLabel" hidden>Captured</dt><dd id="selectedCapturedAt" hidden></dd>
-        <dt id="selectedQuestionLabel" hidden>Question</dt><dd id="selectedQuestion" hidden></dd>
-        <dt id="selectedArxivIdLabel" hidden>arXiv</dt><dd id="selectedArxivId" hidden></dd>
-        <dt>Type</dt><dd id="selectedType"></dd>
-        <dt>Community</dt><dd id="selectedCommunity"></dd>
-        <dt>Confidence</dt><dd id="selectedConfidence"></dd>
-        <dt>Degree</dt><dd id="selectedDegree"></dd>
-        <dt id="selectedGlobalDegreeLabel" hidden>Global degree</dt><dd id="selectedGlobalDegree" hidden></dd>
-        <dt id="selectedConnectedCommunitiesLabel" hidden>Connected communities</dt><dd id="selectedConnectedCommunities" hidden></dd>
-      </dl>
-      <div class="toolbar">
-        <button id="focusNeighborhood" class="primary small">Focus neighborhood</button>
-      </div>
-    </div>
-  </section>
+      const nodes = new vis.DataSet(RAW_NODES)
+      const edges = new vis.DataSet(
+        RAW_EDGES.map((edge) => ({ ...edge, arrows: EDGE_ARROWS, dashes: edge.dashes }))
+      )
+      const nodeIndex = new Map(RAW_NODES.map((node) => [node.id, node]))
+      const nodesByCommunity = new Map()
+      RAW_NODES.forEach((node) => {
+        const group = nodesByCommunity.get(node.community) || []
+        group.push(node.id)
+        nodesByCommunity.set(node.community, group)
+      })
 
-  <section class="panel">
-    <h2>Neighbors</h2>
-    <p id="neighborsEmpty" class="empty">Neighbor navigation appears here once a node is selected.</p>
-    <div id="neighborList" class="list"></div>
-  </section>
+      const edgesByNode = new Map()
+      RAW_EDGES.forEach((edge) => {
+        const outgoing = edgesByNode.get(edge.from) || []
+        outgoing.push(edge)
+        edgesByNode.set(edge.from, outgoing)
 
-  <section class="panel">
-    <h2>Communities</h2>
-    <div id="legend"></div>
-  </section>
-</div>
-<script>
-const RAW_NODES = [{"id":"dayzanimatedbackground","label":"DayzAnimatedBackground.tsx","title":"DayzAnimatedBackground.tsx","color":{"background":"#EDC948","border":"#EDC948"},"community":5,"community_name":"Tabs Dayz Animated Background","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzAnimatedBackground.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzhub","label":"DayzHub.tsx","title":"DayzHub.tsx","color":{"background":"#EDC948","border":"#EDC948"},"community":5,"community_name":"Tabs Dayz Animated Background","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":14,"confidence":"EXTRACTED"},{"id":"dayzhub_dayzhubcontent","label":"DayzHubContent()","title":"DayzHubContent()","color":{"background":"#BAB0AC","border":"#BAB0AC"},"community":9,"community_name":"Dayz Hub","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx","source_location":"L19-L163","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":7,"confidence":"EXTRACTED"},{"id":"dayzhub_dayzhub","label":"DayzHub()","title":"DayzHub()","color":{"background":"#BAB0AC","border":"#BAB0AC"},"community":9,"community_name":"Dayz Hub","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx","source_location":"L165-L171","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzconsoletab","label":"DayzConsoleTab.tsx","title":"DayzConsoleTab.tsx","color":{"background":"#EDC948","border":"#EDC948"},"community":5,"community_name":"Tabs Dayz Animated Background","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzeconomytab","label":"DayzEconomyTab.tsx","title":"DayzEconomyTab.tsx","color":{"background":"#E15759","border":"#E15759"},"community":2,"community_name":"Tabs Dayz Economy Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzeconomytab_dayzeconomytab","label":"DayzEconomyTab()","title":"DayzEconomyTab()","color":{"background":"#E15759","border":"#E15759"},"community":2,"community_name":"Tabs Dayz Economy Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L6-L236","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":7,"confidence":"EXTRACTED"},{"id":"dayzeconomytab_dayzeconomytab_loadeconomy","label":"loadEconomy()","title":"loadEconomy()","color":{"background":"#E15759","border":"#E15759"},"community":2,"community_name":"Tabs Dayz Economy Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L28-L46","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzeconomytab_dayzeconomytab_handlemultiplierchange","label":"handleMultiplierChange()","title":"handleMultiplierChange()","color":{"background":"#E15759","border":"#E15759"},"community":2,"community_name":"Tabs Dayz Economy Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L48-L53","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzeconomytab_dayzeconomytab_handlesave","label":"handleSave()","title":"handleSave()","color":{"background":"#E15759","border":"#E15759"},"community":2,"community_name":"Tabs Dayz Economy Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L55-L76","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzeconomytab_dayzeconomytab_renderslider","label":"renderSlider()","title":"renderSlider()","color":{"background":"#E15759","border":"#E15759"},"community":2,"community_name":"Tabs Dayz Economy Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx","source_location":"L104-L125","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzfilestab","label":"DayzFilesTab.tsx","title":"DayzFilesTab.tsx","color":{"background":"#9C755F","border":"#9C755F"},"community":8,"community_name":"Tabs Dayz Files Tab — Dayz","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":3,"confidence":"EXTRACTED"},{"id":"dayzfilestab_fileentry","label":"FileEntry","title":"FileEntry","color":{"background":"#9C755F","border":"#9C755F"},"community":8,"community_name":"Tabs Dayz Files Tab — Dayz","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L6-L11","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab","label":"DayzFilesTab()","title":"DayzFilesTab()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L13-L246","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":11,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_fetchdir","label":"fetchDir()","title":"fetchDir()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L21-L32","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":5,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_handlenavigate","label":"handleNavigate()","title":"handleNavigate()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L38-L40","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":3,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_handlenavigateup","label":"handleNavigateUp()","title":"handleNavigateUp()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L42-L46","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_handlefileclick","label":"handleFileClick()","title":"handleFileClick()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L48-L68","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_handledelete","label":"handleDelete()","title":"handleDelete()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L70-L81","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_handlesavefile","label":"handleSaveFile()","title":"handleSaveFile()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L83-L92","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_handlecreatefolder","label":"handleCreateFolder()","title":"handleCreateFolder()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L94-L106","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzfilestab_dayzfilestab_formatsize","label":"formatSize()","title":"formatSize()","color":{"background":"#4E79A7","border":"#4E79A7"},"community":0,"community_name":"Tabs Dayz Files Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx","source_location":"L108-L114","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzinstalledmodstab","label":"DayzInstalledModsTab.tsx","title":"DayzInstalledModsTab.tsx","color":{"background":"#B07AA1","border":"#B07AA1"},"community":6,"community_name":"Tabs Dayz Installed Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab","label":"DayzInstalledModsTab()","title":"DayzInstalledModsTab()","color":{"background":"#B07AA1","border":"#B07AA1"},"community":6,"community_name":"Tabs Dayz Installed Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L5-L375","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":4,"confidence":"EXTRACTED"},{"id":"dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage","label":"openWorkshopPage()","title":"openWorkshopPage()","color":{"background":"#B07AA1","border":"#B07AA1"},"community":6,"community_name":"Tabs Dayz Installed Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx","source_location":"L37-L41","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzmodstab","label":"DayzModsTab.tsx","title":"DayzModsTab.tsx","color":{"background":"#4E79A7","border":"#4E79A7"},"community":10,"community_name":"Tabs Dayz Mods Tab — Dayz","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":3,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstabprops","label":"DayzModsTabProps","title":"DayzModsTabProps","color":{"background":"#4E79A7","border":"#4E79A7"},"community":10,"community_name":"Tabs Dayz Mods Tab — Dayz","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L7-L9","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab","label":"DayzModsTab()","title":"DayzModsTab()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L11-L549","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":11,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_loadinstalledmods","label":"loadInstalledMods()","title":"loadInstalledMods()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L60-L66","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":4,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_handlesearch","label":"handleSearch()","title":"handleSearch()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":11,"community_name":"Tabs Dayz Mods Tab — Handle","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L68-L92","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_handlecategorychange","label":"handleCategoryChange()","title":"handleCategoryChange()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":11,"community_name":"Tabs Dayz Mods Tab — Handle","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L94-L97","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_handleinstall","label":"handleInstall()","title":"handleInstall()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L120-L224","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_handleuninstall","label":"handleUninstall()","title":"handleUninstall()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L226-L232","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_handlebrowseworkshop","label":"handleBrowseWorkshop()","title":"handleBrowseWorkshop()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L234-L239","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_handleimportworkshop","label":"handleImportWorkshop()","title":"handleImportWorkshop()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L241-L254","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzmodstab_dayzmodstab_stripbbcode","label":"stripBBCode()","title":"stripBBCode()","color":{"background":"#F28E2B","border":"#F28E2B"},"community":1,"community_name":"Tabs Dayz Mods Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx","source_location":"L256-L259","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzoptionstab","label":"DayzOptionsTab.tsx","title":"DayzOptionsTab.tsx","color":{"background":"#76B7B2","border":"#76B7B2"},"community":3,"community_name":"Tabs Dayz Options Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L1","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":4,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_customselect","label":"CustomSelect()","title":"CustomSelect()","color":{"background":"#76B7B2","border":"#76B7B2"},"community":3,"community_name":"Tabs Dayz Options Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L5-L46","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":3,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_customselect_handleclickoutside","label":"handleClickOutside()","title":"handleClickOutside()","color":{"background":"#76B7B2","border":"#76B7B2"},"community":3,"community_name":"Tabs Dayz Options Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L10-L14","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_customnumberinput","label":"CustomNumberInput()","title":"CustomNumberInput()","color":{"background":"#76B7B2","border":"#76B7B2"},"community":3,"community_name":"Tabs Dayz Options Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L49-L79","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab","label":"DayzOptionsTab()","title":"DayzOptionsTab()","color":{"background":"#76B7B2","border":"#76B7B2"},"community":3,"community_name":"Tabs Dayz Options Tab","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L83-L337","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":8,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_loadconfig","label":"loadConfig()","title":"loadConfig()","color":{"background":"#59A14F","border":"#59A14F"},"community":4,"community_name":"Tabs Dayz Options Tab — Config","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L106-L134","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":2,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_parseconfig","label":"parseConfig()","title":"parseConfig()","color":{"background":"#59A14F","border":"#59A14F"},"community":4,"community_name":"Tabs Dayz Options Tab — Config","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L136-L157","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":4,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_parseconfig_extractstring","label":"extractString()","title":"extractString()","color":{"background":"#59A14F","border":"#59A14F"},"community":4,"community_name":"Tabs Dayz Options Tab — Config","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L137-L140","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_parseconfig_extractnumber","label":"extractNumber()","title":"extractNumber()","color":{"background":"#59A14F","border":"#59A14F"},"community":4,"community_name":"Tabs Dayz Options Tab — Config","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L141-L144","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_handlesave","label":"handleSave()","title":"handleSave()","color":{"background":"#FF9DA7","border":"#FF9DA7"},"community":7,"community_name":"Tabs Dayz Options Tab — Replace","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L159-L205","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":3,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_handlesave_replacestring","label":"replaceString()","title":"replaceString()","color":{"background":"#FF9DA7","border":"#FF9DA7"},"community":7,"community_name":"Tabs Dayz Options Tab — Replace","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L164-L171","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"},{"id":"dayzoptionstab_dayzoptionstab_handlesave_replacenumber","label":"replaceNumber()","title":"replaceNumber()","color":{"background":"#FF9DA7","border":"#FF9DA7"},"community":7,"community_name":"Tabs Dayz Options Tab — Replace","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx","source_location":"L173-L180","source_url":"","safe_source_url":"","document_title":"","author":"","contributor":"","captured_at":"","question":"","arxiv_id":"","file_type":"code","degree":1,"confidence":"EXTRACTED"}];
-const RAW_EDGES = [{"from":"dayzhub","to":"dayzconsoletab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzoptionstab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzeconomytab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzmodstab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzinstalledmodstab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzfilestab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzanimatedbackground","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzhub_dayzhubcontent","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub_dayzhubcontent","to":"dayzoptionstab_dayzoptionstab","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub_dayzhubcontent","to":"dayzeconomytab_dayzeconomytab","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub_dayzhubcontent","to":"dayzmodstab_dayzmodstab","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub_dayzhubcontent","to":"dayzinstalledmodstab_dayzinstalledmodstab","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub_dayzhubcontent","to":"dayzfilestab_dayzfilestab","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzhub_dayzhub","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub_dayzhub","to":"dayzhub_dayzhubcontent","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzeconomytab","to":"dayzeconomytab_dayzeconomytab","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzeconomytab_dayzeconomytab","to":"dayzeconomytab_dayzeconomytab_loadeconomy","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzeconomytab_dayzeconomytab","to":"dayzeconomytab_dayzeconomytab_handlemultiplierchange","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzeconomytab_dayzeconomytab","to":"dayzeconomytab_dayzeconomytab_handlesave","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzeconomytab_dayzeconomytab","to":"dayzeconomytab_dayzeconomytab_renderslider","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab","to":"dayzfilestab_fileentry","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab","to":"dayzfilestab_dayzfilestab","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_fetchdir","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_handlenavigate","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_handlenavigateup","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_handlefileclick","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_handledelete","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_handlesavefile","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_handlecreatefolder","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab","to":"dayzfilestab_dayzfilestab_formatsize","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab_handlenavigate","to":"dayzfilestab_dayzfilestab_fetchdir","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab_handlenavigateup","to":"dayzfilestab_dayzfilestab_fetchdir","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab_handlefileclick","to":"dayzfilestab_dayzfilestab_handlenavigate","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab_handledelete","to":"dayzfilestab_dayzfilestab_fetchdir","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzfilestab_dayzfilestab_handlecreatefolder","to":"dayzfilestab_dayzfilestab_fetchdir","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzinstalledmodstab","to":"dayzinstalledmodstab_dayzinstalledmodstab","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzinstalledmodstab_dayzinstalledmodstab","to":"dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab","to":"dayzmodstab_dayzmodstabprops","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab","to":"dayzmodstab_dayzmodstab","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_loadinstalledmods","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_handlesearch","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_handlecategorychange","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_handleinstall","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_handleuninstall","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_handlebrowseworkshop","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_handleimportworkshop","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab","to":"dayzmodstab_dayzmodstab_stripbbcode","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab_handlecategorychange","to":"dayzmodstab_dayzmodstab_handlesearch","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab_handleinstall","to":"dayzmodstab_dayzmodstab_loadinstalledmods","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab_handleuninstall","to":"dayzmodstab_dayzmodstab_loadinstalledmods","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzmodstab_dayzmodstab_handleimportworkshop","to":"dayzmodstab_dayzmodstab_loadinstalledmods","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab","to":"dayzoptionstab_customselect","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_customselect","to":"dayzoptionstab_customselect_handleclickoutside","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab","to":"dayzoptionstab_customnumberinput","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab","to":"dayzoptionstab_dayzoptionstab","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab","to":"dayzoptionstab_dayzoptionstab_loadconfig","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab","to":"dayzoptionstab_dayzoptionstab_parseconfig","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab_parseconfig","to":"dayzoptionstab_dayzoptionstab_parseconfig_extractstring","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab_parseconfig","to":"dayzoptionstab_dayzoptionstab_parseconfig_extractnumber","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab","to":"dayzoptionstab_dayzoptionstab_handlesave","label":"contains","title":"contains [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab_handlesave","to":"dayzoptionstab_dayzoptionstab_handlesave_replacestring","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab_handlesave","to":"dayzoptionstab_dayzoptionstab_handlesave_replacenumber","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab","to":"dayzoptionstab_customnumberinput","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab","to":"dayzoptionstab_customselect","label":"renders","title":"renders [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzoptionstab_dayzoptionstab_loadconfig","to":"dayzoptionstab_dayzoptionstab_parseconfig","label":"calls","title":"calls [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzoptionstab_dayzoptionstab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzeconomytab_dayzeconomytab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzmodstab_dayzmodstab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzinstalledmodstab_dayzinstalledmodstab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false},{"from":"dayzhub","to":"dayzfilestab_dayzfilestab","label":"imports_from","title":"imports_from [EXTRACTED]","confidence":"EXTRACTED","dashes":false}];
-const LEGEND = [{"cid":0,"color":"#4E79A7","label":"Tabs Dayz Files Tab","count":9},{"cid":1,"color":"#F28E2B","label":"Tabs Dayz Mods Tab","count":7},{"cid":2,"color":"#E15759","label":"Tabs Dayz Economy Tab","count":6},{"cid":3,"color":"#76B7B2","label":"Tabs Dayz Options Tab","count":5},{"cid":4,"color":"#59A14F","label":"Tabs Dayz Options Tab — Config","count":4},{"cid":5,"color":"#EDC948","label":"Tabs Dayz Animated Background","count":3},{"cid":6,"color":"#B07AA1","label":"Tabs Dayz Installed Mods Tab","count":3},{"cid":7,"color":"#FF9DA7","label":"Tabs Dayz Options Tab — Replace","count":3},{"cid":8,"color":"#9C755F","label":"Tabs Dayz Files Tab — Dayz","count":2},{"cid":9,"color":"#BAB0AC","label":"Dayz Hub","count":2},{"cid":10,"color":"#4E79A7","label":"Tabs Dayz Mods Tab — Dayz","count":2},{"cid":11,"color":"#F28E2B","label":"Tabs Dayz Mods Tab — Handle","count":2}];
-const STATS = {"nodes":48,"edges":70,"communities":12};
-const IS_DIRECTED = false;
-const EDGE_ARROWS = {};
-const PRIMARY_DEGREE_LABEL = "Degree";
-const INITIAL_SELECTED_NODE_ID = null;
+        const incoming = edgesByNode.get(edge.to) || []
+        incoming.push(edge)
+        edgesByNode.set(edge.to, incoming)
+      })
 
-const nodes = new vis.DataSet(RAW_NODES);
-const edges = new vis.DataSet(RAW_EDGES.map((edge) => ({ ...edge, arrows: EDGE_ARROWS, dashes: edge.dashes })));
-const nodeIndex = new Map(RAW_NODES.map((node) => [node.id, node]));
-const nodesByCommunity = new Map();
-RAW_NODES.forEach((node) => {
-  const group = nodesByCommunity.get(node.community) || [];
-  group.push(node.id);
-  nodesByCommunity.set(node.community, group);
-});
+      let selectedNodeId = null
 
-const edgesByNode = new Map();
-RAW_EDGES.forEach((edge) => {
-  const outgoing = edgesByNode.get(edge.from) || [];
-  outgoing.push(edge);
-  edgesByNode.set(edge.from, outgoing);
+      const elements = {
+        stats: document.getElementById('stats'),
+        search: document.getElementById('search'),
+        matches: document.getElementById('matches'),
+        selectionEmpty: document.getElementById('selectionEmpty'),
+        selectionDetails: document.getElementById('selectionDetails'),
+        selectedLabel: document.getElementById('selectedLabel'),
+        selectedSummary: document.getElementById('selectedSummary'),
+        selectedSource: document.getElementById('selectedSource'),
+        selectedDocumentTitleLabel: document.getElementById('selectedDocumentTitleLabel'),
+        selectedDocumentTitle: document.getElementById('selectedDocumentTitle'),
+        selectedSourceUrlLabel: document.getElementById('selectedSourceUrlLabel'),
+        selectedSourceUrl: document.getElementById('selectedSourceUrl'),
+        selectedAuthorLabel: document.getElementById('selectedAuthorLabel'),
+        selectedAuthor: document.getElementById('selectedAuthor'),
+        selectedContributorLabel: document.getElementById('selectedContributorLabel'),
+        selectedContributor: document.getElementById('selectedContributor'),
+        selectedCapturedAtLabel: document.getElementById('selectedCapturedAtLabel'),
+        selectedCapturedAt: document.getElementById('selectedCapturedAt'),
+        selectedQuestionLabel: document.getElementById('selectedQuestionLabel'),
+        selectedQuestion: document.getElementById('selectedQuestion'),
+        selectedArxivIdLabel: document.getElementById('selectedArxivIdLabel'),
+        selectedArxivId: document.getElementById('selectedArxivId'),
+        selectedType: document.getElementById('selectedType'),
+        selectedCommunity: document.getElementById('selectedCommunity'),
+        selectedConfidence: document.getElementById('selectedConfidence'),
+        selectedDegree: document.getElementById('selectedDegree'),
+        selectedGlobalDegreeLabel: document.getElementById('selectedGlobalDegreeLabel'),
+        selectedGlobalDegree: document.getElementById('selectedGlobalDegree'),
+        selectedConnectedCommunitiesLabel: document.getElementById(
+          'selectedConnectedCommunitiesLabel'
+        ),
+        selectedConnectedCommunities: document.getElementById('selectedConnectedCommunities'),
+        neighborList: document.getElementById('neighborList'),
+        neighborsEmpty: document.getElementById('neighborsEmpty'),
+        legend: document.getElementById('legend'),
+        resetView: document.getElementById('resetView'),
+        clearSelection: document.getElementById('clearSelection'),
+        focusNeighborhood: document.getElementById('focusNeighborhood')
+      }
 
-  const incoming = edgesByNode.get(edge.to) || [];
-  incoming.push(edge);
-  edgesByNode.set(edge.to, incoming);
-});
+      const network = new vis.Network(
+        document.getElementById('graph'),
+        { nodes, edges },
+        {
+          autoResize: true,
+          interaction: { hover: true, navigationButtons: true, keyboard: true },
+          physics: {
+            stabilization: { iterations: 300 },
+            barnesHut: { gravitationalConstant: -4200, springLength: 120 }
+          },
+          nodes: {
+            borderWidth: 1.25,
+            shape: 'dot',
+            font: { size: 14, face: 'Inter, ui-sans-serif, system-ui, sans-serif' },
+            scaling: { min: 12, max: 34 }
+          },
+          edges: {
+            arrows: EDGE_ARROWS,
+            font: { align: 'middle', size: 10 },
+            color: { inherit: false, color: '#94a3b8', highlight: '#334155' },
+            smooth: { type: 'dynamic' }
+          }
+        }
+      )
+      network.once('stabilizationIterationsDone', function () {
+        network.setOptions({ physics: false })
+      })
 
-let selectedNodeId = null;
+      function createMeta(text, className) {
+        const span = document.createElement('span')
+        span.className = className
+        span.textContent = text
+        return span
+      }
 
-const elements = {
-  stats: document.getElementById('stats'),
-  search: document.getElementById('search'),
-  matches: document.getElementById('matches'),
-  selectionEmpty: document.getElementById('selectionEmpty'),
-  selectionDetails: document.getElementById('selectionDetails'),
-  selectedLabel: document.getElementById('selectedLabel'),
-  selectedSummary: document.getElementById('selectedSummary'),
-  selectedSource: document.getElementById('selectedSource'),
-  selectedDocumentTitleLabel: document.getElementById('selectedDocumentTitleLabel'),
-  selectedDocumentTitle: document.getElementById('selectedDocumentTitle'),
-  selectedSourceUrlLabel: document.getElementById('selectedSourceUrlLabel'),
-  selectedSourceUrl: document.getElementById('selectedSourceUrl'),
-  selectedAuthorLabel: document.getElementById('selectedAuthorLabel'),
-  selectedAuthor: document.getElementById('selectedAuthor'),
-  selectedContributorLabel: document.getElementById('selectedContributorLabel'),
-  selectedContributor: document.getElementById('selectedContributor'),
-  selectedCapturedAtLabel: document.getElementById('selectedCapturedAtLabel'),
-  selectedCapturedAt: document.getElementById('selectedCapturedAt'),
-  selectedQuestionLabel: document.getElementById('selectedQuestionLabel'),
-  selectedQuestion: document.getElementById('selectedQuestion'),
-  selectedArxivIdLabel: document.getElementById('selectedArxivIdLabel'),
-  selectedArxivId: document.getElementById('selectedArxivId'),
-  selectedType: document.getElementById('selectedType'),
-  selectedCommunity: document.getElementById('selectedCommunity'),
-  selectedConfidence: document.getElementById('selectedConfidence'),
-  selectedDegree: document.getElementById('selectedDegree'),
-  selectedGlobalDegreeLabel: document.getElementById('selectedGlobalDegreeLabel'),
-  selectedGlobalDegree: document.getElementById('selectedGlobalDegree'),
-  selectedConnectedCommunitiesLabel: document.getElementById('selectedConnectedCommunitiesLabel'),
-  selectedConnectedCommunities: document.getElementById('selectedConnectedCommunities'),
-  neighborList: document.getElementById('neighborList'),
-  neighborsEmpty: document.getElementById('neighborsEmpty'),
-  legend: document.getElementById('legend'),
-  resetView: document.getElementById('resetView'),
-  clearSelection: document.getElementById('clearSelection'),
-  focusNeighborhood: document.getElementById('focusNeighborhood'),
-};
+      function setOptionalMeta(labelElement, valueElement, value, options = {}) {
+        const text = typeof value === 'string' ? value.trim() : ''
+        const hasValue = text.length > 0
+        labelElement.hidden = !hasValue
+        valueElement.hidden = !hasValue
+        valueElement.replaceChildren()
 
-const network = new vis.Network(
-  document.getElementById('graph'),
-  { nodes, edges },
-  {
-    autoResize: true,
-    interaction: { hover: true, navigationButtons: true, keyboard: true },
-    physics: { stabilization: { iterations: 300 }, barnesHut: { gravitationalConstant: -4200, springLength: 120 } },
-    nodes: {
-      borderWidth: 1.25,
-      shape: 'dot',
-      font: { size: 14, face: 'Inter, ui-sans-serif, system-ui, sans-serif' },
-      scaling: { min: 12, max: 34 },
-    },
-    edges: {
-      arrows: EDGE_ARROWS,
-      font: { align: 'middle', size: 10 },
-      color: { inherit: false, color: '#94a3b8', highlight: '#334155' },
-      smooth: { type: 'dynamic' },
-    },
-  },
-);
-network.once('stabilizationIterationsDone', function() { network.setOptions({ physics: false }); });
+        if (!hasValue) {
+          return
+        }
 
-function createMeta(text, className) {
-  const span = document.createElement('span');
-  span.className = className;
-  span.textContent = text;
-  return span;
-}
+        if (options.link === true) {
+          const link = document.createElement('a')
+          link.href = text
+          link.textContent = text
+          link.target = '_blank'
+          link.rel = 'noreferrer noopener'
+          valueElement.appendChild(link)
+          return
+        }
 
-function setOptionalMeta(labelElement, valueElement, value, options = {}) {
-  const text = typeof value === 'string' ? value.trim() : '';
-  const hasValue = text.length > 0;
-  labelElement.hidden = !hasValue;
-  valueElement.hidden = !hasValue;
-  valueElement.replaceChildren();
+        valueElement.textContent = text
+      }
 
-  if (!hasValue) {
-    return;
-  }
+      function getNeighborEntries(nodeId) {
+        const relatedEdges = edgesByNode.get(nodeId) || []
+        const deduped = new Map()
+        relatedEdges.forEach((edge) => {
+          const isOutgoing = edge.from === nodeId
+          const otherId = isOutgoing ? edge.to : edge.from
+          if (!nodeIndex.has(otherId)) {
+            return
+          }
 
-  if (options.link === true) {
-    const link = document.createElement('a');
-    link.href = text;
-    link.textContent = text;
-    link.target = '_blank';
-    link.rel = 'noreferrer noopener';
-    valueElement.appendChild(link);
-    return;
-  }
+          const key = otherId + '::' + edge.label + '::' + edge.confidence
+          if (deduped.has(key)) {
+            return
+          }
 
-  valueElement.textContent = text;
-}
+          const other = nodeIndex.get(otherId)
+          deduped.set(key, {
+            id: otherId,
+            label: other.label,
+            relation: edge.label || 'related_to',
+            confidence: edge.confidence || 'EXTRACTED',
+            direction: IS_DIRECTED ? (isOutgoing ? 'outgoing' : 'incoming') : 'connected',
+            community: other.community_name,
+            degree: other.degree
+          })
+        })
 
-function getNeighborEntries(nodeId) {
-  const relatedEdges = edgesByNode.get(nodeId) || [];
-  const deduped = new Map();
-  relatedEdges.forEach((edge) => {
-    const isOutgoing = edge.from === nodeId;
-    const otherId = isOutgoing ? edge.to : edge.from;
-    if (!nodeIndex.has(otherId)) {
-      return;
-    }
+        return [...deduped.values()].sort((left, right) => {
+          return right.degree - left.degree || left.label.localeCompare(right.label)
+        })
+      }
 
-    const key = otherId + '::' + edge.label + '::' + edge.confidence;
-    if (deduped.has(key)) {
-      return;
-    }
+      function renderStats() {
+        const items = [
+          { label: 'Nodes', value: STATS.nodes },
+          { label: 'Edges', value: STATS.edges },
+          { label: 'Communities', value: STATS.communities }
+        ]
 
-    const other = nodeIndex.get(otherId);
-    deduped.set(key, {
-      id: otherId,
-      label: other.label,
-      relation: edge.label || 'related_to',
-      confidence: edge.confidence || 'EXTRACTED',
-      direction: IS_DIRECTED ? (isOutgoing ? 'outgoing' : 'incoming') : 'connected',
-      community: other.community_name,
-      degree: other.degree,
-    });
-  });
+        items.forEach((item) => {
+          const card = document.createElement('div')
+          card.className = 'stat'
+          card.appendChild(createMeta(item.label, 'muted'))
+          const value = document.createElement('strong')
+          value.textContent = String(item.value)
+          card.appendChild(value)
+          elements.stats.appendChild(card)
+        })
+      }
 
-  return [...deduped.values()].sort((left, right) => {
-    return right.degree - left.degree || left.label.localeCompare(right.label);
-  });
-}
+      function renderSearchMatches(query) {
+        elements.matches.replaceChildren()
+        const trimmed = query.trim().toLowerCase()
+        if (!trimmed) {
+          elements.matches.appendChild(
+            createMeta('Type to surface the best matching nodes.', 'empty')
+          )
+          return []
+        }
 
-function renderStats() {
-  const items = [
-    { label: 'Nodes', value: STATS.nodes },
-    { label: 'Edges', value: STATS.edges },
-    { label: 'Communities', value: STATS.communities },
-  ];
+        const matches = RAW_NODES.filter((node) => {
+          return (
+            node.label.toLowerCase().includes(trimmed) ||
+            node.source_file.toLowerCase().includes(trimmed)
+          )
+        })
+          .sort(
+            (left, right) => right.degree - left.degree || left.label.localeCompare(right.label)
+          )
+          .slice(0, 8)
 
-  items.forEach((item) => {
-    const card = document.createElement('div');
-    card.className = 'stat';
-    card.appendChild(createMeta(item.label, 'muted'));
-    const value = document.createElement('strong');
-    value.textContent = String(item.value);
-    card.appendChild(value);
-    elements.stats.appendChild(card);
-  });
-}
+        if (matches.length === 0) {
+          elements.matches.appendChild(
+            createMeta('No matches yet. Try a file name, class, function, or concept.', 'empty')
+          )
+          return []
+        }
 
-function renderSearchMatches(query) {
-  elements.matches.replaceChildren();
-  const trimmed = query.trim().toLowerCase();
-  if (!trimmed) {
-    elements.matches.appendChild(createMeta('Type to surface the best matching nodes.', 'empty'));
-    return [];
-  }
+        matches.forEach((node) => {
+          const button = document.createElement('button')
+          button.className = 'match-button small'
+          const left = document.createElement('span')
+          left.textContent = node.label
+          const right = createMeta(
+            node.community_name + ' · ' + PRIMARY_DEGREE_LABEL.toLowerCase() + ' ' + node.degree,
+            'match-meta'
+          )
+          button.append(left, right)
+          button.addEventListener('click', () => selectNodeById(node.id, { focus: true }))
+          elements.matches.appendChild(button)
+        })
 
-  const matches = RAW_NODES.filter((node) => {
-    return node.label.toLowerCase().includes(trimmed) || node.source_file.toLowerCase().includes(trimmed);
-  })
-    .sort((left, right) => right.degree - left.degree || left.label.localeCompare(right.label))
-    .slice(0, 8);
+        return matches
+      }
 
-  if (matches.length === 0) {
-    elements.matches.appendChild(createMeta('No matches yet. Try a file name, class, function, or concept.', 'empty'));
-    return [];
-  }
+      function renderNeighbors(nodeId) {
+        elements.neighborList.replaceChildren()
+        if (!nodeId) {
+          elements.neighborsEmpty.hidden = false
+          return
+        }
 
-  matches.forEach((node) => {
-    const button = document.createElement('button');
-    button.className = 'match-button small';
-    const left = document.createElement('span');
-    left.textContent = node.label;
-    const right = createMeta(node.community_name + ' · ' + PRIMARY_DEGREE_LABEL.toLowerCase() + ' ' + node.degree, 'match-meta');
-    button.append(left, right);
-    button.addEventListener('click', () => selectNodeById(node.id, { focus: true }));
-    elements.matches.appendChild(button);
-  });
+        const neighbors = getNeighborEntries(nodeId)
+        if (neighbors.length === 0) {
+          elements.neighborsEmpty.hidden = false
+          elements.neighborsEmpty.textContent =
+            'This node currently has no rendered neighbors in the exported graph.'
+          return
+        }
 
-  return matches;
-}
+        elements.neighborsEmpty.hidden = true
+        neighbors.forEach((entry) => {
+          const button = document.createElement('button')
+          button.className = 'neighbor-button small'
+          const left = document.createElement('span')
+          left.textContent = entry.label
+          const right = createMeta(
+            entry.direction + ' · ' + entry.relation + ' [' + entry.confidence + ']',
+            'neighbor-meta'
+          )
+          button.append(left, right)
+          button.addEventListener('click', () => selectNodeById(entry.id, { focus: true }))
+          elements.neighborList.appendChild(button)
+        })
+      }
 
-function renderNeighbors(nodeId) {
-  elements.neighborList.replaceChildren();
-  if (!nodeId) {
-    elements.neighborsEmpty.hidden = false;
-    return;
-  }
+      function updateHash(nodeId) {
+        if (!nodeId) {
+          history.replaceState(null, '', location.pathname + location.search)
+          return
+        }
 
-  const neighbors = getNeighborEntries(nodeId);
-  if (neighbors.length === 0) {
-    elements.neighborsEmpty.hidden = false;
-    elements.neighborsEmpty.textContent = 'This node currently has no rendered neighbors in the exported graph.';
-    return;
-  }
+        history.replaceState(null, '', '#' + encodeURIComponent(nodeId))
+      }
 
-  elements.neighborsEmpty.hidden = true;
-  neighbors.forEach((entry) => {
-    const button = document.createElement('button');
-    button.className = 'neighbor-button small';
-    const left = document.createElement('span');
-    left.textContent = entry.label;
-    const right = createMeta(entry.direction + ' · ' + entry.relation + ' [' + entry.confidence + ']', 'neighbor-meta');
-    button.append(left, right);
-    button.addEventListener('click', () => selectNodeById(entry.id, { focus: true }));
-    elements.neighborList.appendChild(button);
-  });
-}
+      function renderSelection(nodeId) {
+        if (!nodeId || !nodeIndex.has(nodeId)) {
+          selectedNodeId = null
+          elements.selectionEmpty.hidden = false
+          elements.selectionDetails.hidden = true
+          elements.selectedLabel.textContent = ''
+          elements.selectedSummary.textContent = ''
+          elements.selectedSource.textContent = ''
+          setOptionalMeta(elements.selectedDocumentTitleLabel, elements.selectedDocumentTitle, '')
+          setOptionalMeta(elements.selectedSourceUrlLabel, elements.selectedSourceUrl, '')
+          setOptionalMeta(elements.selectedAuthorLabel, elements.selectedAuthor, '')
+          setOptionalMeta(elements.selectedContributorLabel, elements.selectedContributor, '')
+          setOptionalMeta(elements.selectedCapturedAtLabel, elements.selectedCapturedAt, '')
+          setOptionalMeta(elements.selectedQuestionLabel, elements.selectedQuestion, '')
+          setOptionalMeta(elements.selectedArxivIdLabel, elements.selectedArxivId, '')
+          elements.selectedType.textContent = ''
+          elements.selectedCommunity.textContent = ''
+          elements.selectedConfidence.textContent = ''
+          elements.selectedDegree.textContent = ''
+          renderNeighbors(null)
+          return
+        }
 
-function updateHash(nodeId) {
-  if (!nodeId) {
-    history.replaceState(null, '', location.pathname + location.search);
-    return;
-  }
+        const node = nodeIndex.get(nodeId)
+        selectedNodeId = nodeId
+        elements.selectionEmpty.hidden = true
+        elements.selectionDetails.hidden = false
+        elements.selectedLabel.textContent = node.label
+        elements.selectedSummary.textContent =
+          node.document_title ||
+          node.question ||
+          'Inspect evidence, jump to neighbors, or focus this local neighborhood.'
+        elements.selectedSource.textContent =
+          [node.source_file, node.source_location].filter(Boolean).join(': ') || 'Unknown source'
+        setOptionalMeta(
+          elements.selectedDocumentTitleLabel,
+          elements.selectedDocumentTitle,
+          node.document_title || ''
+        )
+        setOptionalMeta(
+          elements.selectedSourceUrlLabel,
+          elements.selectedSourceUrl,
+          node.safe_source_url || '',
+          { link: Boolean(node.safe_source_url) }
+        )
+        setOptionalMeta(elements.selectedAuthorLabel, elements.selectedAuthor, node.author || '')
+        setOptionalMeta(
+          elements.selectedContributorLabel,
+          elements.selectedContributor,
+          node.contributor || ''
+        )
+        setOptionalMeta(
+          elements.selectedCapturedAtLabel,
+          elements.selectedCapturedAt,
+          node.captured_at || ''
+        )
+        setOptionalMeta(
+          elements.selectedQuestionLabel,
+          elements.selectedQuestion,
+          node.question || ''
+        )
+        setOptionalMeta(
+          elements.selectedArxivIdLabel,
+          elements.selectedArxivId,
+          node.arxiv_id || ''
+        )
+        elements.selectedType.textContent = node.file_type || 'unknown'
+        elements.selectedCommunity.textContent = node.community_name
+        elements.selectedConfidence.textContent = node.confidence
+        elements.selectedDegree.textContent = String(node.degree)
+        setOptionalMeta(
+          elements.selectedGlobalDegreeLabel,
+          elements.selectedGlobalDegree,
+          typeof node.global_degree === 'number' ? String(node.global_degree) : ''
+        )
+        setOptionalMeta(
+          elements.selectedConnectedCommunitiesLabel,
+          elements.selectedConnectedCommunities,
+          Array.isArray(node.connected_communities) && node.connected_communities.length > 0
+            ? node.connected_communities.join(', ')
+            : ''
+        )
+        renderNeighbors(nodeId)
+      }
 
-  history.replaceState(null, '', '#' + encodeURIComponent(nodeId));
-}
+      function selectNodeById(nodeId, options = { focus: true }) {
+        if (!nodeIndex.has(nodeId)) {
+          return
+        }
 
-function renderSelection(nodeId) {
-  if (!nodeId || !nodeIndex.has(nodeId)) {
-    selectedNodeId = null;
-    elements.selectionEmpty.hidden = false;
-    elements.selectionDetails.hidden = true;
-    elements.selectedLabel.textContent = '';
-    elements.selectedSummary.textContent = '';
-    elements.selectedSource.textContent = '';
-    setOptionalMeta(elements.selectedDocumentTitleLabel, elements.selectedDocumentTitle, '');
-    setOptionalMeta(elements.selectedSourceUrlLabel, elements.selectedSourceUrl, '');
-    setOptionalMeta(elements.selectedAuthorLabel, elements.selectedAuthor, '');
-    setOptionalMeta(elements.selectedContributorLabel, elements.selectedContributor, '');
-    setOptionalMeta(elements.selectedCapturedAtLabel, elements.selectedCapturedAt, '');
-    setOptionalMeta(elements.selectedQuestionLabel, elements.selectedQuestion, '');
-    setOptionalMeta(elements.selectedArxivIdLabel, elements.selectedArxivId, '');
-    elements.selectedType.textContent = '';
-    elements.selectedCommunity.textContent = '';
-    elements.selectedConfidence.textContent = '';
-    elements.selectedDegree.textContent = '';
-    renderNeighbors(null);
-    return;
-  }
+        network.selectNodes([nodeId])
+        renderSelection(nodeId)
+        updateHash(nodeId)
+        if (options.focus !== false) {
+          network.focus(nodeId, {
+            scale: 1.15,
+            animation: { duration: 400, easingFunction: 'easeInOutQuad' }
+          })
+        }
+      }
 
-  const node = nodeIndex.get(nodeId);
-  selectedNodeId = nodeId;
-  elements.selectionEmpty.hidden = true;
-  elements.selectionDetails.hidden = false;
-  elements.selectedLabel.textContent = node.label;
-  elements.selectedSummary.textContent = node.document_title || node.question || 'Inspect evidence, jump to neighbors, or focus this local neighborhood.';
-  elements.selectedSource.textContent = [node.source_file, node.source_location].filter(Boolean).join(': ') || 'Unknown source';
-  setOptionalMeta(elements.selectedDocumentTitleLabel, elements.selectedDocumentTitle, node.document_title || '');
-  setOptionalMeta(elements.selectedSourceUrlLabel, elements.selectedSourceUrl, node.safe_source_url || '', { link: Boolean(node.safe_source_url) });
-  setOptionalMeta(elements.selectedAuthorLabel, elements.selectedAuthor, node.author || '');
-  setOptionalMeta(elements.selectedContributorLabel, elements.selectedContributor, node.contributor || '');
-  setOptionalMeta(elements.selectedCapturedAtLabel, elements.selectedCapturedAt, node.captured_at || '');
-  setOptionalMeta(elements.selectedQuestionLabel, elements.selectedQuestion, node.question || '');
-  setOptionalMeta(elements.selectedArxivIdLabel, elements.selectedArxivId, node.arxiv_id || '');
-  elements.selectedType.textContent = node.file_type || 'unknown';
-  elements.selectedCommunity.textContent = node.community_name;
-  elements.selectedConfidence.textContent = node.confidence;
-  elements.selectedDegree.textContent = String(node.degree);
-  setOptionalMeta(
-    elements.selectedGlobalDegreeLabel,
-    elements.selectedGlobalDegree,
-    typeof node.global_degree === 'number' ? String(node.global_degree) : '',
-  );
-  setOptionalMeta(
-    elements.selectedConnectedCommunitiesLabel,
-    elements.selectedConnectedCommunities,
-    Array.isArray(node.connected_communities) && node.connected_communities.length > 0 ? node.connected_communities.join(', ') : '',
-  );
-  renderNeighbors(nodeId);
-}
+      function focusNeighborhood() {
+        if (!selectedNodeId) {
+          return
+        }
 
-function selectNodeById(nodeId, options = { focus: true }) {
-  if (!nodeIndex.has(nodeId)) {
-    return;
-  }
+        const nodeIds = [
+          selectedNodeId,
+          ...getNeighborEntries(selectedNodeId).map((entry) => entry.id)
+        ]
+        network.selectNodes(nodeIds)
+        network.fit({
+          nodes: nodeIds,
+          animation: { duration: 400, easingFunction: 'easeInOutQuad' }
+        })
+      }
 
-  network.selectNodes([nodeId]);
-  renderSelection(nodeId);
-  updateHash(nodeId);
-  if (options.focus !== false) {
-    network.focus(nodeId, { scale: 1.15, animation: { duration: 400, easingFunction: 'easeInOutQuad' } });
-  }
-}
+      function focusCommunity(communityId) {
+        const nodeIds = nodesByCommunity.get(communityId) || []
+        if (nodeIds.length === 0) {
+          return
+        }
 
-function focusNeighborhood() {
-  if (!selectedNodeId) {
-    return;
-  }
+        network.selectNodes(nodeIds)
+        network.fit({
+          nodes: nodeIds,
+          animation: { duration: 500, easingFunction: 'easeInOutQuad' }
+        })
+      }
 
-  const nodeIds = [selectedNodeId, ...getNeighborEntries(selectedNodeId).map((entry) => entry.id)];
-  network.selectNodes(nodeIds);
-  network.fit({ nodes: nodeIds, animation: { duration: 400, easingFunction: 'easeInOutQuad' } });
-}
+      function clearSelection() {
+        network.unselectAll()
+        renderSelection(null)
+        updateHash(null)
+      }
 
-function focusCommunity(communityId) {
-  const nodeIds = nodesByCommunity.get(communityId) || [];
-  if (nodeIds.length === 0) {
-    return;
-  }
+      function renderLegend() {
+        LEGEND.sort(
+          (left, right) => right.count - left.count || left.label.localeCompare(right.label)
+        )
+        LEGEND.forEach((entry) => {
+          const button = document.createElement('button')
+          button.className = 'legend-button small'
+          const left = document.createElement('span')
+          const chip = document.createElement('span')
+          chip.className = 'legend-chip'
+          chip.style.background = entry.color
+          const label = document.createElement('span')
+          label.textContent = entry.label
+          left.append(chip, document.createTextNode(' '), label)
+          const right = createMeta(String(entry.count), 'neighbor-meta')
+          button.append(left, right)
+          button.addEventListener('click', () => focusCommunity(entry.cid))
+          elements.legend.appendChild(button)
+        })
+      }
 
-  network.selectNodes(nodeIds);
-  network.fit({ nodes: nodeIds, animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-}
+      renderStats()
+      renderLegend()
+      renderSearchMatches('')
+      renderSelection(null)
 
-function clearSelection() {
-  network.unselectAll();
-  renderSelection(null);
-  updateHash(null);
-}
+      elements.search.addEventListener('input', (event) => {
+        renderSearchMatches(event.target.value || '')
+      })
 
-function renderLegend() {
-  LEGEND.sort((left, right) => right.count - left.count || left.label.localeCompare(right.label));
-  LEGEND.forEach((entry) => {
-    const button = document.createElement('button');
-    button.className = 'legend-button small';
-    const left = document.createElement('span');
-    const chip = document.createElement('span');
-    chip.className = 'legend-chip';
-    chip.style.background = entry.color;
-    const label = document.createElement('span');
-    label.textContent = entry.label;
-    left.append(chip, document.createTextNode(' '), label);
-    const right = createMeta(String(entry.count), 'neighbor-meta');
-    button.append(left, right);
-    button.addEventListener('click', () => focusCommunity(entry.cid));
-    elements.legend.appendChild(button);
-  });
-}
+      elements.search.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') {
+          return
+        }
+        const matches = renderSearchMatches(elements.search.value || '')
+        if (matches.length > 0) {
+          selectNodeById(matches[0].id, { focus: true })
+        }
+      })
 
-renderStats();
-renderLegend();
-renderSearchMatches('');
-renderSelection(null);
+      elements.resetView.addEventListener('click', () => {
+        network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } })
+      })
+      elements.clearSelection.addEventListener('click', clearSelection)
+      elements.focusNeighborhood.addEventListener('click', focusNeighborhood)
 
-elements.search.addEventListener('input', (event) => {
-  renderSearchMatches(event.target.value || '');
-});
+      network.on('selectNode', (event) => {
+        const nodeId = event.nodes && event.nodes[0]
+        if (nodeId) {
+          selectNodeById(nodeId, { focus: false })
+        }
+      })
 
-elements.search.addEventListener('keydown', (event) => {
-  if (event.key !== 'Enter') {
-    return;
-  }
-  const matches = renderSearchMatches(elements.search.value || '');
-  if (matches.length > 0) {
-    selectNodeById(matches[0].id, { focus: true });
-  }
-});
+      network.on('deselectNode', () => {
+        renderSelection(null)
+        updateHash(null)
+      })
 
-elements.resetView.addEventListener('click', () => {
-  network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-});
-elements.clearSelection.addEventListener('click', clearSelection);
-elements.focusNeighborhood.addEventListener('click', focusNeighborhood);
+      window.addEventListener('hashchange', () => {
+        const hashId = decodeURIComponent(window.location.hash.replace(/^#/, ''))
+        if (hashId && nodeIndex.has(hashId)) {
+          selectNodeById(hashId, { focus: true })
+        }
+      })
 
-network.on('selectNode', (event) => {
-  const nodeId = event.nodes && event.nodes[0];
-  if (nodeId) {
-    selectNodeById(nodeId, { focus: false });
-  }
-});
-
-network.on('deselectNode', () => {
-  renderSelection(null);
-  updateHash(null);
-});
-
-window.addEventListener('hashchange', () => {
-  const hashId = decodeURIComponent(window.location.hash.replace(/^#/, ''));
-  if (hashId && nodeIndex.has(hashId)) {
-    selectNodeById(hashId, { focus: true });
-  }
-});
-
-const initialHash = decodeURIComponent(window.location.hash.replace(/^#/, ''));
-if (initialHash && nodeIndex.has(initialHash)) {
-  selectNodeById(initialHash, { focus: true });
-} else if (INITIAL_SELECTED_NODE_ID && nodeIndex.has(INITIAL_SELECTED_NODE_ID)) {
-  selectNodeById(INITIAL_SELECTED_NODE_ID, { focus: false });
-} else {
-  network.fit({ animation: false });
-}
-</script>
-</body>
+      const initialHash = decodeURIComponent(window.location.hash.replace(/^#/, ''))
+      if (initialHash && nodeIndex.has(initialHash)) {
+        selectNodeById(initialHash, { focus: true })
+      } else if (INITIAL_SELECTED_NODE_ID && nodeIndex.has(INITIAL_SELECTED_NODE_ID)) {
+        selectNodeById(INITIAL_SELECTED_NODE_ID, { focus: false })
+      } else {
+        network.fit({ animation: false })
+      }
+    </script>
+  </body>
 </html>

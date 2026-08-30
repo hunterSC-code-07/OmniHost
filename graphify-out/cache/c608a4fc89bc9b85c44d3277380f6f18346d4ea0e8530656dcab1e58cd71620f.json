@@ -1,1 +1,429 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usedayzoptions","label":"useDayzOptions.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L1"}]},{"id":"usedayzoptions_usedayzoptions","label":"useDayzOptions()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L4-L137","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L4"}],"snippet":"export function useDayzOptions() {\n  const { activeServerId } = useServerStore();\n  const [configText, setConfigText] = useState<string>('');\n  const [isLoading, setIsLoading] = useState(true);\n  const [isSaving, setIsSaving] = useState(false);\n\n  // Form State\n  const [hostname, setHostname] = useState('');\n  const [password, setPassword] = useState('');\n  const [passwordAdmin, setPasswordAdmin] = useState('');\n  const [maxPlayers, setMaxPlayers] = useState('60');\n  const [serverTimeAcceleration, setServerTimeAcceleration] = useState('1');\n  const [serverNightTimeAcceleration, setServerNightTimeAcceleration] = useState('1');\n  const [template, setTemplate] = useState('dayzOffline.chernarusplus');\n  const [availableMissions, setAvailableMissions] = useState<string[]>([\n    'dayzOffline.chernarusplus',\n    'dayzOffline.enoch'\n  ]);\n\n  useEffect(() => {\n    loadConfig();\n  }, [activeServerId]);\n\n  const loadConfig = async () => {\n    if (!activeServerId) return;"},{"id":"usedayzoptions_usedayzoptions_loadconfig","label":"loadConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L27-L53","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L27"}],"snippet":"loadConfig = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);\n    try {\n      const config = await (window.api as any).readDayzConfig(activeServerId);\n      if (config) {\n        setConfigText(config);\n        parseConfig(config);\n      }\n      \n      try {\n        const res = await window.api.fs.listDir(activeServerId, 'mpmissions');\n        if (res && res.length > 0) {\n          const dirs = res.filter((entry: any) => entry.isDirectory).map((entry: any) => entry.name);\n          if (dirs.length > 0) {\n            setAvailableMissions(dirs);\n          }\n        }\n      } catch (e) {\n        console.warn(\"Failed to load mpmissions directory\", e);\n      }\n    } catch (e) {\n      console.error(\"Failed to load DayZ config\", e);\n    } finally {\n      setIsLoading(false);"},{"id":"usedayzoptions_usedayzoptions_parseconfig","label":"parseConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L55-L76","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L55"}],"snippet":"parseConfig = (text: string) => {\n    const extractString = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*\"([^\"]*)\"`, 'im'));\n      return match ? match[1] : defaultVal;\n    };\n    const extractNumber = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*(\\\\d+)`, 'im'));\n      return match ? match[1] : defaultVal;\n    };\n\n    setHostname(extractString('hostname', 'OmniHost DayZ Server'));\n    setPassword(extractString('password', ''));\n    setPasswordAdmin(extractString('passwordAdmin', ''));\n    setMaxPlayers(extractNumber('maxPlayers', '60'));\n    setServerTimeAcceleration(extractNumber('serverTimeAcceleration', '1'));\n    setServerNightTimeAcceleration(extractNumber('serverNightTimeAcceleration', '1'));\n\n    const templateMatch = text.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n    if (templateMatch) {\n      setTemplate(templateMatch[1]);\n    }\n  }"},{"id":"usedayzoptions_usedayzoptions_parseconfig_extractstring","label":"extractString()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L56-L59","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L56"}],"snippet":"extractString = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*\"([^\"]*)\"`, 'im'));\n      return match ? match[1] : defaultVal;\n    }"},{"id":"usedayzoptions_usedayzoptions_parseconfig_extractnumber","label":"extractNumber()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L60-L63","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L60"}],"snippet":"extractNumber = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*(\\\\d+)`, 'im'));\n      return match ? match[1] : defaultVal;\n    }"},{"id":"usedayzoptions_usedayzoptions_handlesave","label":"handleSave()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L78-L122","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L78"}],"snippet":"handleSave = async () => {\n    setIsSaving(true);\n    try {\n      let newConfig = configText;\n\n      const replaceString = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\"[^\"]*\"`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1\"${val}\"`);\n        } else {\n          newConfig = `${key}=\"${val}\";\\n` + newConfig;\n        }\n      };\n\n      const replaceNumber = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\\\\d+`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1${val}`);\n        } else {\n          newConfig = `${key}=${val};\\n` + newConfig;\n        }\n      };\n\n      replaceString('hostname', hostname);\n      replaceString('password', password);"},{"id":"usedayzoptions_usedayzoptions_handlesave_replacestring","label":"replaceString()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L83-L90","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L83"}],"snippet":"replaceString = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\"[^\"]*\"`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1\"${val}\"`);\n        } else {\n          newConfig = `${key}=\"${val}\";\\n` + newConfig;\n        }\n      }"},{"id":"usedayzoptions_usedayzoptions_handlesave_replacenumber","label":"replaceNumber()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L92-L99","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L92"}],"snippet":"replaceNumber = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\\\\d+`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1${val}`);\n        } else {\n          newConfig = `${key}=${val};\\n` + newConfig;\n        }\n      }"}],"edges":[{"source":"usedayzoptions","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L1"}],"weight":1},{"source":"usedayzoptions","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L2"}],"weight":1},{"source":"usedayzoptions","target":"usedayzoptions_usedayzoptions","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L4"}],"weight":1},{"source":"usedayzoptions_usedayzoptions","target":"usedayzoptions_usedayzoptions_loadconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L27"}],"weight":1},{"source":"usedayzoptions_usedayzoptions","target":"usedayzoptions_usedayzoptions_parseconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L55","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L55"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_parseconfig","target":"usedayzoptions_usedayzoptions_parseconfig_extractstring","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L56","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L56"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_parseconfig","target":"usedayzoptions_usedayzoptions_parseconfig_extractnumber","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L60","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L60"}],"weight":1},{"source":"usedayzoptions_usedayzoptions","target":"usedayzoptions_usedayzoptions_handlesave","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L78","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L78"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_handlesave","target":"usedayzoptions_usedayzoptions_handlesave_replacestring","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L83","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L83"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_handlesave","target":"usedayzoptions_usedayzoptions_handlesave_replacenumber","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L92","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L92"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_loadconfig","target":"usedayzoptions_usedayzoptions_parseconfig","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L34","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L34"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_parseconfig","target":"usedayzoptions_usedayzoptions_parseconfig_extractstring","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L65","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L65"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_parseconfig","target":"usedayzoptions_usedayzoptions_parseconfig_extractnumber","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L68","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L68"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_handlesave","target":"usedayzoptions_usedayzoptions_handlesave_replacestring","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L101","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L101"}],"weight":1},{"source":"usedayzoptions_usedayzoptions_handlesave","target":"usedayzoptions_usedayzoptions_handlesave_replacenumber","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L104","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts","source_location":"L104"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usedayzoptions",
+      "label": "useDayzOptions.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions",
+      "label": "useDayzOptions()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L4-L137",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export function useDayzOptions() {\n  const { activeServerId } = useServerStore();\n  const [configText, setConfigText] = useState<string>('');\n  const [isLoading, setIsLoading] = useState(true);\n  const [isSaving, setIsSaving] = useState(false);\n\n  // Form State\n  const [hostname, setHostname] = useState('');\n  const [password, setPassword] = useState('');\n  const [passwordAdmin, setPasswordAdmin] = useState('');\n  const [maxPlayers, setMaxPlayers] = useState('60');\n  const [serverTimeAcceleration, setServerTimeAcceleration] = useState('1');\n  const [serverNightTimeAcceleration, setServerNightTimeAcceleration] = useState('1');\n  const [template, setTemplate] = useState('dayzOffline.chernarusplus');\n  const [availableMissions, setAvailableMissions] = useState<string[]>([\n    'dayzOffline.chernarusplus',\n    'dayzOffline.enoch'\n  ]);\n\n  useEffect(() => {\n    loadConfig();\n  }, [activeServerId]);\n\n  const loadConfig = async () => {\n    if (!activeServerId) return;"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_loadconfig",
+      "label": "loadConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L27-L53",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L27"
+        }
+      ],
+      "snippet": "loadConfig = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);\n    try {\n      const config = await (window.api as any).readDayzConfig(activeServerId);\n      if (config) {\n        setConfigText(config);\n        parseConfig(config);\n      }\n      \n      try {\n        const res = await window.api.fs.listDir(activeServerId, 'mpmissions');\n        if (res && res.length > 0) {\n          const dirs = res.filter((entry: any) => entry.isDirectory).map((entry: any) => entry.name);\n          if (dirs.length > 0) {\n            setAvailableMissions(dirs);\n          }\n        }\n      } catch (e) {\n        console.warn(\"Failed to load mpmissions directory\", e);\n      }\n    } catch (e) {\n      console.error(\"Failed to load DayZ config\", e);\n    } finally {\n      setIsLoading(false);"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_parseconfig",
+      "label": "parseConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L55-L76",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "parseConfig = (text: string) => {\n    const extractString = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*\"([^\"]*)\"`, 'im'));\n      return match ? match[1] : defaultVal;\n    };\n    const extractNumber = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*(\\\\d+)`, 'im'));\n      return match ? match[1] : defaultVal;\n    };\n\n    setHostname(extractString('hostname', 'OmniHost DayZ Server'));\n    setPassword(extractString('password', ''));\n    setPasswordAdmin(extractString('passwordAdmin', ''));\n    setMaxPlayers(extractNumber('maxPlayers', '60'));\n    setServerTimeAcceleration(extractNumber('serverTimeAcceleration', '1'));\n    setServerNightTimeAcceleration(extractNumber('serverNightTimeAcceleration', '1'));\n\n    const templateMatch = text.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n    if (templateMatch) {\n      setTemplate(templateMatch[1]);\n    }\n  }"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_parseconfig_extractstring",
+      "label": "extractString()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L56-L59",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L56"
+        }
+      ],
+      "snippet": "extractString = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*\"([^\"]*)\"`, 'im'));\n      return match ? match[1] : defaultVal;\n    }"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_parseconfig_extractnumber",
+      "label": "extractNumber()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L60-L63",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L60"
+        }
+      ],
+      "snippet": "extractNumber = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*(\\\\d+)`, 'im'));\n      return match ? match[1] : defaultVal;\n    }"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_handlesave",
+      "label": "handleSave()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L78-L122",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L78"
+        }
+      ],
+      "snippet": "handleSave = async () => {\n    setIsSaving(true);\n    try {\n      let newConfig = configText;\n\n      const replaceString = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\"[^\"]*\"`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1\"${val}\"`);\n        } else {\n          newConfig = `${key}=\"${val}\";\\n` + newConfig;\n        }\n      };\n\n      const replaceNumber = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\\\\d+`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1${val}`);\n        } else {\n          newConfig = `${key}=${val};\\n` + newConfig;\n        }\n      };\n\n      replaceString('hostname', hostname);\n      replaceString('password', password);"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_handlesave_replacestring",
+      "label": "replaceString()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L83-L90",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L83"
+        }
+      ],
+      "snippet": "replaceString = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\"[^\"]*\"`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1\"${val}\"`);\n        } else {\n          newConfig = `${key}=\"${val}\";\\n` + newConfig;\n        }\n      }"
+    },
+    {
+      "id": "usedayzoptions_usedayzoptions_handlesave_replacenumber",
+      "label": "replaceNumber()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L92-L99",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L92"
+        }
+      ],
+      "snippet": "replaceNumber = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\\\\d+`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1${val}`);\n        } else {\n          newConfig = `${key}=${val};\\n` + newConfig;\n        }\n      }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usedayzoptions",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions",
+      "target": "usedayzoptions_usedayzoptions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions",
+      "target": "usedayzoptions_usedayzoptions_loadconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L27"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions",
+      "target": "usedayzoptions_usedayzoptions_parseconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L55"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_parseconfig",
+      "target": "usedayzoptions_usedayzoptions_parseconfig_extractstring",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L56",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L56"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_parseconfig",
+      "target": "usedayzoptions_usedayzoptions_parseconfig_extractnumber",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L60"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions",
+      "target": "usedayzoptions_usedayzoptions_handlesave",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L78",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L78"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_handlesave",
+      "target": "usedayzoptions_usedayzoptions_handlesave_replacestring",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L83"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_handlesave",
+      "target": "usedayzoptions_usedayzoptions_handlesave_replacenumber",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L92",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L92"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_loadconfig",
+      "target": "usedayzoptions_usedayzoptions_parseconfig",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L34",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L34"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_parseconfig",
+      "target": "usedayzoptions_usedayzoptions_parseconfig_extractstring",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L65",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L65"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_parseconfig",
+      "target": "usedayzoptions_usedayzoptions_parseconfig_extractnumber",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L68",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L68"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_handlesave",
+      "target": "usedayzoptions_usedayzoptions_handlesave_replacestring",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L101",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L101"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usedayzoptions_usedayzoptions_handlesave",
+      "target": "usedayzoptions_usedayzoptions_handlesave_replacenumber",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+      "source_location": "L104",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useDayzOptions.ts",
+          "source_location": "L104"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

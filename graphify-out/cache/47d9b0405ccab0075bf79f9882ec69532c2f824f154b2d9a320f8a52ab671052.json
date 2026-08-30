@@ -1,1 +1,94 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"test_logic","label":"test-logic.js","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L1"}]},{"id":"test_logic_updateplayerstats","label":"updatePlayerStats()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L14-L48","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L14"}],"snippet":"function updatePlayerStats(username, isJoin) {\n    const statsPath = path.join(serverDir, 'player-stats.json');\n    console.log(\"Writing to\", statsPath);\n    let stats = {};\n    if (fs.existsSync(statsPath)) {\n      try {\n        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));\n      } catch (e) {}\n    }\n    \n    if (!stats[username]) {\n      stats[username] = {\n        username,\n        firstJoin: Date.now(),\n        lastLeft: null,\n        totalPlaytime: 0\n      };\n    }\n\n    if (isJoin) {\n      playerJoinTimes[username] = Date.now();\n      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');\n      console.log(\"Wrote join\");\n    } else {\n      const joinTime = playerJoinTimes[username];"}],"edges":[{"source":"test_logic","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L1"}],"weight":1},{"source":"test_logic","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L2"}],"weight":1},{"source":"test_logic","target":"test_logic_updateplayerstats","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/test-logic.js","source_location":"L14"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "test_logic",
+      "label": "test-logic.js",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "test_logic_updateplayerstats",
+      "label": "updatePlayerStats()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+      "source_location": "L14-L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+          "source_location": "L14"
+        }
+      ],
+      "snippet": "function updatePlayerStats(username, isJoin) {\n    const statsPath = path.join(serverDir, 'player-stats.json');\n    console.log(\"Writing to\", statsPath);\n    let stats = {};\n    if (fs.existsSync(statsPath)) {\n      try {\n        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));\n      } catch (e) {}\n    }\n    \n    if (!stats[username]) {\n      stats[username] = {\n        username,\n        firstJoin: Date.now(),\n        lastLeft: null,\n        totalPlaytime: 0\n      };\n    }\n\n    if (isJoin) {\n      playerJoinTimes[username] = Date.now();\n      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');\n      console.log(\"Wrote join\");\n    } else {\n      const joinTime = playerJoinTimes[username];"
+    }
+  ],
+  "edges": [
+    {
+      "source": "test_logic",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "test_logic",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "test_logic",
+      "target": "test_logic_updateplayerstats",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/test-logic.js",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"test_stalker2","label":"test_stalker2.js","file_type":"code","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L1"}]},{"id":"test_stalker2_getmoddependencies","label":"getModDependencies()","file_type":"code","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L2-L27","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L2"}],"snippet":"async function getModDependencies(modId, visited = new Set()) {\n    if (visited.has(modId)) return [];\n    visited.add(modId);\n    try {\n        const r = await fetch('https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId);\n        const html = await r.text();\n        const parts = html.split('class=\"requiredItemsContainer\"');\n        if (parts.length > 1) {\n            let block = parts[1];\n            const endPart = block.indexOf('class=\"rightDetailsBlock\"');\n            if (endPart !== -1) block = block.substring(0, endPart);\n            const idRegex = /filedetails\\/\\?id=(\\d+)/g;\n            const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];\n            \n            let allDeps = [...ids];\n            for (const id of ids) {\n                const subDeps = await getModDependencies(id, visited);\n                allDeps = allDeps.concat(subDeps);\n            }\n            return [...new Set(allDeps)];\n        }\n        return [];\n    } catch (e) {\n        return [];\n    }"}],"edges":[{"source":"test_stalker2","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L1"}],"weight":1},{"source":"test_stalker2","target":"test_stalker2_getmoddependencies","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/test_stalker2.js","source_location":"L2"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "test_stalker2",
+      "label": "test_stalker2.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/test_stalker2.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/test_stalker2.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "test_stalker2_getmoddependencies",
+      "label": "getModDependencies()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/test_stalker2.js",
+      "source_location": "L2-L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/test_stalker2.js",
+          "source_location": "L2"
+        }
+      ],
+      "snippet": "async function getModDependencies(modId, visited = new Set()) {\n    if (visited.has(modId)) return [];\n    visited.add(modId);\n    try {\n        const r = await fetch('https://steamcommunity.com/sharedfiles/filedetails/?id=' + modId);\n        const html = await r.text();\n        const parts = html.split('class=\"requiredItemsContainer\"');\n        if (parts.length > 1) {\n            let block = parts[1];\n            const endPart = block.indexOf('class=\"rightDetailsBlock\"');\n            if (endPart !== -1) block = block.substring(0, endPart);\n            const idRegex = /filedetails\\/\\?id=(\\d+)/g;\n            const ids = [...new Set([...block.matchAll(idRegex)].map(m => m[1]))];\n            \n            let allDeps = [...ids];\n            for (const id of ids) {\n                const subDeps = await getModDependencies(id, visited);\n                allDeps = allDeps.concat(subDeps);\n            }\n            return [...new Set(allDeps)];\n        }\n        return [];\n    } catch (e) {\n        return [];\n    }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "test_stalker2",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/test_stalker2.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/test_stalker2.js",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "test_stalker2",
+      "target": "test_stalker2_getmoddependencies",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/test_stalker2.js",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/test_stalker2.js",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,41 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"fix_logo","label":"fix_logo.py","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:python","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py","source_location":"L1"}]}],"edges":[{"source":"fix_logo","target":"re","relation":"imports","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:python","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py","source_location":"L1"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "fix_logo",
+      "label": "fix_logo.py",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:python",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py",
+          "source_location": "L1"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "source": "fix_logo",
+      "target": "re",
+      "relation": "imports",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:python",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/scratch/fix_logo.py",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

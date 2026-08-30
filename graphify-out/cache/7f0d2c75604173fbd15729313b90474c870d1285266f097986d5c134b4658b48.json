@@ -1,1 +1,661 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecraftprocessmanager","label":"MinecraftProcessManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L1"}]},{"id":"minecraftprocessmanager_minecraftprocessmanager","label":"MinecraftProcessManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L10-L462","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L10"}],"snippet":"export class MinecraftProcessManager {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  autoStopTimer: NodeJS.Timeout | null = null;\n  statsTimer: NodeJS.Timeout | null = null;\n  omnihostMeta: any = {}; \n  javaPid: number | null = null; \n  isFullyStarted: boolean = false; \n  logHistory: string[] = [];\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"},{"id":"minecraftprocessmanager_minecraftprocessmanager_constructor","label":".constructor()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L22-L25","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L22"}],"snippet":"constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"},{"id":"minecraftprocessmanager_minecraftprocessmanager_sendlog","label":".sendLog()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L27-L34","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L27"}],"snippet":"sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"},{"id":"minecraftprocessmanager_minecraftprocessmanager_sendplayerupdate","label":".sendPlayerUpdate()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L36-L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L36"}],"snippet":"sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"},{"id":"minecraftprocessmanager_minecraftprocessmanager_sendcommand","label":".sendCommand()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L42-L49","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L42"}],"snippet":"sendCommand(cmd: string) {\n    if (this.process && this.process.stdin) {\n      this.process.stdin.write(cmd + '\\n');\n      this.sendLog(`> ${cmd}`); \n    } else {\n      this.sendLog(`[System] Cannot send command: Server is offline.`);\n    }\n  }"},{"id":"minecraftprocessmanager_minecraftprocessmanager_getactualpid","label":".getActualPid()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L51-L105","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L51"}],"snippet":"private getActualPid(): Promise<number> {\n    return new Promise((resolve) => {\n      const proc = this.process;\n      if (!proc || !proc.pid) return resolve(0);\n      if (this.javaPid) return resolve(this.javaPid);\n      if (process.platform !== 'win32') return resolve(proc.pid);\n\n      const { spawn } = require('child_process');\n      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);\n      \n      let out = '';\n      ps.stdout.on('data', (data: any) => out += data.toString());\n      \n      ps.on('close', () => {\n        const pid = parseInt(out.trim());\n        if (!isNaN(pid) && pid > 0) {\n          this.javaPid = pid;\n          resolve(pid);\n        } else {\n          resolve(proc.pid!);\n        }\n      });\n\n      const script = `\n        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name"},{"id":"minecraftprocessmanager_minecraftprocessmanager_updateplayerstats","label":".updatePlayerStats()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L108-L165","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L108"}],"snippet":"async updatePlayerStats(username: string, isJoin: boolean) {\n    const statsPath = join(this.serverDir, 'player-stats.json');\n    let stats: any = {};\n    if (fs.existsSync(statsPath)) {\n      try {\n        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));\n      } catch (e) {}\n    }\n    \n    if (!stats[username]) {\n      stats[username] = {\n        username,\n        firstJoin: Date.now(),\n        lastLeft: null,\n        totalPlaytime: 0\n      };\n    }\n\n    if (isJoin) {\n      stats[username].currentSessionStart = Date.now();\n      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');\n    } else {\n      const joinTime = stats[username].currentSessionStart;\n      if (joinTime) {\n        const duration = Date.now() - joinTime;"},{"id":"minecraftprocessmanager_minecraftprocessmanager_parserunbat","label":".parseRunBat()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L179-L224","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L179"}],"snippet":"private parseRunBat(batPath: string): string[] | null {\n    try {\n      const content = fs.readFileSync(batPath, 'utf-8');\n      const lines = content.split(/\\r?\\n/);\n\n      // Forge run.bat has TWO java commands:\n      //   1) java -jar forge-...-shim.jar --onlyCheckJava  (version check, exits immediately)\n      //   2) java @user_jvm_args.txt @libraries/.../win_args.txt %*  (actual server)\n      // We want the LAST java command, which is always the actual server launch.\n      let lastJavaArgs: string[] | null = null;\n\n      for (const rawLine of lines) {\n        const line = rawLine.trim();\n\n        // Skip non-Java lines (echo, set, rem, pause, empty, labels, conditionals, etc.)\n        if (!line || line.startsWith('@echo') || line.startsWith('REM') || line.startsWith('rem') ||\n            line.startsWith('set ') || line.startsWith('SET ') || line === 'pause' || line === 'PAUSE' ||\n            line.startsWith('::') || line.startsWith('if ') || line.startsWith('IF ') ||\n            line.startsWith(':') || line.startsWith('echo') || line.startsWith('goto')) {\n          continue;\n        }\n\n        // Look for the java launch command\n        // Matches: java ..., \"java\" ..., %JAVA_HOME%\\bin\\java ..., \"path\\to\\java.exe\" ...\n        const javaMatch = line.match(/^(?:@\\s*)?(?:\"[^\"]*[/\\\\])?(?:java(?:w)?(?:\\.exe)?)\"?\\s+(.*)/i);"},{"id":"minecraftprocessmanager_minecraftprocessmanager_start","label":".start()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L226-L400","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L226"}],"snippet":"async start() {\n    await MinecraftConfigManager.init(this.serverDir);\n    this.onlinePlayers = []; \n    this.logHistory = [];\n    this.isFullyStarted = false;\n    this.sendPlayerUpdate();\n    \n    this.sendLog(`[System] Starting Server ${this.serverId}...`);\n\n    const metaPath = join(this.serverDir, 'omnihost.json');\n    let version = '1.20.4';\n    if (fs.existsSync(metaPath)) {\n      try {\n        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));\n        this.omnihostMeta = meta;\n        if (meta.version) version = meta.version;\n      } catch(e) {}\n    }\n\n    let javaRequired: 8 | 16 | 17 | 21 | 25 = 17;\n    const coerced = semver.coerce(version);\n    if (coerced) {\n      if (semver.lt(coerced, '1.17.0')) javaRequired = 8;\n      else if (semver.lt(coerced, '1.18.0')) javaRequired = 16;\n      else if (semver.lt(coerced, '1.20.5')) javaRequired = 17;"},{"id":"minecraftprocessmanager_minecraftprocessmanager_stop","label":".stop()","file_type":"code","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L402-L461","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L402"}],"snippet":"async stop(): Promise<void> {\n    return new Promise((resolve) => {\n      if (!this.process) {\n        resolve();\n        return;\n      }\n      \n      this.sendLog(`[System] Stopping Server ${this.serverId}...`);\n      this.process.stdin?.write('stop\\n');\n      \n      const p = this.process;\n      this.process = null;\n      if (this.autoStopTimer) clearTimeout(this.autoStopTimer);\n      if (this.statsTimer) clearInterval(this.statsTimer);\n      this.autoStopTimer = null;\n      this.statsTimer = null;\n\n      // Update stats for all players before clearing them\n      for (const pName of this.onlinePlayers) {\n        this.updatePlayerStats(pName, false);\n      }\n      \n      this.onlinePlayers = []; \n      this.sendPlayerUpdate();"}],"edges":[{"source":"minecraftprocessmanager","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L1"}],"weight":1},{"source":"minecraftprocessmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L2"}],"weight":1},{"source":"minecraftprocessmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L3"}],"weight":1},{"source":"minecraftprocessmanager","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L4"}],"weight":1},{"source":"minecraftprocessmanager","target":"semver","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L5"}],"weight":1},{"source":"minecraftprocessmanager","target":"javamanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L6"}],"weight":1},{"source":"minecraftprocessmanager","target":"pidusage","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L7"}],"weight":1},{"source":"minecraftprocessmanager","target":"minecraftconfigmanager","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L8"}],"weight":1},{"source":"minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L10"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_constructor","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L22"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L27","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L27"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_sendplayerupdate","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L36"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_sendcommand","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L42"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_getactualpid","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L51","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L51"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_updateplayerstats","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L108","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L108"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_updateplayerstats","target":"prismarine_nbt","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L150","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L150"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_parserunbat","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L179","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L179"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_start","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L226","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L226"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_start","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L310","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L310"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_start","target":"readline","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L369","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L369"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager","target":"minecraftprocessmanager_minecraftprocessmanager_stop","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L402","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L402"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_sendcommand","target":"minecraftprocessmanager_minecraftprocessmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L45"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_updateplayerstats","target":"minecraftprocessmanager_minecraftprocessmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L160","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L160"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_start","target":"minecraftprocessmanager_minecraftprocessmanager_sendplayerupdate","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L231","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L231"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_start","target":"minecraftprocessmanager_minecraftprocessmanager_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L233","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L233"}],"weight":1},{"source":"minecraftprocessmanager_minecraftprocessmanager_start","target":"minecraftprocessmanager_minecraftprocessmanager_parserunbat","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L320","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts","source_location":"L320"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecraftprocessmanager",
+      "label": "MinecraftProcessManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager",
+      "label": "MinecraftProcessManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L10-L462",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "export class MinecraftProcessManager {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  autoStopTimer: NodeJS.Timeout | null = null;\n  statsTimer: NodeJS.Timeout | null = null;\n  omnihostMeta: any = {}; \n  javaPid: number | null = null; \n  isFullyStarted: boolean = false; \n  logHistory: string[] = [];\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L22-L25",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L22"
+        }
+      ],
+      "snippet": "constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L27-L34",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L27"
+        }
+      ],
+      "snippet": "sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    this.logHistory.push(msg);\n    if (this.logHistory.length > 2000) this.logHistory.shift();\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_sendplayerupdate",
+      "label": ".sendPlayerUpdate()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L36-L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L36"
+        }
+      ],
+      "snippet": "sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_sendcommand",
+      "label": ".sendCommand()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L42-L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L42"
+        }
+      ],
+      "snippet": "sendCommand(cmd: string) {\n    if (this.process && this.process.stdin) {\n      this.process.stdin.write(cmd + '\\n');\n      this.sendLog(`> ${cmd}`); \n    } else {\n      this.sendLog(`[System] Cannot send command: Server is offline.`);\n    }\n  }"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_getactualpid",
+      "label": ".getActualPid()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L51-L105",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L51"
+        }
+      ],
+      "snippet": "private getActualPid(): Promise<number> {\n    return new Promise((resolve) => {\n      const proc = this.process;\n      if (!proc || !proc.pid) return resolve(0);\n      if (this.javaPid) return resolve(this.javaPid);\n      if (process.platform !== 'win32') return resolve(proc.pid);\n\n      const { spawn } = require('child_process');\n      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);\n      \n      let out = '';\n      ps.stdout.on('data', (data: any) => out += data.toString());\n      \n      ps.on('close', () => {\n        const pid = parseInt(out.trim());\n        if (!isNaN(pid) && pid > 0) {\n          this.javaPid = pid;\n          resolve(pid);\n        } else {\n          resolve(proc.pid!);\n        }\n      });\n\n      const script = `\n        $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_updateplayerstats",
+      "label": ".updatePlayerStats()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L108-L165",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L108"
+        }
+      ],
+      "snippet": "async updatePlayerStats(username: string, isJoin: boolean) {\n    const statsPath = join(this.serverDir, 'player-stats.json');\n    let stats: any = {};\n    if (fs.existsSync(statsPath)) {\n      try {\n        stats = JSON.parse(fs.readFileSync(statsPath, 'utf-8'));\n      } catch (e) {}\n    }\n    \n    if (!stats[username]) {\n      stats[username] = {\n        username,\n        firstJoin: Date.now(),\n        lastLeft: null,\n        totalPlaytime: 0\n      };\n    }\n\n    if (isJoin) {\n      stats[username].currentSessionStart = Date.now();\n      fs.writeFileSync(statsPath, JSON.stringify(stats, null, 2), 'utf-8');\n    } else {\n      const joinTime = stats[username].currentSessionStart;\n      if (joinTime) {\n        const duration = Date.now() - joinTime;"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_parserunbat",
+      "label": ".parseRunBat()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L179-L224",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L179"
+        }
+      ],
+      "snippet": "private parseRunBat(batPath: string): string[] | null {\n    try {\n      const content = fs.readFileSync(batPath, 'utf-8');\n      const lines = content.split(/\\r?\\n/);\n\n      // Forge run.bat has TWO java commands:\n      //   1) java -jar forge-...-shim.jar --onlyCheckJava  (version check, exits immediately)\n      //   2) java @user_jvm_args.txt @libraries/.../win_args.txt %*  (actual server)\n      // We want the LAST java command, which is always the actual server launch.\n      let lastJavaArgs: string[] | null = null;\n\n      for (const rawLine of lines) {\n        const line = rawLine.trim();\n\n        // Skip non-Java lines (echo, set, rem, pause, empty, labels, conditionals, etc.)\n        if (!line || line.startsWith('@echo') || line.startsWith('REM') || line.startsWith('rem') ||\n            line.startsWith('set ') || line.startsWith('SET ') || line === 'pause' || line === 'PAUSE' ||\n            line.startsWith('::') || line.startsWith('if ') || line.startsWith('IF ') ||\n            line.startsWith(':') || line.startsWith('echo') || line.startsWith('goto')) {\n          continue;\n        }\n\n        // Look for the java launch command\n        // Matches: java ..., \"java\" ..., %JAVA_HOME%\\bin\\java ..., \"path\\to\\java.exe\" ...\n        const javaMatch = line.match(/^(?:@\\s*)?(?:\"[^\"]*[/\\\\])?(?:java(?:w)?(?:\\.exe)?)\"?\\s+(.*)/i);"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L226-L400",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L226"
+        }
+      ],
+      "snippet": "async start() {\n    await MinecraftConfigManager.init(this.serverDir);\n    this.onlinePlayers = []; \n    this.logHistory = [];\n    this.isFullyStarted = false;\n    this.sendPlayerUpdate();\n    \n    this.sendLog(`[System] Starting Server ${this.serverId}...`);\n\n    const metaPath = join(this.serverDir, 'omnihost.json');\n    let version = '1.20.4';\n    if (fs.existsSync(metaPath)) {\n      try {\n        const meta = JSON.parse(fs.readFileSync(metaPath, 'utf-8'));\n        this.omnihostMeta = meta;\n        if (meta.version) version = meta.version;\n      } catch(e) {}\n    }\n\n    let javaRequired: 8 | 16 | 17 | 21 | 25 = 17;\n    const coerced = semver.coerce(version);\n    if (coerced) {\n      if (semver.lt(coerced, '1.17.0')) javaRequired = 8;\n      else if (semver.lt(coerced, '1.18.0')) javaRequired = 16;\n      else if (semver.lt(coerced, '1.20.5')) javaRequired = 17;"
+    },
+    {
+      "id": "minecraftprocessmanager_minecraftprocessmanager_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L402-L461",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L402"
+        }
+      ],
+      "snippet": "async stop(): Promise<void> {\n    return new Promise((resolve) => {\n      if (!this.process) {\n        resolve();\n        return;\n      }\n      \n      this.sendLog(`[System] Stopping Server ${this.serverId}...`);\n      this.process.stdin?.write('stop\\n');\n      \n      const p = this.process;\n      this.process = null;\n      if (this.autoStopTimer) clearTimeout(this.autoStopTimer);\n      if (this.statsTimer) clearInterval(this.statsTimer);\n      this.autoStopTimer = null;\n      this.statsTimer = null;\n\n      // Update stats for all players before clearing them\n      for (const pName of this.onlinePlayers) {\n        this.updatePlayerStats(pName, false);\n      }\n      \n      this.onlinePlayers = []; \n      this.sendPlayerUpdate();"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecraftprocessmanager",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "semver",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "javamanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "pidusage",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "minecraftconfigmanager",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L27",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L27"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendplayerupdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L36"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendcommand",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L42"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_getactualpid",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L51"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_updateplayerstats",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L108",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L108"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_updateplayerstats",
+      "target": "prismarine_nbt",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L150",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L150"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_parserunbat",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L179",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L179"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L226",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L226"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L310",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L310"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "target": "readline",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L369",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L369"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L402",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L402"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_sendcommand",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L45"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_updateplayerstats",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L160",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L160"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendplayerupdate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L231",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L231"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L233",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L233"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecraftprocessmanager_minecraftprocessmanager_start",
+      "target": "minecraftprocessmanager_minecraftprocessmanager_parserunbat",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+      "source_location": "L320",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/minecraft/MinecraftProcessManager.ts",
+          "source_location": "L320"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

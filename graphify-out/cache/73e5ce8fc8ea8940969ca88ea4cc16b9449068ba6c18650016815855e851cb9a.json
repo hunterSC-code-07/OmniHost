@@ -1,1 +1,960 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzadapter","label":"DayzAdapter.ts","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1"}]},{"id":"dayzadapter_dayzadapter","label":"DayzAdapter","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L6-L367","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L6"}],"snippet":"export class DayzAdapter {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  autoStopTimer: NodeJS.Timeout | null = null;\n  statsTimer: NodeJS.Timeout | null = null;\n  omnihostMeta: any = {}; \n  \n  private logWatcher: NodeJS.Timeout | null = null;\n  private logFd: number | null = null;\n  private lastLogPos: number = 0;\n  private startTime: number = 0;\n  private logBuffer: string = '';\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });"},{"id":"dayzadapter_dayzadapter_constructor","label":".constructor()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L21-L24","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L21"}],"snippet":"constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"},{"id":"dayzadapter_dayzadapter_sendlog","label":".sendLog()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L26-L31","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L26"}],"snippet":"sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"},{"id":"dayzadapter_dayzadapter_sendplayerupdate","label":".sendPlayerUpdate()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L33-L37","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L33"}],"snippet":"sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"},{"id":"dayzadapter_dayzadapter_sendcommand","label":".sendCommand()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L39-L42","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L39"}],"snippet":"sendCommand(cmd: string) {\n    // Basic implementation (later use RCon/BEC for DayZ)\n    this.sendLog(`[System] Sending commands to DayZ requires RCon setup (not yet implemented). Command: ${cmd}`);\n  }"},{"id":"dayzadapter_dayzadapter_getplayerinventory","label":".getPlayerInventory()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L44-L46","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L44"}],"snippet":"async getPlayerInventory() {\n    return null; // Stub for DayZ inventory\n  }"},{"id":"dayzadapter_dayzadapter_init","label":".init()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L48-L87","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L48"}],"snippet":"async init() {\n    if (!fs.existsSync(this.serverDir)) fs.mkdirSync(this.serverDir, { recursive: true });\n    \n    // Auto-generate basic serverDZ.cfg if it doesn't exist\n    const cfgPath = join(this.serverDir, 'serverDZ.cfg');\n    if (!fs.existsSync(cfgPath)) {\n      const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility\nsteamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel\nhostname = \"OmniHost DayZ Server\";  // Server name\npassword = \"\";              // Password to connect to the server\npasswordAdmin = \"\";         // Password to become a server admin\nmaxPlayers = 60;            // Maximum amount of players\nverifySignatures = 2;       // Verifies .pbos against .bisign files. (only 2 is supported)\nforceSameBuild = 1;         // When enabled, the server will allow the connection only to clients with same the .exe revision as the server (value 0-1)\ndisableVoN = 0;             // Enable/disable voice over network (value 0-1)\nvonCodecQuality = 20;       // Voice over network codec quality, the higher the better (values 0-30)\ndisable3rdPerson=0;         // Toggles the 3rd person view for players (value 0-1)\ndisableCrosshair=0;         // Toggles the cross-hair (value 0-1)\nserverTime=\"SystemTime\";    // Initial in-game time of the server. \"SystemTime\" means the local time of the machine. Another possibility is to set the time to some value in \"YYYY/MM/DD/HH/MM\" format, f.e. \"2015/4/8/17/23\"\nserverTimeAcceleration=1;   // Accelerated Time (value 0-24)\nserverNightTimeAcceleration=1; // Accelerated Nigh Time\nserverTimePersistent=0;     // Persistent Time\nguaranteedUpdates=1;        // Communication protocol used with game server (use only number 1)\nloginQueueConcurrentPlayers=5; // The number of players concurrently processed during the login process.\nloginQueueMaxPlayers=500;   // The maximum number of players that can wait in login queue"},{"id":"dayzadapter_dayzadapter_updateplayerstats","label":".updatePlayerStats()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L89-L91","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L89"}],"snippet":"async updatePlayerStats() {\n    // Stub for DayZ stats\n  }"},{"id":"dayzadapter_dayzadapter_start","label":".start()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L93-L240","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L93"}],"snippet":"async start() {\n    await this.init();\n\n    const exePath = join(this.serverDir, 'DayZServer_x64.exe');\n    if (!fs.existsSync(exePath)) {\n      this.sendLog(`[System] DayZ Server executable not found at ${exePath}. Did you finish the SteamCMD download?`);\n      return;\n    }\n\n    this.sendLog('[System] Starting DayZ Server...');\n\n    const args = [\n      '-config=serverDZ.cfg',\n      '-port=2302',\n      '-profiles=Profiles',\n      '-BEpath=BattlEye',\n      '-dologs',\n      '-adminlog',\n      '-netlog',\n      '-freezecheck'\n    ];\n\n    // Load mods\n    try {\n      const folders = fs.readdirSync(this.serverDir, { withFileTypes: true });"},{"id":"dayzadapter_dayzadapter_stop","label":".stop()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L242-L258","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L242"}],"snippet":"stop() {\n    if (this.process) {\n      this.sendLog('[System] Stopping DayZ Server...');\n      if (this.process.pid) {\n        if (process.platform === 'win32') {\n          spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t']);\n        } else {\n          this.process.kill();\n        }\n      }\n      this.process = null;\n      this.cleanupLogWatcher();\n    }\n    \n    this.onlinePlayers = [];\n    this.sendPlayerUpdate();\n  }"},{"id":"dayzadapter_dayzadapter_setuplogwatcher","label":".setupLogWatcher()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L260-L267","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L260"}],"snippet":"private setupLogWatcher() {\n    const profilesDir = join(this.serverDir, 'Profiles');\n    this.sendLog(`[System] Initializing Log Watcher at: ${profilesDir}`);\n    if (!fs.existsSync(profilesDir)) {\n      fs.mkdirSync(profilesDir, { recursive: true });\n    }\n    this.pollForLogFile(profilesDir);\n  }"},{"id":"dayzadapter_dayzadapter_pollforlogfile","label":".pollForLogFile()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L269-L292","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L269"}],"snippet":"private pollForLogFile(profilesDir: string) {\n    const checkFile = () => {\n      if (!this.process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    };\n    setTimeout(checkFile, 2000);\n  }"},{"id":"dayzadapter_dayzadapter_pollforlogfile_checkfile","label":"checkFile()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L270-L290","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L270"}],"snippet":"checkFile = () => {\n      if (!this.process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    }"},{"id":"dayzadapter_dayzadapter_taillogfile","label":".tailLogFile()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L294-L310","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L294"}],"snippet":"private tailLogFile(filePath: string) {\n    this.sendLog(`[System] Attaching to DayZ Admin Log: ${filePath}`);\n    \n    try {\n      this.logFd = fs.openSync(filePath, 'r');\n      this.lastLogPos = 0; // Read from start to catch existing players\n      this.logBuffer = ''; // Clear buffer on new file\n      this.readNewLogs();\n\n      // Use setInterval instead of fs.watch for much faster and more reliable updates on Windows\n      this.logWatcher = setInterval(() => {\n        this.readNewLogs();\n      }, 500);\n    } catch (e) {\n      this.sendLog(`[System Error] Failed to tail log: ${e}`);\n    }\n  }"},{"id":"dayzadapter_dayzadapter_readnewlogs","label":".readNewLogs()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L312-L337","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L312"}],"snippet":"private readNewLogs() {\n    if (this.logFd === null) return;\n    try {\n      const stats = fs.fstatSync(this.logFd);\n      if (stats.size > this.lastLogPos) {\n        const length = stats.size - this.lastLogPos;\n        const buffer = Buffer.alloc(length);\n        fs.readSync(this.logFd, buffer, 0, length, this.lastLogPos);\n        this.lastLogPos = stats.size;\n        \n        const content = buffer.toString('utf8');\n        this.logBuffer += content;\n        \n        let newlineIdx;\n        while ((newlineIdx = this.logBuffer.indexOf('\\n')) !== -1) {\n          const line = this.logBuffer.substring(0, newlineIdx).trim();\n          this.logBuffer = this.logBuffer.substring(newlineIdx + 1);\n          \n          if (line) {\n            this.sendLog(`[DayZ] ${line}`);\n            this.parseLogLine(line);\n          }\n        }\n      }\n    } catch (e) {}"},{"id":"dayzadapter_dayzadapter_parselogline","label":".parseLogLine()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L339-L355","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L339"}],"snippet":"private parseLogLine(line: string) {\n    const connectedMatch = line.match(/Player \"([^\"]+)\" .*?is connected/i);\n    if (connectedMatch) {\n      const pName = connectedMatch[1];\n      if (!this.onlinePlayers.includes(pName)) {\n        this.onlinePlayers.push(pName);\n        this.sendPlayerUpdate();\n      }\n    }\n    \n    const disconnectedMatch = line.match(/Player \"([^\"]+)\" .*?has been disconnected/i);\n    if (disconnectedMatch) {\n      const pName = disconnectedMatch[1];\n      this.onlinePlayers = this.onlinePlayers.filter(p => p !== pName);\n      this.sendPlayerUpdate();\n    }\n  }"},{"id":"dayzadapter_dayzadapter_cleanuplogwatcher","label":".cleanupLogWatcher()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L357-L366","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L357"}],"snippet":"private cleanupLogWatcher() {\n    if (this.logWatcher) {\n      clearInterval(this.logWatcher);\n      this.logWatcher = null;\n    }\n    if (this.logFd !== null) {\n      fs.closeSync(this.logFd);\n      this.logFd = null;\n    }\n  }"}],"edges":[{"source":"dayzadapter","target":"child_process","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L1"}],"weight":1},{"source":"dayzadapter","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L2"}],"weight":1},{"source":"dayzadapter","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L3"}],"weight":1},{"source":"dayzadapter","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L4"}],"weight":1},{"source":"dayzadapter","target":"dayzadapter_dayzadapter","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L6"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_constructor","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L21"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_sendlog","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L26"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_sendplayerupdate","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L33","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L33"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_sendcommand","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L39"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_getplayerinventory","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L44","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L44"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_init","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L48","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L48"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_updateplayerstats","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L89","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L89"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_start","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L93","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L93"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_stop","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L242","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L242"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_setuplogwatcher","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L260","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L260"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_pollforlogfile","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L269","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L269"}],"weight":1},{"source":"dayzadapter_dayzadapter_pollforlogfile","target":"dayzadapter_dayzadapter_pollforlogfile_checkfile","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L270","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L270"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_taillogfile","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L294","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L294"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_readnewlogs","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L312","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L312"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_parselogline","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L339","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L339"}],"weight":1},{"source":"dayzadapter_dayzadapter","target":"dayzadapter_dayzadapter_cleanuplogwatcher","relation":"method","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L357","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L357"}],"weight":1},{"source":"dayzadapter_dayzadapter_sendcommand","target":"dayzadapter_dayzadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L41","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L41"}],"weight":1},{"source":"dayzadapter_dayzadapter_start","target":"dayzadapter_dayzadapter_init","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L94","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L94"}],"weight":1},{"source":"dayzadapter_dayzadapter_start","target":"dayzadapter_dayzadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L98","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L98"}],"weight":1},{"source":"dayzadapter_dayzadapter_start","target":"dayzadapter_dayzadapter_setuplogwatcher","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L227","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L227"}],"weight":1},{"source":"dayzadapter_dayzadapter_stop","target":"dayzadapter_dayzadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L244","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L244"}],"weight":1},{"source":"dayzadapter_dayzadapter_stop","target":"dayzadapter_dayzadapter_cleanuplogwatcher","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L253","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L253"}],"weight":1},{"source":"dayzadapter_dayzadapter_stop","target":"dayzadapter_dayzadapter_sendplayerupdate","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L257","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L257"}],"weight":1},{"source":"dayzadapter_dayzadapter_setuplogwatcher","target":"dayzadapter_dayzadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L262","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L262"}],"weight":1},{"source":"dayzadapter_dayzadapter_setuplogwatcher","target":"dayzadapter_dayzadapter_pollforlogfile","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L266","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L266"}],"weight":1},{"source":"dayzadapter_dayzadapter_pollforlogfile_checkfile","target":"dayzadapter_dayzadapter_taillogfile","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L283","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L283"}],"weight":1},{"source":"dayzadapter_dayzadapter_taillogfile","target":"dayzadapter_dayzadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L295","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L295"}],"weight":1},{"source":"dayzadapter_dayzadapter_taillogfile","target":"dayzadapter_dayzadapter_readnewlogs","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L301","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L301"}],"weight":1},{"source":"dayzadapter_dayzadapter_readnewlogs","target":"dayzadapter_dayzadapter_sendlog","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L331","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L331"}],"weight":1},{"source":"dayzadapter_dayzadapter_readnewlogs","target":"dayzadapter_dayzadapter_parselogline","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L332","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L332"}],"weight":1},{"source":"dayzadapter_dayzadapter_parselogline","target":"dayzadapter_dayzadapter_sendplayerupdate","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L345","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts","source_location":"L345"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzadapter",
+      "label": "DayzAdapter.ts",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzadapter_dayzadapter",
+      "label": "DayzAdapter",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L6-L367",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "export class DayzAdapter {\n  serverId: number;\n  serverDir: string;\n  process: ChildProcess | null = null;\n  onlinePlayers: string[] = [];\n  autoStopTimer: NodeJS.Timeout | null = null;\n  statsTimer: NodeJS.Timeout | null = null;\n  omnihostMeta: any = {}; \n  \n  private logWatcher: NodeJS.Timeout | null = null;\n  private logFd: number | null = null;\n  private lastLogPos: number = 0;\n  private startTime: number = 0;\n  private logBuffer: string = '';\n\n  constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }\n\n  sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_constructor",
+      "label": ".constructor()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L21-L24",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "constructor(serverId: number) {\n    this.serverId = serverId;\n    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_sendlog",
+      "label": ".sendLog()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L26-L31",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "sendLog(msg: string) {\n    console.log(msg); // Guaranteed VS Code output!\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('console-log', { id: this.serverId, msg });\n    });\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_sendplayerupdate",
+      "label": ".sendPlayerUpdate()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L33-L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L33"
+        }
+      ],
+      "snippet": "sendPlayerUpdate() {\n    BrowserWindow.getAllWindows().forEach(win => {\n      if (!win.isDestroyed()) win.webContents.send('online-players', { id: this.serverId, players: this.onlinePlayers });\n    });\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_sendcommand",
+      "label": ".sendCommand()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L39-L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L39"
+        }
+      ],
+      "snippet": "sendCommand(cmd: string) {\n    // Basic implementation (later use RCon/BEC for DayZ)\n    this.sendLog(`[System] Sending commands to DayZ requires RCon setup (not yet implemented). Command: ${cmd}`);\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_getplayerinventory",
+      "label": ".getPlayerInventory()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L44-L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L44"
+        }
+      ],
+      "snippet": "async getPlayerInventory() {\n    return null; // Stub for DayZ inventory\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_init",
+      "label": ".init()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L48-L87",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L48"
+        }
+      ],
+      "snippet": "async init() {\n    if (!fs.existsSync(this.serverDir)) fs.mkdirSync(this.serverDir, { recursive: true });\n    \n    // Auto-generate basic serverDZ.cfg if it doesn't exist\n    const cfgPath = join(this.serverDir, 'serverDZ.cfg');\n    if (!fs.existsSync(cfgPath)) {\n      const defaultCfg = `BattlEye = 0;               // Disable BattlEye for proxy/FRP compatibility\nsteamQueryPort = 27016;     // Explicitly set Steam Query Port for FRP Tunnel\nhostname = \"OmniHost DayZ Server\";  // Server name\npassword = \"\";              // Password to connect to the server\npasswordAdmin = \"\";         // Password to become a server admin\nmaxPlayers = 60;            // Maximum amount of players\nverifySignatures = 2;       // Verifies .pbos against .bisign files. (only 2 is supported)\nforceSameBuild = 1;         // When enabled, the server will allow the connection only to clients with same the .exe revision as the server (value 0-1)\ndisableVoN = 0;             // Enable/disable voice over network (value 0-1)\nvonCodecQuality = 20;       // Voice over network codec quality, the higher the better (values 0-30)\ndisable3rdPerson=0;         // Toggles the 3rd person view for players (value 0-1)\ndisableCrosshair=0;         // Toggles the cross-hair (value 0-1)\nserverTime=\"SystemTime\";    // Initial in-game time of the server. \"SystemTime\" means the local time of the machine. Another possibility is to set the time to some value in \"YYYY/MM/DD/HH/MM\" format, f.e. \"2015/4/8/17/23\"\nserverTimeAcceleration=1;   // Accelerated Time (value 0-24)\nserverNightTimeAcceleration=1; // Accelerated Nigh Time\nserverTimePersistent=0;     // Persistent Time\nguaranteedUpdates=1;        // Communication protocol used with game server (use only number 1)\nloginQueueConcurrentPlayers=5; // The number of players concurrently processed during the login process.\nloginQueueMaxPlayers=500;   // The maximum number of players that can wait in login queue"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_updateplayerstats",
+      "label": ".updatePlayerStats()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L89-L91",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L89"
+        }
+      ],
+      "snippet": "async updatePlayerStats() {\n    // Stub for DayZ stats\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_start",
+      "label": ".start()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L93-L240",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L93"
+        }
+      ],
+      "snippet": "async start() {\n    await this.init();\n\n    const exePath = join(this.serverDir, 'DayZServer_x64.exe');\n    if (!fs.existsSync(exePath)) {\n      this.sendLog(`[System] DayZ Server executable not found at ${exePath}. Did you finish the SteamCMD download?`);\n      return;\n    }\n\n    this.sendLog('[System] Starting DayZ Server...');\n\n    const args = [\n      '-config=serverDZ.cfg',\n      '-port=2302',\n      '-profiles=Profiles',\n      '-BEpath=BattlEye',\n      '-dologs',\n      '-adminlog',\n      '-netlog',\n      '-freezecheck'\n    ];\n\n    // Load mods\n    try {\n      const folders = fs.readdirSync(this.serverDir, { withFileTypes: true });"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_stop",
+      "label": ".stop()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L242-L258",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L242"
+        }
+      ],
+      "snippet": "stop() {\n    if (this.process) {\n      this.sendLog('[System] Stopping DayZ Server...');\n      if (this.process.pid) {\n        if (process.platform === 'win32') {\n          spawn('taskkill', ['/pid', this.process.pid.toString(), '/f', '/t']);\n        } else {\n          this.process.kill();\n        }\n      }\n      this.process = null;\n      this.cleanupLogWatcher();\n    }\n    \n    this.onlinePlayers = [];\n    this.sendPlayerUpdate();\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_setuplogwatcher",
+      "label": ".setupLogWatcher()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L260-L267",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L260"
+        }
+      ],
+      "snippet": "private setupLogWatcher() {\n    const profilesDir = join(this.serverDir, 'Profiles');\n    this.sendLog(`[System] Initializing Log Watcher at: ${profilesDir}`);\n    if (!fs.existsSync(profilesDir)) {\n      fs.mkdirSync(profilesDir, { recursive: true });\n    }\n    this.pollForLogFile(profilesDir);\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_pollforlogfile",
+      "label": ".pollForLogFile()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L269-L292",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L269"
+        }
+      ],
+      "snippet": "private pollForLogFile(profilesDir: string) {\n    const checkFile = () => {\n      if (!this.process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    };\n    setTimeout(checkFile, 2000);\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_pollforlogfile_checkfile",
+      "label": "checkFile()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L270-L290",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L270"
+        }
+      ],
+      "snippet": "checkFile = () => {\n      if (!this.process) return; // Stop if server process exited\n      \n      try {\n        let files = fs.readdirSync(profilesDir).filter(f => f.toLowerCase().endsWith('.adm'));\n        // Only consider files created/modified AFTER the server started\n        files = files.filter(f => fs.statSync(join(profilesDir, f)).mtimeMs > this.startTime);\n        \n        if (files.length > 0) {\n          files.sort((a, b) => {\n            return fs.statSync(join(profilesDir, b)).mtimeMs - fs.statSync(join(profilesDir, a)).mtimeMs;\n          });\n          const latestFile = join(profilesDir, files[0]);\n          this.tailLogFile(latestFile);\n        } else {\n          setTimeout(checkFile, 2000);\n        }\n      } catch (e) {\n        setTimeout(checkFile, 2000);\n      }\n    }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_taillogfile",
+      "label": ".tailLogFile()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L294-L310",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L294"
+        }
+      ],
+      "snippet": "private tailLogFile(filePath: string) {\n    this.sendLog(`[System] Attaching to DayZ Admin Log: ${filePath}`);\n    \n    try {\n      this.logFd = fs.openSync(filePath, 'r');\n      this.lastLogPos = 0; // Read from start to catch existing players\n      this.logBuffer = ''; // Clear buffer on new file\n      this.readNewLogs();\n\n      // Use setInterval instead of fs.watch for much faster and more reliable updates on Windows\n      this.logWatcher = setInterval(() => {\n        this.readNewLogs();\n      }, 500);\n    } catch (e) {\n      this.sendLog(`[System Error] Failed to tail log: ${e}`);\n    }\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_readnewlogs",
+      "label": ".readNewLogs()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L312-L337",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L312"
+        }
+      ],
+      "snippet": "private readNewLogs() {\n    if (this.logFd === null) return;\n    try {\n      const stats = fs.fstatSync(this.logFd);\n      if (stats.size > this.lastLogPos) {\n        const length = stats.size - this.lastLogPos;\n        const buffer = Buffer.alloc(length);\n        fs.readSync(this.logFd, buffer, 0, length, this.lastLogPos);\n        this.lastLogPos = stats.size;\n        \n        const content = buffer.toString('utf8');\n        this.logBuffer += content;\n        \n        let newlineIdx;\n        while ((newlineIdx = this.logBuffer.indexOf('\\n')) !== -1) {\n          const line = this.logBuffer.substring(0, newlineIdx).trim();\n          this.logBuffer = this.logBuffer.substring(newlineIdx + 1);\n          \n          if (line) {\n            this.sendLog(`[DayZ] ${line}`);\n            this.parseLogLine(line);\n          }\n        }\n      }\n    } catch (e) {}"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_parselogline",
+      "label": ".parseLogLine()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L339-L355",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L339"
+        }
+      ],
+      "snippet": "private parseLogLine(line: string) {\n    const connectedMatch = line.match(/Player \"([^\"]+)\" .*?is connected/i);\n    if (connectedMatch) {\n      const pName = connectedMatch[1];\n      if (!this.onlinePlayers.includes(pName)) {\n        this.onlinePlayers.push(pName);\n        this.sendPlayerUpdate();\n      }\n    }\n    \n    const disconnectedMatch = line.match(/Player \"([^\"]+)\" .*?has been disconnected/i);\n    if (disconnectedMatch) {\n      const pName = disconnectedMatch[1];\n      this.onlinePlayers = this.onlinePlayers.filter(p => p !== pName);\n      this.sendPlayerUpdate();\n    }\n  }"
+    },
+    {
+      "id": "dayzadapter_dayzadapter_cleanuplogwatcher",
+      "label": ".cleanupLogWatcher()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L357-L366",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L357"
+        }
+      ],
+      "snippet": "private cleanupLogWatcher() {\n    if (this.logWatcher) {\n      clearInterval(this.logWatcher);\n      this.logWatcher = null;\n    }\n    if (this.logFd !== null) {\n      fs.closeSync(this.logFd);\n      this.logFd = null;\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzadapter",
+      "target": "child_process",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter",
+      "target": "dayzadapter_dayzadapter",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_constructor",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_sendplayerupdate",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L33",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L33"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_sendcommand",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L39"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_getplayerinventory",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L44",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L44"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_init",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L48"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_updateplayerstats",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L89",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L89"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_start",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L93",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L93"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_stop",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L242",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L242"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_setuplogwatcher",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L260",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L260"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_pollforlogfile",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L269",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L269"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_pollforlogfile",
+      "target": "dayzadapter_dayzadapter_pollforlogfile_checkfile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L270",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L270"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_taillogfile",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L294",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L294"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_readnewlogs",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L312",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L312"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_parselogline",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L339",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L339"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter",
+      "target": "dayzadapter_dayzadapter_cleanuplogwatcher",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L357",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L357"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_sendcommand",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L41"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_start",
+      "target": "dayzadapter_dayzadapter_init",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L94",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L94"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_start",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L98",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L98"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_start",
+      "target": "dayzadapter_dayzadapter_setuplogwatcher",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L227",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L227"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_stop",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L244",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L244"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_stop",
+      "target": "dayzadapter_dayzadapter_cleanuplogwatcher",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L253",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L253"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_stop",
+      "target": "dayzadapter_dayzadapter_sendplayerupdate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L257",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L257"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_setuplogwatcher",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L262",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L262"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_setuplogwatcher",
+      "target": "dayzadapter_dayzadapter_pollforlogfile",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L266",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L266"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_pollforlogfile_checkfile",
+      "target": "dayzadapter_dayzadapter_taillogfile",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L283",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L283"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_taillogfile",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L295",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L295"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_taillogfile",
+      "target": "dayzadapter_dayzadapter_readnewlogs",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L301",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L301"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_readnewlogs",
+      "target": "dayzadapter_dayzadapter_sendlog",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L331",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L331"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_readnewlogs",
+      "target": "dayzadapter_dayzadapter_parselogline",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L332",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L332"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzadapter_dayzadapter_parselogline",
+      "target": "dayzadapter_dayzadapter_sendplayerupdate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+      "source_location": "L345",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/main/adapters/DayzAdapter.ts",
+          "source_location": "L345"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

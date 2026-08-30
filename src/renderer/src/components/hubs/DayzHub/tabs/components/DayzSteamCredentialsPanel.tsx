@@ -8,6 +8,7 @@ export const DayzSteamCredentialsPanel: React.FC = () => {
   const { steamCreds, setSteamCreds, rememberMe, setRememberMe, setShowCreds, saveCredentials } = useSteamCredentialsStore();
   const { mods, loadInstalledMods, activeServerId } = useDayzInstalledMods();
   const { handleInstallDependencies } = useDayzModDependencies(activeServerId, loadInstalledMods, mods);
+  const [showPassword, setShowPassword] = React.useState(false);
 
   return (
     <div className="p-4 bg-surface-container-high border border-primary/30 mx-4 my-2 rounded-xl flex flex-col gap-3 shadow-lg">
@@ -26,13 +27,25 @@ export const DayzSteamCredentialsPanel: React.FC = () => {
           onChange={e => setSteamCreds({ ...steamCreds, username: e.target.value })}
           className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50"
         />
-        <input
-          type="password"
-          placeholder="Password"
-          value={steamCreds.password}
-          onChange={e => setSteamCreds({ ...steamCreds, password: e.target.value })}
-          className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm flex-1 min-w-[150px] text-on-surface outline-none focus:border-primary/50"
-        />
+        <div className="relative flex-1 min-w-[150px]">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Password"
+            value={steamCreds.password}
+            onChange={e => setSteamCreds({ ...steamCreds, password: e.target.value })}
+            className="bg-surface-container-highest border border-white/10 rounded px-3 py-2 text-sm w-full text-on-surface outline-none focus:border-primary/50 pr-8"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-white transition-colors flex items-center justify-center p-1"
+            tabIndex={-1}
+          >
+            <span className="material-symbols-outlined text-[16px]">
+              {showPassword ? 'visibility_off' : 'visibility'}
+            </span>
+          </button>
+        </div>
         <input
           type="text"
           placeholder="Steam Guard Code (if prompted)"

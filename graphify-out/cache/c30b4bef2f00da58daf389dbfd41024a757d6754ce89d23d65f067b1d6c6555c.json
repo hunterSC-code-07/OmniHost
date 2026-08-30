@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useplayerstore","label":"usePlayerStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L1"}]},{"id":"useplayerstore_playerstore","label":"PlayerStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L3-L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L3"}],"snippet":"interface PlayerStore {\n  onlinePlayers: Record<string, string[]>;\n  setOnlinePlayers: (id: string, players: string[]) => void;\n}"}],"edges":[{"source":"useplayerstore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L1"}],"weight":1},{"source":"useplayerstore","target":"useplayerstore_playerstore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts","source_location":"L3"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useplayerstore",
+      "label": "usePlayerStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useplayerstore_playerstore",
+      "label": "PlayerStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+      "source_location": "L3-L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "interface PlayerStore {\n  onlinePlayers: Record<string, string[]>;\n  setOnlinePlayers: (id: string, players: string[]) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useplayerstore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useplayerstore",
+      "target": "useplayerstore_playerstore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/usePlayerStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

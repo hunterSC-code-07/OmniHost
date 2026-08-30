@@ -1,1 +1,342 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzmissionmanager","label":"DayzMissionManager.ts","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L1"}]},{"id":"dayzmissionmanager_exists","label":"exists()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L7-L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L7"}],"snippet":"async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"},{"id":"dayzmissionmanager_dayzmissionmanager","label":"DayzMissionManager","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L39-L154","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L39"}],"snippet":"export class DayzMissionManager {\n  static async fetchDayzMission(serverId: number, modId: string) {\n    const repoInfo = DAYZ_MAP_REPOS[modId];\n    if (!repoInfo || !repoInfo.repoZip) {\n      throw new Error('No mission repository found for this map mod.');\n    }\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const mpmissionsDir = join(serverDir, 'mpmissions');\n    \n    if (!(await exists(mpmissionsDir))) {\n      await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n    }\n\n    // Download ZIP\n    const response = await axios({\n      url: repoInfo.repoZip,\n      method: 'GET',\n      responseType: 'arraybuffer'\n    });\n\n    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);\n    await fsPromises.writeFile(tempZipPath, response.data);\n\n    // Extract ZIP\n    const zip = new AdmZip(tempZipPath);"},{"id":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission","label":".fetchDayzMission()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L40-L108","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L40"}],"snippet":"static async fetchDayzMission(serverId: number, modId: string) {\n    const repoInfo = DAYZ_MAP_REPOS[modId];\n    if (!repoInfo || !repoInfo.repoZip) {\n      throw new Error('No mission repository found for this map mod.');\n    }\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const mpmissionsDir = join(serverDir, 'mpmissions');\n    \n    if (!(await exists(mpmissionsDir))) {\n      await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n    }\n\n    // Download ZIP\n    const response = await axios({\n      url: repoInfo.repoZip,\n      method: 'GET',\n      responseType: 'arraybuffer'\n    });\n\n    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);\n    await fsPromises.writeFile(tempZipPath, response.data);\n\n    // Extract ZIP\n    const zip = new AdmZip(tempZipPath);"},{"id":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission_findfolder","label":"findFolder()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L70-L81","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L70"}],"snippet":"async function findFolder(dir: string, targetFolder: string) {\n      const entries = await fsPromises.readdir(dir, { withFileTypes: true });\n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          if (entry.name.toLowerCase() === targetFolder.toLowerCase()) {\n            foundMissionPath = join(dir, entry.name);\n            return;\n          }\n          await findFolder(join(dir, entry.name), targetFolder);\n        }\n      }\n    }"},{"id":"dayzmissionmanager_dayzmissionmanager_extractlocalmission","label":".extractLocalMission()","file_type":"code","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L110-L153","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L110"}],"snippet":"static async extractLocalMission(serverId: number, localMissionsPath: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const mpmissionsDir = join(serverDir, 'mpmissions');\n      \n      if (!(await exists(mpmissionsDir))) {\n        await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n      }\n\n      // Read directories in localMissionsPath\n      const entries = await fsPromises.readdir(localMissionsPath, { withFileTypes: true });\n      let firstTemplate = '';\n      \n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          const sourcePath = join(localMissionsPath, entry.name);\n          const destPath = join(mpmissionsDir, entry.name);\n          \n          if (await exists(destPath)) {\n            await fsPromises.rm(destPath, { recursive: true, force: true });\n          }\n          await fsPromises.cp(sourcePath, destPath, { recursive: true });\n          \n          if (!firstTemplate) {\n            firstTemplate = entry.name;"}],"edges":[{"source":"dayzmissionmanager","target":"electron","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L1"}],"weight":1},{"source":"dayzmissionmanager","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L2"}],"weight":1},{"source":"dayzmissionmanager","target":"promises","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L3"}],"weight":1},{"source":"dayzmissionmanager","target":"axios","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L4"}],"weight":1},{"source":"dayzmissionmanager","target":"adm_zip","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L5"}],"weight":1},{"source":"dayzmissionmanager","target":"dayzmissionmanager_exists","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L7"}],"weight":1},{"source":"dayzmissionmanager","target":"dayzmissionmanager_dayzmissionmanager","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L39"}],"weight":1},{"source":"dayzmissionmanager_dayzmissionmanager","target":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L40","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L40"}],"weight":1},{"source":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission","target":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission_findfolder","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L70","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L70"}],"weight":1},{"source":"dayzmissionmanager_dayzmissionmanager","target":"dayzmissionmanager_dayzmissionmanager_extractlocalmission","relation":"method","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L110","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L110"}],"weight":1},{"source":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission","target":"dayzmissionmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L48","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L48"}],"weight":1},{"source":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission","target":"dayzmissionmanager_dayzmissionmanager_fetchdayzmission_findfolder","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L83","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L83"}],"weight":1},{"source":"dayzmissionmanager_dayzmissionmanager_extractlocalmission","target":"dayzmissionmanager_exists","relation":"calls","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L115","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts","source_location":"L115"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzmissionmanager",
+      "label": "DayzMissionManager.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzmissionmanager_exists",
+      "label": "exists()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L7-L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "async function exists(path: string) {\n  try {\n    await fsPromises.access(path)\n    return true\n  } catch {\n    return false\n  }\n}"
+    },
+    {
+      "id": "dayzmissionmanager_dayzmissionmanager",
+      "label": "DayzMissionManager",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L39-L154",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L39"
+        }
+      ],
+      "snippet": "export class DayzMissionManager {\n  static async fetchDayzMission(serverId: number, modId: string) {\n    const repoInfo = DAYZ_MAP_REPOS[modId];\n    if (!repoInfo || !repoInfo.repoZip) {\n      throw new Error('No mission repository found for this map mod.');\n    }\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const mpmissionsDir = join(serverDir, 'mpmissions');\n    \n    if (!(await exists(mpmissionsDir))) {\n      await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n    }\n\n    // Download ZIP\n    const response = await axios({\n      url: repoInfo.repoZip,\n      method: 'GET',\n      responseType: 'arraybuffer'\n    });\n\n    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);\n    await fsPromises.writeFile(tempZipPath, response.data);\n\n    // Extract ZIP\n    const zip = new AdmZip(tempZipPath);"
+    },
+    {
+      "id": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission",
+      "label": ".fetchDayzMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L40-L108",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L40"
+        }
+      ],
+      "snippet": "static async fetchDayzMission(serverId: number, modId: string) {\n    const repoInfo = DAYZ_MAP_REPOS[modId];\n    if (!repoInfo || !repoInfo.repoZip) {\n      throw new Error('No mission repository found for this map mod.');\n    }\n    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n    const mpmissionsDir = join(serverDir, 'mpmissions');\n    \n    if (!(await exists(mpmissionsDir))) {\n      await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n    }\n\n    // Download ZIP\n    const response = await axios({\n      url: repoInfo.repoZip,\n      method: 'GET',\n      responseType: 'arraybuffer'\n    });\n\n    const tempZipPath = join(serverDir, `mission_${modId}_${Date.now()}.zip`);\n    await fsPromises.writeFile(tempZipPath, response.data);\n\n    // Extract ZIP\n    const zip = new AdmZip(tempZipPath);"
+    },
+    {
+      "id": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission_findfolder",
+      "label": "findFolder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L70-L81",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L70"
+        }
+      ],
+      "snippet": "async function findFolder(dir: string, targetFolder: string) {\n      const entries = await fsPromises.readdir(dir, { withFileTypes: true });\n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          if (entry.name.toLowerCase() === targetFolder.toLowerCase()) {\n            foundMissionPath = join(dir, entry.name);\n            return;\n          }\n          await findFolder(join(dir, entry.name), targetFolder);\n        }\n      }\n    }"
+    },
+    {
+      "id": "dayzmissionmanager_dayzmissionmanager_extractlocalmission",
+      "label": ".extractLocalMission()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L110-L153",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L110"
+        }
+      ],
+      "snippet": "static async extractLocalMission(serverId: number, localMissionsPath: string) {\n    try {\n      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());\n      const mpmissionsDir = join(serverDir, 'mpmissions');\n      \n      if (!(await exists(mpmissionsDir))) {\n        await fsPromises.mkdir(mpmissionsDir, { recursive: true });\n      }\n\n      // Read directories in localMissionsPath\n      const entries = await fsPromises.readdir(localMissionsPath, { withFileTypes: true });\n      let firstTemplate = '';\n      \n      for (const entry of entries) {\n        if (entry.isDirectory()) {\n          const sourcePath = join(localMissionsPath, entry.name);\n          const destPath = join(mpmissionsDir, entry.name);\n          \n          if (await exists(destPath)) {\n            await fsPromises.rm(destPath, { recursive: true, force: true });\n          }\n          await fsPromises.cp(sourcePath, destPath, { recursive: true });\n          \n          if (!firstTemplate) {\n            firstTemplate = entry.name;"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzmissionmanager",
+      "target": "electron",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager",
+      "target": "promises",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager",
+      "target": "axios",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager",
+      "target": "adm_zip",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager",
+      "target": "dayzmissionmanager_exists",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager",
+      "target": "dayzmissionmanager_dayzmissionmanager",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L39"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager_dayzmissionmanager",
+      "target": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L40"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission",
+      "target": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission_findfolder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L70",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L70"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager_dayzmissionmanager",
+      "target": "dayzmissionmanager_dayzmissionmanager_extractlocalmission",
+      "relation": "method",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L110",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L110"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission",
+      "target": "dayzmissionmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L48"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission",
+      "target": "dayzmissionmanager_dayzmissionmanager_fetchdayzmission_findfolder",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L83"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzmissionmanager_dayzmissionmanager_extractlocalmission",
+      "target": "dayzmissionmanager_exists",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+      "source_location": "L115",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/main/dayz/DayzMissionManager.ts",
+          "source_location": "L115"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

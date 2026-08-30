@@ -1,1 +1,257 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dashboardhub","label":"DashboardHub.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1"}]},{"id":"dashboardhub_dayzmodstatus","label":"DayzModStatus()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5-L19","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5"}],"snippet":"DayzModStatus = ({ serverId }: { serverId: number }) => {\n  const [modCount, setModCount] = useState<number | null>(null);\n  useEffect(() => {\n    // @ts-ignore\n    window.api.dayz.getInstalledMods(serverId).then((mods: any[]) => {\n      setModCount(mods.length);\n    }).catch(() => setModCount(0));\n  }, [serverId]);\n\n  return (\n    <span className=\"text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest\">\n      {modCount === null ? 'Checking...' : modCount > 0 ? `${modCount} Detected` : 'None'}\n    </span>\n  );\n}","node_kind":"component"},{"id":"dashboardhub_dashboardhub","label":"DashboardHub()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26-L448","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26"}],"snippet":"export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {\n  const { servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();\n  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached } = useUiStore();\n  const { setShowCreateModal, setShowSteamLoginModal, setSteamLoginAction } = useModalStore();\n  const { showToast } = useToastStore();\n\n  const handleStart = startServer;\n  const handleStop = stopServer;\n  const handleRestart = restartServer;\n  const handleDelete = deleteServer;\n  return (\n\n    <div className=\"relative w-full h-full flex-1 min-h-0\">\n      <AnimatePresence>\n        {activeGameHub === null ? (\n                <motion.div \n            key=\"dashboard\" \n            initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}\n            animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}\n            exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}\n            transition={{ duration: 0.4, ease: 'easeOut' }}\n            className=\"absolute inset-0 w-full h-full flex flex-col min-h-0\"\n          >\n            <OverlayScrollbarsComponent \n              className=\"flex-1 w-full block min-h-0\"","node_kind":"component"}],"edges":[{"source":"dashboardhub","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L1"}],"weight":1},{"source":"dashboardhub","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L2"}],"weight":1},{"source":"dashboardhub","target":"dashboardhub_dayzmodstatus","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L5"}],"weight":1},{"source":"dashboardhub","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L21"}],"weight":1},{"source":"dashboardhub","target":"useuistore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L22"}],"weight":1},{"source":"dashboardhub","target":"usemodalstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L23"}],"weight":1},{"source":"dashboardhub","target":"usetoaststore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L24","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L24"}],"weight":1},{"source":"dashboardhub","target":"dashboardhub_dashboardhub","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26"}],"weight":1},{"source":"dashboardhub_dashboardhub","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26"}],"weight":1},{"source":"dashboardhub_dashboardhub","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26"}],"weight":1},{"source":"dashboardhub_dashboardhub","target":"DayzModStatus__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx","source_location":"L26"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dashboardhub",
+      "label": "DashboardHub.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dashboardhub_dayzmodstatus",
+      "label": "DayzModStatus()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L5-L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "DayzModStatus = ({ serverId }: { serverId: number }) => {\n  const [modCount, setModCount] = useState<number | null>(null);\n  useEffect(() => {\n    // @ts-ignore\n    window.api.dayz.getInstalledMods(serverId).then((mods: any[]) => {\n      setModCount(mods.length);\n    }).catch(() => setModCount(0));\n  }, [serverId]);\n\n  return (\n    <span className=\"text-on-surface font-bold bg-surface-container px-2 py-0.5 rounded border border-surface-container-highest\">\n      {modCount === null ? 'Checking...' : modCount > 0 ? `${modCount} Detected` : 'None'}\n    </span>\n  );\n}",
+      "node_kind": "component"
+    },
+    {
+      "id": "dashboardhub_dashboardhub",
+      "label": "DashboardHub()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L26-L448",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "snippet": "export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {\n  const { servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();\n  const { activeGameHub, setHoveredGame, setActiveGameHub, tunnelIp, isDayzCached, setIsDayzCached } = useUiStore();\n  const { setShowCreateModal, setShowSteamLoginModal, setSteamLoginAction } = useModalStore();\n  const { showToast } = useToastStore();\n\n  const handleStart = startServer;\n  const handleStop = stopServer;\n  const handleRestart = restartServer;\n  const handleDelete = deleteServer;\n  return (\n\n    <div className=\"relative w-full h-full flex-1 min-h-0\">\n      <AnimatePresence>\n        {activeGameHub === null ? (\n                <motion.div \n            key=\"dashboard\" \n            initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}\n            animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}\n            exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}\n            transition={{ duration: 0.4, ease: 'easeOut' }}\n            className=\"absolute inset-0 w-full h-full flex flex-col min-h-0\"\n          >\n            <OverlayScrollbarsComponent \n              className=\"flex-1 w-full block min-h-0\"",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dashboardhub",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "dashboardhub_dayzmodstatus",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "useuistore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L22"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "usemodalstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L23"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "usetoaststore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L24",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L24"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub",
+      "target": "dashboardhub_dashboardhub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_dashboardhub",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_dashboardhub",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_dashboardhub",
+      "target": "DayzModStatus__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+      "source_location": "L26",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "source_location": "L26"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,94 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"refactor_ipc","label":"refactor-ipc.js","file_type":"code","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L1"}]},{"id":"refactor_ipc_generateimports","label":"generateImports()","file_type":"code","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L77-L105","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L77"}],"snippet":"generateImports = () => `import { app, ipcMain } from 'electron';\nimport { join } from 'path';\nimport fsPromises from 'fs/promises';\nimport fs from 'fs';\nimport os from 'os';\nimport axios from 'axios';\nimport semver from 'semver';\nimport extractZip from 'extract-zip';\nimport { spawn } from 'child_process';\nimport { CacheManager } from '../CacheManager';\nimport { getServers, createServer, deleteServer, updateServerSoftware } from '../db';\nimport { DayzAdapter } from '../adapters/DayzAdapter';\nimport { MinecraftAdapter } from '../adapters/MinecraftAdapter';\nimport { WakeProxy } from '../adapters/WakeProxy';\nimport { FrpAdapter } from '../adapters/FrpAdapter';\nimport { RadminVpnAdapter } from '../adapters/RadminVpnAdapter';\nimport { JavaManager } from '../adapters/JavaManager';\nimport { SteamCMDManager } from '../adapters/SteamCMDManager';\n\nasync function exists(path: string) {\n  try {\n    await fsPromises.access(path);\n    return true;\n  } catch {\n    return false;"}],"edges":[{"source":"refactor_ipc","target":"fs","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L2"}],"weight":1},{"source":"refactor_ipc","target":"path","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L3"}],"weight":1},{"source":"refactor_ipc","target":"refactor_ipc_generateimports","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L77","layer":"base","provenance":[{"capability_id":"builtin:extract:javascript","stage":"extract","source_file":"D:/github/OmniHost/refactor-ipc.js","source_location":"L77"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "refactor_ipc",
+      "label": "refactor-ipc.js",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/refactor-ipc.js",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor-ipc.js",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "refactor_ipc_generateimports",
+      "label": "generateImports()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/refactor-ipc.js",
+      "source_location": "L77-L105",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor-ipc.js",
+          "source_location": "L77"
+        }
+      ],
+      "snippet": "generateImports = () => `import { app, ipcMain } from 'electron';\nimport { join } from 'path';\nimport fsPromises from 'fs/promises';\nimport fs from 'fs';\nimport os from 'os';\nimport axios from 'axios';\nimport semver from 'semver';\nimport extractZip from 'extract-zip';\nimport { spawn } from 'child_process';\nimport { CacheManager } from '../CacheManager';\nimport { getServers, createServer, deleteServer, updateServerSoftware } from '../db';\nimport { DayzAdapter } from '../adapters/DayzAdapter';\nimport { MinecraftAdapter } from '../adapters/MinecraftAdapter';\nimport { WakeProxy } from '../adapters/WakeProxy';\nimport { FrpAdapter } from '../adapters/FrpAdapter';\nimport { RadminVpnAdapter } from '../adapters/RadminVpnAdapter';\nimport { JavaManager } from '../adapters/JavaManager';\nimport { SteamCMDManager } from '../adapters/SteamCMDManager';\n\nasync function exists(path: string) {\n  try {\n    await fsPromises.access(path);\n    return true;\n  } catch {\n    return false;"
+    }
+  ],
+  "edges": [
+    {
+      "source": "refactor_ipc",
+      "target": "fs",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor-ipc.js",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor-ipc.js",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "refactor_ipc",
+      "target": "path",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor-ipc.js",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor-ipc.js",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "refactor_ipc",
+      "target": "refactor_ipc_generateimports",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/refactor-ipc.js",
+      "source_location": "L77",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:javascript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/refactor-ipc.js",
+          "source_location": "L77"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

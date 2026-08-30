@@ -1,1 +1,1140 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"minecrafthub","label":"MinecraftHub.tsx","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1"}]},{"id":"minecrafthub_minecrafthub","label":"MinecraftHub()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29-L1011","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"snippet":"export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, handleStart, handleStop, handleRestart, handleDelete, handleTunnel, tunnelStatus, radminIp, tunnelIp, setTempTunnelIp, setShowTunnelModal, servers, showToast, logs, setLogs, onlinePlayers, statsHistory, onRedirectToCreateModpack }: any) {\n  \n        const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview');\n        const [tabDirection, setTabDirection] = useState(0);\n        const [isTabTransitioning, setIsTabTransitioning] = useState(false);\n        const handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setIsTabTransitioning(true);\n          setActiveTab(newTab);\n          setTimeout(() => setIsTabTransitioning(false), 350);\n        };\n\n  const [downloadProgress, setDownloadProgress] = useState(0);\n  const [downloadText, setDownloadText] = useState('');\n  const [showModpackPrompt, setShowModpackPrompt] = useState(false);\n\n        \n\n  const [rawConfigText, setRawConfigText] = useState('')\n  const [advancedMode, setAdvancedMode] = useState(false)\n  const [props, setProps] = useState<Record<string, string>>({})","node_kind":"component"},{"id":"minecrafthub_minecrafthub_handletabchange","label":"handleTabChange()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L34-L43","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L34"}],"snippet":"handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setIsTabTransitioning(true);\n          setActiveTab(newTab);\n          setTimeout(() => setIsTabTransitioning(false), 350);\n        }"},{"id":"minecrafthub_minecrafthub_fetchversions","label":"fetchVersions()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L115-L132","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L115"}],"snippet":"fetchVersions = async () => {\n        let versions: string[] = []\n        // @ts-ignore\n        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Paper') versions = await window.api.getPaperVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Fabric') versions = await window.api.getFabricVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Forge') versions = await window.api.getForgeVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n        \n        setEditingAvailableVersions(versions);\n        if (versions.length > 0) {\n           setEditingSoftwareVersion(prev => versions.includes(prev) ? prev : versions[0]);\n        }\n      }"},{"id":"minecrafthub_minecrafthub_fetchloaderversions","label":"fetchLoaderVersions()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L139-L149","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L139"}],"snippet":"fetchLoaderVersions = async () => {\n        // @ts-ignore\n        const loaders = await window.api.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);\n        setEditingAvailableLoaderVersions(loaders);\n        // If current server has a loaderVersion, try to select it, else top\n        if (serverMeta && serverMeta.loaderVersion && loaders.includes(serverMeta.loaderVersion)) {\n           setEditingLoaderVersion(serverMeta.loaderVersion);\n        } else {\n           setEditingLoaderVersion(loaders.length > 0 ? loaders[0] : '');\n        }\n      }"},{"id":"minecrafthub_minecrafthub_fetchinv","label":"fetchInv()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L160-L164","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L160"}],"snippet":"fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      }"},{"id":"minecrafthub_minecrafthub_fetchservermeta","label":"fetchServerMeta()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L173-L178","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L173"}],"snippet":"fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }"},{"id":"minecrafthub_minecrafthub_fetchmods","label":"fetchMods()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L189-L210","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L189"}],"snippet":"fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods\n    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins\n    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs\n    \n    setActiveClassId(defaultClassId);\n\n    setIsSearchingMods(true);\n    console.log('[DEBUG] Calling searchCurseforgeMods', { search: '', type: serverMeta.type, version: serverMeta.version, classId: defaultClassId, sortField: activeSortField });\n    // @ts-ignore\n    const results = await window.api.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);\n    console.log('[DEBUG] searchCurseforgeMods returned:', results?.length);\n    setModResults(results);\n    setTotalModCount(results?.length > 0 ? 10000 : 0);\n    setIsSearchingMods(false);\n  }"},{"id":"minecrafthub_minecrafthub_handlesearchmods","label":"handleSearchMods()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L224-L242","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L224"}],"snippet":"handleSearchMods = async (e?: React.FormEvent, cId?: number, sField?: number) => {\n    if (e) e.preventDefault();\n    if (!serverMeta) return;\n    setIsSearchingMods(true);\n    const targetClassId = cId !== undefined ? cId : activeClassId;\n    const targetSortField = sField !== undefined ? sField : activeSortField;\n    // @ts-ignore\n    try {\n      console.log('[DEBUG] Calling searchCurseforgeMods (handleSearch)', { search: modSearchQuery, type: serverMeta.type, version: serverMeta.version, classId: targetClassId, sortField: targetSortField });\n      // @ts-ignore\n      const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);\n      console.log('[DEBUG] handleSearch returned:', results?.length);\n      setModResults(results);\n      setTotalModCount(results?.length > 0 ? 10000 : 0);\n    } catch (error) {\n      console.error('[ERROR] handleSearchMods failed', error);\n    }\n    setIsSearchingMods(false);\n  }"},{"id":"minecrafthub_minecrafthub_handleinstallmod","label":"handleInstallMod()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L244-L311","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L244"}],"snippet":"handleInstallMod = async (mod: any) => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // Check if we are already installing something else (prevent double clicks)\n    if (installingModId !== null) return;\n    \n    setInstallingModId(mod.id);\n    setInstallProgressText('Resolving dependencies...');\n    \n    // Recursive function to install a mod and its dependencies\n    const installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);"},{"id":"minecrafthub_minecrafthub_handleinstallmod_installwithdeps","label":"installWithDeps()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L254-L301","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L254"}],"snippet":"installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];\n      \n      if (!targetFile || !targetFile.downloadUrl) {\n         if (depth === 0) showToast(`Failed to find compatible file for ${targetMod.name}`);\n         return;\n      }"},{"id":"minecrafthub_minecrafthub_handledeletemod","label":"handleDeleteMod()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L313-L318","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L313"}],"snippet":"handleDeleteMod = async (fileName: string) => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    await window.api.deleteMod(activeServerId, fileName);\n    fetchMods();\n  }"},{"id":"minecrafthub_minecrafthub_handleclearlogs","label":"handleClearLogs()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L319-L323","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L319"}],"snippet":"handleClearLogs = () => {\n    if (activeServerId !== null) {\n      setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));\n    }\n  }"},{"id":"minecrafthub_minecrafthub_sendplayercommand","label":"sendPlayerCommand()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L330-L336","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L330"}],"snippet":"sendPlayerCommand = async (cmd: string, successMsg: string) => {\n    if (activeServerId !== null && selectedPlayer) {\n      // @ts-ignore\n      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));\n      showToast(successMsg.replace('{player}', selectedPlayer));\n    }\n  }"},{"id":"minecrafthub_minecrafthub_loadconfig","label":"loadConfig()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L338-L350","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L338"}],"snippet":"loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  }"},{"id":"minecrafthub_minecrafthub_handlesaveconfig","label":"handleSaveConfig()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L352-L367","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L352"}],"snippet":"handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');\n        if (regex.test(finalData)) {\n          finalData = finalData.replace(regex, `${key}=${props[key]}`);\n        } else {\n          finalData += `\\n${key}=${props[key]}`;\n        }\n      });\n      // @ts-ignore\n      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);\n      showToast(\"Settings saved! Restart server to apply.\");\n    }\n  }"},{"id":"minecrafthub_minecrafthub_loadplayers","label":"loadPlayers()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L369-L383","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L369"}],"snippet":"loadPlayers = async (id: number, type: string) => {\n    if (type === 'live') {\n      setPlayerData([]);\n      return;\n    }\n    if (type === 'history') {\n      // @ts-ignore\n      const stats = await window.api.getPlayerStats(id);\n      setPlayerData(stats ? Object.values(stats) : []);\n    } else {\n      // @ts-ignore\n      const data = await window.api.readJson(id, type);\n      setPlayerData(data || []);\n    }\n  }"},{"id":"minecrafthub_minecrafthub_handleaddplayer","label":"handleAddPlayer()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L391-L426","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L391"}],"snippet":"handleAddPlayer = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;\n    setIsProcessing(true);\n\n    let uuid = \"00000000-0000-0000-0000-000000000000\";\n    let name = newPlayerName.trim();\n\n    if (playerListType !== 'banned-ips') {\n      try {\n        const res = await fetch(`https://api.ashcon.app/mojang/v2/user/${name}`);\n        if (res.ok) {\n          const profile = await res.json();\n          uuid = profile.uuid;\n          name = profile.username;\n        }\n      } catch (err) { }\n    }\n\n    let newEntry: any = { uuid, name };\n    if (playerListType === 'ops') newEntry = { uuid, name, level: 4, bypassesPlayerLimit: false };\n    else if (playerListType === 'banned-players') newEntry = { uuid, name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n    else if (playerListType === 'banned-ips') newEntry = { ip: name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n\n    const exists = playerData.some(p => p.name === name || p.ip === name);"},{"id":"minecrafthub_minecrafthub_handleremoveplayer","label":"handleRemovePlayer()","file_type":"code","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L428-L435","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L428"}],"snippet":"handleRemovePlayer = async (targetName: string) => {\n    if (activeServerId === null) return;\n    const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);\n    setPlayerData(updatedList);\n    // @ts-ignore\n    await window.api.writeJson(activeServerId, playerListType, updatedList);\n    showToast(`Removed ${targetName}`);\n  }"}],"edges":[{"source":"minecrafthub","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L1"}],"weight":1},{"source":"minecrafthub","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L3"}],"weight":1},{"source":"minecrafthub","target":"overlayscrollbars","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L4"}],"weight":1},{"source":"minecrafthub","target":"consoletab","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L5"}],"weight":1},{"source":"minecrafthub","target":"optionstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L6"}],"weight":1},{"source":"minecrafthub","target":"playerstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L7","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L7"}],"weight":1},{"source":"minecrafthub","target":"filestab","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L8","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L8"}],"weight":1},{"source":"minecrafthub","target":"backupstab","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L9","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L9"}],"weight":1},{"source":"minecrafthub","target":"overviewtab","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L10"}],"weight":1},{"source":"minecrafthub","target":"animatedbackground","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L11","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L11"}],"weight":1},{"source":"minecrafthub","target":"minecraft_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L12"}],"weight":1},{"source":"minecrafthub","target":"palworld_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L13","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L13"}],"weight":1},{"source":"minecrafthub","target":"dayz_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L14","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L14"}],"weight":1},{"source":"minecrafthub","target":"satisfactory_bg","relation":"imports_from","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L15","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L15"}],"weight":1},{"source":"minecrafthub","target":"minecrafthub_minecrafthub","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handletabchange","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L34","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L34"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_fetchversions","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L115","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L115"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_fetchloaderversions","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L139","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L139"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_fetchinv","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L160","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L160"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_fetchservermeta","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L173","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L173"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_fetchmods","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L189","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L189"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handlesearchmods","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L224","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L224"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handleinstallmod","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L244","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L244"}],"weight":1},{"source":"minecrafthub_minecrafthub_handleinstallmod","target":"minecrafthub_minecrafthub_handleinstallmod_installwithdeps","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L254","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L254"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handledeletemod","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L313","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L313"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handleclearlogs","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L319","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L319"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_sendplayercommand","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L330","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L330"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_loadconfig","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L338","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L338"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handlesaveconfig","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L352","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L352"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_loadplayers","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L369","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L369"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handleaddplayer","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L391","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L391"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"minecrafthub_minecrafthub_handleremoveplayer","relation":"contains","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L428","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L428"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"AnimatedBackground__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"OverviewTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"ConsoleTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"OptionsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"PlayersTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"FilesTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"BackupsTab__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub","target":"React.Fragment__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L29"}],"weight":1},{"source":"minecrafthub_minecrafthub_handleinstallmod","target":"minecrafthub_minecrafthub_handleinstallmod_installwithdeps","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L303","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L303"}],"weight":1},{"source":"minecrafthub_minecrafthub_handleinstallmod","target":"minecrafthub_minecrafthub_fetchmods","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L306","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L306"}],"weight":1},{"source":"minecrafthub_minecrafthub_handledeletemod","target":"minecrafthub_minecrafthub_fetchmods","relation":"calls","confidence":"EXTRACTED","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L317","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx","source_location":"L317"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "minecrafthub",
+      "label": "MinecraftHub.tsx",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "minecrafthub_minecrafthub",
+      "label": "MinecraftHub()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29-L1011",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "snippet": "export function MinecraftHub({ activeServerId, activeServer, setActiveServerId, handleStart, handleStop, handleRestart, handleDelete, handleTunnel, tunnelStatus, radminIp, tunnelIp, setTempTunnelIp, setShowTunnelModal, servers, showToast, logs, setLogs, onlinePlayers, statsHistory, onRedirectToCreateModpack }: any) {\n  \n        const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview');\n        const [tabDirection, setTabDirection] = useState(0);\n        const [isTabTransitioning, setIsTabTransitioning] = useState(false);\n        const handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setIsTabTransitioning(true);\n          setActiveTab(newTab);\n          setTimeout(() => setIsTabTransitioning(false), 350);\n        };\n\n  const [downloadProgress, setDownloadProgress] = useState(0);\n  const [downloadText, setDownloadText] = useState('');\n  const [showModpackPrompt, setShowModpackPrompt] = useState(false);\n\n        \n\n  const [rawConfigText, setRawConfigText] = useState('')\n  const [advancedMode, setAdvancedMode] = useState(false)\n  const [props, setProps] = useState<Record<string, string>>({})",
+      "node_kind": "component"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handletabchange",
+      "label": "handleTabChange()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L34-L43",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L34"
+        }
+      ],
+      "snippet": "handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setIsTabTransitioning(true);\n          setActiveTab(newTab);\n          setTimeout(() => setIsTabTransitioning(false), 350);\n        }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchversions",
+      "label": "fetchVersions()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L115-L132",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L115"
+        }
+      ],
+      "snippet": "fetchVersions = async () => {\n        let versions: string[] = []\n        // @ts-ignore\n        if (editingSoftwareType === 'Vanilla') versions = await window.api.getVanillaVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Paper') versions = await window.api.getPaperVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Fabric') versions = await window.api.getFabricVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'Forge') versions = await window.api.getForgeVersions();\n        // @ts-ignore\n        else if (editingSoftwareType === 'NeoForge') versions = await window.api.getNeoForgeVersions();\n        \n        setEditingAvailableVersions(versions);\n        if (versions.length > 0) {\n           setEditingSoftwareVersion(prev => versions.includes(prev) ? prev : versions[0]);\n        }\n      }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchloaderversions",
+      "label": "fetchLoaderVersions()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L139-L149",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L139"
+        }
+      ],
+      "snippet": "fetchLoaderVersions = async () => {\n        // @ts-ignore\n        const loaders = await window.api.getLoaderVersions(editingSoftwareType, editingSoftwareVersion);\n        setEditingAvailableLoaderVersions(loaders);\n        // If current server has a loaderVersion, try to select it, else top\n        if (serverMeta && serverMeta.loaderVersion && loaders.includes(serverMeta.loaderVersion)) {\n           setEditingLoaderVersion(serverMeta.loaderVersion);\n        } else {\n           setEditingLoaderVersion(loaders.length > 0 ? loaders[0] : '');\n        }\n      }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchinv",
+      "label": "fetchInv()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L160-L164",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L160"
+        }
+      ],
+      "snippet": "fetchInv = async () => {\n        // @ts-ignore\n        const inv = await window.api.getInventory(activeServerId, selectedPlayer);\n        setPlayerInventory(inv);\n      }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchservermeta",
+      "label": "fetchServerMeta()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L173-L178",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L173"
+        }
+      ],
+      "snippet": "fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchmods",
+      "label": "fetchMods()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L189-L210",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L189"
+        }
+      ],
+      "snippet": "fetchMods = async () => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // @ts-ignore\n    const installed = await window.api.getInstalledMods(activeServerId);\n    setInstalledMods(installed);\n    \n    let defaultClassId = 6; // Mods\n    if (serverMeta.type === 'Paper') defaultClassId = 5; // Bukkit Plugins\n    else if (serverMeta.type === 'Vanilla') defaultClassId = 6945; // Data Packs\n    \n    setActiveClassId(defaultClassId);\n\n    setIsSearchingMods(true);\n    console.log('[DEBUG] Calling searchCurseforgeMods', { search: '', type: serverMeta.type, version: serverMeta.version, classId: defaultClassId, sortField: activeSortField });\n    // @ts-ignore\n    const results = await window.api.searchCurseforgeMods('', serverMeta.type, serverMeta.version, 0, defaultClassId, activeSortField);\n    console.log('[DEBUG] searchCurseforgeMods returned:', results?.length);\n    setModResults(results);\n    setTotalModCount(results?.length > 0 ? 10000 : 0);\n    setIsSearchingMods(false);\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handlesearchmods",
+      "label": "handleSearchMods()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L224-L242",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L224"
+        }
+      ],
+      "snippet": "handleSearchMods = async (e?: React.FormEvent, cId?: number, sField?: number) => {\n    if (e) e.preventDefault();\n    if (!serverMeta) return;\n    setIsSearchingMods(true);\n    const targetClassId = cId !== undefined ? cId : activeClassId;\n    const targetSortField = sField !== undefined ? sField : activeSortField;\n    // @ts-ignore\n    try {\n      console.log('[DEBUG] Calling searchCurseforgeMods (handleSearch)', { search: modSearchQuery, type: serverMeta.type, version: serverMeta.version, classId: targetClassId, sortField: targetSortField });\n      // @ts-ignore\n      const results = await window.api.searchCurseforgeMods(modSearchQuery, serverMeta.type, serverMeta.version, 0, targetClassId, targetSortField);\n      console.log('[DEBUG] handleSearch returned:', results?.length);\n      setModResults(results);\n      setTotalModCount(results?.length > 0 ? 10000 : 0);\n    } catch (error) {\n      console.error('[ERROR] handleSearchMods failed', error);\n    }\n    setIsSearchingMods(false);\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handleinstallmod",
+      "label": "handleInstallMod()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L244-L311",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L244"
+        }
+      ],
+      "snippet": "handleInstallMod = async (mod: any) => {\n    if (activeServerId === null || !serverMeta) return;\n    \n    // Check if we are already installing something else (prevent double clicks)\n    if (installingModId !== null) return;\n    \n    setInstallingModId(mod.id);\n    setInstallProgressText('Resolving dependencies...');\n    \n    // Recursive function to install a mod and its dependencies\n    const installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handleinstallmod_installwithdeps",
+      "label": "installWithDeps()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L254-L301",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L254"
+        }
+      ],
+      "snippet": "installWithDeps = async (targetMod: any, depth = 0) => {\n      // Find the best file\n      let targetFile = targetMod.latestFiles?.find((f: any) => f.gameVersions?.includes(serverMeta.version));\n      \n      if (!targetFile && targetMod.latestFilesIndexes) {\n        let expectedModLoader = 0;\n        if (serverMeta.type === 'Forge') expectedModLoader = 1;\n        else if (serverMeta.type === 'Fabric') expectedModLoader = 4;\n        else if (serverMeta.type === 'NeoForge') expectedModLoader = 6;\n        \n        const fileIndex = targetMod.latestFilesIndexes.find((idx: any) => idx.gameVersion === serverMeta.version && (expectedModLoader === 0 || idx.modLoader === expectedModLoader || idx.modLoader === 0));\n        if (fileIndex) {\n           setInstallProgressText(`Fetching file details for ${serverMeta.version}...`);\n           // @ts-ignore\n           targetFile = await window.api.getCurseforgeFile(targetMod.id, fileIndex.fileId);\n        }\n      }\n\n      if (!targetFile && targetMod.latestFiles?.length > 0) targetFile = targetMod.latestFiles[0];\n      \n      if (!targetFile || !targetFile.downloadUrl) {\n         if (depth === 0) showToast(`Failed to find compatible file for ${targetMod.name}`);\n         return;\n      }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handledeletemod",
+      "label": "handleDeleteMod()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L313-L318",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L313"
+        }
+      ],
+      "snippet": "handleDeleteMod = async (fileName: string) => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    await window.api.deleteMod(activeServerId, fileName);\n    fetchMods();\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handleclearlogs",
+      "label": "handleClearLogs()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L319-L323",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L319"
+        }
+      ],
+      "snippet": "handleClearLogs = () => {\n    if (activeServerId !== null) {\n      setLogs(prev => prev.filter(l => l.id !== activeServerId.toString() && l.id !== 'global'));\n    }\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_sendplayercommand",
+      "label": "sendPlayerCommand()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L330-L336",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L330"
+        }
+      ],
+      "snippet": "sendPlayerCommand = async (cmd: string, successMsg: string) => {\n    if (activeServerId !== null && selectedPlayer) {\n      // @ts-ignore\n      await window.api.sendCommand(activeServerId, cmd.replace('{player}', selectedPlayer));\n      showToast(successMsg.replace('{player}', selectedPlayer));\n    }\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_loadconfig",
+      "label": "loadConfig()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L338-L350",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L338"
+        }
+      ],
+      "snippet": "loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handlesaveconfig",
+      "label": "handleSaveConfig()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L352-L367",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L352"
+        }
+      ],
+      "snippet": "handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');\n        if (regex.test(finalData)) {\n          finalData = finalData.replace(regex, `${key}=${props[key]}`);\n        } else {\n          finalData += `\\n${key}=${props[key]}`;\n        }\n      });\n      // @ts-ignore\n      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);\n      showToast(\"Settings saved! Restart server to apply.\");\n    }\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_loadplayers",
+      "label": "loadPlayers()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L369-L383",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L369"
+        }
+      ],
+      "snippet": "loadPlayers = async (id: number, type: string) => {\n    if (type === 'live') {\n      setPlayerData([]);\n      return;\n    }\n    if (type === 'history') {\n      // @ts-ignore\n      const stats = await window.api.getPlayerStats(id);\n      setPlayerData(stats ? Object.values(stats) : []);\n    } else {\n      // @ts-ignore\n      const data = await window.api.readJson(id, type);\n      setPlayerData(data || []);\n    }\n  }"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handleaddplayer",
+      "label": "handleAddPlayer()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L391-L426",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L391"
+        }
+      ],
+      "snippet": "handleAddPlayer = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newPlayerName || activeServerId === null || playerListType === 'live' || playerListType === 'history') return;\n    setIsProcessing(true);\n\n    let uuid = \"00000000-0000-0000-0000-000000000000\";\n    let name = newPlayerName.trim();\n\n    if (playerListType !== 'banned-ips') {\n      try {\n        const res = await fetch(`https://api.ashcon.app/mojang/v2/user/${name}`);\n        if (res.ok) {\n          const profile = await res.json();\n          uuid = profile.uuid;\n          name = profile.username;\n        }\n      } catch (err) { }\n    }\n\n    let newEntry: any = { uuid, name };\n    if (playerListType === 'ops') newEntry = { uuid, name, level: 4, bypassesPlayerLimit: false };\n    else if (playerListType === 'banned-players') newEntry = { uuid, name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n    else if (playerListType === 'banned-ips') newEntry = { ip: name, created: new Date().toISOString(), source: \"Server\", expires: \"forever\", reason: \"Banned by operator.\" };\n\n    const exists = playerData.some(p => p.name === name || p.ip === name);"
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handleremoveplayer",
+      "label": "handleRemovePlayer()",
+      "file_type": "code",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L428-L435",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L428"
+        }
+      ],
+      "snippet": "handleRemovePlayer = async (targetName: string) => {\n    if (activeServerId === null) return;\n    const updatedList = playerData.filter(p => p.name !== targetName && p.ip !== targetName);\n    setPlayerData(updatedList);\n    // @ts-ignore\n    await window.api.writeJson(activeServerId, playerListType, updatedList);\n    showToast(`Removed ${targetName}`);\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "minecrafthub",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "overlayscrollbars",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "consoletab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "optionstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "playerstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "filestab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L8"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "backupstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L9"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "overviewtab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "animatedbackground",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L11"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "minecraft_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L12"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "palworld_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L13"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "dayz_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L14"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "satisfactory_bg",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L15",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L15"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub",
+      "target": "minecrafthub_minecrafthub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handletabchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L34",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L34"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L115",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L115"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchloaderversions",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L139",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L139"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchinv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L160",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L160"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchservermeta",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L173",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L173"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L189",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L189"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handlesearchmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L224",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L224"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handleinstallmod",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L244",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L244"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub_handleinstallmod",
+      "target": "minecrafthub_minecrafthub_handleinstallmod_installwithdeps",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L254",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L254"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handledeletemod",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L313",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L313"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handleclearlogs",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L319",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L319"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_sendplayercommand",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L330",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L330"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_loadconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L338",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L338"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handlesaveconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L352",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L352"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_loadplayers",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L369",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L369"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handleaddplayer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L391",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L391"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handleremoveplayer",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L428",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L428"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "AnimatedBackground__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "OverviewTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "ConsoleTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "OptionsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "PlayersTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "FilesTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "BackupsTab__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "React.Fragment__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub_handleinstallmod",
+      "target": "minecrafthub_minecrafthub_handleinstallmod_installwithdeps",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L303",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L303"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub_handleinstallmod",
+      "target": "minecrafthub_minecrafthub_fetchmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L306",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L306"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "minecrafthub_minecrafthub_handledeletemod",
+      "target": "minecrafthub_minecrafthub_fetchmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L317",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "C:/OmniHostWIPDAYZ/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L317"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

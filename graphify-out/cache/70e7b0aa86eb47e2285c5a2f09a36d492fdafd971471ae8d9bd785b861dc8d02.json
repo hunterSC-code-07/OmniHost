@@ -1,1 +1,76 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"usemodalstore","label":"useModalStore.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L1"}]},{"id":"usemodalstore_modalstore","label":"ModalStore","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L3-L23","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L3"}],"snippet":"interface ModalStore {\n  showCreateModal: boolean;\n  initialCreateServerType: string;\n  showSteamLoginModal: boolean;\n  steamLoginAction: 'create' | 'cache';\n  steamUsername: string;\n  steamGuardCode: string;\n  isSteamGuardRequired: boolean;\n  serverToDelete: number | null;\n  showTunnelModal: boolean;\n\n  setShowCreateModal: (show: boolean) => void;\n  setInitialCreateServerType: (type: string) => void;\n  setShowSteamLoginModal: (show: boolean) => void;\n  setSteamLoginAction: (action: 'create' | 'cache') => void;\n  setSteamUsername: (username: string) => void;\n  setSteamGuardCode: (code: string) => void;\n  setIsSteamGuardRequired: (required: boolean) => void;\n  setServerToDelete: (id: number | null) => void;\n  setShowTunnelModal: (show: boolean) => void;\n}"}],"edges":[{"source":"usemodalstore","target":"zustand","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L1"}],"weight":1},{"source":"usemodalstore","target":"usemodalstore_modalstore","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/store/useModalStore.ts","source_location":"L3"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "usemodalstore",
+      "label": "useModalStore.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "usemodalstore_modalstore",
+      "label": "ModalStore",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+      "source_location": "L3-L23",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "snippet": "interface ModalStore {\n  showCreateModal: boolean;\n  initialCreateServerType: string;\n  showSteamLoginModal: boolean;\n  steamLoginAction: 'create' | 'cache';\n  steamUsername: string;\n  steamGuardCode: string;\n  isSteamGuardRequired: boolean;\n  serverToDelete: number | null;\n  showTunnelModal: boolean;\n\n  setShowCreateModal: (show: boolean) => void;\n  setInitialCreateServerType: (type: string) => void;\n  setShowSteamLoginModal: (show: boolean) => void;\n  setSteamLoginAction: (action: 'create' | 'cache') => void;\n  setSteamUsername: (username: string) => void;\n  setSteamGuardCode: (code: string) => void;\n  setIsSteamGuardRequired: (required: boolean) => void;\n  setServerToDelete: (id: number | null) => void;\n  setShowTunnelModal: (show: boolean) => void;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "usemodalstore",
+      "target": "zustand",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "usemodalstore",
+      "target": "usemodalstore_modalstore",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/store/useModalStore.ts",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

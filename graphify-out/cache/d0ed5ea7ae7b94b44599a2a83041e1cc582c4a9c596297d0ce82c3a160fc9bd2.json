@@ -1,1 +1,218 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dayzhubcontext","label":"DayzHubContext.tsx","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L1"}]},{"id":"dayzhubcontext_dayzhubcontexttype","label":"DayzHubContextType","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L6-L12","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L6"}],"snippet":"interface DayzHubContextType {\n  activeTab: TabType;\n  tabDirection: number;\n  handleTabChange: (newTab: TabType) => void;\n  activeServer: any;\n  activeServerId: number | null;\n}"},{"id":"dayzhubcontext_dayzhubprovider","label":"DayzHubProvider()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L16-L43","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L16"}],"snippet":"DayzHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {\n  const { activeServerId, servers } = useServerStore();\n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = useRef(currentServer);\n  \n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n\n  const [activeTab, setActiveTab] = useState<TabType>('console');\n  const [tabDirection, setTabDirection] = useState(0);\n\n  const handleTabChange = (newTab: TabType) => {\n    if (newTab === activeTab) return;\n    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setActiveTab(newTab);\n  };\n\n  return (\n    <DayzHubContext.Provider value={{ activeTab, tabDirection, handleTabChange, activeServer, activeServerId }}>\n      {children}","node_kind":"component"},{"id":"dayzhubcontext_dayzhubprovider_handletabchange","label":"handleTabChange()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L29-L36","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L29"}],"snippet":"handleTabChange = (newTab: TabType) => {\n    if (newTab === activeTab) return;\n    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setActiveTab(newTab);\n  }"},{"id":"dayzhubcontext_usedayzhubcontext","label":"useDayzHubContext()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L45-L51","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L45"}],"snippet":"useDayzHubContext = () => {\n  const context = useContext(DayzHubContext);\n  if (context === undefined) {\n    throw new Error('useDayzHubContext must be used within a DayzHubProvider');\n  }\n  return context;\n}"}],"edges":[{"source":"dayzhubcontext","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L1"}],"weight":1},{"source":"dayzhubcontext","target":"useserverstore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L2"}],"weight":1},{"source":"dayzhubcontext","target":"dayzhubcontext_dayzhubcontexttype","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L6","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L6"}],"weight":1},{"source":"dayzhubcontext","target":"dayzhubcontext_dayzhubprovider","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L16"}],"weight":1},{"source":"dayzhubcontext_dayzhubprovider","target":"dayzhubcontext_dayzhubprovider_handletabchange","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L29","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L29"}],"weight":1},{"source":"dayzhubcontext_dayzhubprovider","target":"DayzHubContext.Provider__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L16","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L16"}],"weight":1},{"source":"dayzhubcontext","target":"dayzhubcontext_usedayzhubcontext","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L45","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx","source_location":"L45"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dayzhubcontext",
+      "label": "DayzHubContext.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dayzhubcontext_dayzhubcontexttype",
+      "label": "DayzHubContextType",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L6-L12",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "interface DayzHubContextType {\n  activeTab: TabType;\n  tabDirection: number;\n  handleTabChange: (newTab: TabType) => void;\n  activeServer: any;\n  activeServerId: number | null;\n}"
+    },
+    {
+      "id": "dayzhubcontext_dayzhubprovider",
+      "label": "DayzHubProvider()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L16-L43",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L16"
+        }
+      ],
+      "snippet": "DayzHubProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {\n  const { activeServerId, servers } = useServerStore();\n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = useRef(currentServer);\n  \n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n\n  const [activeTab, setActiveTab] = useState<TabType>('console');\n  const [tabDirection, setTabDirection] = useState(0);\n\n  const handleTabChange = (newTab: TabType) => {\n    if (newTab === activeTab) return;\n    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setActiveTab(newTab);\n  };\n\n  return (\n    <DayzHubContext.Provider value={{ activeTab, tabDirection, handleTabChange, activeServer, activeServerId }}>\n      {children}",
+      "node_kind": "component"
+    },
+    {
+      "id": "dayzhubcontext_dayzhubprovider_handletabchange",
+      "label": "handleTabChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L29-L36",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "snippet": "handleTabChange = (newTab: TabType) => {\n    if (newTab === activeTab) return;\n    const TABS = ['console', 'options', 'economy', 'mods', 'installed', 'files'];\n    const currentIndex = TABS.indexOf(activeTab);\n    const newIndex = TABS.indexOf(newTab);\n    setTabDirection(newIndex > currentIndex ? 1 : -1);\n    setActiveTab(newTab);\n  }"
+    },
+    {
+      "id": "dayzhubcontext_usedayzhubcontext",
+      "label": "useDayzHubContext()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L45-L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L45"
+        }
+      ],
+      "snippet": "useDayzHubContext = () => {\n  const context = useContext(DayzHubContext);\n  if (context === undefined) {\n    throw new Error('useDayzHubContext must be used within a DayzHubProvider');\n  }\n  return context;\n}"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dayzhubcontext",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzhubcontext",
+      "target": "useserverstore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzhubcontext",
+      "target": "dayzhubcontext_dayzhubcontexttype",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzhubcontext",
+      "target": "dayzhubcontext_dayzhubprovider",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzhubcontext_dayzhubprovider",
+      "target": "dayzhubcontext_dayzhubprovider_handletabchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L29",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L29"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzhubcontext_dayzhubprovider",
+      "target": "DayzHubContext.Provider__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L16",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L16"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dayzhubcontext",
+      "target": "dayzhubcontext_usedayzhubcontext",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/contexts/DayzHubContext.tsx",
+          "source_location": "L45"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

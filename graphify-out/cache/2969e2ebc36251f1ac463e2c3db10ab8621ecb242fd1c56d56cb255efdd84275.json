@@ -1,1 +1,164 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"useminecraftconfig","label":"useMinecraftConfig.ts","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L1"}]},{"id":"useminecraftconfig_useminecraftconfig","label":"useMinecraftConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L4-L47","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L4"}],"snippet":"export function useMinecraftConfig(activeServerId: number | null) {\n  const [rawConfigText, setRawConfigText] = useState('');\n  const [advancedMode, setAdvancedMode] = useState(false);\n  const [props, setProps] = useState<Record<string, string>>({});\n  const { showToast } = useToastStore();\n\n  const loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  };\n\n  const handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');"},{"id":"useminecraftconfig_useminecraftconfig_loadconfig","label":"loadConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L10-L22","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L10"}],"snippet":"loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  }"},{"id":"useminecraftconfig_useminecraftconfig_handlesaveconfig","label":"handleSaveConfig()","file_type":"code","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L24-L39","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L24"}],"snippet":"handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');\n        if (regex.test(finalData)) {\n          finalData = finalData.replace(regex, `${key}=${props[key]}`);\n        } else {\n          finalData += `\\n${key}=${props[key]}`;\n        }\n      });\n      // @ts-ignore\n      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);\n      showToast(\"Settings saved! Restart server to apply.\");\n    }\n  }"}],"edges":[{"source":"useminecraftconfig","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L1"}],"weight":1},{"source":"useminecraftconfig","target":"usetoaststore","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L2","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L2"}],"weight":1},{"source":"useminecraftconfig","target":"useminecraftconfig_useminecraftconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L4","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L4"}],"weight":1},{"source":"useminecraftconfig_useminecraftconfig","target":"useminecraftconfig_useminecraftconfig_loadconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L10","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L10"}],"weight":1},{"source":"useminecraftconfig_useminecraftconfig","target":"useminecraftconfig_useminecraftconfig_handlesaveconfig","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L24","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts","source_location":"L24"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "useminecraftconfig",
+      "label": "useMinecraftConfig.ts",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "useminecraftconfig_useminecraftconfig",
+      "label": "useMinecraftConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L4-L47",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L4"
+        }
+      ],
+      "snippet": "export function useMinecraftConfig(activeServerId: number | null) {\n  const [rawConfigText, setRawConfigText] = useState('');\n  const [advancedMode, setAdvancedMode] = useState(false);\n  const [props, setProps] = useState<Record<string, string>>({});\n  const { showToast } = useToastStore();\n\n  const loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  };\n\n  const handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');"
+    },
+    {
+      "id": "useminecraftconfig_useminecraftconfig_loadconfig",
+      "label": "loadConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L10-L22",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "loadConfig = async (id: number) => {\n    // @ts-ignore\n    const data = await window.api.readConfig(id);\n    setRawConfigText(data);\n    const parsed: Record<string, string> = {};\n    data.split('\\n').forEach((line: string) => {\n      if (line.trim() && !line.startsWith('#')) {\n        const [key, ...val] = line.split('=');\n        if (key && val) parsed[key.trim()] = val.join('=').trim();\n      }\n    });\n    setProps(parsed);\n  }"
+    },
+    {
+      "id": "useminecraftconfig_useminecraftconfig_handlesaveconfig",
+      "label": "handleSaveConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L24-L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L24"
+        }
+      ],
+      "snippet": "handleSaveConfig = async () => {\n    if (activeServerId !== null) {\n      let finalData = rawConfigText;\n      Object.keys(props).forEach(key => {\n        const regex = new RegExp(`^${key}=.*`, 'm');\n        if (regex.test(finalData)) {\n          finalData = finalData.replace(regex, `${key}=${props[key]}`);\n        } else {\n          finalData += `\\n${key}=${props[key]}`;\n        }\n      });\n      // @ts-ignore\n      await window.api.writeConfig(activeServerId, advancedMode ? rawConfigText : finalData);\n      showToast(\"Settings saved! Restart server to apply.\");\n    }\n  }"
+    }
+  ],
+  "edges": [
+    {
+      "source": "useminecraftconfig",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftconfig",
+      "target": "usetoaststore",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L2",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L2"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftconfig",
+      "target": "useminecraftconfig_useminecraftconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L4"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftconfig_useminecraftconfig",
+      "target": "useminecraftconfig_useminecraftconfig_loadconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L10"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "useminecraftconfig_useminecraftconfig",
+      "target": "useminecraftconfig_useminecraftconfig_handlesaveconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+      "source_location": "L24",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/hooks/useMinecraftConfig.ts",
+          "source_location": "L24"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}

@@ -1,1 +1,131 @@
-{"__graphifyTsExtractorVersion":63,"nodes":[{"id":"dashboardhub_repaired2","label":"DashboardHub_repaired2.tsx","file_type":"code","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L1"}]},{"id":"dashboardhub_repaired2_dashboardhub","label":"DashboardHub()","file_type":"code","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5-L393","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5"}],"snippet":"export function DashboardHub({ \n  servers, \n  activeGameHub, \n  hoveredGame, \n  setHoveredGame, \n  setActiveGameHub, \n  setActiveServerId, \n  handleStart, \n  handleStop, \n  handleRestart, \n  handleDelete, \n  handleTunnel, \n  tunnelStatus, \n  tunnelIp, \n  getGameImageUrl,\n  setShowCreateModal,\n  setShowSteamLoginModal,\n  isGameSupported,\n  isDayzCached,\n  setIsDayzCached,\n  setSteamLoginAction,\n  showToast\n}: any) {\n\n  return (","node_kind":"component"}],"edges":[{"source":"dashboardhub_repaired2","target":"react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L1","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L1"}],"weight":1},{"source":"dashboardhub_repaired2","target":"overlayscrollbars_react","relation":"imports_from","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L3","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L3"}],"weight":1},{"source":"dashboardhub_repaired2","target":"dashboardhub_repaired2_dashboardhub","relation":"contains","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5"}],"weight":1},{"source":"dashboardhub_repaired2_dashboardhub","target":"OverlayScrollbarsComponent__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5"}],"weight":1},{"source":"dashboardhub_repaired2_dashboardhub","target":"AnimatePresence__jsx_proxy","relation":"renders","confidence":"EXTRACTED","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5","layer":"base","provenance":[{"capability_id":"builtin:extract:typescript","stage":"extract","source_file":"D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx","source_location":"L5"}],"weight":1}]}
+{
+  "__graphifyTsExtractorVersion": 63,
+  "nodes": [
+    {
+      "id": "dashboardhub_repaired2",
+      "label": "DashboardHub_repaired2.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L1"
+        }
+      ]
+    },
+    {
+      "id": "dashboardhub_repaired2_dashboardhub",
+      "label": "DashboardHub()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L5-L393",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "export function DashboardHub({ \n  servers, \n  activeGameHub, \n  hoveredGame, \n  setHoveredGame, \n  setActiveGameHub, \n  setActiveServerId, \n  handleStart, \n  handleStop, \n  handleRestart, \n  handleDelete, \n  handleTunnel, \n  tunnelStatus, \n  tunnelIp, \n  getGameImageUrl,\n  setShowCreateModal,\n  setShowSteamLoginModal,\n  isGameSupported,\n  isDayzCached,\n  setIsDayzCached,\n  setSteamLoginAction,\n  showToast\n}: any) {\n\n  return (",
+      "node_kind": "component"
+    }
+  ],
+  "edges": [
+    {
+      "source": "dashboardhub_repaired2",
+      "target": "react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_repaired2",
+      "target": "overlayscrollbars_react",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L3",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L3"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_repaired2",
+      "target": "dashboardhub_repaired2_dashboardhub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_repaired2_dashboardhub",
+      "target": "OverlayScrollbarsComponent__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    },
+    {
+      "source": "dashboardhub_repaired2_dashboardhub",
+      "target": "AnimatePresence__jsx_proxy",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/scratch/DashboardHub_repaired2.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "weight": 1
+    }
+  ]
+}
