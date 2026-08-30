@@ -20,6 +20,10 @@ const api = {
     getInventory: (id: number, playerName: string) => ipcRenderer.invoke('get-inventory', id, playerName),
     getSatisfactoryToken: (id: number) => ipcRenderer.invoke('get-satisfactory-token', id),
     saveSatisfactoryToken: (id: number, token: string) => ipcRenderer.invoke('save-satisfactory-token', id, token),
+    searchSatisfactoryMods: (query: string, limit?: number, offset?: number) => ipcRenderer.invoke('search-satisfactory-mods', query, limit, offset),
+    getInstalledSatisfactoryMods: (serverId: number) => ipcRenderer.invoke('get-installed-satisfactory-mods', serverId),
+    installSatisfactoryMod: (serverId: number, modReference: string, downloadLink: string) => ipcRenderer.invoke('install-satisfactory-mod', serverId, modReference, downloadLink),
+    uninstallSatisfactoryMod: (serverId: number, modFilename: string) => ipcRenderer.invoke('uninstall-satisfactory-mod', serverId, modFilename),
     get7DTDItems: (serverId: number) => ipcRenderer.invoke('get-7dtd-items', serverId),
     get7DTDEntities: (serverId: number) => ipcRenderer.invoke('get-7dtd-entities', serverId),
     
