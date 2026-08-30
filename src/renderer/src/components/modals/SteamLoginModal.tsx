@@ -11,14 +11,14 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
   const { steamCreds, rememberMe, setSteamCreds, setRememberMe, saveCredentials } = useSteamCredentialsStore();
   
   const [steamUsername, setSteamUsername] = useState(steamCreds.username || "");
-  const [steamPassword, setSteamPassword] = useState("");
+  const [steamPassword, setSteamPassword] = useState(steamCreds.password || "");
   const [isSteamGuardRequired, setIsSteamGuardRequired] = useState(false);
   const [steamGuardCode, setSteamGuardCode] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const saveCredsBeforeAction = () => {
-    setSteamCreds({ username: steamUsername });
+    setSteamCreds({ username: steamUsername, password: steamPassword });
     saveCredentials(
       () => {}, 
       (msg) => showToast(msg, 'error')
@@ -73,7 +73,7 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
             <div className="relative z-10">
               <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Steam Login Required</h2>
               <p className="text-sm text-gray-400 mb-6">
-                To download the {activeGameHub} Server files, you must log into SteamCMD. Your credentials are only sent securely to Steam's servers and are not stored. If you've logged in before, you can leave the password blank to use your cached session.
+                To download the {activeGameHub} Server files, you must log into SteamCMD. Your credentials will be cached locally if you check 'Remember Username for cached logins'. Steam Guard codes must be entered when requested.
               </p>
               
               <div className="space-y-4">

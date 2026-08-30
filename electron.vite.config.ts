@@ -26,6 +26,6 @@ export default defineConfig({
         '@shared': resolve('src/shared')
       }
     },
-    plugins: [react(), reticle()]
+    plugins: [react(), reticle() as any]
   }
 })
