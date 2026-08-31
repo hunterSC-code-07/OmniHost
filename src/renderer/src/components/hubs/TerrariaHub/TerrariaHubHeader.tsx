@@ -29,7 +29,7 @@ export const TerrariaHubHeader: React.FC = () => {
   };
 
   const handleCopyIp = () => {
-    navigator.clipboard.writeText(tunnelIp);
+    navigator.clipboard.writeText(`${tunnelIp}:7777`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
