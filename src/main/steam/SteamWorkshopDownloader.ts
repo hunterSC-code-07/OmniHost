@@ -124,7 +124,7 @@ export class SteamWorkshopDownloader {
             console.error(`[SteamCMD Workshop ${modId} Error]:`, data.toString().trim());
           });
 
-          proc.on('close', (code) => {
+          proc.on('exit', (code) => {
             clearInterval(progressInterval);
             this.activeProcess = null;
             if (downloadFailed) {
@@ -136,13 +136,13 @@ export class SteamWorkshopDownloader {
               } else {
                 reject(new Error(`LOGIN_REQUIRED: ${downloadErrorMsg}`));
               }
-            } else if (invalidCredentials) {
-              reject(new Error('INVALID_CREDENTIALS'));
             } else if (code === 0 || code === 7) { // 7 is also success in some SteamCMD contexts
               SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Download Complete!`);
               resolve('SUCCESS');
             } else if (code === 5 && steamGuardRequested) {
               reject(new Error('STEAM_GUARD_REQUIRED'));
+            } else if (invalidCredentials) {
+              reject(new Error('INVALID_CREDENTIALS'));
             } else {
               reject(new Error(`SteamCMD exited with code ${code}`));
             }

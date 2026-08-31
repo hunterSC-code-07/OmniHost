@@ -14,9 +14,16 @@ export const useSteamCredentialsStore = create<SteamCredentialsStore>((set, get)
   steamCreds: (() => {
     try {
       const saved = localStorage.getItem('omnihost_steam_creds');
-      return saved ? JSON.parse(atob(saved)) : { username: '' };
+      if (saved) return JSON.parse(atob(saved));
+      return { 
+        username: import.meta.env.VITE_STEAM_USERNAME || '',
+        password: import.meta.env.VITE_STEAM_PASSWORD || ''
+      };
     } catch {
-      return { username: '' };
+      return { 
+        username: import.meta.env.VITE_STEAM_USERNAME || '',
+        password: import.meta.env.VITE_STEAM_PASSWORD || ''
+      };
     }
   })(),
   rememberMe: !!localStorage.getItem('omnihost_steam_creds'),
@@ -30,7 +37,10 @@ export const useSteamCredentialsStore = create<SteamCredentialsStore>((set, get)
       if (state.rememberMe) {
         localStorage.setItem(
           'omnihost_steam_creds',
-          btoa(JSON.stringify({ username: state.steamCreds.username }))
+          btoa(JSON.stringify({ 
+            username: state.steamCreds.username,
+            password: state.steamCreds.password
+          }))
         );
       } else {
         localStorage.removeItem('omnihost_steam_creds');
