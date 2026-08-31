@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import '../../../assets/theforest-ui.css';
 import { motion, AnimatePresence } from 'motion/react';
@@ -86,9 +85,7 @@ export const TheForestHub: React.FC = () => {
                 </button>
               ))}
             </div>
-          </OverlayScrollbarsComponent>
         </div>
-      </div>
 
       <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-10 pb-10">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">

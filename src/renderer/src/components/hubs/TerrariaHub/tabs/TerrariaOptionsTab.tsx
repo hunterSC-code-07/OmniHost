@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useServerStore } from '../../../../store/useServerStore';
-import { ResourceAllocationPanel } from '../../../common/ResourceAllocationPanel';
 
 interface TerrariaConfig {
   maxplayers: string;

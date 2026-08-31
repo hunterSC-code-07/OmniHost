@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import './sevendays-ui.css';
 import { SevenDaysToDieConsoleTab } from './tabs/SevenDaysToDieConsoleTab';
