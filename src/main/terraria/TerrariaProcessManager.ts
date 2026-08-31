@@ -125,7 +125,13 @@ banlist=banlist.txt`
 
     if (this.process.stderr) {
       this.process.stderr.on('data', (data: Buffer) => {
-        this.sendLog(`[Terraria Error] ${data.toString().trim()}`)
+        const errorText = data.toString().trim()
+        this.sendLog(`[Terraria Error] ${errorText}`)
+        
+        if (errorText.includes('Microsoft.Xna.Framework')) {
+          this.sendLog('[System Error] Microsoft XNA Framework 4.0 is required to run the Terraria server.')
+          this.sendLog('[System Error] Please download and install it from: https://www.microsoft.com/en-us/download/details.aspx?id=20914')
+        }
       })
     }
 

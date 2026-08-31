@@ -157,8 +157,60 @@ export const SevenDaysToDieSpawnTab: React.FC<SevenDaysToDieSpawnTabProps> = ({ 
                 onChange={(e) => setSelectedCategory(e.target.value)} 
                 className="sevendays-input w-full px-4 py-2 uppercase"
               >
+              <select 
+                value={selectedCategory} 
+                onChange={(e) => setSelectedCategory(e.target.value)} 
+                className="sevendays-input w-full px-4 py-2 uppercase"
+              >
                 {categories.map(c => <option key={c} value={c} className="bg-black text-white">{`CATEGORY: ${c}`}</option>)}
               </select>
+            </div>
+          </div>
+
+          {/* Virtualized List */}
+          <div className="flex-1 min-h-0 relative bg-[var(--7dtd-bg-panel-dark)]">
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center text-white/50 sevendays-title">LOADING DATA...</div>
+            ) : filteredData.length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center text-white/50 sevendays-title">NO RESULTS FOUND.</div>
+            ) : (
+              <div 
+                ref={parentRef} 
+                className="absolute inset-0 overflow-auto os-theme-dark"
+                style={{ contain: 'strict' }}
+              >
+                <div
+                  style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    width: '100%',
+                    position: 'relative',
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const item = filteredData[virtualRow.index];
+                    const isSelected = selectedItemName === item.name;
+                    return (
+                      <div
+                        key={virtualRow.index}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: `${virtualRow.size}px`,
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                        className={`px-4 py-2 border-b border-[var(--7dtd-border)] cursor-pointer hover:bg-white/5 transition-colors flex items-center justify-between uppercase ${isSelected ? 'bg-white/10 border-l-4 border-l-white' : ''}`}
+                        onClick={() => setSelectedItemName(item.name)}
+                      >
+                        <span className={`text-sm ${isSelected ? 'text-white font-bold' : 'text-white/70'}`}>{item.name}</span>
+                        <span className="text-xs text-[var(--7dtd-text-dim)] px-2 py-1 bg-black/40 border border-white/10 font-bold">{item.group}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             </div>
           </div>
 
