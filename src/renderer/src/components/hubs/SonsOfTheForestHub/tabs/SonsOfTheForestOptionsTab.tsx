@@ -10,6 +10,9 @@ export const SonsOfTheForestOptionsTab: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Hover state for the description banner
+  const [hoveredOption, setHoveredOption] = useState<{ label: string, desc: string } | null>(null);
+
   useEffect(() => {
     const loadConfig = async () => {
       setIsLoading(true);
@@ -59,129 +62,139 @@ export const SonsOfTheForestOptionsTab: React.FC = () => {
   const serverIPMatch = configContent.match(/^"IpAddress"\s*:\s*"(.*)"/m);
   const serverIP = serverIPMatch ? serverIPMatch[1] : '';
 
-  const updateServerName = (newName: string) => {
-    if (configContent.match(/^"ServerName"/m)) {
-      setConfigContent(configContent.replace(/^"ServerName"\s*:\s*".*"/m, `"ServerName": "${newName}"`));
+  const updateConfig = (key: string, newValue: string) => {
+    const regex = new RegExp(`^"${key}"\\s*:\\s*".*"`, 'm');
+    if (configContent.match(regex)) {
+      setConfigContent(configContent.replace(regex, `"${key}": "${newValue}"`));
     } else {
-      setConfigContent(configContent + `\n"ServerName": "${newName}"`);
-    }
-  };
-
-  const updateSteamToken = (newToken: string) => {
-    if (configContent.match(/^"GameServerToken"/m)) {
-      setConfigContent(configContent.replace(/^"GameServerToken"\s*:\s*".*"/m, `"GameServerToken": "${newToken}"`));
-    } else {
-      setConfigContent(configContent + `\n"GameServerToken": "${newToken}"`);
-    }
-  };
-
-  const updateServerIP = (newIP: string) => {
-    if (configContent.match(/^"IpAddress"/m)) {
-      setConfigContent(configContent.replace(/^"IpAddress"\s*:\s*".*"/m, `"IpAddress": "${newIP}"`));
-    } else {
-      setConfigContent(configContent + `\n"IpAddress": "${newIP}"`);
+      setConfigContent(configContent + `\n"${key}": "${newValue}"`);
     }
   };
 
   if (isLoading) {
-    return <div className="flex-1 flex items-center justify-center text-on-surface-variant font-body-md text-body-md">Loading configuration...</div>;
+    return <div className="flex-1 flex items-center justify-center sotf-glitch-text text-xl">LOADING...</div>;
   }
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto bg-transparent flex flex-col p-8 gap-6">
-      <div className="flex justify-between items-end border-b border-outline-variant/20 pb-6">
-        <div>
-          <h3 className="font-headline-lg text-headline-lg text-on-surface mb-1">Server Configuration</h3>
-          <p className="font-body-md text-body-md text-on-surface-variant">Edit your dedicatedserver.cfg settings.</p>
-        </div>
-        <button 
-          onClick={handleSave}
-          disabled={isSaving}
-          className="bg-[#16a34a]/20 border border-[#16a34a]/50 hover:bg-[#16a34a]/30 hover:border-[#4ade80] text-[#4ade80] px-6 py-2.5 rounded-lg font-bold shadow-[0_0_15px_rgba(22,163,74,0.1)] transition-all flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isSaving ? (
-            <><span className="material-symbols-outlined animate-spin text-[20px]">sync</span> Saving...</>
+    <div className="flex-1 min-h-0 bg-transparent flex flex-col items-center">
+      <div className="w-full max-w-4xl flex-1 flex flex-col mt-4 mb-4">
+        
+        {/* Hover Description Banner */}
+        <div className="h-[40px] w-full bg-[var(--sotf-panel)] mb-6 flex items-center px-4 overflow-hidden border-l-4 border-l-[var(--sotf-highlight)]">
+          {hoveredOption ? (
+            <p className="text-sm font-bold truncate">
+              <span className="text-[var(--sotf-highlight)] uppercase">{hoveredOption.label}</span>
+              <span className="text-[var(--sotf-text-dim)] uppercase mx-2">-</span>
+              <span className="text-white uppercase">{hoveredOption.desc}</span>
+            </p>
           ) : (
-            <><span className="material-symbols-outlined text-[20px]">save</span> Save Changes</>
+            <p className="text-sm font-bold text-[var(--sotf-text-dim)] uppercase">HOVER OVER AN OPTION FOR DETAILS</p>
           )}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="flex flex-col gap-6">
-          <div className="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 shadow-inner flex flex-col gap-2">
-            <label className="text-on-surface font-title-md text-title-md">Server Name</label>
-            <input
-              type="text"
-              value={serverName}
-              onChange={(e) => updateServerName(e.target.value)}
-              className="bg-surface-container border border-outline-variant/50 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:border-primary/50 font-body-md text-body-md"
-              placeholder="Enter server name..."
-            />
-          </div>
-
-          <div className="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 shadow-inner flex flex-col gap-2">
-            <label className="text-on-surface font-title-md text-title-md">Server IP Binding</label>
-            <input
-              type="text"
-              value={serverIP}
-              onChange={(e) => updateServerIP(e.target.value)}
-              className="bg-surface-container border border-outline-variant/50 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:border-primary/50 font-body-md text-body-md"
-              placeholder="e.g., 0.0.0.0"
-            />
-            <p className="text-on-surface-variant font-body-sm text-body-sm">
-              Use <b>0.0.0.0</b> to listen on all network interfaces (Required for Tunnels/FRP).
-            </p>
-          </div>
         </div>
 
-        <div className="flex flex-col gap-6">
-          <div className="bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl p-6 shadow-inner flex flex-col gap-2">
-            <div className="flex justify-between items-center">
-              <label className="text-on-surface font-title-md text-title-md">Steam Server Token</label>
-              <a 
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  // Open externally if there's a shell handler, but standard browser works if running in Electron
-                  window.open('https://steamcommunity.com/dev/managegameservers', '_blank');
-                }}
-                className="text-primary hover:text-primary/80 font-body-sm text-body-sm flex items-center gap-1"
-                title="App ID: 1326470"
-              >
-                Get Token <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-              </a>
-            </div>
-            <input
-              type="password"
-              value={steamToken}
-              onChange={(e) => updateSteamToken(e.target.value)}
-              className="bg-surface-container border border-outline-variant/50 rounded-lg px-4 py-2.5 text-on-surface focus:outline-none focus:border-primary/50 font-body-md text-body-md"
-              placeholder="Paste Steam Login Token..."
-            />
-            <p className="text-on-surface-variant font-body-sm text-body-sm">
-              Required for your server to be visible on the internet. Use App ID <b>1326470</b> (base game App ID).
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex-1 min-h-[400px] bg-surface-container-lowest/80 backdrop-blur-md border border-outline-variant/30 rounded-xl overflow-hidden flex flex-col shadow-inner">
-        <div className="bg-surface-container/50 px-4 py-3 border-b border-outline-variant/30 text-on-surface-variant font-label-md text-label-md flex justify-between">
-          <span>Raw Editor</span>
-        </div>
         <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0 w-full h-full" 
+          className="flex-1 min-h-0 w-full sotf-scrollbars" 
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
           defer
         >
-          <textarea 
-            value={configContent}
-            onChange={(e) => setConfigContent(e.target.value)}
-            className="w-full min-h-full p-6 bg-transparent text-on-surface font-console-text text-console-text resize-none outline-none leading-relaxed"
-            spellCheck={false}
-          />
+          <div className="flex flex-col mb-12">
+            
+            {/* SERVER SECTION */}
+            <div className="sotf-section-header mb-2 mt-4">SERVER DETAILS</div>
+            
+            <div 
+              className="sotf-row"
+              onMouseEnter={() => setHoveredOption({ label: 'SERVER NAME', desc: 'THE NAME DISPLAYED IN THE SERVER BROWSER' })}
+              onMouseLeave={() => setHoveredOption(null)}
+            >
+              <div className="sotf-label w-[40%]">SERVER NAME</div>
+              <div className="w-[60%] flex justify-end">
+                <input 
+                  type="text" 
+                  value={serverName}
+                  onChange={(e) => updateConfig('ServerName', e.target.value)}
+                  className="bg-transparent text-right font-bold uppercase w-full focus:outline-none focus:text-[var(--sotf-highlight)] placeholder:text-[var(--sotf-text-dim)]"
+                  placeholder="SOTF SERVER"
+                />
+              </div>
+            </div>
+
+            <div 
+              className="sotf-row"
+              onMouseEnter={() => setHoveredOption({ label: 'IP ADDRESS', desc: 'BIND IP ADDRESS. 0.0.0.0 IS REQUIRED FOR TUNNELS' })}
+              onMouseLeave={() => setHoveredOption(null)}
+            >
+              <div className="sotf-label w-[40%]">IP ADDRESS</div>
+              <div className="w-[60%] flex justify-end">
+                <input 
+                  type="text" 
+                  value={serverIP}
+                  onChange={(e) => updateConfig('IpAddress', e.target.value)}
+                  className="bg-transparent text-right font-bold uppercase w-full focus:outline-none focus:text-[var(--sotf-highlight)] placeholder:text-[var(--sotf-text-dim)]"
+                  placeholder="0.0.0.0"
+                />
+              </div>
+            </div>
+
+            <div 
+              className="sotf-row"
+              onMouseEnter={() => setHoveredOption({ label: 'STEAM TOKEN', desc: 'REQUIRED FOR PUBLIC SERVERS. APP ID 1326470' })}
+              onMouseLeave={() => setHoveredOption(null)}
+            >
+              <div className="sotf-label w-[40%]">STEAM TOKEN</div>
+              <div className="w-[60%] flex justify-end">
+                <input 
+                  type="password" 
+                  value={steamToken}
+                  onChange={(e) => updateConfig('GameServerToken', e.target.value)}
+                  className="bg-transparent text-right font-bold w-full focus:outline-none focus:text-[var(--sotf-highlight)] placeholder:text-[var(--sotf-text-dim)]"
+                  placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                />
+              </div>
+            </div>
+
+            {/* RAW CONFIG SECTION */}
+            <div className="sotf-section-header mb-2 mt-12">RAW CONFIGURATION</div>
+            <div 
+              className="w-full bg-[var(--sotf-panel)] border border-[var(--sotf-border)] mt-4 p-4 h-[400px]"
+              onMouseEnter={() => setHoveredOption({ label: 'RAW CONFIG', desc: 'DIRECTLY EDIT THE DEDICATEDSERVER.CFG FILE' })}
+              onMouseLeave={() => setHoveredOption(null)}
+            >
+              <textarea 
+                value={configContent}
+                onChange={(e) => setConfigContent(e.target.value)}
+                className="w-full h-full bg-transparent text-white font-mono text-sm resize-none outline-none whitespace-pre"
+                spellCheck={false}
+              />
+            </div>
+            
+          </div>
         </OverlayScrollbarsComponent>
+        
+        {/* BOTTOM ACTION BAR */}
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-[var(--sotf-border)]">
+          <button 
+            className="sotf-btn hover:-translate-x-1" 
+            onClick={() => {
+              if (activeServerId) {
+                // @ts-ignore
+                window.api.server.readConfig(activeServerId).then(content => {
+                  if (content) setConfigContent(content);
+                });
+              }
+            }}
+          >
+            DISCARD
+          </button>
+          <button 
+            onClick={handleSave}
+            disabled={isSaving}
+            className={`text-2xl font-bold uppercase tracking-widest flex items-center gap-2 ${isSaving ? 'text-gray-500 cursor-not-allowed' : 'text-white hover:text-[var(--sotf-highlight)] text-shadow-[0_0_10px_rgba(250,204,21,0.5)] transition-all'}`}
+          >
+            {isSaving ? 'SAVING...' : 'APPLY'}
+          </button>
+        </div>
+        
       </div>
     </div>
   );

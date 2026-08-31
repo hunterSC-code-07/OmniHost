@@ -1,0 +1,182 @@
+.satisfactory-ui {
+  --sf-orange: #e58e35;
+  --sf-orange-hover: #f3a04a;
+  --sf-bg-dark: #1b1b1b;
+  --sf-bg-panel: rgba(20, 20, 20, 0.85);
+  --sf-border: rgba(255, 255, 255, 0.2);
+  --sf-text-dim: #a0a0a0;
+  font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.satisfactory-ui .sf-tab {
+  background-color: var(--sf-bg-dark);
+  color: white;
+  padding: 8px 24px;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  transition: all 0.2s ease;
+  clip-path: polygon(0 0, 100% 0, 95% 100%, 5% 100%);
+}
+
+.satisfactory-ui .sf-tab:hover {
+  background-color: #2a2a2a;
+}
+
+.satisfactory-ui .sf-tab.active {
+  background-color: var(--sf-orange);
+  color: white;
+}
+
+.satisfactory-ui .sf-sub-header {
+  background-color: rgba(30, 30, 30, 0.9);
+  padding: 8px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2px solid #333;
+}
+
+.satisfactory-ui .sf-section-header {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 16px;
+  color: white;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--sf-border);
+  margin-top: 24px;
+  margin-bottom: 16px;
+}
+
+.satisfactory-ui .sf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  transition: background-color 0.1s;
+}
+
+.satisfactory-ui .sf-row:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.satisfactory-ui .sf-label {
+  text-transform: uppercase;
+  font-size: 14px;
+  color: #e0e0e0;
+}
+
+.satisfactory-ui .sf-value-text {
+  color: var(--sf-orange);
+  font-size: 14px;
+}
+
+.satisfactory-ui .sf-cycler {
+  display: flex;
+  align-items: center;
+}
+
+.satisfactory-ui .sf-cycler-btn {
+  background-color: var(--sf-orange);
+  color: white;
+  width: 24px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.satisfactory-ui .sf-cycler-btn:hover {
+  background-color: var(--sf-orange-hover);
+}
+
+.satisfactory-ui .sf-cycler-value {
+  background-color: #333;
+  color: var(--sf-orange);
+  height: 28px;
+  width: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  text-transform: uppercase;
+}
+
+.satisfactory-ui .sf-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 12px;
+  border: 1px solid var(--sf-orange);
+}
+
+.satisfactory-ui .sf-toggle-switch {
+  width: 36px;
+  height: 18px;
+  background-color: #555;
+  border-radius: 9px;
+  position: relative;
+  cursor: pointer;
+}
+
+.satisfactory-ui .sf-toggle-switch::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background-color: #ccc;
+  border-radius: 50%;
+  transition: 0.2s;
+}
+
+.satisfactory-ui .sf-toggle-switch.on {
+  background-color: var(--sf-orange);
+}
+
+.satisfactory-ui .sf-toggle-switch.on::after {
+  left: 20px;
+  background-color: white;
+}
+
+.satisfactory-ui .sf-btn-primary {
+  background-color: var(--sf-orange);
+  color: white;
+  padding: 8px 24px;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.satisfactory-ui .sf-btn-primary:hover {
+  background-color: var(--sf-orange-hover);
+}
+
+.satisfactory-ui .sf-btn-secondary {
+  background-color: #444;
+  color: white;
+  padding: 8px 24px;
+  text-transform: uppercase;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.satisfactory-ui .sf-btn-secondary:hover {
+  background-color: #555;
+}
+
+.satisfactory-scrollbars .os-theme-dark {
+  --os-handle-bg: var(--sf-orange);
+  --os-handle-bg-hover: var(--sf-orange-hover);
+  --os-handle-bg-active: #ffffff;
+}
