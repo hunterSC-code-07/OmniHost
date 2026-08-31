@@ -1,0 +1,158 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&display=swap');
+
+.terraria-ui {
+  --tr-panel-bg: rgba(60, 70, 110, 0.85);
+  --tr-panel-border: #000000;
+  --tr-btn-bg: #5c647b;
+  --tr-btn-border: #000000;
+  --tr-btn-hover-bg: #6e768e;
+  --tr-text-default: #ffffff;
+  --tr-text-hover: #ffeb04;
+  --tr-text-title: #ffffff;
+  --tr-shadow: 2px 2px 0px #000000;
+}
+
+.terraria-ui *:not(.material-symbols-outlined) {
+  font-family: 'Outfit', sans-serif !important;
+  letter-spacing: 0.5px;
+}
+
+/* Base Panel */
+.terraria-panel {
+  background-color: var(--tr-panel-bg);
+  border: 3px solid var(--tr-panel-border);
+  border-radius: 12px;
+  color: var(--tr-text-default);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Inner/Darker Panel */
+.terraria-panel-dark {
+  background-color: rgba(30, 35, 55, 0.8);
+  border: 2px solid var(--tr-panel-border);
+  border-radius: 8px;
+  color: var(--tr-text-default);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* Buttons */
+.terraria-btn {
+  background-color: var(--tr-btn-bg);
+  border: 3px solid var(--tr-btn-border);
+  border-radius: 20px;
+  color: var(--tr-text-default);
+  padding: 8px 24px;
+  font-size: 1.4rem;
+  text-shadow: var(--tr-shadow);
+  cursor: pointer;
+  transition: all 0.1s;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15), 0 4px 6px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.terraria-btn:hover {
+  background-color: var(--tr-btn-hover-bg);
+  color: var(--tr-text-hover);
+  transform: scale(1.02);
+}
+
+.terraria-btn:active {
+  transform: scale(0.98);
+}
+
+.terraria-btn-active {
+  color: var(--tr-text-hover);
+  background-color: var(--tr-btn-hover-bg);
+}
+
+/* Red Button */
+.terraria-btn-red {
+  background-color: #8c2424;
+}
+.terraria-btn-red:hover {
+  background-color: #a82e2e;
+}
+
+/* Green Button */
+.terraria-btn-green {
+  background-color: #2e6b2e;
+}
+.terraria-btn-green:hover {
+  background-color: #388238;
+}
+
+/* Typography Overrides */
+.terraria-ui h1, .terraria-ui h2, .terraria-ui h3 {
+  color: var(--tr-text-title);
+  text-shadow: var(--tr-shadow);
+  font-weight: normal;
+}
+
+.terraria-title {
+  color: var(--tr-text-title);
+  font-size: 2.5rem;
+  text-shadow: var(--tr-shadow);
+}
+
+/* Sliders */
+.terraria-ui input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent !important;
+  height: 24px !important;
+  box-shadow: none !important;
+}
+
+.terraria-ui input[type="range"]::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 12px;
+  background-color: #000000; 
+  border: 2px solid #5c647b;
+  border-radius: 6px;
+  box-shadow: 0 0 0 2px #000000;
+}
+
+.terraria-ui input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px !important;
+  height: 24px !important;
+  border-radius: 4px !important;
+  background: #ffffff !important;
+  border: 2px solid #000000 !important;
+  cursor: pointer;
+  margin-top: -8px !important; 
+}
+
+.terraria-ui input[type="range"]::-webkit-slider-thumb:hover {
+  background: #ffeb04 !important;
+}
+
+
+/* Custom Scrollbar */
+.terraria-ui ::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.terraria-ui ::-webkit-scrollbar-track {
+  background: rgba(30, 35, 55, 0.5);
+  border-left: 1px solid #000000;
+}
+
+.terraria-ui ::-webkit-scrollbar-thumb {
+  background: #5c647b;
+  border: 2px solid #000000;
+  border-radius: 6px;
+}
+
+.terraria-ui ::-webkit-scrollbar-thumb:hover {
+  background: #6e768e;
+}
+
+.terraria-ui ::-webkit-scrollbar-corner {
+  background: rgba(30, 35, 55, 0.5);
+}

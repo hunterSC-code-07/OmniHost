@@ -68,13 +68,13 @@ export const TerrariaOverviewTab: React.FC = () => {
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-white/10 pb-4">
         <div>
-          <h1 className="text-3xl font-bold text-white drop-shadow-md mb-1">Server Overview</h1>
+          <h1 className="terraria-title mb-1">Server Overview</h1>
           <p className="text-gray-400 font-medium">Real-time vitals and statistics</p>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        <div className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex flex-col hover:border-green-500/50 transition-colors h-[220px] relative overflow-hidden group">
+        <div className="terraria-panel p-6 flex flex-col h-[220px] relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-b from-green-500/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex justify-between items-center h-8 z-10">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -98,7 +98,7 @@ export const TerrariaOverviewTab: React.FC = () => {
           </div>
         </div>
         
-        <div className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex flex-col hover:border-blue-500/50 transition-colors h-[220px] relative overflow-hidden group">
+        <div className="terraria-panel p-6 flex flex-col h-[220px] relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-500/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex justify-between items-center h-8 z-10">
             <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -124,7 +124,7 @@ export const TerrariaOverviewTab: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex items-center gap-4 hover:bg-white/5 transition-colors">
+        <div className="terraria-panel p-6 flex items-center gap-4">
           <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${serverStatus === 'Online' ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-red-500/20 text-red-400 border border-red-500/30'}`}>
             <span className="material-symbols-outlined text-3xl">power_settings_new</span>
           </div>
@@ -137,7 +137,7 @@ export const TerrariaOverviewTab: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex items-center gap-4 hover:bg-white/5 transition-colors">
+        <div className="terraria-panel p-6 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-orange-500/20 text-orange-400 border border-orange-500/30 flex items-center justify-center">
             <span className="material-symbols-outlined text-3xl">update</span>
           </div>
@@ -147,7 +147,7 @@ export const TerrariaOverviewTab: React.FC = () => {
           </div>
         </div>
 
-        <div className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex items-center gap-4 hover:bg-white/5 transition-colors">
+        <div className="terraria-panel p-6 flex items-center gap-4">
           <div className="w-12 h-12 rounded-lg bg-purple-500/20 text-purple-400 border border-purple-500/30 flex items-center justify-center">
             <span className="material-symbols-outlined text-3xl">group</span>
           </div>

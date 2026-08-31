@@ -11,6 +11,8 @@ interface MinecraftHubState {
   serverMeta: any;
   fetchServerMeta: (serverId: number) => Promise<void>;
   onRedirectToCreateModpack: () => void;
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
 }
 
 export const useMinecraftHubStore = create<MinecraftHubState>((set, get) => ({
@@ -43,5 +45,7 @@ export const useMinecraftHubStore = create<MinecraftHubState>((set, get) => ({
   },
   onRedirectToCreateModpack: () => {
     // Keeps the empty placeholder from the old context
-  }
+  },
+  isDarkMode: false,
+  toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode }))
 }));

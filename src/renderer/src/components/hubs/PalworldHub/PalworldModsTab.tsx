@@ -82,29 +82,29 @@ export const PalworldModsTab: React.FC = React.memo(() => {
           {/* Header Controls */}
           <div className="flex justify-between items-end z-20 py-4">
             <div>
-              <h2 className="font-headline-lg text-headline-lg text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.3)]">
+              <h2 className="pal-title">
                 Mods
               </h2>
             </div>
 
-            <div className="flex gap-2 p-1 bg-surface-container-low rounded-xl border border-surface-container-highest">
+            <div className="flex gap-2 p-1 pal-panel-dark">
               <button
                 onClick={() => setActiveTab('search')}
-                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'search' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+                className={`pal-btn ${activeTab === 'search' ? 'pal-btn-active' : ''}`}
               >
                 <Search className="w-4 h-4" />
                 Browse
               </button>
               <button
                 onClick={() => setActiveTab('installed')}
-                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'installed' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+                className={`pal-btn ${activeTab === 'installed' ? 'pal-btn-active' : ''}`}
               >
                 <Package className="w-4 h-4" />
                 Installed ({installedMods.length})
               </button>
               <button
                 onClick={() => setActiveTab('dependencies')}
-                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'dependencies' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+                className={`pal-btn ${activeTab === 'dependencies' ? 'pal-btn-active' : ''}`}
               >
                 <Layers className="w-4 h-4" />
                 Dependencies
@@ -114,7 +114,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
               </button>
               <button
                 onClick={() => setActiveTab('nexus')}
-                className={`px-6 py-2 rounded-lg font-bold text-sm transition-all flex items-center gap-2 ${activeTab === 'nexus' ? 'bg-blue-500 text-on-primary shadow-glow' : 'text-on-surface-variant hover:text-blue-400'}`}
+                className={`pal-btn ${activeTab === 'nexus' ? 'pal-btn-active' : ''}`}
               >
                 <Globe className="w-4 h-4" />
                 Nexus
@@ -125,7 +125,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
           <div className="flex gap-6 min-h-[500px]">
             <div className="flex-1 flex flex-col gap-4">
               {activeTab === 'search' && (
-                <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-6 shadow-glass flex flex-col min-h-[400px]">
+                <div className="pal-panel p-6 flex flex-col min-h-[400px]">
                   <div className="flex gap-4 items-center w-full mb-6 relative">
                     <Search className="w-5 h-5 text-on-surface-variant absolute left-4" />
                     <form onSubmit={(e) => handleSearchMods(e)} className="flex-1 flex gap-4">
@@ -139,7 +139,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                       <button
                         type="submit"
                         disabled={isSearchingMods}
-                        className="bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/30 text-blue-400 px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
+                        className="pal-btn pal-btn-blue h-12"
                       >
                         {isSearchingMods ? 'Searching...' : 'Search'}
                       </button>
@@ -150,7 +150,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                     {modResults.map((mod) => (
                       <div
                         key={mod.id}
-                        className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-surface-container-lowest border border-white/5 hover:border-blue-500/30 transition-colors group relative overflow-hidden"
+                        className="pal-panel p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 hover:border-blue-500/50 transition-colors group relative"
                       >
                         <div className="flex items-center gap-4 z-10 flex-1">
                           <img

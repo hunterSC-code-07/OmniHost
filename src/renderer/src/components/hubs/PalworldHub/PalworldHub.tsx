@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
+import '../../../assets/palworld-ui.css'
 
 import { ConsoleTab } from '../../tabs/ConsoleTab'
 import { PalworldOptionsTab } from './PalworldOptionsTab'
@@ -86,10 +87,10 @@ export const PalworldHub: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden">
+    <div className="flex-1 flex flex-col relative overflow-hidden palworld-ui">
       <PalworldAnimatedBackground />
 
-      <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
+      <div className="pal-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
             <button
@@ -101,14 +102,14 @@ export const PalworldHub: React.FC = () => {
                 arrow_back
               </span>
             </button>
-            <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
+            <h2 className="pal-title">{activeServer.name}</h2>
             <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">
               Palworld
             </span>
           </div>
 
           <div className="flex gap-3 items-center">
-            <div className="flex glass-panel rounded-lg overflow-hidden transition-all duration-300 ease-out hover:border-white/30 hover:-translate-y-1 hover:scale-105 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)]">
+            <div className="flex pal-panel rounded-full p-1 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105">
               <button
                 onClick={handleTunnel}
                 title={
@@ -140,10 +141,9 @@ export const PalworldHub: React.FC = () => {
 
             <button
               onClick={() => deleteServer(activeServer.id)}
-              className="relative overflow-hidden group glass-panel px-6 py-2.5 rounded-lg font-bold transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105 hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.4),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300"
+              className="pal-btn"
             >
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
-              <span className="relative z-10">DELETE</span>
+              <span>DELETE</span>
             </button>
 
             <button
@@ -152,20 +152,18 @@ export const PalworldHub: React.FC = () => {
                   ? stopServer(activeServer.id)
                   : startServer(activeServer.id)
               }
-              className={`relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105 ${activeServer.status === 'Online' ? 'hover:border-red-500/60 hover:shadow-[0_8px_32px_rgba(248,113,113,0.4),inset_0_1px_2px_rgba(255,255,255,0.4)] text-red-400 hover:text-red-300' : 'hover:border-green-500/60 hover:shadow-[0_8px_32px_rgba(74,222,128,0.4),inset_0_1px_2px_rgba(255,255,255,0.4)] text-green-400 hover:text-green-300'}`}
+              className={activeServer.status === 'Online' ? 'pal-btn pal-btn-orange' : 'pal-btn pal-btn-blue'}
             >
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
-              <span className="relative z-10">
+              <span>
                 {activeServer.status === 'Online' ? 'STOP' : 'START'}
               </span>
             </button>
 
             <button
               onClick={() => restartServer(activeServer.id)}
-              className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105 hover:border-blue-500/60 hover:shadow-[0_8px_32px_rgba(59,130,246,0.4),inset_0_1px_2px_rgba(255,255,255,0.4)] text-blue-400 hover:text-green-300"
+              className="pal-btn pal-btn-blue"
             >
-              <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
-              <span className="relative z-10">RESTART</span>
+              <span>RESTART</span>
             </button>
           </div>
         </div>
@@ -183,10 +181,10 @@ export const PalworldHub: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id as any)}
-                  className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${
+                  className={`pal-btn ${
                     activeTab === tab.id
-                      ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30 shadow-[0_0_15px_rgba(59,130,246,0.1)]'
-                      : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
+                      ? 'pal-btn-active'
+                      : ''
                   }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>

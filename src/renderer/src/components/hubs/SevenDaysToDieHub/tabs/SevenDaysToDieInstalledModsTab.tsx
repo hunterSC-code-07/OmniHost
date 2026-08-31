@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 interface Props {
   serverId: number;
 }
@@ -50,45 +50,49 @@ export const SevenDaysToDieInstalledModsTab: React.FC<Props> = ({ serverId }) =>
   };
 
   return (
-    <div className="flex-1 flex flex-col p-6 overflow-hidden">
+    <div className="flex-1 flex flex-col p-8 overflow-hidden sevendays-ui min-h-0">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-white mb-1">Installed Mods</h2>
-          <p className="text-gray-400 text-sm">Manage your downloaded mods. Mods are dynamically loaded when the server starts.</p>
+          <h2 className="sevendays-title text-3xl mb-1">INSTALLED MODS</h2>
         </div>
         <button 
           onClick={fetchMods}
-          className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white rounded-lg transition-colors flex items-center gap-2"
+          className="sevendays-btn px-6 py-2 flex items-center gap-2"
         >
           <span className="material-symbols-outlined text-[20px]">refresh</span>
-          Refresh List
+          REFRESH
         </button>
       </div>
       
-      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="flex-1 min-h-0">
+        <OverlayScrollbarsComponent 
+            className="flex-1 min-h-0 h-full bg-[var(--7dtd-bg-panel-dark)] border border-[var(--7dtd-border)] p-6" 
+            options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+            defer
+        >
         {loading ? (
-          <div className="glass-panel p-8 text-center text-gray-400 animate-pulse">
-            Loading mods...
+          <div className="p-8 text-center text-white/50 animate-pulse sevendays-title">
+            LOADING MODS...
           </div>
         ) : mods.length === 0 ? (
-          <div className="glass-panel p-12 flex flex-col items-center justify-center text-center">
-            <span className="material-symbols-outlined text-6xl text-white/20 mb-4">extension_off</span>
-            <h3 className="text-xl font-bold text-white mb-2">No Mods Installed</h3>
-            <p className="text-gray-400">Download mods from the Nexus Mods or Community Mods tabs.</p>
+          <div className="p-12 flex flex-col items-center justify-center text-center h-full">
+            <span className="material-symbols-outlined text-6xl text-[var(--7dtd-text-dim)] mb-4">extension_off</span>
+            <h3 className="sevendays-title text-2xl mb-2">NO MODS INSTALLED</h3>
+            <p className="text-[var(--7dtd-text-dim)] uppercase">Download mods from the Nexus Mods or Community Mods tabs.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mods.map((mod) => (
-              <div key={mod.folderName} className={`glass-panel p-5 flex flex-col gap-3 transition-colors ${mod.enabled ? 'border-l-4 border-l-brand' : 'border-l-4 border-l-gray-600 opacity-60'}`}>
-                <div className="flex justify-between items-start">
+              <div key={mod.folderName} className={`sevendays-panel flex flex-col p-5 border border-[var(--7dtd-border)] ${mod.enabled ? 'border-l-4 border-l-white bg-[var(--7dtd-bg-panel-light)]' : 'border-l-4 border-l-white/20 opacity-70'}`}>
+                <div className="flex justify-between items-start mb-4">
                   <div>
-                    <h3 className="font-bold text-white text-lg leading-tight">{mod.name}</h3>
-                    <div className="text-xs text-brand font-mono mt-1">v{mod.version}</div>
+                    <h3 className="sevendays-title text-xl leading-tight truncate pr-2" title={mod.name}>{mod.name}</h3>
+                    <div className="text-sm text-white/50 font-bold mt-1 uppercase">v{mod.version}</div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 shrink-0">
                     <button 
                       onClick={() => toggleMod(mod.folderName, mod.enabled)}
-                      className={`p-1.5 rounded transition-colors ${mod.enabled ? 'bg-brand/20 text-brand hover:bg-brand/30' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'}`}
+                      className={`w-8 h-8 flex items-center justify-center border transition-colors ${mod.enabled ? 'bg-white/20 border-white text-white' : 'bg-transparent border-[var(--7dtd-border)] text-[var(--7dtd-text-dim)] hover:text-white hover:border-white/50'}`}
                       title={mod.enabled ? 'Disable Mod' : 'Enable Mod'}
                     >
                       <span className="material-symbols-outlined text-[18px]">
@@ -97,7 +101,7 @@ export const SevenDaysToDieInstalledModsTab: React.FC<Props> = ({ serverId }) =>
                     </button>
                     <button 
                       onClick={() => deleteMod(mod.folderName)}
-                      className="p-1.5 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded transition-colors"
+                      className="w-8 h-8 flex items-center justify-center bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500 hover:text-white transition-colors"
                       title="Delete Mod"
                     >
                       <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -105,28 +109,29 @@ export const SevenDaysToDieInstalledModsTab: React.FC<Props> = ({ serverId }) =>
                   </div>
                 </div>
                 
-                <p className="text-sm text-gray-300 line-clamp-2 mt-1">{mod.description || 'No description provided.'}</p>
+                <p className="text-sm text-[var(--7dtd-text-dim)] line-clamp-2 uppercase">{mod.description || 'NO DESCRIPTION'}</p>
                 
                 {mod.missingDependencies && mod.missingDependencies.length > 0 && (
-                  <div className="mt-2 bg-red-500/10 border border-red-500/30 rounded p-2 text-xs text-red-400">
-                    <div className="font-bold mb-1 flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">warning</span>
-                      Missing Dependencies:
+                  <div className="mt-4 bg-red-500/20 border border-red-500/50 p-3 text-xs text-red-100">
+                    <div className="font-bold mb-1 flex items-center gap-1 sevendays-title">
+                      <span className="material-symbols-outlined text-[16px]">warning</span>
+                      MISSING DEPENDENCIES
                     </div>
-                    <ul className="list-disc list-inside">
+                    <ul className="list-disc list-inside uppercase pl-1">
                       {mod.missingDependencies.map(dep => <li key={dep}>{dep}</li>)}
                     </ul>
                   </div>
                 )}
                 
-                <div className="mt-auto pt-3 border-t border-white/5 flex justify-between items-center text-xs">
-                  <span className="text-gray-500 truncate" title={mod.folderName}>{mod.folderName}</span>
-                  <span className="text-gray-400 font-medium">{mod.author}</span>
+                <div className="mt-auto pt-4 border-t border-[var(--7dtd-border)] flex justify-between items-center text-xs text-[var(--7dtd-text-dim)] uppercase font-bold">
+                  <span className="truncate" title={mod.folderName}>{mod.folderName}</span>
+                  <span className="text-white shrink-0 ml-2">{mod.author}</span>
                 </div>
               </div>
             ))}
           </div>
         )}
+        </OverlayScrollbarsComponent>
       </div>
     </div>
   );

@@ -25,34 +25,31 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
   max,
   step,
   note
-}) => (
-  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-lg transition-colors group">
-    <div className="flex flex-col max-w-[50%]">
-      <span className="font-label-md text-on-surface">{label}</span>
-      {note && <span className="text-xs text-on-surface-variant/70 mt-1">{note}</span>}
+}) => {
+  const percent = ((Number(value) - min) / (max - min)) * 100;
+  
+  return (
+    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-lg transition-colors group">
+      <div className="flex flex-col max-w-[50%]">
+        <span className="font-label-md text-on-surface">{label}</span>
+        {note && <span className="text-xs text-on-surface-variant/70 mt-1">{note}</span>}
+      </div>
+      <div className="flex items-center gap-4 flex-1 max-w-[300px]">
+        <div className="bg-[#121b2b] border border-[#1e293b] rounded text-white font-mono font-bold w-12 py-1.5 text-center text-sm shadow-inner shrink-0">{value}</div>
+        <input
+          type="range"
+          min={min}
+          max={max}
+          step={step}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="w-full flex-1"
+          style={{ '--val': `${percent}%` } as React.CSSProperties}
+        />
+      </div>
     </div>
-    <div className="flex items-center gap-4 flex-1 max-w-[300px]">
-      <span className="font-mono text-base font-bold text-blue-300 bg-blue-500/10 px-2 py-1 rounded-lg min-w-[3.5rem] text-center border border-blue-400/20 shadow-[0_0_10px_rgba(59,130,246,0.1)]">{value}</span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-4 bg-blue-950/60 rounded-full appearance-none cursor-pointer border border-blue-400/30 overflow-hidden
-          [&::-webkit-slider-thumb]:appearance-none 
-          [&::-webkit-slider-thumb]:w-4
-          [&::-webkit-slider-thumb]:h-4
-          [&::-webkit-slider-thumb]:rounded-full 
-          [&::-webkit-slider-thumb]:bg-blue-300 
-          [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#60a5fa]
-          hover:[&::-webkit-slider-thumb]:bg-blue-200
-          transition-all"
-      />
-    </div>
-  </div>
-)
+  )
+}
 SettingSlider.displayName = 'SettingSlider'
 
 interface SettingSelectProps {
@@ -155,11 +152,10 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
               <button
                 onClick={saveMetaAndConfig}
                 disabled={isSavingMeta}
-                className="relative overflow-hidden group bg-blue-500/10 backdrop-blur-xl border border-blue-500/30 shadow-[0_8px_32px_rgba(59,130,246,0.1),inset_0_1px_1px_rgba(255,255,255,0.2)] px-8 py-2.5 rounded-xl font-bold transition-all hover:border-blue-500/60 hover:shadow-[0_8px_32px_rgba(59,130,246,0.2),inset_0_1px_2px_rgba(255,255,255,0.4)] text-blue-400 flex items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="pal-btn pal-btn-blue"
               >
-                <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
-                <Save className="w-4 h-4 relative z-10" />
-                <span className="relative z-10 uppercase tracking-widest">
+                <Save className="w-4 h-4 mr-2" />
+                <span>
                   {isSavingMeta ? 'Saving...' : 'Save Settings'}
                 </span>
               </button>
@@ -168,7 +164,7 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
 
           <div className="flex flex-col gap-6">
             {/* Resource Slider Section */}
-            <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-8 shadow-glass flex flex-col items-center">
+            <div className="pal-panel p-8 flex flex-col items-center">
               <div className="text-center mb-6">
                 <h3 className="font-headline-lg text-headline-lg text-on-surface">
                   {cpuLimit} shared CPU cores
@@ -191,15 +187,8 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
                   step="1"
                   value={cpuLimit}
                   onChange={(e) => setCpuLimit(parseInt(e.target.value, 10))}
-                  className="w-full h-4 bg-blue-950/60 rounded-full appearance-none cursor-pointer border border-blue-400/30 overflow-hidden
-                    [&::-webkit-slider-thumb]:appearance-none 
-                    [&::-webkit-slider-thumb]:w-4
-                    [&::-webkit-slider-thumb]:h-4
-                    [&::-webkit-slider-thumb]:rounded-full 
-                    [&::-webkit-slider-thumb]:bg-blue-300 
-                    [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#60a5fa]
-                    hover:[&::-webkit-slider-thumb]:bg-blue-200
-                    transition-all"
+                  className="w-full"
+                  style={{ '--val': `${((cpuLimit - 1) / (Math.max(1, sysInfo.cpus - 1))) * 100}%` } as React.CSSProperties}
                 />
                 <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-4 px-1">
                   <span>1 Core</span>
@@ -210,7 +199,7 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
 
             {/* Auto-Start / Auto-Stop Section */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="bg-surface-container-low border border-surface-container-highest hover:border-blue-500/40 transition-colors flex justify-between items-center px-6 py-4 shadow-sm rounded-xl h-16">
+              <div className="pal-panel hover:border-blue-500/40 transition-colors flex justify-between items-center px-6 py-4 h-16">
                 <span className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
                   Start when any player joins
                 </span>
@@ -224,7 +213,7 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
                 </button>
               </div>
 
-              <div className="bg-surface-container-low border border-surface-container-highest hover:border-blue-500/40 transition-colors flex justify-between items-center px-6 py-4 shadow-sm rounded-xl h-16">
+              <div className="pal-panel hover:border-blue-500/40 transition-colors flex justify-between items-center px-6 py-4 h-16">
                 <span className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
                   Stop when empty for 15 mins
                 </span>
@@ -240,8 +229,8 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
             </div>
 
             {/* Game Settings */}
-            <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-8 shadow-glass">
-              <h3 className="font-headline-sm text-headline-sm text-blue-400 mb-6 uppercase tracking-widest">
+            <div className="pal-panel p-8">
+              <h3 className="pal-title mb-6">
                 Game Settings
               </h3>
 
