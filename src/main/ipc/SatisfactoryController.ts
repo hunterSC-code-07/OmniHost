@@ -2,6 +2,7 @@ import { app, ipcMain } from 'electron';
 import { join } from 'path';
 import fsPromises from 'fs/promises';
 import { SatisfactoryAdapter } from '../adapters/SatisfactoryAdapter';
+import { SatisfactoryModManager } from '../satisfactory/SatisfactoryModManager';
 
 async function exists(path: string) {
   try {
@@ -51,6 +52,22 @@ export class SatisfactoryController {
         console.error('Failed to save satisfactory token', e);
         return false;
       }
+    });
+
+    ipcMain.handle('search-satisfactory-mods', async (_, query, limit, offset) => {
+      return await SatisfactoryModManager.searchMods(query, limit, offset);
+    });
+    
+    ipcMain.handle('get-installed-satisfactory-mods', async (_, serverId) => {
+      return SatisfactoryModManager.getInstalledMods(serverId);
+    });
+
+    ipcMain.handle('install-satisfactory-mod', async (_, serverId, modReference, downloadLink) => {
+      await SatisfactoryModManager.installMod(serverId, modReference, downloadLink);
+    });
+
+    ipcMain.handle('uninstall-satisfactory-mod', async (_, serverId, modFilename) => {
+      SatisfactoryModManager.uninstallMod(serverId, modFilename);
     });
   }
 }

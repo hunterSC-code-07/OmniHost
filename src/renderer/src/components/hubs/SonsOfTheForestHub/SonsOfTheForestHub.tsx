@@ -1,22 +1,22 @@
 import React, { useState, useMemo } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import 'overlayscrollbars/overlayscrollbars.css';
-import { SatisfactoryConsoleTab } from './tabs/SatisfactoryConsoleTab';
 import { motion, AnimatePresence } from 'motion/react';
-import { SatisfactoryAnimatedBackground } from './SatisfactoryAnimatedBackground';
 
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 import { TunnelModal } from '../../modals/TunnelModal';
 
-import { SatisfactoryPlayersTab } from './tabs/SatisfactoryPlayersTab';
-import { SatisfactoryModsTab } from './tabs/SatisfactoryModsTab';
-import { SatisfactoryInstalledModsTab } from './tabs/SatisfactoryInstalledModsTab';
+import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
+import { SonsOfTheForestOverviewTab } from './tabs/SonsOfTheForestOverviewTab';
+import { SonsOfTheForestConsoleTab } from './tabs/SonsOfTheForestConsoleTab';
+import { SonsOfTheForestPlayersTab } from './tabs/SonsOfTheForestPlayersTab';
+import { SonsOfTheForestOptionsTab } from './tabs/SonsOfTheForestOptionsTab';
 
-export const SatisfactoryHub: React.FC = () => {
+export const SonsOfTheForestHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
-  const [activeTab, setActiveTab] = useState('console');
+  const [activeTab, setActiveTab] = useState('overview');
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
 
   const activeServer = useMemo(() => servers.find(s => s.id === activeServerId), [servers, activeServerId]);
@@ -24,7 +24,7 @@ export const SatisfactoryHub: React.FC = () => {
   const handleTunnel = async () => {
     if (tunnelStatus === 'Offline' || tunnelStatus === '') {
       // @ts-ignore
-      await window.api.system.startTunnel(tunnelIp, 'satisfactory');
+      await window.api.system.startTunnel(tunnelIp, 'sonsoftheforest');
     } else if (tunnelStatus === 'Online') {
       // @ts-ignore
       await window.api.system.stopTunnel();
@@ -34,17 +34,18 @@ export const SatisfactoryHub: React.FC = () => {
   if (!activeServer) return null;
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars">
-      <SatisfactoryAnimatedBackground />
+    <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black/60">
+      
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-20" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
 
-      <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
+      <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none backdrop-blur-md bg-black/40">
         <div className="flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
             <button onClick={() => setActiveServerId(null)} className="p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors border border-white/10 flex items-center justify-center group" title="Back to Dashboard">
               <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </button>
             <h2 className="text-2xl font-bold text-white drop-shadow-md">{activeServer.name}</h2>
-            <span className="bg-[#fa9549]/20 text-[#fa9549] border border-[#fa9549]/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">Satisfactory</span>
+            <span className="bg-[#16a34a]/20 text-[#4ade80] border border-[#16a34a]/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">Sons of the Forest</span>
           </div>
 
           <div className="flex gap-3 items-center">
@@ -64,7 +65,7 @@ export const SatisfactoryHub: React.FC = () => {
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">{activeServer.status === 'Online' ? 'STOP' : 'START'}</span>
             </button>
-            <button onClick={() => restartServer(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-[#fa9549]/60 text-[#fa9549] hover:text-[#fa9549] hover:shadow-[0_8px_32px_rgba(250,149,73,0.2)]">
+            <button onClick={() => restartServer(activeServer.id)} className="relative overflow-hidden group glass-panel px-8 py-2.5 rounded-lg font-bold transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:border-[#16a34a]/60 text-[#4ade80] hover:text-[#4ade80] hover:shadow-[0_8px_32px_rgba(22,163,74,0.2)]">
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20 opacity-30 group-hover:opacity-60 transition-opacity duration-500 pointer-events-none"></div>
               <span className="relative z-10">RESTART</span>
             </button>
@@ -76,16 +77,17 @@ export const SatisfactoryHub: React.FC = () => {
           <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer>
             <div className="flex items-center gap-2 min-w-max pb-2 pt-2 px-1">
               {[
+                { id: 'overview', label: 'Overview', icon: 'dashboard' },
                 { id: 'console', label: 'Console', icon: 'terminal' },
-                { id: 'players', label: 'Players', icon: 'group' },
-                { id: 'installed-mods', label: 'Installed Mods', icon: 'folder' },
-                { id: 'mods', label: 'Browse Mods', icon: 'travel_explore' }
+                { id: 'players', label: 'Live Players', icon: 'group' },
+                { id: 'options', label: 'Options', icon: 'settings' },
+                { id: 'files', label: 'Config & Files', icon: 'folder' }
               ].map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-label-md text-label-md transition-all duration-300 ease-out whitespace-nowrap hover:-translate-y-1 hover:scale-105 ${activeTab === tab.id
-                      ? 'bg-[#fa9549]/10 text-[#fa9549] border border-[#fa9549]/30 shadow-[0_0_15px_rgba(250,149,73,0.15)]'
+                      ? 'bg-[#16a34a]/20 text-[#4ade80] border border-[#16a34a]/50 shadow-[0_0_15px_rgba(22,163,74,0.15)]'
                       : 'text-on-surface-variant hover:text-white hover:bg-white/5 border border-transparent'
                     }`}
                 >
@@ -109,10 +111,11 @@ export const SatisfactoryHub: React.FC = () => {
               transition={{ duration: 0.2 }}
               className="flex flex-col min-h-0 w-full h-full"
             >
-              {activeTab === 'console' && <SatisfactoryConsoleTab />}
-              {activeTab === 'players' && <SatisfactoryPlayersTab />}
-              {activeTab === 'installed-mods' && <SatisfactoryInstalledModsTab />}
-              {activeTab === 'mods' && <SatisfactoryModsTab />}
+              { activeTab === 'overview' && <SonsOfTheForestOverviewTab />}
+              { activeTab === 'console' && <SonsOfTheForestConsoleTab />}
+              { activeTab === 'players' && <SonsOfTheForestPlayersTab serverId={activeServer.id} />}
+              { activeTab === 'options' && <SonsOfTheForestOptionsTab />}
+              { activeTab === 'files' && <FilesTab />}
 
             </motion.div>
           </AnimatePresence>
