@@ -25,6 +25,9 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
 
   const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
   const activePlayers = activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : [];
+  const isMinecraft = activeServer?.game?.toLowerCase() === 'minecraft';
+  const isPalworld = activeServer?.game?.toLowerCase() === 'palworld';
+  const isTerraria = activeServer?.game?.toLowerCase() === 'terraria';
 
   const rowVirtualizer = useVirtualizer({
     count: activeLogs.length,
@@ -60,7 +63,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
 
   return (
     <div className="absolute inset-0 flex gap-6 p-6 min-h-0 bg-transparent font-body">
-      <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] min-h-0 min-w-0">
+      <div className={`flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 ${isMinecraft ? 'minecraft-panel-dark' : isPalworld ? 'pal-panel-dark' : isTerraria ? 'terraria-panel-dark' : 'bg-black/40 backdrop-blur-md rounded-xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'}`}>
         <div ref={parentRef} className="flex-1 min-h-0 overflow-auto p-6" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}>
           <div className="font-mono text-sm text-on-surface-variant shadow-inner w-full relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {activeLogs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
@@ -91,15 +94,15 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
           <span className="text-on-surface-variant font-bold text-xl leading-none flex items-center">&gt;</span>
           <input type="text" value={consoleInput} onChange={(e) => setConsoleInput(e.target.value)} placeholder="Type a command..." className="flex-1 bg-transparent border-none outline-none text-brand font-mono placeholder-on-surface-variant/30" />
           
-          <button type="button" onClick={handleClearLogs} className="p-2.5 text-on-surface-variant hover:text-red-400 bg-surface-container-highest/50 hover:bg-red-500/10 rounded-lg transition-all border border-transparent hover:border-red-500/30 flex items-center justify-center group" title="Clear Console">
+          <button type="button" onClick={handleClearLogs} className={isMinecraft ? 'minecraft-btn minecraft-btn-red flex items-center justify-center h-[42px] px-3' : isPalworld ? 'pal-btn flex items-center justify-center h-[42px] px-3 text-red-400' : isTerraria ? 'terraria-btn terraria-btn-red flex items-center justify-center h-[42px] px-3' : 'p-2.5 text-on-surface-variant hover:text-red-400 bg-surface-container-highest/50 hover:bg-red-500/10 rounded-lg transition-all border border-transparent hover:border-red-500/30 flex items-center justify-center group'} title="Clear Console">
             <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">delete_sweep</span>
           </button>
           
-          <button type="submit" className="bg-brand/10 hover:bg-brand/20 text-brand border border-brand/50 hover:border-brand shadow-[0_0_15px_rgba(255,215,0,0.1)] px-8 py-2.5 rounded-xl font-bold transition-all uppercase tracking-widest text-sm">Send</button>
+          <button type="submit" className={isMinecraft ? 'minecraft-btn minecraft-btn-green w-32 h-[42px] ml-2' : isPalworld ? 'pal-btn pal-btn-blue w-32 h-[42px] ml-2' : isTerraria ? 'terraria-btn terraria-btn-green w-32 h-[42px] ml-2' : 'bg-brand/10 hover:bg-brand/20 text-brand border border-brand/50 hover:border-brand shadow-[0_0_15px_rgba(255,215,0,0.1)] px-8 py-2.5 rounded-xl font-bold transition-all uppercase tracking-widest text-sm'}>Send</button>
         </form>
       </div>
 
-      <div className="w-72 bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex flex-col min-h-0 rounded-xl overflow-hidden">
+      <div className={`w-72 flex flex-col min-h-0 overflow-hidden ${isMinecraft ? 'minecraft-panel-dark' : isPalworld ? 'pal-panel-dark' : isTerraria ? 'terraria-panel-dark' : 'bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-xl'}`}>
         <div className="p-5 border-b border-surface-container-highest flex justify-between items-center bg-surface-container-highest/20">
           <h3 className="font-headline-md text-headline-md text-on-surface">Live Players</h3>
           <div className="bg-[#4CAF50]/10 border border-[#4CAF50]/30 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(76,175,80,0.1)]">{activePlayers.length} Online</div>
@@ -115,7 +118,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
             ) : (
               <div className="space-y-3">
                 {activePlayers.map((playerName, idx) => (
-                  <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-brand/50 hover:bg-surface-container-lowest/80 transition-colors group">
+                  <div key={idx} onClick={() => onPlayerClick(playerName)} className={isMinecraft ? 'flex items-center gap-4 cursor-pointer group minecraft-btn text-left mb-2 w-full p-2' : isPalworld ? 'flex items-center gap-4 cursor-pointer group pal-btn border-none hover:bg-white/10 text-left mb-2 w-full p-2' : isTerraria ? 'flex items-center gap-4 cursor-pointer group terraria-btn text-left mb-2 w-full p-2' : 'flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-brand/50 hover:bg-surface-container-lowest/80 transition-colors group'}>
                     {activeServer?.game === 'minecraft' ? (
                       <img src={`https://mc-heads.net/avatar/${playerName}/32`} alt={playerName} className="w-10 h-10 rounded-lg shadow-sm bg-background group-hover:scale-105 transition-transform" />
                     ) : (

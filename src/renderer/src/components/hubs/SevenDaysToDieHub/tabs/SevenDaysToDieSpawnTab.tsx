@@ -112,158 +112,168 @@ export const SevenDaysToDieSpawnTab: React.FC<SevenDaysToDieSpawnTabProps> = ({ 
   };
 
   return (
-    <div className="flex-1 min-h-0 bg-black/20 backdrop-blur-sm flex flex-col p-6">
-      <div className="max-w-4xl w-full mx-auto flex-1 flex flex-col min-h-0 space-y-6">
-        
-        <div>
-          <h3 className="text-xl font-bold text-white mb-2">Item & Entity Spawner</h3>
-          <p className="text-sm text-gray-400">Spawn any item directly into a player's inventory, or spawn physical entities in the world near them.</p>
-        </div>
+    <div className="flex-1 min-h-0 sevendays-ui flex flex-col p-8 gap-6">
+      <div className="flex justify-between items-end pb-2">
+        <h3 className="sevendays-title text-3xl">ITEM & ENTITY SPAWNER</h3>
+      </div>
 
-        <div className="flex gap-6 min-h-0 flex-1">
-          {/* Left Column: Data Selection (Virtualized) */}
-          <div className="flex-1 glass-panel bg-black/40 border border-white/10 rounded-xl flex flex-col min-h-0 overflow-hidden">
+      <div className="flex gap-4 min-h-0 flex-1">
+        {/* Left Column: Data Selection (Virtualized) */}
+        <div className="flex-[7] sevendays-panel flex flex-col min-h-0 overflow-hidden border border-[var(--7dtd-border)]">
+          
+          {/* Header Tabs */}
+          <div className="flex border-b border-[var(--7dtd-border)] bg-[var(--7dtd-bg-panel-dark)]">
+            <button
+              onClick={() => setActionType('item')}
+              className={`flex-1 py-3 text-lg sevendays-title transition-colors border-b-2 ${actionType === 'item' ? 'bg-white/10 text-white border-white' : 'text-[var(--7dtd-text-dim)] border-transparent hover:text-white hover:bg-white/5'}`}
+            >
+              ITEMS ({items.length})
+            </button>
+            <div className="w-[1px] bg-[var(--7dtd-border)]"></div>
+            <button
+              onClick={() => setActionType('entity')}
+              className={`flex-1 py-3 text-lg sevendays-title transition-colors border-b-2 ${actionType === 'entity' ? 'bg-white/10 text-white border-white' : 'text-[var(--7dtd-text-dim)] border-transparent hover:text-white hover:bg-white/5'}`}
+            >
+              ENTITIES ({entities.length})
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className="p-4 space-y-4 border-b border-[var(--7dtd-border)] bg-[var(--7dtd-bg-panel)]">
+            <div className="sevendays-input-container relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--7dtd-text-dim)] w-5 h-5" />
+              <input 
+                type="text" 
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="sevendays-input w-full pl-10 pr-4 py-2 uppercase"
+                placeholder={`SEARCH ${filteredData.length} ${actionType.toUpperCase()}S...`}
+              />
+            </div>
             
-            {/* Header Tabs */}
-            <div className="flex bg-[#121212] border-b border-white/10 p-2 gap-2">
-              <button
-                onClick={() => setActionType('item')}
-                className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${actionType === 'item' ? 'bg-[#b32b2b]/20 text-[#ff4f4f] shadow-sm' : 'text-gray-400 hover:text-white'}`}
+            <div className="sevendays-input-container flex">
+              <select 
+                value={selectedCategory} 
+                onChange={(e) => setSelectedCategory(e.target.value)} 
+                className="sevendays-input w-full px-4 py-2 uppercase"
               >
-                Items ({items.length})
-              </button>
-              <button
-                onClick={() => setActionType('entity')}
-                className={`flex-1 py-2 text-sm font-bold rounded-md transition-colors ${actionType === 'entity' ? 'bg-[#b32b2b]/20 text-[#ff4f4f] shadow-sm' : 'text-gray-400 hover:text-white'}`}
-              >
-                Entities ({entities.length})
-              </button>
-            </div>
-
-            {/* Filters */}
-            <div className="p-4 space-y-4 border-b border-white/10 bg-black/20">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-[#121212] border border-white/10 rounded-lg pl-10 pr-4 py-2 text-white outline-none focus:border-red-500 transition-colors text-sm"
-                  placeholder={`Search ${filteredData.length} ${actionType}s...`}
-                />
-              </div>
-              <div>
-                <CustomSelect 
-                  value={selectedCategory}
-                  onChange={setSelectedCategory}
-                  options={categories.map(c => ({ label: `Category: ${c}`, value: c }))}
-                />
-              </div>
-            </div>
-
-            {/* Virtualized List */}
-            <div className="flex-1 min-h-0 relative">
-              {loading ? (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">Loading data...</div>
-              ) : filteredData.length === 0 ? (
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">No results found.</div>
-              ) : (
-                <div 
-                  ref={parentRef} 
-                  className="absolute inset-0 overflow-auto os-theme-dark"
-                  style={{ contain: 'strict' }}
-                >
-                  <div
-                    style={{
-                      height: `${rowVirtualizer.getTotalSize()}px`,
-                      width: '100%',
-                      position: 'relative',
-                    }}
-                  >
-                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                      const item = filteredData[virtualRow.index];
-                      const isSelected = selectedItemName === item.name;
-                      return (
-                        <div
-                          key={virtualRow.index}
-                          style={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: `${virtualRow.size}px`,
-                            transform: `translateY(${virtualRow.start}px)`,
-                          }}
-                          className={`px-4 py-2 border-b border-white/5 cursor-pointer hover:bg-white/5 transition-colors flex items-center justify-between ${isSelected ? 'bg-red-500/20 border-l-2 border-l-red-500' : ''}`}
-                          onClick={() => setSelectedItemName(item.name)}
-                        >
-                          <span className={`text-sm ${isSelected ? 'text-white font-bold' : 'text-gray-300'}`}>{item.name}</span>
-                          <span className="text-xs text-gray-500 px-2 py-1 bg-black/40 rounded-full">{item.group}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+                {categories.map(c => <option key={c} value={c} className="bg-black text-white">{`CATEGORY: ${c}`}</option>)}
+              </select>
             </div>
           </div>
 
-          {/* Right Column: Execute Panel */}
-          <div className="w-80 glass-panel bg-black/40 border border-white/10 p-6 rounded-xl space-y-6 flex flex-col h-fit">
-            <div>
-              <h4 className="text-lg font-bold text-white mb-4 border-b border-white/10 pb-2">Spawn Settings</h4>
-            </div>
+          {/* Virtualized List */}
+          <div className="flex-1 min-h-0 relative bg-[var(--7dtd-bg-panel-dark)]">
+            {loading ? (
+              <div className="absolute inset-0 flex items-center justify-center text-white/50 sevendays-title">LOADING DATA...</div>
+            ) : filteredData.length === 0 ? (
+              <div className="absolute inset-0 flex items-center justify-center text-white/50 sevendays-title">NO RESULTS FOUND.</div>
+            ) : (
+              <div 
+                ref={parentRef} 
+                className="absolute inset-0 overflow-auto os-theme-dark"
+                style={{ contain: 'strict' }}
+              >
+                <div
+                  style={{
+                    height: `${rowVirtualizer.getTotalSize()}px`,
+                    width: '100%',
+                    position: 'relative',
+                  }}
+                >
+                  {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const item = filteredData[virtualRow.index];
+                    const isSelected = selectedItemName === item.name;
+                    return (
+                      <div
+                        key={virtualRow.index}
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: `${virtualRow.size}px`,
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                        className={`px-4 py-2 border-b border-[var(--7dtd-border)] cursor-pointer hover:bg-white/5 transition-colors flex items-center justify-between uppercase ${isSelected ? 'bg-white/10 border-l-4 border-l-white' : ''}`}
+                        onClick={() => setSelectedItemName(item.name)}
+                      >
+                        <span className={`text-sm ${isSelected ? 'text-white font-bold' : 'text-white/70'}`}>{item.name}</span>
+                        <span className="text-xs text-[var(--7dtd-text-dim)] px-2 py-1 bg-black/40 border border-white/10 font-bold">{item.group}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
 
+        {/* Right Column: Execute Panel */}
+        <div className="flex-[3] sevendays-panel p-6 border border-[var(--7dtd-border)] flex flex-col h-fit">
+          <h4 className="sevendays-title text-xl mb-6 pb-2 border-b border-[var(--7dtd-border)]">SPAWN SETTINGS</h4>
+
+          <div className="space-y-6">
             {/* Target Player */}
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">Target Player</label>
+            <div className="sevendays-input-row flex-col items-start gap-2">
+              <span className="sevendays-input-label">TARGET PLAYER</span>
               {onlinePlayers.length === 0 ? (
-                <div className="w-full bg-[#121212] border border-red-500/30 rounded-lg p-3 text-red-400/80 italic text-sm">
-                  No players online.
+                <div className="w-full bg-red-900/20 border border-red-500/50 p-3 text-red-400 sevendays-title text-sm">
+                  NO PLAYERS ONLINE
                 </div>
               ) : (
-                <CustomSelect 
-                  value={targetPlayer}
-                  onChange={setTargetPlayer}
-                  options={onlinePlayers.map(p => ({ label: p, value: p }))}
-                />
+                <div className="sevendays-input-container w-full flex">
+                  <select 
+                    value={targetPlayer} 
+                    onChange={(e) => setTargetPlayer(e.target.value)} 
+                    className="sevendays-input w-full px-4 py-2 uppercase"
+                  >
+                    {onlinePlayers.map(p => <option key={p} value={p} className="bg-black text-white">{p}</option>)}
+                  </select>
+                </div>
               )}
             </div>
 
             {/* Selected Target Item Display */}
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">Selected {actionType === 'item' ? 'Item' : 'Entity'}</label>
-              <div className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white text-sm break-all font-mono">
-                {selectedItemName || 'None selected'}
+            <div className="sevendays-input-row flex-col items-start gap-2">
+              <span className="sevendays-input-label">SELECTED {actionType === 'item' ? 'ITEM' : 'ENTITY'}</span>
+              <div className="w-full sevendays-input-container">
+                <div className="sevendays-input w-full p-3 text-sm break-all">
+                  {selectedItemName || 'NONE SELECTED'}
+                </div>
               </div>
             </div>
 
             {/* Quantity (Only for Items) */}
             {actionType === 'item' && (
-              <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-                <label className="block text-sm font-bold text-gray-300 mb-2">Quantity</label>
-                <CustomNumberInput 
-                  value={quantity}
-                  onChange={setQuantity}
-                  min={1}
-                  max={10000}
-                />
+              <div className="sevendays-input-row flex-col items-start gap-2">
+                <span className="sevendays-input-label">QUANTITY</span>
+                <div className="sevendays-input-container w-full">
+                  <input 
+                    type="number"
+                    value={quantity}
+                    onChange={(e) => setQuantity(e.target.value)}
+                    min={1}
+                    max={10000}
+                    className="sevendays-input w-full px-4 py-2"
+                  />
+                </div>
               </div>
             )}
-            
-            {/* Spawn Button */}
-            <div className="pt-4 mt-auto">
-              <button 
-                onClick={handleSpawn}
-                disabled={!targetPlayer || !selectedItemName}
-                className="w-full bg-red-900/80 border border-red-500/50 hover:bg-red-800 hover:border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)] disabled:opacity-50 text-white px-4 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center justify-center gap-2"
-              >
-                <span className="material-symbols-outlined text-[20px]">
-                  {actionType === 'item' ? 'inventory_2' : 'public'}
-                </span>
-                Spawn
-              </button>
-            </div>
+          </div>
+          
+          {/* Spawn Button */}
+          <div className="pt-8 mt-auto">
+            <button 
+              onClick={handleSpawn}
+              disabled={!targetPlayer || !selectedItemName}
+              className="sevendays-btn w-full py-4 text-xl flex items-center justify-center gap-2"
+            >
+              <span className="material-symbols-outlined text-[24px]">
+                {actionType === 'item' ? 'inventory_2' : 'public'}
+              </span>
+              SPAWN
+            </button>
           </div>
         </div>
       </div>

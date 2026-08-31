@@ -1,0 +1,166 @@
+/* 7 Days to Die Hub Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;700&display=swap');
+
+:root {
+  --7dtd-bg-dark: #121212;
+  --7dtd-bg-panel: #262626;
+  --7dtd-bg-panel-light: #333333;
+  --7dtd-bg-panel-dark: #1a1a1a;
+  
+  --7dtd-border: #4a4a4a;
+  --7dtd-text: #ffffff;
+  --7dtd-text-dim: #9ca3af;
+}
+
+.sevendays-ui {
+  font-family: 'Oswald', sans-serif;
+  color: var(--7dtd-text);
+  background-image: linear-gradient(to bottom, rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('data:image/svg+xml;utf8,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="%23262626" /><path d="M0 0l100 100M100 0L0 100" stroke="%23333" stroke-width="2" stroke-opacity="0.2"/></svg>');
+  background-size: cover;
+  background-position: center;
+  background-color: var(--7dtd-bg-dark);
+}
+
+.sevendays-title {
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.sevendays-panel {
+  background-color: rgba(38, 38, 38, 0.85); /* #262626 with opacity */
+  border: 1px solid var(--7dtd-border);
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+}
+
+.sevendays-btn {
+  background-color: transparent;
+  color: var(--7dtd-text);
+  border: 2px solid var(--7dtd-border);
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.3rem 1.5rem;
+  font-size: 1.1rem;
+  line-height: 1.2;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background-image: linear-gradient(to bottom, rgba(255,255,255,0.05), rgba(0,0,0,0.1));
+}
+
+.sevendays-btn:hover:not(:disabled) {
+  border-color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+}
+
+.sevendays-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Custom Inputs to match 7D2D New Game UI */
+.sevendays-input-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.sevendays-input-label {
+  flex: 1;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  color: var(--7dtd-text-dim);
+}
+
+.sevendays-input-container {
+  flex: 1.5;
+  display: flex;
+  background-color: rgba(0,0,0,0.5);
+  border: 1px solid var(--7dtd-border);
+}
+
+.sevendays-input-arrow {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background-color: rgba(255,255,255,0.05);
+  color: var(--7dtd-text-dim);
+  font-weight: bold;
+  user-select: none;
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+}
+
+.sevendays-input-arrow:first-child {
+  border-right-color: var(--7dtd-border);
+}
+.sevendays-input-arrow:last-child {
+  border-left-color: var(--7dtd-border);
+}
+
+.sevendays-input-arrow:hover {
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+}
+
+.sevendays-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: white;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 500;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.sevendays-input:focus {
+  outline: none;
+  background-color: rgba(255,255,255,0.05);
+}
+
+.sevendays-tab {
+  background-color: transparent;
+  color: var(--7dtd-text-dim);
+  border: none;
+  border-bottom: 2px solid transparent;
+  font-family: 'Oswald', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.5rem 1.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
+
+.sevendays-tab:hover {
+  color: white;
+}
+
+.sevendays-tab.active {
+  color: white;
+  border-bottom-color: white;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sevendays-tabs-container {
+  border-bottom: 2px solid var(--7dtd-border);
+}
+
+.sevendays-btn-danger {
+  color: #ff4f4f;
+  border-color: #ff4f4f;
+}
+
+.sevendays-btn-danger:hover:not(:disabled) {
+  background-color: rgba(255, 79, 79, 0.2);
+  border-color: #ff4f4f;
+  box-shadow: 0 0 10px rgba(255, 79, 79, 0.3);
+}

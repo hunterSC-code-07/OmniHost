@@ -21,32 +21,32 @@ export const TheForestAdminTab: React.FC<Props> = ({ serverId }) => {
   ];
 
   return (
-    <div className="absolute inset-0 flex flex-col p-8 min-h-0 bg-transparent">
-      <div className="border-b border-outline-variant/20 pb-6 mb-6">
-        <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Admin Actions</h1>
-        <p className="font-body-md text-body-md text-on-surface-variant">Execute in-game admin commands directly from the dashboard.</p>
+    <div className="absolute inset-0 flex flex-col px-12 py-8 min-h-0 bg-transparent text-white">
+      <div className="border-b border-white/10 pb-4 mb-8 flex justify-between items-center">
+        <div>
+          <h3 className="forest-title !text-3xl text-[var(--forest-yellow)] mb-1">ADMIN ACTIONS</h3>
+          <p className="font-bold text-white/50 text-sm">EXECUTE IN-GAME COMMANDS DIRECTLY FROM THE DASHBOARD</p>
+        </div>
       </div>
 
-      <div className="flex-1 overflow-hidden bg-surface/80 backdrop-blur-md rounded-xl border border-outline-variant/30 flex flex-col">
+      <div className="flex-1 overflow-hidden flex flex-col">
         <OverlayScrollbarsComponent 
           className="flex-1 min-h-0" 
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
           defer
         >
-          <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {actions.map((action, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => sendCommand(action.command)}
-                  className={`flex flex-col items-center justify-center gap-3 p-8 rounded-xl border transition-all hover:scale-105 hover:shadow-lg ${action.color}`}
-                >
-                  <span className="material-symbols-outlined text-[48px]">{action.icon}</span>
-                  <span className="font-headline-sm text-headline-sm font-bold">{action.label}</span>
-                  <span className="font-mono text-xs opacity-70 border border-current rounded px-2 py-1">{action.command}</span>
-                </button>
-              ))}
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-6">
+            {actions.map((action, idx) => (
+              <button
+                key={idx}
+                onClick={() => sendCommand(action.command)}
+                className="flex flex-col items-center justify-center gap-3 p-8 bg-[var(--forest-gray)] transition-colors hover:bg-[var(--forest-gray-light)] group border border-transparent hover:border-white/10"
+              >
+                <span className="material-symbols-outlined text-[48px] text-white/50 group-hover:text-[var(--forest-yellow)] transition-colors">{action.icon}</span>
+                <span className="forest-title !text-xl text-white group-hover:text-[var(--forest-yellow)]">{action.label}</span>
+                <span className="font-mono font-bold text-xs bg-[var(--forest-gray-dark)] text-white/50 rounded px-3 py-1">{action.command}</span>
+              </button>
+            ))}
           </div>
         </OverlayScrollbarsComponent>
       </div>

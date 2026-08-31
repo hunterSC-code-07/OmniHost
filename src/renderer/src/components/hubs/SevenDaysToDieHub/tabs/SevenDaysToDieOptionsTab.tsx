@@ -1,9 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import { CustomSelect, CustomNumberInput } from '../../../common/CustomInputs';
 
 import { useSevenDaysToDieOptions } from '../../../../hooks/useSevenDaysToDieOptions';
-import { ResourceAllocationPanel } from '../../../common/ResourceAllocationPanel';
 
 export const SevenDaysToDieOptionsTab: React.FC = () => {
   const {
@@ -23,179 +21,206 @@ export const SevenDaysToDieOptionsTab: React.FC = () => {
     handleSave
   } = useSevenDaysToDieOptions();
 
+  const [activeSubTab, setActiveSubTab] = useState('general');
+
   if (isLoading) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <div className="text-gray-400">Loading Configuration...</div>
+        <div className="text-white/50 sevendays-title text-2xl">LOADING CONFIGURATION...</div>
       </div>
     );
   }
 
-  const gameWorldOptions = [
-    { label: 'Navezgane', value: 'Navezgane' },
-    { label: 'Pregen06k1', value: 'Pregen06k1' },
-    { label: 'Pregen06k2', value: 'Pregen06k2' },
-    { label: 'Pregen06k3', value: 'Pregen06k3' },
-    { label: 'Pregen08k1', value: 'Pregen08k1' },
-    { label: 'Pregen08k2', value: 'Pregen08k2' },
-    { label: 'Pregen08k3', value: 'Pregen08k3' },
-    { label: 'Pregen10k1', value: 'Pregen10k1' },
-    { label: 'Pregen10k2', value: 'Pregen10k2' },
-    { label: 'Pregen10k3', value: 'Pregen10k3' },
-    { label: 'RWG (Random World Generation)', value: 'RWG' },
-    { label: 'Empty', value: 'Empty' }
-  ];
+  const gameWorldOptions = ['Navezgane', 'Pregen06k1', 'Pregen06k2', 'Pregen06k3', 'Pregen08k1', 'Pregen08k2', 'Pregen08k3', 'Pregen10k1', 'Pregen10k2', 'Pregen10k3', 'RWG', 'Empty'];
+  const difficultyOptions = ['0', '1', '2', '3', '4'];
+  const difficultyLabels = ['Scavenger (0)', 'Adventurer (1)', 'Nomad (2)', 'Survivalist (3)', 'Insane (4)'];
 
-  const difficultyOptions = [
-    { label: 'Scavenger (0)', value: '0' },
-    { label: 'Adventurer (1)', value: '1' },
-    { label: 'Nomad (2)', value: '2' },
-    { label: 'Survivalist (3)', value: '3' },
-    { label: 'Insane (4)', value: '4' }
-  ];
-
-  // If the user's gameworld isn't in our list (e.g. a custom map name), add it manually
-  if (!gameWorldOptions.find(o => o.value === gameWorld)) {
-    gameWorldOptions.unshift({ label: `${gameWorld} (Custom)`, value: gameWorld });
+  if (!gameWorldOptions.includes(gameWorld)) {
+    gameWorldOptions.unshift(gameWorld);
   }
 
+  const handleCycle = (current: string | number, options: any[], setter: (val: any) => void, direction: 1 | -1) => {
+    const idx = options.indexOf(String(current));
+    let nextIdx = idx + direction;
+    if (nextIdx >= options.length) nextIdx = 0;
+    if (nextIdx < 0) nextIdx = options.length - 1;
+    setter(options[nextIdx]);
+  };
+
+  const handleCycleNumber = (current: number, min: number, max: number, step: number, setter: (val: number) => void, direction: 1 | -1) => {
+    let next = current + (step * direction);
+    if (next > max) next = min;
+    if (next < min) next = max;
+    setter(next);
+  };
+
   return (
-    <div className="flex-1 min-h-0 bg-black/20 backdrop-blur-sm flex flex-col">
-      <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-6">
-        <div className="max-w-3xl mx-auto space-y-8 pb-10">
+    <div className="flex-1 min-h-0 flex flex-col p-8 sevendays-ui gap-6 relative">
+      <div className="flex justify-between items-end pb-2">
+        <h3 className="sevendays-title text-2xl">SERVER SETTINGS</h3>
+      </div>
+
+      <div className="flex-1 flex gap-2 min-h-0">
         
-        <div className="flex justify-between items-end">
-          <div>
-            <h3 className="text-xl font-bold text-white mb-2">Server Properties</h3>
-            <p className="text-sm text-gray-400">Configure your 7 Days to Die server settings. These changes modify serverconfig.xml.</p>
-          </div>
-          <button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="bg-red-900/80 border border-red-500/50 hover:bg-red-800 hover:border-red-400 hover:shadow-[0_0_15px_rgba(220,38,38,0.3)] disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg transition-all flex items-center gap-2"
-          >
-            {isSaving ? (
-              <>
-                <span className="material-symbols-outlined animate-spin text-[18px]">sync</span>
-                Saving...
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-[18px]">save</span>
-                Save Changes
-              </>
-            )}
-          </button>
-        </div>
-
-        <ResourceAllocationPanel 
-          ramLimit={ramLimit} 
-          setRamLimit={setRamLimit} 
-          cpuLimit={cpuLimit} 
-          setCpuLimit={setCpuLimit} 
-          sysInfo={sysInfo} 
-        />
-
-        <div className="glass-panel bg-black/40 border border-white/10 p-6 rounded-xl space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            {/* Server Name */}
-            <div className="col-span-1 md:col-span-2">
-              <label className="block text-sm font-bold text-gray-300 mb-2">Server Name</label>
-              <input 
-                type="text" 
-                value={serverName}
-                onChange={e => setServerName(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors"
-                placeholder="My 7DTD Server"
-              />
-            </div>
-
-            {/* Server Description */}
-            <div className="col-span-1 md:col-span-2">
-              <label className="block text-sm font-bold text-gray-300 mb-2">Server Description</label>
-              <textarea 
-                value={serverDescription}
-                onChange={e => setServerDescription(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors h-24 resize-none"
-                placeholder="A 7 Days to Die server"
-              />
-            </div>
-
-            {/* Password */}
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">Server Password</label>
-              <input 
-                type="text" 
-                value={serverPassword}
-                onChange={e => setServerPassword(e.target.value)}
-                className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors"
-                placeholder="Leave blank for public"
-              />
-            </div>
-
-            {/* Max Players */}
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">Max Players</label>
-              <CustomNumberInput 
-                value={serverMaxPlayerCount}
-                onChange={setServerMaxPlayerCount}
-                min={1}
-                max={64}
-              />
-            </div>
-            
-            {/* Server Port */}
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">Server Port</label>
-              <CustomNumberInput 
-                value={serverPort}
-                onChange={setServerPort}
-                min={1024}
-                max={65535}
-              />
-            </div>
-
-            {/* Game Difficulty */}
-            <div>
-              <label className="block text-sm font-bold text-gray-300 mb-2">Game Difficulty</label>
-              <CustomSelect 
-                value={gameDifficulty}
-                onChange={setGameDifficulty}
-                options={difficultyOptions}
-              />
-            </div>
-
-            {/* Map Template / GameWorld */}
-            <div className="col-span-1 md:col-span-2">
-              <label className="block text-sm font-bold text-gray-300 mb-2">Game World</label>
-              <CustomSelect 
-                value={gameWorld}
-                onChange={setGameWorld}
-                options={gameWorldOptions}
-              />
-              <p className="text-xs text-gray-500 mt-1">If RWG, WorldGenSeed determines the generated map.</p>
-            </div>
-
-            {/* WorldGenSeed */}
-            {gameWorld === 'RWG' && (
-              <div className="col-span-1 md:col-span-2">
-                <label className="block text-sm font-bold text-gray-300 mb-2">World Gen Seed</label>
-                <input 
-                  type="text" 
-                  value={worldGenSeed}
-                  onChange={e => setWorldGenSeed(e.target.value)}
-                  className="w-full bg-[#121212] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-red-500 transition-colors"
-                  placeholder="Enter a string seed"
-                />
+        {/* Left Panel */}
+        <div className="flex-[4] sevendays-panel flex flex-col min-h-0">
+          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-8">
+            <div className="space-y-6">
+              <div className="sevendays-input-row">
+                <span className="sevendays-input-label">Server Name</span>
+                <div className="sevendays-input-container">
+                  <input 
+                    type="text" 
+                    value={serverName}
+                    onChange={e => setServerName(e.target.value)}
+                    className="sevendays-input w-full px-2"
+                  />
+                </div>
               </div>
-            )}
 
+              <div className="sevendays-input-row">
+                <span className="sevendays-input-label">Description</span>
+                <div className="sevendays-input-container">
+                  <input 
+                    type="text" 
+                    value={serverDescription}
+                    onChange={e => setServerDescription(e.target.value)}
+                    className="sevendays-input w-full px-2"
+                  />
+                </div>
+              </div>
+
+              <div className="sevendays-input-row">
+                <span className="sevendays-input-label">Password</span>
+                <div className="sevendays-input-container">
+                  <input 
+                    type="password" 
+                    value={serverPassword}
+                    onChange={e => setServerPassword(e.target.value)}
+                    className="sevendays-input w-full px-2"
+                  />
+                </div>
+              </div>
+
+              <div className="sevendays-input-row">
+                <span className="sevendays-input-label">Game World</span>
+                <div className="sevendays-input-container">
+                  <span className="sevendays-input-arrow" onClick={() => handleCycle(gameWorld, gameWorldOptions, setGameWorld, -1)}>&lt;</span>
+                  <div className="sevendays-input flex items-center justify-center select-none" onClick={() => handleCycle(gameWorld, gameWorldOptions, setGameWorld, 1)}>{gameWorld}</div>
+                  <span className="sevendays-input-arrow" onClick={() => handleCycle(gameWorld, gameWorldOptions, setGameWorld, 1)}>&gt;</span>
+                </div>
+              </div>
+
+              {gameWorld === 'RWG' && (
+                <div className="sevendays-input-row">
+                  <span className="sevendays-input-label">World Gen Seed</span>
+                  <div className="sevendays-input-container">
+                    <input 
+                      type="text" 
+                      value={worldGenSeed}
+                      onChange={e => setWorldGenSeed(e.target.value)}
+                      className="sevendays-input w-full px-2"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </OverlayScrollbarsComponent>
+        </div>
+
+        {/* Right Panel */}
+        <div className="flex-[6] sevendays-panel flex flex-col min-h-0">
+          <div className="flex gap-1 border-b border-[var(--7dtd-border)] bg-[var(--7dtd-bg-panel-dark)]">
+            {['general', 'multiplayer', 'resources'].map(tab => (
+              <div 
+                key={tab}
+                onClick={() => setActiveSubTab(tab)}
+                className={`sevendays-tab px-6 py-3 border-b-2 ${activeSubTab === tab ? 'border-white text-white bg-white/10' : 'border-transparent text-[var(--7dtd-text-dim)] hover:text-white'}`}
+              >
+                {tab}
+              </div>
+            ))}
           </div>
+
+          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} className="flex-1 p-8">
+            <div className="space-y-6">
+              
+              {activeSubTab === 'general' && (
+                <>
+                  <div className="sevendays-input-row">
+                    <span className="sevendays-input-label">Game Difficulty</span>
+                    <div className="sevendays-input-container">
+                      <span className="sevendays-input-arrow" onClick={() => handleCycle(gameDifficulty, difficultyOptions, setGameDifficulty, -1)}>&lt;</span>
+                      <div className="sevendays-input flex items-center justify-center select-none" onClick={() => handleCycle(gameDifficulty, difficultyOptions, setGameDifficulty, 1)}>
+                        {difficultyLabels[difficultyOptions.indexOf(String(gameDifficulty))] || gameDifficulty}
+                      </div>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycle(gameDifficulty, difficultyOptions, setGameDifficulty, 1)}>&gt;</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSubTab === 'multiplayer' && (
+                <>
+                  <div className="sevendays-input-row">
+                    <span className="sevendays-input-label">Max Players</span>
+                    <div className="sevendays-input-container">
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverMaxPlayerCount, 1, 64, 1, setServerMaxPlayerCount, -1)}>&lt;</span>
+                      <div className="sevendays-input flex items-center justify-center select-none">{serverMaxPlayerCount}</div>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverMaxPlayerCount, 1, 64, 1, setServerMaxPlayerCount, 1)}>&gt;</span>
+                    </div>
+                  </div>
+
+                  <div className="sevendays-input-row">
+                    <span className="sevendays-input-label">Server Port</span>
+                    <div className="sevendays-input-container">
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverPort, 1024, 65535, 1, setServerPort, -1)}>&lt;</span>
+                      <div className="sevendays-input flex items-center justify-center select-none">{serverPort}</div>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverPort, 1024, 65535, 1, setServerPort, 1)}>&gt;</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {activeSubTab === 'resources' && (
+                <>
+                  <div className="sevendays-input-row">
+                    <span className="sevendays-input-label">RAM Limit (GB)</span>
+                    <div className="sevendays-input-container">
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(ramLimit, 1, sysInfo.totalMemGb, 0.5, setRamLimit, -1)}>&lt;</span>
+                      <div className="sevendays-input flex items-center justify-center select-none">{ramLimit.toFixed(1)} GB</div>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(ramLimit, 1, sysInfo.totalMemGb, 0.5, setRamLimit, 1)}>&gt;</span>
+                    </div>
+                  </div>
+
+                  <div className="sevendays-input-row">
+                    <span className="sevendays-input-label">CPU Limit (%)</span>
+                    <div className="sevendays-input-container">
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(cpuLimit, 10, 100, 5, setCpuLimit, -1)}>&lt;</span>
+                      <div className="sevendays-input flex items-center justify-center select-none">{cpuLimit}%</div>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(cpuLimit, 10, 100, 5, setCpuLimit, 1)}>&gt;</span>
+                    </div>
+                  </div>
+                </>
+              )}
+
+            </div>
+          </OverlayScrollbarsComponent>
         </div>
 
-        </div>
-      </OverlayScrollbarsComponent>
+      </div>
+
+      <div className="flex justify-between items-center pt-2">
+        <div></div> {/* Spacer */}
+        <button 
+          onClick={handleSave}
+          disabled={isSaving}
+          className="sevendays-btn px-12 py-3 text-lg"
+        >
+          {isSaving ? 'SAVING...' : 'SAVE'}
+        </button>
+      </div>
+
     </div>
   );
 };

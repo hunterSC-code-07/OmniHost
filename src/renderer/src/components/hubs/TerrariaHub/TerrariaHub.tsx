@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
+import '../../../assets/terraria-ui.css';
 import { useServerStore } from '../../../store/useServerStore';
 import { TerrariaHubHeader } from './TerrariaHubHeader';
 import { TerrariaHubNavigation } from './TerrariaHubNavigation';
@@ -18,8 +19,8 @@ export const TerrariaHub: React.FC = () => {
   if (!currentServer) return null;
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-green-900/20 to-black">
-      <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
+    <div className="terraria-ui flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-blue-950/20 to-black">
+      <div className="terraria-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none shadow-none">
         <TerrariaHubHeader />
         <TerrariaHubNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       </div>

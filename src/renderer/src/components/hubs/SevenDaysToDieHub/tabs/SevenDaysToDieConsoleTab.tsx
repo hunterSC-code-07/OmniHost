@@ -46,15 +46,15 @@ export const SevenDaysToDieConsoleTab: React.FC = React.memo(() => {
   };
 
   return (
-    <div className="absolute inset-0 flex gap-6 p-6 min-h-0 bg-transparent font-body">
-      <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] min-h-0 min-w-0">
+    <div className="absolute inset-0 flex gap-4 p-8 min-h-0 sevendays-ui">
+      <div className="flex-[3] flex flex-col min-h-0 min-w-0 sevendays-panel">
         <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
+          className="flex-1 min-h-0 bg-[var(--7dtd-bg-panel-dark)] border-b border-[var(--7dtd-border)]" 
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
           defer
         >
-          <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
-            {logs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for 7 Days to Die server output... click Start to boot!</div>}
+          <div className="p-6 font-mono text-sm text-white/80 flex flex-col min-h-full">
+            {logs.length === 0 && <div className="text-white/30 italic mt-4 mb-4 uppercase">WAITING FOR SERVER OUTPUT...</div>}
             {logs.map((log, i) => {
               const cleanLog = log.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
               
@@ -63,18 +63,18 @@ export const SevenDaysToDieConsoleTab: React.FC = React.memo(() => {
               const isError = cleanLog.includes('ERR') || cleanLog.includes('Exception');
               const isCommand = cleanLog.startsWith('>');
               
-              let colorClass = 'text-on-surface-variant';
+              let colorClass = 'text-white/80';
               if (isError) colorClass = 'text-red-400';
               else if (isWarn) colorClass = 'text-yellow-400';
-              else if (isCommand) colorClass = 'text-brand font-bold';
-              else if (isInfo) colorClass = 'text-on-surface-variant/90';
+              else if (isCommand) colorClass = 'text-white font-bold';
+              else if (isInfo) colorClass = 'text-white/60';
 
               return (
                 <div key={i} className={`mb-1 leading-relaxed break-words whitespace-pre-wrap ${colorClass}`}>
                   {isInfo && !isCommand && <span className="text-blue-400 font-bold mr-1">INF</span>}
                   {isWarn && !isCommand && <span className="text-yellow-400 font-bold mr-1">WRN</span>}
                   {isError && !isCommand && <span className="text-red-400 font-bold mr-1">ERR</span>}
-                  {isCommand && <span className="text-brand font-bold mr-1">&gt;</span>}
+                  {isCommand && <span className="text-white font-bold mr-1">&gt;</span>}
                   <span>
                     {cleanLog.replace(/(INF|WRN|ERR|\[INF\]|\[WRN\]|\[ERR\])/g, '').replace(/^> /, '').trim()}
                   </span>
@@ -85,39 +85,41 @@ export const SevenDaysToDieConsoleTab: React.FC = React.memo(() => {
           </div>
         </OverlayScrollbarsComponent>
 
-        <form onSubmit={onSubmit} className="p-4 bg-transparent border-t border-surface-container-highest flex gap-3 items-center">
-          <span className="text-on-surface-variant font-bold text-xl leading-none flex items-center">&gt;</span>
-          <input type="text" value={consoleInput} onChange={(e) => setConsoleInput(e.target.value)} placeholder="Type a command..." className="flex-1 bg-transparent border-none outline-none text-brand font-mono placeholder-on-surface-variant/30" />
+        <form onSubmit={onSubmit} className="p-4 flex gap-4 items-center bg-[var(--7dtd-bg-panel)]">
+          <span className="text-white font-bold text-xl leading-none flex items-center">&gt;</span>
+          <div className="sevendays-input-container flex-1">
+            <input type="text" value={consoleInput} onChange={(e) => setConsoleInput(e.target.value)} placeholder="ENTER COMMAND..." className="sevendays-input w-full px-2 uppercase" />
+          </div>
           
-          <button type="button" onClick={handleClearLogs} className="p-2.5 text-on-surface-variant hover:text-red-400 bg-surface-container-highest/50 hover:bg-red-500/10 rounded-lg transition-all border border-transparent hover:border-red-500/30 flex items-center justify-center group" title="Clear Console">
-            <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">delete_sweep</span>
+          <button type="button" onClick={handleClearLogs} className="sevendays-btn !px-4" title="Clear Console">
+            <span className="material-symbols-outlined text-[20px]">delete_sweep</span>
           </button>
           
-          <button type="submit" className="bg-[#b32b2b]/30 hover:bg-[#b32b2b]/50 text-[#ff4f4f] border border-[#b32b2b]/50 hover:border-[#ff4f4f] shadow-[0_0_15px_rgba(179,43,43,0.1)] px-8 py-2.5 rounded-xl font-bold transition-all uppercase tracking-widest text-sm">Send</button>
+          <button type="submit" className="sevendays-btn !px-8">SEND</button>
         </form>
       </div>
 
-      <div className="w-72 bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex flex-col min-h-0 rounded-xl overflow-hidden">
-        <div className="p-5 border-b border-surface-container-highest flex justify-between items-center bg-surface-container-highest/20">
-          <h3 className="font-headline-md text-headline-md text-on-surface">Live Players</h3>
-          <div className="bg-[#b32b2b]/10 border border-[#b32b2b]/30 text-[#ff4f4f] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(179,43,43,0.1)]">{onlinePlayers.length} Online</div>
+      <div className="flex-[1] sevendays-panel flex flex-col min-h-0">
+        <div className="p-4 border-b border-[var(--7dtd-border)] flex justify-between items-center">
+          <h3 className="sevendays-title text-xl">LIVE PLAYERS</h3>
+          <div className="px-3 py-1 border border-white/20 bg-white/10 text-white text-xs font-bold">{onlinePlayers.length} ONLINE</div>
         </div>
         <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
+          className="flex-1 min-h-0 bg-[var(--7dtd-bg-panel-dark)]" 
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
           defer
         >
           <div className="p-4 flex flex-col min-h-full">
             {onlinePlayers.length === 0 ? (
-              <div className="text-center text-on-surface-variant/50 font-label-md text-label-md mt-10">No one is online right now.</div>
+              <div className="text-center text-white/50 sevendays-title text-sm mt-10">NO ONE IS ONLINE</div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 {onlinePlayers.map((playerName, idx) => (
-                  <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-[#ff4f4f]/50 hover:bg-surface-container-lowest/80 transition-colors group">
-                    <div className="w-10 h-10 rounded-lg shadow-sm bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:scale-105 transition-transform">
-                      <span className="material-symbols-outlined text-[24px]">person</span>
+                  <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-3 bg-[var(--7dtd-bg-panel)] p-3 border border-[var(--7dtd-border)] cursor-pointer hover:border-white/50 transition-colors">
+                    <div className="w-8 h-8 bg-white/10 border border-white/20 flex items-center justify-center text-white">
+                      <span className="material-symbols-outlined text-[20px]">person</span>
                     </div>
-                    <span className="font-label-lg text-label-lg text-on-surface group-hover:text-[#ff4f4f] transition-colors">{playerName}</span>
+                    <span className="sevendays-title text-md text-white truncate">{playerName}</span>
                   </div>
                 ))}
               </div>
