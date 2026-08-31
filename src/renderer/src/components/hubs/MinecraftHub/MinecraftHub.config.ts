@@ -7,9 +7,9 @@ export const config = {
   component: React.lazy(() => import('./MinecraftHub').then(m => ({ default: m.MinecraftHub }))),
   backgroundUrl: minecraftBg,
   theme: {
-    ringColor: 'hover:ring-primary',
-    shadowColor: 'hover:shadow-[0_0_30px_rgba(76,175,80,0.15)]',
-    textColor: 'group-hover:text-primary',
+    ringColor: 'hover:ring-green-500',
+    shadowColor: 'hover:shadow-[0_0_30px_rgba(74,222,128,0.25)]',
+    textColor: 'group-hover:text-green-400',
     bgGradient: 'from-[#0a1f0a] via-[#1b5e20] to-[#051105]'
   }
 };
