@@ -18,11 +18,31 @@ import { SevenDaysToDieInstalledModsTab } from './tabs/SevenDaysToDieInstalledMo
 import { SevenDaysToDieNexusTab } from './tabs/SevenDaysToDieNexusTab';
 import { SevenDaysToDieCommunityModsTab } from './tabs/SevenDaysToDieCommunityModsTab';
 
+const TABS = [
+  { id: 'overview', label: 'Overview', icon: 'dashboard' },
+  { id: 'console', label: 'Console', icon: 'terminal' },
+  { id: 'options', label: 'Options', icon: 'settings' },
+  { id: 'players', label: 'Live Players', icon: 'group' },
+  { id: 'spawn', label: 'Spawn Items', icon: 'inventory_2' },
+  { id: 'installed_mods', label: 'Installed Mods', icon: 'extension' },
+  { id: 'nexus_mods', label: 'Nexus Mods', icon: 'travel_explore' },
+  { id: 'community_mods', label: 'Community Mods', icon: 'language' },
+  { id: 'files', label: 'Config & Files', icon: 'folder' }
+];
+
 export const SevenDaysToDieHub: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
   const [activeTab, setActiveTab] = useState('overview');
+  const [direction, setDirection] = useState(1);
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
+
+  const handleTabChange = (newTabId: string) => {
+    const currentIndex = TABS.findIndex(t => t.id === activeTab);
+    const newIndex = TABS.findIndex(t => t.id === newTabId);
+    setDirection(newIndex > currentIndex ? 1 : -1);
+    setActiveTab(newTabId);
+  };
 
   const activeServer = useMemo(() => servers.find(s => s.id === activeServerId), [servers, activeServerId]);
 
@@ -75,21 +95,11 @@ export const SevenDaysToDieHub: React.FC = () => {
 
         {/* Tabs */}
         <div className="w-full flex justify-end pr-2 border-b-2 border-transparent relative -bottom-2 z-10 sevendays-tabs-container">
-          {[
-            { id: 'overview', label: 'Overview' },
-            { id: 'console', label: 'Console' },
-            { id: 'players', label: 'Players' },
-            { id: 'spawn', label: 'Spawn' },
-            { id: 'installed_mods', label: 'Mods' },
-            { id: 'nexus_mods', label: 'Nexus' },
-            { id: 'community_mods', label: 'Community' },
-            { id: 'options', label: 'Options' },
-            { id: 'files', label: 'Files' }
-          ].map(tab => (
+          {TABS.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`sevendays-tab ${activeTab === tab.id ? 'active' : ''}`}
+              onClick={() => handleTabChange(tab.id)}
+              className={`sevendays-tab flex items-center gap-2 ${activeTab === tab.id ? 'active' : ''}`}
             >
               {tab.label}
             </button>
@@ -99,12 +109,18 @@ export const SevenDaysToDieHub: React.FC = () => {
 
       <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-8 pb-8">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden sevendays-panel shadow-2xl">
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+              custom={direction}
+              variants={{
+                initial: (dir: number) => ({ opacity: 0, x: dir * 20 }),
+                animate: { opacity: 1, x: 0 },
+                exit: (dir: number) => ({ opacity: 0, x: dir * -20 })
+              }}
+              initial="initial"
+              animate="animate"
+              exit="exit"
               transition={{ duration: 0.15 }}
               className="flex flex-col min-h-0 w-full h-full relative"
             >

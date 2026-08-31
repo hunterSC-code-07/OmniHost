@@ -220,21 +220,29 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                   </button>
                   {isClassMenuOpen && (
                     <div className="absolute top-full left-0 mt-2 w-56 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
-                      {classOptions.map((cls) => (
-                        <div
-                          key={cls.id}
-                          onClick={() => {
-                            setActiveClassId(cls.id)
-                            setIsClassMenuOpen(false)
-                          }}
-                          className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${activeClassId === cls.id ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
-                        >
-                          {cls.name}{' '}
-                          {activeClassId === cls.id && (
-                            <span className="float-right text-brand">✓</span>
-                          )}
-                        </div>
-                      ))}
+                      <OverlayScrollbarsComponent
+                        className="max-h-[300px]"
+                        options={{
+                          scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 }
+                        }}
+                        defer
+                      >
+                        {classOptions.map((cls) => (
+                          <div
+                            key={cls.id}
+                            onClick={() => {
+                              setActiveClassId(cls.id)
+                              setIsClassMenuOpen(false)
+                            }}
+                            className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${activeClassId === cls.id ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                          >
+                            {cls.name}{' '}
+                            {activeClassId === cls.id && (
+                              <span className="float-right text-brand">✓</span>
+                            )}
+                          </div>
+                        ))}
+                      </OverlayScrollbarsComponent>
                     </div>
                   )}
                 </div>
