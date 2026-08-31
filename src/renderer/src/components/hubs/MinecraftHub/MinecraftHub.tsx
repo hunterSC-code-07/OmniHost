@@ -1,5 +1,6 @@
 import React from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
+import '../../../assets/minecraft-ui.css';
 import { AnimatedBackground } from '../../AnimatedBackground';
 import { useServerStore } from '../../../store/useServerStore';
 import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
@@ -12,7 +13,7 @@ const MinecraftHubContent: React.FC = () => {
   const { activeServerId, servers } = useServerStore();
   const currentServer = servers.find(s => s.id === activeServerId);
   const activeServer = currentServer;
-  const { fetchServerMeta } = useMinecraftHubStore();
+  const { fetchServerMeta, isDarkMode } = useMinecraftHubStore();
 
   React.useEffect(() => {
     if (activeServerId !== null) {
@@ -23,16 +24,16 @@ const MinecraftHubContent: React.FC = () => {
   if (!activeServer) return null;
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden">
+    <div className={`flex-1 flex flex-col relative overflow-hidden minecraft-ui ${isDarkMode ? 'minecraft-ui-dark' : ''}`}>
       <MinecraftModpackPrompt />
       <AnimatedBackground />
       
-      <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
+      <div className="minecraft-panel p-6 flex flex-col gap-6 z-10 border-b-0">
         <MinecraftHubHeader />
         <MinecraftHubNavigation />
       </div>
 
-      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
+      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col minecraft-panel z-10">
         <MinecraftHubTabContent />
       </div>
     </div>

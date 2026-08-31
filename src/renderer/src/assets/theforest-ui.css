@@ -1,0 +1,159 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+
+.theforest-ui {
+  /* Core Variables */
+  --forest-bg: #000000;
+  --forest-text: #ffffff;
+  --forest-yellow: #ffcc00;
+  --forest-yellow-hover: #ffea00;
+  --forest-gray: #2a2a2a;
+  --forest-gray-light: #3a3a3a;
+  --forest-gray-dark: #1a1a1a;
+  --forest-red: #ff3333;
+  --forest-green: #33ff33;
+
+  /* Fonts */
+  --font-forest-main: 'Montserrat', sans-serif;
+
+  /* Base Styles */
+  color: var(--forest-text);
+  font-family: var(--font-forest-main);
+  background-color: var(--forest-bg);
+}
+
+/* Titles */
+.theforest-ui .forest-title {
+  color: var(--forest-yellow);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.theforest-ui h1, 
+.theforest-ui h2, 
+.theforest-ui h3, 
+.theforest-ui h4, 
+.theforest-ui h5, 
+.theforest-ui h6 {
+  font-family: var(--font-forest-main);
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+/* Base Panel */
+.theforest-ui .forest-panel {
+  background-color: transparent;
+  border: none;
+}
+
+/* Input Row (Screenshot Style) */
+.theforest-ui .forest-input-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.theforest-ui .forest-input-label {
+  color: var(--forest-text);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Text Input Container */
+.theforest-ui .forest-input-container {
+  display: flex;
+  align-items: center;
+  background-color: var(--forest-gray);
+  width: 250px;
+  height: 30px;
+}
+
+.theforest-ui .forest-input-arrow {
+  color: var(--forest-text);
+  padding: 0 10px;
+  cursor: pointer;
+  font-weight: bold;
+  user-select: none;
+}
+
+.theforest-ui .forest-input-arrow:hover {
+  color: var(--forest-yellow);
+}
+
+.theforest-ui .forest-input {
+  flex: 1;
+  background-color: transparent;
+  border: none;
+  color: var(--forest-text);
+  font-family: var(--font-forest-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  padding: 0;
+  text-transform: uppercase;
+}
+
+/* Simple Button */
+.theforest-ui .forest-btn {
+  background-color: transparent;
+  border: none;
+  color: var(--forest-text);
+  font-family: var(--font-forest-main);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: color 0.1s;
+}
+
+.theforest-ui .forest-btn:hover {
+  color: var(--forest-yellow);
+}
+
+/* Tabs */
+.theforest-ui .forest-tab {
+  background-color: transparent;
+  border: none;
+  color: var(--forest-text);
+  font-family: var(--font-forest-main);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: color 0.1s;
+  padding: 10px 15px;
+}
+
+.theforest-ui .forest-tab.active {
+  color: var(--forest-yellow);
+}
+
+.theforest-ui .forest-tab:hover:not(.active) {
+  color: #dddddd;
+}
+
+/* Scrollbars */
+.theforest-ui .os-theme-dark {
+  --os-handle-bg: var(--forest-gray-light);
+  --os-handle-bg-hover: var(--forest-yellow);
+  --os-handle-bg-active: var(--forest-yellow);
+  --os-track-bg: var(--forest-gray-dark);
+}
+
+/* Progress/Range Bar */
+.theforest-ui .forest-progress-bg {
+  width: 150px;
+  height: 8px;
+  background-color: var(--forest-gray-light);
+  margin: 0 15px;
+}
+
+.theforest-ui .forest-progress-fill {
+  height: 100%;
+  background-color: var(--forest-yellow);
+}

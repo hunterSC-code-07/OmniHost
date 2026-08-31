@@ -128,9 +128,9 @@ export const TerrariaOptionsTab: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-6 max-w-5xl mx-auto w-full pb-20">
-      <div className="flex justify-between items-center bg-black/40 p-6 rounded-xl border border-white/5 glass-panel">
+      <div className="terraria-panel p-6 flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+          <h2 className="terraria-title flex items-center gap-2 text-2xl">
             <span className="material-symbols-outlined text-green-400">tune</span>
             Server Configuration
           </h2>
@@ -139,25 +139,61 @@ export const TerrariaOptionsTab: React.FC = () => {
         <button 
           onClick={handleSave}
           disabled={isSaving}
-          className="bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white px-6 py-2.5 rounded-lg font-bold uppercase tracking-wider transition-all hover:scale-105 shadow-lg flex items-center gap-2"
+          className="terraria-btn terraria-btn-green"
         >
-          <span className="material-symbols-outlined text-[18px]">
+          <span className="material-symbols-outlined text-[18px] mr-2">
             {isSaving ? 'sync' : 'save'}
           </span>
           {isSaving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
-      <ResourceAllocationPanel 
-        ramLimit={ramLimit} setRamLimit={setRamLimit}
-        cpuLimit={cpuLimit} setCpuLimit={setCpuLimit}
-        sysInfo={sysInfo}
-      />
+      <div className="terraria-panel p-6 flex flex-col items-center w-full">
+        <div className="text-center mb-6">
+          <h3 className="terraria-title text-2xl mb-1">{ramLimit} GB RAM</h3>
+          <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{cpuLimit} CPU Cores</p>
+        </div>
+        
+        <div className="w-full max-w-2xl relative mb-10 group">
+          <input 
+            type="range" 
+            min="1" 
+            max={sysInfo.totalMem} 
+            step="1"
+            value={ramLimit} 
+            onChange={(e) => setRamLimit(parseInt(e.target.value, 10))}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs font-bold text-gray-500 uppercase tracking-widest mt-3 px-1">
+            <span>1 GB</span>
+            <span>{sysInfo.totalMem} GB (Max)</span>
+          </div>
+        </div>
+
+        <div className="w-full max-w-2xl relative group">
+          <div className="text-center mb-3">
+            <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">CPU Allocation</span>
+          </div>
+          <input 
+            type="range" 
+            min="1" 
+            max={sysInfo.cpus} 
+            step="1"
+            value={cpuLimit} 
+            onChange={(e) => setCpuLimit(parseInt(e.target.value, 10))}
+            className="w-full"
+          />
+          <div className="flex justify-between text-xs font-bold text-gray-500 uppercase tracking-widest mt-3 px-1">
+            <span>1 Core</span>
+            <span>{sysInfo.cpus} Cores (Max)</span>
+          </div>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Gameplay & World */}
-        <div className="glass-panel rounded-xl border border-white/5 bg-black/60 p-6 space-y-6">
-          <h3 className="text-lg font-semibold text-white border-b border-white/10 pb-3 flex items-center gap-2">
+        <div className="terraria-panel p-6 space-y-6">
+          <h3 className="terraria-title text-xl border-b border-[#c6a54b] pb-3 flex items-center gap-2">
             <span className="material-symbols-outlined text-blue-400">public</span>
             Gameplay & World
           </h3>
@@ -209,8 +245,8 @@ export const TerrariaOptionsTab: React.FC = () => {
         </div>
 
         {/* Server & Access */}
-        <div className="glass-panel rounded-xl border border-white/5 bg-black/60 p-6 space-y-6">
-          <h3 className="text-lg font-semibold text-white border-b border-white/10 pb-3 flex items-center gap-2">
+        <div className="terraria-panel p-6 space-y-6">
+          <h3 className="terraria-title text-xl border-b border-[#c6a54b] pb-3 flex items-center gap-2">
             <span className="material-symbols-outlined text-purple-400">admin_panel_settings</span>
             Server & Access
           </h3>
@@ -259,8 +295,8 @@ export const TerrariaOptionsTab: React.FC = () => {
         </div>
 
         {/* Advanced Network Settings */}
-        <div className="glass-panel rounded-xl border border-white/5 bg-black/60 p-6 space-y-6 md:col-span-2">
-          <h3 className="text-lg font-semibold text-white border-b border-white/10 pb-3 flex items-center gap-2">
+        <div className="terraria-panel p-6 space-y-6 md:col-span-2">
+          <h3 className="terraria-title text-xl border-b border-[#c6a54b] pb-3 flex items-center gap-2">
             <span className="material-symbols-outlined text-orange-400">dns</span>
             Advanced Network
           </h3>

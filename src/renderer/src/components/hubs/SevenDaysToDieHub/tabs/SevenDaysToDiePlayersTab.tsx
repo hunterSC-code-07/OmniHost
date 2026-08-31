@@ -154,93 +154,95 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
 
   if (players.length === 0) {
     return (
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center p-8 glass-panel rounded-xl max-w-sm w-full mx-4">
-          <span className="material-symbols-outlined text-[48px] text-gray-500 mb-4">group_off</span>
-          <h3 className="text-xl font-bold text-gray-300 mb-2">No Players Online</h3>
-          <p className="text-gray-500">Wait for survivors to join the server.</p>
+      <div className="flex-1 flex items-center justify-center sevendays-ui">
+        <div className="text-center p-8 sevendays-panel max-w-sm w-full mx-4 border border-[var(--7dtd-border)]">
+          <span className="material-symbols-outlined text-[48px] text-[var(--7dtd-text-dim)] mb-4">group_off</span>
+          <h3 className="sevendays-title text-xl mb-2">NO PLAYERS ONLINE</h3>
+          <p className="text-[var(--7dtd-text-dim)]">Wait for survivors to join the server.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} defer className="flex-1 h-full">
-      <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h3 className="text-xl font-bold text-white flex items-center gap-2">
-            <span className="material-symbols-outlined text-[#ff4f4f]">group</span>
-            Live Players
-          </h3>
-          <span className="px-3 py-1 bg-[#ff4f4f]/20 border border-[#ff4f4f]/30 text-[#ff4f4f] rounded-full text-sm font-bold">
-            {players.length} Online
-          </span>
-        </div>
+    <div className="flex-1 min-h-0 sevendays-ui">
+      <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} defer className="flex-1 h-full">
+        <div className="p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="sevendays-title text-2xl flex items-center gap-2">
+              <span className="material-symbols-outlined text-white">group</span>
+              LIVE PLAYERS
+            </h3>
+            <span className="px-4 py-1 border border-white/20 bg-white/10 text-white font-bold">
+              {players.length} ONLINE
+            </span>
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          <AnimatePresence>
-            {players.map((player) => (
-              <motion.div
-                key={player}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className={`glass-panel rounded-xl overflow-hidden transition-all duration-300 ${
-                  selectedPlayer === player ? 'border-[#ff4f4f]/50 shadow-[0_0_20px_rgba(179,43,43,0.15)]' : 'border-white/5 hover:border-white/20'
-                }`}
-              >
-                <div 
-                  className="p-4 cursor-pointer flex items-center gap-4 bg-white/5 hover:bg-white/10 transition-colors"
-                  onClick={() => setSelectedPlayer(selectedPlayer === player ? null : player)}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <AnimatePresence>
+              {players.map((player) => (
+                <motion.div
+                  key={player}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className={`sevendays-panel flex flex-col transition-all duration-100 ${
+                    selectedPlayer === player ? 'border-white/50 bg-[var(--7dtd-bg-panel-light)]' : 'border-[var(--7dtd-border)] hover:border-white/30'
+                  }`}
                 >
-                  <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#b32b2b] to-[#ff4f4f] flex items-center justify-center text-white font-bold text-xl shadow-inner">
-                    {player.charAt(0).toUpperCase()}
+                  <div 
+                    className="p-4 cursor-pointer flex items-center gap-4 transition-colors"
+                    onClick={() => setSelectedPlayer(selectedPlayer === player ? null : player)}
+                  >
+                    <div className="w-12 h-12 bg-white/10 border border-white/20 flex items-center justify-center text-white sevendays-title text-2xl">
+                      {player.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="sevendays-title text-lg truncate">{player}</h4>
+                      <p className="text-xs text-[var(--7dtd-text-dim)] flex items-center gap-1 mt-0.5">
+                        <span className="w-2 h-2 bg-green-500 rounded-sm animate-pulse"></span>
+                        CONNECTED
+                      </p>
+                    </div>
+                    <span className={`material-symbols-outlined text-[var(--7dtd-text-dim)] transition-transform duration-100 ${selectedPlayer === player ? 'rotate-180 text-white' : ''}`}>
+                      expand_more
+                    </span>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-white truncate text-lg">{player}</h4>
-                    <p className="text-xs text-green-400 flex items-center gap-1 mt-0.5">
-                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                      Connected
-                    </p>
-                  </div>
-                  <span className={`material-symbols-outlined text-gray-400 transition-transform duration-300 ${selectedPlayer === player ? 'rotate-180 text-white' : ''}`}>
-                    expand_more
-                  </span>
-                </div>
 
-                <AnimatePresence>
-                  {selectedPlayer === player && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="overflow-hidden bg-black/40 border-t border-white/5"
-                    >
-                      <div className="p-3 grid grid-cols-2 gap-2">
-                        {actionButtons.map((btn) => (
-                          <button
-                            key={btn.id}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              btn.action(player);
-                            }}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border border-transparent bg-white/5 transition-all duration-200 group ${btn.color}`}
-                          >
-                            <span className="material-symbols-outlined text-[18px] group-hover:scale-110 transition-transform">
-                              {btn.icon}
-                            </span>
-                            <span className="font-semibold text-sm">{btn.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            ))}
-          </AnimatePresence>
+                  <AnimatePresence>
+                    {selectedPlayer === player && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden bg-[var(--7dtd-bg-panel-dark)] border-t border-[var(--7dtd-border)]"
+                      >
+                        <div className="p-4 grid grid-cols-2 gap-2">
+                          {actionButtons.map((btn) => (
+                            <button
+                              key={btn.id}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                btn.action(player);
+                              }}
+                              className="sevendays-btn !text-sm !px-2 flex items-center gap-2 justify-center"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">
+                                {btn.icon}
+                              </span>
+                              <span>{btn.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
-    </OverlayScrollbarsComponent>
+      </OverlayScrollbarsComponent>
+    </div>
   );
 };
