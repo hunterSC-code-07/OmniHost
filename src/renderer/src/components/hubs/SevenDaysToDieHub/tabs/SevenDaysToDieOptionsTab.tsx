@@ -165,18 +165,18 @@ export const SevenDaysToDieOptionsTab: React.FC = () => {
                   <div className="sevendays-input-row">
                     <span className="sevendays-input-label">Max Players</span>
                     <div className="sevendays-input-container">
-                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverMaxPlayerCount, 1, 64, 1, setServerMaxPlayerCount, -1)}>&lt;</span>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(parseInt(serverMaxPlayerCount) || 1, 1, 64, 1, (v) => setServerMaxPlayerCount(String(v)), -1)}>&lt;</span>
                       <div className="sevendays-input flex items-center justify-center select-none">{serverMaxPlayerCount}</div>
-                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverMaxPlayerCount, 1, 64, 1, setServerMaxPlayerCount, 1)}>&gt;</span>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(parseInt(serverMaxPlayerCount) || 1, 1, 64, 1, (v) => setServerMaxPlayerCount(String(v)), 1)}>&gt;</span>
                     </div>
                   </div>
 
                   <div className="sevendays-input-row">
                     <span className="sevendays-input-label">Server Port</span>
                     <div className="sevendays-input-container">
-                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverPort, 1024, 65535, 1, setServerPort, -1)}>&lt;</span>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(parseInt(serverPort) || 26900, 1024, 65535, 1, (v) => setServerPort(String(v)), -1)}>&lt;</span>
                       <div className="sevendays-input flex items-center justify-center select-none">{serverPort}</div>
-                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(serverPort, 1024, 65535, 1, setServerPort, 1)}>&gt;</span>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(parseInt(serverPort) || 26900, 1024, 65535, 1, (v) => setServerPort(String(v)), 1)}>&gt;</span>
                     </div>
                   </div>
                 </>
@@ -187,9 +187,9 @@ export const SevenDaysToDieOptionsTab: React.FC = () => {
                   <div className="sevendays-input-row">
                     <span className="sevendays-input-label">RAM Limit (GB)</span>
                     <div className="sevendays-input-container">
-                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(ramLimit, 1, sysInfo.totalMemGb, 0.5, setRamLimit, -1)}>&lt;</span>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(ramLimit, 1, sysInfo.totalMem, 0.5, setRamLimit, -1)}>&lt;</span>
                       <div className="sevendays-input flex items-center justify-center select-none">{ramLimit.toFixed(1)} GB</div>
-                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(ramLimit, 1, sysInfo.totalMemGb, 0.5, setRamLimit, 1)}>&gt;</span>
+                      <span className="sevendays-input-arrow" onClick={() => handleCycleNumber(ramLimit, 1, sysInfo.totalMem, 0.5, setRamLimit, 1)}>&gt;</span>
                     </div>
                   </div>
 

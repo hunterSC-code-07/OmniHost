@@ -1,18 +1,14 @@
 import React, { useState } from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import 'overlayscrollbars/overlayscrollbars.css';
 
 import { useServerStore } from '../../../../store/useServerStore';
 import { useLogStore } from '../../../../store/useLogStore';
-import { usePlayerStore } from '../../../../store/usePlayerStore';
 
 export const SonsOfTheForestConsoleTab: React.FC = React.memo(() => {
   const { activeServerId } = useServerStore();
   const { logs: allLogs, clearLogs } = useLogStore();
-  const { onlinePlayers: allPlayers } = usePlayerStore();
 
   const logs = activeServerId ? allLogs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
-  const onlinePlayers = activeServerId ? (allPlayers[activeServerId] || []) : [];
   
   const endOfLogsRef = React.useRef<HTMLDivElement>(null);
 
@@ -33,9 +29,6 @@ export const SonsOfTheForestConsoleTab: React.FC = React.memo(() => {
     }
   };
 
-  const onPlayerClick = (_playerName: string) => {
-    // Optional context menu logic
-  };
   const [consoleInput, setConsoleInput] = useState('');
 
   const onSubmit = (e: React.FormEvent) => {
@@ -46,15 +39,16 @@ export const SonsOfTheForestConsoleTab: React.FC = React.memo(() => {
   };
 
   return (
-    <div className="absolute inset-0 flex gap-6 p-6 min-h-0 bg-transparent font-body">
-      <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] min-h-0 min-w-0">
+    <div className="absolute inset-0 flex flex-col p-4 min-h-0 bg-transparent gap-4">
+      <div className="sotf-section-header shrink-0">SERVER CONSOLE</div>
+      <div className="flex-1 flex flex-col bg-[var(--sotf-panel)] border border-[var(--sotf-border)] overflow-hidden min-h-0">
         <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
+          className="flex-1 min-h-0 sotf-scrollbars" 
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
           defer
         >
-          <div className="p-6 font-mono text-sm text-on-surface-variant shadow-inner flex flex-col min-h-full">
-            {logs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for Sons of the Forest server output... click Start to boot!</div>}
+          <div className="p-4 font-mono text-sm text-[var(--sotf-text-dim)] flex flex-col min-h-full">
+            {logs.length === 0 && <div className="italic mt-4 mb-4 text-center">WAITING FOR SERVER OUTPUT...</div>}
             {logs.map((log, i) => {
               const cleanLog = log.replace(/[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]/g, '');
               
@@ -63,15 +57,15 @@ export const SonsOfTheForestConsoleTab: React.FC = React.memo(() => {
               const isError = cleanLog.includes('ERR') || cleanLog.includes('Exception');
               const isCommand = cleanLog.startsWith('>');
               
-              let colorClass = 'text-on-surface-variant';
-              if (isError) colorClass = 'text-red-400';
-              else if (isWarn) colorClass = 'text-yellow-400';
-              else if (isCommand) colorClass = 'text-brand font-bold';
-              else if (isInfo) colorClass = 'text-on-surface-variant/90';
+              let colorClass = 'text-[var(--sotf-text)]';
+              if (isError) colorClass = 'text-red-500';
+              else if (isWarn) colorClass = 'text-[var(--sotf-highlight)]';
+              else if (isCommand) colorClass = 'text-white font-bold';
+              else if (isInfo) colorClass = 'text-[var(--sotf-text-dim)]';
 
               return (
                 <div key={i} className={`mb-1 leading-relaxed break-words whitespace-pre-wrap ${colorClass}`}>
-                  {isCommand && <span className="text-brand font-bold mr-1">&gt;</span>}
+                  {isCommand && <span className="text-white font-bold mr-2">&gt;</span>}
                   <span>
                     {cleanLog.replace(/^> /, '').trim()}
                   </span>
@@ -82,45 +76,20 @@ export const SonsOfTheForestConsoleTab: React.FC = React.memo(() => {
           </div>
         </OverlayScrollbarsComponent>
 
-        <form onSubmit={onSubmit} className="p-4 bg-transparent border-t border-surface-container-highest flex gap-3 items-center">
-          <span className="text-on-surface-variant font-bold text-xl leading-none flex items-center">&gt;</span>
-          <input type="text" value={consoleInput} onChange={(e) => setConsoleInput(e.target.value)} placeholder="Type a command..." className="flex-1 bg-transparent border-none outline-none text-brand font-mono placeholder-on-surface-variant/30" />
-          
-          <button type="button" onClick={handleClearLogs} className="p-2.5 text-on-surface-variant hover:text-red-400 bg-surface-container-highest/50 hover:bg-red-500/10 rounded-lg transition-all border border-transparent hover:border-red-500/30 flex items-center justify-center group" title="Clear Console">
-            <span className="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">delete_sweep</span>
+        <form onSubmit={onSubmit} className="p-4 bg-transparent border-t border-[var(--sotf-border)] flex gap-3 items-center">
+          <span className="text-[var(--sotf-text-dim)] font-bold text-xl leading-none flex items-center">&gt;</span>
+          <input 
+            type="text" 
+            value={consoleInput} 
+            onChange={(e) => setConsoleInput(e.target.value)} 
+            placeholder="ENTER COMMAND..." 
+            className="flex-1 bg-transparent border-none outline-none text-white font-mono placeholder:text-[var(--sotf-text-dim)] uppercase" 
+          />
+          <button type="button" onClick={handleClearLogs} className="sotf-btn text-sm hover:text-red-500" title="Clear Console">
+            CLEAR
           </button>
-          
-          <button type="submit" className="bg-[#16a34a]/30 hover:bg-[#16a34a]/50 text-[#4ade80] border border-[#16a34a]/50 hover:border-[#4ade80] shadow-[0_0_15px_rgba(22,163,74,0.1)] px-8 py-2.5 rounded-xl font-bold transition-all uppercase tracking-widest text-sm">Send</button>
+          <button type="submit" className="sotf-btn text-sm text-[var(--sotf-highlight)]">SEND</button>
         </form>
-      </div>
-
-      <div className="w-72 bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] flex flex-col min-h-0 rounded-xl overflow-hidden">
-        <div className="p-5 border-b border-surface-container-highest flex justify-between items-center bg-surface-container-highest/20">
-          <h3 className="font-headline-md text-headline-md text-on-surface">Live Players</h3>
-          <div className="bg-[#16a34a]/10 border border-[#16a34a]/30 text-[#4ade80] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(22,163,74,0.1)]">{onlinePlayers.length} Online</div>
-        </div>
-        <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
-          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
-          defer
-        >
-          <div className="p-4 flex flex-col min-h-full">
-            {onlinePlayers.length === 0 ? (
-              <div className="text-center text-on-surface-variant/50 font-label-md text-label-md mt-10">No one is online right now.</div>
-            ) : (
-              <div className="space-y-3">
-                {onlinePlayers.map((playerName, idx) => (
-                  <div key={idx} onClick={() => onPlayerClick(playerName)} className="flex items-center gap-4 bg-surface-container-lowest p-3.5 rounded-xl border border-surface-container-highest shadow-sm cursor-pointer hover:border-[#4ade80]/50 hover:bg-surface-container-lowest/80 transition-colors group">
-                    <div className="w-10 h-10 rounded-lg shadow-sm bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:scale-105 transition-transform">
-                      <span className="material-symbols-outlined text-[24px]">person</span>
-                    </div>
-                    <span className="font-label-lg text-label-lg text-on-surface group-hover:text-[#4ade80] transition-colors">{playerName}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </OverlayScrollbarsComponent>
       </div>
     </div>
   );

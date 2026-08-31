@@ -1,61 +1,56 @@
 import React from 'react';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import 'overlayscrollbars/overlayscrollbars.css';
-import { useServerStore } from '../../../../store/useServerStore';
 import { usePlayerStore } from '../../../../store/usePlayerStore';
 
-interface Props {
+interface SonsOfTheForestPlayersTabProps {
   serverId: number;
 }
 
-export const SonsOfTheForestPlayersTab: React.FC<Props> = ({ serverId }) => {
-  const { servers } = useServerStore();
-  const { onlinePlayers: allPlayers } = usePlayerStore();
+export const SonsOfTheForestPlayersTab: React.FC<SonsOfTheForestPlayersTabProps> = ({ serverId }) => {
+  const { onlinePlayers: allOnlinePlayers } = usePlayerStore();
+  const onlinePlayers = serverId ? (allOnlinePlayers[serverId] || []) : [];
 
-  const server = servers.find(s => s.id === serverId);
-  const onlinePlayers = server ? (allPlayers[serverId] || []) : [];
+  const handleKick = (playerName: string) => {
+    window.api.server.sendCommand(serverId, `kick ${playerName}`);
+  };
+
+  const handleBan = (playerName: string) => {
+    window.api.server.sendCommand(serverId, `ban ${playerName}`);
+  };
 
   return (
-    <div className="absolute inset-0 flex flex-col p-8 min-h-0 bg-transparent">
-      <div className="flex justify-between items-end border-b border-outline-variant/20 pb-6 mb-6">
-        <div>
-          <h1 className="font-headline-lg text-headline-lg text-on-surface mb-1">Live Players</h1>
-          <p className="font-body-md text-body-md text-on-surface-variant">Players currently on the server</p>
-        </div>
-        <div className="bg-[#16a34a]/10 border border-[#16a34a]/30 text-[#4ade80] px-4 py-1.5 rounded-full text-sm font-bold shadow-[0_0_15px_rgba(22,163,74,0.15)]">
-          {onlinePlayers.length} Online
-        </div>
-      </div>
+    <div className="flex-1 min-h-0 bg-transparent flex flex-col items-center">
+      <div className="w-full max-w-4xl flex-1 flex flex-col mt-4 mb-4">
+        
+        <div className="sotf-section-header mb-4">LIVE PLAYERS ({onlinePlayers.length})</div>
 
-      <div className="flex-1 overflow-hidden bg-surface/80 backdrop-blur-md rounded-xl border border-outline-variant/30 flex flex-col">
         <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
+          className="flex-1 min-h-0 w-full sotf-scrollbars border border-[var(--sotf-border)] bg-[var(--sotf-panel)]" 
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
           defer
         >
-          <div className="p-6">
+          <div className="flex flex-col">
             {onlinePlayers.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-on-surface-variant/60">
-                <span className="material-symbols-outlined text-[64px] mb-4 opacity-50">group_off</span>
-                <p className="font-body-lg text-body-lg">No players are currently online</p>
+              <div className="p-8 text-center text-[var(--sotf-text-dim)] font-bold uppercase tracking-widest">
+                NO PLAYERS ONLINE
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {onlinePlayers.map((playerName, idx) => (
-                  <div key={idx} className="flex items-center gap-4 bg-surface-container-lowest p-4 rounded-xl border border-surface-container-highest shadow-sm hover:border-[#4ade80]/50 hover:bg-surface-container-lowest/80 transition-all hover:-translate-y-1 group">
-                    <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-[#4ade80] transition-colors shadow-inner">
-                      <span className="material-symbols-outlined text-[28px]">person</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-headline-sm text-headline-sm text-on-surface truncate group-hover:text-white transition-colors">{playerName}</h3>
-                      <p className="font-label-md text-label-md text-[#4ade80]">In-Game</p>
-                    </div>
+              onlinePlayers.map((playerName, idx) => (
+                <div key={idx} className="sotf-row hover:bg-[#1a1a1a]">
+                  <div className="flex items-center gap-4 w-[40%]">
+                    <span className="material-symbols-outlined text-[var(--sotf-text-dim)]">person</span>
+                    <span className="sotf-label font-bold text-white">{playerName}</span>
                   </div>
-                ))}
-              </div>
+                  <div className="w-[60%] flex justify-end gap-4">
+                    <button onClick={() => handleKick(playerName)} className="sotf-btn text-sm hover:text-[var(--sotf-highlight)]">KICK</button>
+                    <button onClick={() => handleBan(playerName)} className="sotf-btn text-sm hover:text-red-500">BAN</button>
+                  </div>
+                </div>
+              ))
             )}
           </div>
         </OverlayScrollbarsComponent>
+        
       </div>
     </div>
   );
