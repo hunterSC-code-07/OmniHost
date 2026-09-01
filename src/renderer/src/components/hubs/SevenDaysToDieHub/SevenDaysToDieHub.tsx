@@ -8,7 +8,7 @@ import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
 import { TunnelModal } from '../../modals/TunnelModal';
 
-import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
+import { SevenDaysToDieFilesTab as FilesTab } from './tabs/SevenDaysToDieFilesTab';
 import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab';
 import { SevenDaysToDiePlayersTab } from './tabs/SevenDaysToDiePlayersTab';
 import { SevenDaysToDieOverviewTab } from './tabs/SevenDaysToDieOverviewTab';

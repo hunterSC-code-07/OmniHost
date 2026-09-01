@@ -13,7 +13,7 @@ interface PlayersTabProps {
 const EquippedSkinCard = ({ playerName }: { playerName: string }) => {
   if (!playerName) return null
   return (
-    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center">
+    <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center">
       <div className="w-full flex items-center justify-between mb-4">
         <h3 className="font-bold text-lg text-white flex items-center gap-2">
           <svg className="w-5 h-5 text-brand" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -268,7 +268,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                         <div
                           key={idx}
                           onClick={() => !isIp && setSelectedPlayer(pName)}
-                          className={`bg-darkCard border border-gray-800/50 p-4 rounded-xl flex items-center justify-between group transition-all shadow-md ${!isIp ? 'cursor-pointer hover:border-brand' : ''}`}
+                          className={`bg-black/5 backdrop-blur-sm border border-gray-800/50 p-4 rounded-xl flex items-center justify-between group transition-all shadow-md ${!isIp ? 'cursor-pointer hover:border-brand' : ''}`}
                         >
                           <div className="flex items-center gap-4">
                             {isIp ? (
@@ -323,7 +323,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
             defer
           >
             <div className="w-full block p-8">
-              <div className="flex items-center justify-between bg-darkCard p-6 rounded-xl border border-gray-800 mb-6 shadow-md shrink-0">
+              <div className="flex items-center justify-between bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 mb-6 shadow-md shrink-0">
                 <div className="flex items-center gap-5">
                   <div className="relative group">
                     <img
@@ -383,7 +383,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
               {playerListType === 'history' ? (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                   <div className="xl:col-span-2 space-y-6">
-                    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
+                    <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md">
                       <h3 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
                         <svg
                           className="w-5 h-5 text-gray-400"
@@ -422,7 +422,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                     <EquippedSkinCard playerName={selectedPlayer} />
 
                     {isEditingStats ? (
-                      <div className="bg-darkCard p-6 rounded-xl border border-brand/50 shadow-[0_0_20px_rgba(76,175,80,0.15)] flex flex-col gap-5 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-brand/50 shadow-[0_0_20px_rgba(76,175,80,0.15)] flex flex-col gap-5 relative overflow-hidden animate-in fade-in zoom-in-95 duration-200">
                         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-brand to-transparent"></div>
                         <div className="flex items-center justify-between mb-2">
                           <h3 className="font-bold text-lg text-white flex items-center gap-2">
@@ -448,7 +448,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                                 hp: parseFloat(e.target.value) || 20
                               }))
                             }
-                            className="w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none"
+                            className="w-full bg-black/20 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none"
                             placeholder="20"
                           />
                         </div>
@@ -468,7 +468,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                                 armor: parseFloat(e.target.value) || 0
                               }))
                             }
-                            className="w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none"
+                            className="w-full bg-black/20 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none"
                             placeholder="0"
                           />
                         </div>
@@ -488,7 +488,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                                 atk: parseFloat(e.target.value) || 1
                               }))
                             }
-                            className="w-full bg-black/50 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none"
+                            className="w-full bg-black/20 border border-gray-700 rounded-lg px-3 py-2 text-white font-mono focus:border-brand outline-none"
                             placeholder="1"
                           />
                         </div>
@@ -502,7 +502,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                       </div>
                     ) : (
                       <>
-                        <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-6">
+                        <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md flex flex-col items-center justify-center py-6">
                           <h3 className="font-bold text-gray-400 mb-2 uppercase tracking-widest text-sm">
                             Total Playtime
                           </h3>
@@ -526,7 +526,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                             })()}
                           </p>
                         </div>
-                        <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
+                        <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md flex flex-col justify-center gap-4">
                           <div>
                             <h3 className="font-bold text-gray-400 mb-1 uppercase tracking-widest text-xs">
                               First Joined
@@ -581,7 +581,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
               ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
                   <div className="xl:col-span-2 space-y-6">
-                    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
+                    <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md">
                       <h3 className="font-bold text-lg mb-4 text-white flex items-center gap-2">
                         <svg
                           className="w-5 h-5 text-gray-400"
@@ -614,7 +614,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
+                    <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md">
                       <h3 className="font-bold text-lg mb-4 text-white">Health and Actions</h3>
                       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                         <button
@@ -670,7 +670,7 @@ export const PlayersTab: React.FC<PlayersTabProps> = React.memo(() => {
 
                   <div className="space-y-6">
                     <EquippedSkinCard playerName={selectedPlayer} />
-                    <div className="bg-darkCard p-6 rounded-xl border border-gray-800 shadow-md">
+                    <div className="bg-black/5 backdrop-blur-sm p-6 rounded-xl border border-gray-800 shadow-md">
                       <h3 className="font-bold text-lg mb-4 text-white">Control Panel</h3>
                       <div className="space-y-3">
                         <button

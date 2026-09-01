@@ -46,7 +46,7 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
                 It is highly recommended to create a new server for the modpack instead. Do you want to go to the Create Server screen now?
               </p>
             </div>
-            <div className="p-4 border-t border-white/5 flex justify-end gap-3 bg-black/20">
+            <div className="p-4 border-t border-white/5 flex justify-end gap-3 bg-transparent">
               <button
                 onClick={() => setIsConfirmModalOpen(false)}
                 className="px-4 py-2 rounded font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-colors"
@@ -69,7 +69,7 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
       )}
 
       <h3 className="text-2xl font-bold text-[#4CAF50] mb-6 shrink-0">Change Software</h3>
-      <div className="flex-1 flex flex-col bg-black/40 backdrop-blur-md rounded-xl overflow-hidden border border-white/5 shadow-xl min-h-0">
+      <div className="flex-1 flex flex-col bg-black/5 backdrop-blur-sm rounded-xl overflow-hidden border border-white/10 shadow-glass min-h-0">
         <OverlayScrollbarsComponent 
           className="flex-1 min-h-0"
           options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
@@ -93,13 +93,13 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
             <label className="block text-sm font-bold text-gray-400 mb-2">Software Type</label>
             <button 
               onClick={() => setIsTypeMenuOpen(!isTypeMenuOpen)}
-              className="w-full flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 rounded p-3 text-white shadow-inner font-bold"
+              className="w-full flex justify-between items-center bg-black/5 backdrop-blur-sm border border-white/10 rounded p-3 text-white shadow-inner font-bold"
             >
               {editingSoftwareType}
               <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
             </button>
             {isTypeMenuOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
                 <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
                 {['Vanilla', 'Paper', 'Fabric', 'Forge', 'NeoForge', 'CurseForge Modpack'].map(opt => (
                   <div key={opt} onClick={() => { 
@@ -122,13 +122,13 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
             <label className="block text-sm font-bold text-gray-400 mb-2">Minecraft Version</label>
             <button 
               onClick={() => setIsVersionMenuOpen(!isVersionMenuOpen)}
-              className="w-full flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 rounded p-3 text-white shadow-inner font-bold"
+              className="w-full flex justify-between items-center bg-black/5 backdrop-blur-sm border border-white/10 rounded p-3 text-white shadow-inner font-bold"
             >
               {editingSoftwareVersion || 'Loading...'}
               <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
             </button>
             {isVersionMenuOpen && editingAvailableVersions.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
                 <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
                 {editingAvailableVersions.map(opt => (
                   <div key={opt} onClick={() => { setEditingSoftwareVersion(opt); setIsVersionMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingSoftwareVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
@@ -145,13 +145,13 @@ export const SoftwareTab: React.FC<SoftwareTabProps> = React.memo(() => {
               <label className="block text-sm font-bold text-gray-400 mb-2">Loader Version</label>
               <button 
                 onClick={() => { if (!isChangingSoftware && editingAvailableLoaderVersions.length > 0) setIsLoaderMenuOpen(!isLoaderMenuOpen) }}
-                className={`w-full flex justify-between items-center bg-black/40 backdrop-blur-md border border-white/5 rounded p-3 text-white shadow-inner font-bold ${isChangingSoftware || editingAvailableLoaderVersions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`w-full flex justify-between items-center bg-black/5 backdrop-blur-sm border border-white/10 rounded p-3 text-white shadow-inner font-bold ${isChangingSoftware || editingAvailableLoaderVersions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 {editingAvailableLoaderVersions.length === 0 ? 'Loading...' : (editingLoaderVersion || 'Select version')}
                 <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
               </button>
               {isLoaderMenuOpen && editingAvailableLoaderVersions.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
                   <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
                   {editingAvailableLoaderVersions.map(opt => (
                     <div key={opt} onClick={() => { setEditingLoaderVersion(opt); setIsLoaderMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${editingLoaderVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
