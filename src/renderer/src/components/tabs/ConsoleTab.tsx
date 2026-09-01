@@ -25,7 +25,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
 
   const activeLogs = activeServerId ? logs.filter(l => l.id === activeServerId.toString() || l.id === 'global').map(l => l.msg) : [];
   const activePlayers = activeServerId ? (onlinePlayers[activeServerId.toString()] || []) : [];
-  const isMinecraft = activeServer?.game?.toLowerCase() === 'minecraft';
+  const isMinecraft = activeServer?.game?.toLowerCase().includes('minecraft');
   const isPalworld = activeServer?.game?.toLowerCase() === 'palworld';
   const isTerraria = activeServer?.game?.toLowerCase() === 'terraria';
 
@@ -63,7 +63,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
 
   return (
     <div className="absolute inset-0 flex gap-6 p-6 min-h-0 bg-transparent font-body">
-      <div className={`flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 ${isMinecraft ? 'minecraft-panel-dark' : isPalworld ? 'pal-panel-dark' : isTerraria ? 'terraria-panel-dark' : 'bg-black/40 backdrop-blur-md rounded-xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'}`}>
+      <div className={`flex-1 flex flex-col overflow-hidden min-h-0 min-w-0 ${isMinecraft ? 'bg-black/5 backdrop-blur-sm border-[2px] border-white/10 text-white' : isPalworld ? 'pal-panel-dark' : isTerraria ? 'terraria-panel-dark' : 'bg-black/40 backdrop-blur-md rounded-xl border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]'}`}>
         <div ref={parentRef} className="flex-1 min-h-0 overflow-auto p-6" style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.2) transparent' }}>
           <div className="font-mono text-sm text-on-surface-variant shadow-inner w-full relative" style={{ height: `${rowVirtualizer.getTotalSize()}px` }}>
             {activeLogs.length === 0 && <div className="text-on-surface-variant/50 italic mt-4 mb-4">Waiting for server output... click Start to boot!</div>}
@@ -102,7 +102,7 @@ export const ConsoleTab: React.FC<ConsoleTabProps> = React.memo(({ onPlayerClick
         </form>
       </div>
 
-      <div className={`w-72 flex flex-col min-h-0 overflow-hidden ${isMinecraft ? 'minecraft-panel-dark' : isPalworld ? 'pal-panel-dark' : isTerraria ? 'terraria-panel-dark' : 'bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-xl'}`}>
+      <div className={`w-72 flex flex-col min-h-0 overflow-hidden ${isMinecraft ? 'bg-black/5 backdrop-blur-sm border-[2px] border-white/10 text-white' : isPalworld ? 'pal-panel-dark' : isTerraria ? 'terraria-panel-dark' : 'bg-black/20 backdrop-blur-md border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.2)] rounded-xl'}`}>
         <div className="p-5 border-b border-surface-container-highest flex justify-between items-center bg-surface-container-highest/20">
           <h3 className="font-headline-md text-headline-md text-on-surface">Live Players</h3>
           <div className="bg-[#4CAF50]/10 border border-[#4CAF50]/30 text-[#4CAF50] px-3 py-1 rounded-full text-xs font-bold shadow-[0_0_10px_rgba(76,175,80,0.1)]">{activePlayers.length} Online</div>

@@ -241,8 +241,8 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in">
-        <div className={`bg-[#0a0a0a] p-8 rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] w-full relative ${newServerType === 'CurseForge Modpack' ? 'max-w-4xl' : 'max-w-md'}`}>
+      <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
+        <div className={`bg-black/30 backdrop-blur-2xl p-8 rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] w-full relative ${newServerType === 'CurseForge Modpack' ? 'max-w-4xl' : 'max-w-md'}`}>
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10">
             <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Create New Server</h2>
@@ -257,7 +257,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     type="text"
                     value={newServerName}
                     onChange={e => setNewServerName(e.target.value)}
-                    className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner"
+                    className="w-full bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner"
                     placeholder="My Awesome Server"
                     disabled={isCreatingServer}
                   />
@@ -268,7 +268,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
                     <button
                       onClick={() => setIsNewServerTypeMenuOpen(!isNewServerTypeMenuOpen)}
-                      className="w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold"
+                      className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold"
                       disabled={isCreatingServer}
                     >
                       {newServerType}
@@ -303,7 +303,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <div className="relative z-40">
                       <label className="block text-sm font-bold text-gray-400 mb-1">World Size</label>
                       <select 
-                        className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
+                        className="w-full bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
                         value={terrariaWorldSize}
                         onChange={(e) => setTerrariaWorldSize(e.target.value)}
                         disabled={isCreatingServer}
@@ -316,7 +316,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <div className="relative z-30">
                       <label className="block text-sm font-bold text-gray-400 mb-1">Difficulty</label>
                       <select 
-                        className="w-full bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
+                        className="w-full bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
                         value={terrariaDifficulty}
                         onChange={(e) => setTerrariaDifficulty(e.target.value)}
                         disabled={isCreatingServer}
@@ -335,7 +335,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
                     <button
                       onClick={() => { if (!isCreatingServer && availableVersions.length > 0) setIsNewServerVersionMenuOpen(!isNewServerVersionMenuOpen) }}
-                      className={`w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {availableVersions.length === 0 ? 'Loading...' : (newServerVersion || 'Select version')}
                       <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
@@ -358,7 +358,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
                     <button
                       onClick={() => { if (!isCreatingServer && availableLoaderVersions.length > 0) setIsNewServerLoaderMenuOpen(!isNewServerLoaderMenuOpen) }}
-                      className={`w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableLoaderVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className={`w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableLoaderVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       {availableLoaderVersions.length === 0 ? 'Loading...' : (newServerLoaderVersion || 'Select version')}
                       <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
@@ -385,14 +385,14 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <input
                       type="text"
                       placeholder="Search Modpacks..."
-                      className="flex-1 bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
+                      className="flex-1 bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
                       value={modpackSearch}
                       onChange={e => setModpackSearch(e.target.value)}
                     />
                     <div className="relative z-50 flex-1">
                       <button
                         onClick={() => setIsModpackVersionMenuOpen(!isModpackVersionMenuOpen)}
-                        className="w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
+                        className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
                       >
                         {modpackVersionFilter || 'All Versions'}
                         <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
@@ -419,7 +419,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     <div className="relative z-50 flex-1">
                       <button
                         onClick={() => setIsModpackLoaderMenuOpen(!isModpackLoaderMenuOpen)}
-                        className="w-full flex justify-between items-center bg-[#050505] border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
+                        className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
                       >
                         {modpackLoaderFilter || 'Any Loader'}
                         <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
@@ -443,7 +443,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                     </div>
                   </div>
 
-                  <div className="flex-1 bg-[#050505] rounded-lg border border-gray-800 relative flex flex-col min-h-[400px] max-h-[400px]">
+                  <div className="flex-1 bg-black/20 rounded-lg border border-gray-800 relative flex flex-col min-h-[400px] max-h-[400px]">
                     <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="flex-1 w-full block min-h-0">
                       <div className="p-2 space-y-2">
                         {isSearchingPacks && (

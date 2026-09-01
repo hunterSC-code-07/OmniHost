@@ -83,7 +83,8 @@
   flex: 1.5;
   display: flex;
   background-color: rgba(0,0,0,0.5);
-  border: 1px solid var(--7dtd-border);
+  border: 2px solid var(--7dtd-border);
+  overflow: hidden;
 }
 
 .sevendays-input-arrow {
@@ -163,4 +164,24 @@
   background-color: rgba(255, 79, 79, 0.2);
   border-color: #ff4f4f;
   box-shadow: 0 0 10px rgba(255, 79, 79, 0.3);
+}
+
+/* Custom Scrollbar */
+.sevendays-ui ::-webkit-scrollbar {
+  width: 12px;
+  background-color: var(--7dtd-bg-dark);
+}
+
+.sevendays-ui ::-webkit-scrollbar-track {
+  background: var(--7dtd-bg-panel-dark);
+  border-left: 1px solid var(--7dtd-border);
+}
+
+.sevendays-ui ::-webkit-scrollbar-thumb {
+  background-color: var(--7dtd-border);
+  border: 2px solid var(--7dtd-bg-panel-dark);
+}
+
+.sevendays-ui ::-webkit-scrollbar-thumb:hover {
+  background-color: var(--7dtd-text-dim);
 }

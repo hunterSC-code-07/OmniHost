@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import minecraftBgVideo from '../../../assets/minecraft-animated-bg.mp4';
+import minecraftDarkBgVideo from '../../../assets/minecraft-dark-animated-bg.mp4';
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -39,6 +41,7 @@ import { useUiStore } from '../../../store/useUiStore';
 import { useToastStore } from '../../../store/useToastStore';
 
 import { useModalStore } from '../../../store/useModalStore';
+import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
 import { HUB_REGISTRY } from '../../layout/HubRegistry';
 
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
@@ -47,6 +50,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { showToast } = useToastStore();
 
   const { openCreateServerModal, openDeleteModal, openSteamLoginModal } = useModalStore();
+  const { isDarkMode, toggleDarkMode } = useMinecraftHubStore();
 
   const handleStart = startServer;
   const handleStop = stopServer;
@@ -226,9 +230,39 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
               defer
             >
 <div className="w-full flex flex-col relative min-h-full pb-8">
-        <motion.div layoutId={`game-bg-${activeGameHub}`} initial={{ opacity: 1 }} animate={{ opacity: 0.15 }} exit={{ opacity: 1 }} className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{backgroundImage: `url('${getGameImageUrl(activeGameHub)}')`}}></motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40 z-0 pointer-events-none"></div>
-        
+        {activeGameHub === 'Minecraft' ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.75 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="absolute inset-0 pointer-events-none z-0"
+          >
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isDarkMode ? 'opacity-0' : 'opacity-100'}`}
+            >
+              <source src={minecraftBgVideo} type="video/mp4" />
+            </video>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isDarkMode ? 'opacity-100' : 'opacity-0'}`}
+            >
+              <source src={minecraftDarkBgVideo} type="video/mp4" />
+            </video>
+          </motion.div>
+        ) : (
+          <motion.div layoutId={`game-bg-${activeGameHub}`} initial={{ opacity: 1 }} animate={{ opacity: 0.15 }} exit={{ opacity: 1 }} className="absolute inset-0 bg-cover bg-center opacity-10 pointer-events-none" style={{backgroundImage: `url('${getGameImageUrl(activeGameHub)}')`}}></motion.div>
+        )}
+        {activeGameHub !== 'Minecraft' && (
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40 z-0 pointer-events-none"></div>
+        )}
         <div className="relative z-10 px-gutter pt-stack-lg pb-stack-lg flex flex-col gap-6">
           <button onClick={() => setActiveGameHub(null)} className="self-start flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors font-label-md text-label-md uppercase tracking-widest mb-2">
             <span className="material-symbols-outlined text-sm">arrow_back</span>
@@ -242,10 +276,17 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                   <h1 className="font-headline-xl text-headline-xl text-on-background">{activeGameHub} Hub</h1>
                   <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">Manage your available {activeGameHub} servers or create a new one.</p>
                 </div>
-                <button onClick={() => openCreateServerModal()} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
-                  <span className="material-symbols-outlined">add_box</span>
-                  NEW {activeGameHub.toUpperCase()} SERVER
-                </button>
+                <div className="flex items-center gap-4">
+                  {activeGameHub === 'Minecraft' && (
+                    <button onClick={toggleDarkMode} className="bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/40 transition-all w-12 h-12 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95" title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
+                      <span className="material-symbols-outlined text-xl">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
+                    </button>
+                  )}
+                  <button onClick={() => openCreateServerModal()} className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95">
+                    <span className="material-symbols-outlined">add_box</span>
+                    NEW {activeGameHub.toUpperCase()} SERVER
+                  </button>
+                </div>
               </div>
 
               {activeGameHub && HUB_REGISTRY[activeGameHub]?.steamAppId && (
@@ -310,7 +351,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2">Available Servers</h2>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {servers.filter((s: any) => s.game.includes(activeGameHub)).map((server: any) => (
-                          <div key={server.id} onClick={() => setActiveServerId(server.id)} className="group relative rounded-xl overflow-hidden glass-panel p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all duration-300 ease-out hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
+                          <div key={server.id} onClick={() => setActiveServerId(server.id)} className="group relative rounded-xl overflow-hidden bg-black/10 backdrop-blur-md p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all duration-300 ease-out hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]">
                             <div className="flex justify-between items-start">
                               <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">{server.name}</h3>
                               <div className="flex items-center gap-2 bg-background/50 px-3 py-1.5 rounded-full border border-surface-container-highest">
@@ -399,7 +440,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                 </div>
               </div>
 
-              <div className="glass-panel p-8 md:p-12 rounded-2xl border border-surface-container-high flex flex-col items-center text-center max-w-3xl mx-auto my-6 relative overflow-hidden">
+              <div className="bg-black/10 backdrop-blur-md p-8 md:p-12 rounded-2xl border border-surface-container-high flex flex-col items-center text-center max-w-3xl mx-auto my-6 relative overflow-hidden">
                 <div className="w-20 h-20 rounded-2xl bg-surface-container-high flex items-center justify-center mb-6 ring-1 ring-outline-variant/40 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
                   <span className="material-symbols-outlined text-4xl text-primary animate-pulse">engineering</span>
                 </div>

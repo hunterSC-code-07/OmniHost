@@ -157,7 +157,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
 
         {/* Tab Switcher */}
         <div className="flex gap-2 items-center">
-          <div className="bg-black/40 backdrop-blur-md p-1 rounded-lg border border-white/5 flex shadow-inner">
+          <div className="bg-black/5 backdrop-blur-sm p-1 rounded-lg border border-white/5 flex shadow-inner">
             <button
               onClick={() => setModViewType('browse')}
               className={`px-3.5 py-1.5 rounded-md font-bold text-sm transition-all flex items-center gap-1.5 ${modViewType === 'browse' ? 'bg-brand text-black shadow-md' : 'text-gray-400 hover:text-white'}`}
@@ -207,7 +207,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
           {modViewType === 'browse' && (
             <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
               {/* Controls Bar */}
-              <div className="flex flex-col md:flex-row justify-between items-center bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/5 mb-4 text-[#bfbfbf] text-sm shrink-0 shadow-inner relative z-50">
+              <div className="flex flex-col md:flex-row justify-between items-center bg-black/5 backdrop-blur-sm p-3 rounded-lg border border-white/5 mb-4 text-[#bfbfbf] text-sm shrink-0 shadow-inner relative z-50">
                 <div className="relative">
                   <button
                     onClick={() => setIsClassMenuOpen(!isClassMenuOpen)}
@@ -304,13 +304,13 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                   placeholder={`Search ${serverMeta?.type} ${classOptions.find((c) => c.id === activeClassId)?.name.toLowerCase()}...`}
                   value={modSearchQuery}
                   onChange={(e) => setModSearchQuery(e.target.value)}
-                  className="flex-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-lg px-6 py-3 text-white outline-none focus:border-brand/50 shadow-inner text-base"
+                  className="flex-1 bg-black/5 backdrop-blur-sm border border-white/5 rounded-lg px-6 py-3 text-white outline-none focus:border-brand/50 shadow-inner text-base"
                   disabled={isSearchingMods}
                 />
                 <button
                   type="submit"
                   disabled={isSearchingMods}
-                  className="px-8 bg-black/40 backdrop-blur-md border border-white/5 hover:bg-white/10 rounded-lg font-bold transition-all disabled:opacity-50 text-white shadow-lg"
+                  className="px-8 bg-black/5 backdrop-blur-sm border border-white/5 hover:bg-white/10 rounded-lg font-bold transition-all disabled:opacity-50 text-white shadow-lg"
                 >
                   {isSearchingMods ? 'Searching...' : 'Search'}
                 </button>
@@ -341,7 +341,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                       )
                       return (
                         <React.Fragment key={mod.id}>
-                          <div className="bg-black/30 backdrop-blur-sm p-4 flex gap-4 group transition-colors hover:bg-black/50">
+                          <div className="bg-black/5 backdrop-blur-sm p-4 flex gap-4 group transition-colors hover:bg-black/50">
                             <img
                               src={mod.logo?.thumbnailUrl || 'https://via.placeholder.com/128'}
                               alt={mod.name}
@@ -648,7 +648,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                     placeholder="Filter installed mods or dependencies by name..."
                     value={depSearchFilter}
                     onChange={(e) => setDepSearchFilter(e.target.value)}
-                    className="w-full bg-black/40 backdrop-blur-md border border-white/5 rounded-lg pl-11 pr-4 py-2.5 text-white outline-none focus:border-brand/50 text-sm shadow-inner"
+                    className="w-full bg-black/5 backdrop-blur-sm border border-white/5 rounded-lg pl-11 pr-4 py-2.5 text-white outline-none focus:border-brand/50 text-sm shadow-inner"
                   />
                 </div>
                 {depStats.missingDeps > 0 && (
@@ -839,13 +839,13 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                   placeholder={`Search ${serverMeta?.type} modpacks (e.g. Fabulously Optimized, Cobblemon, Better MC)...`}
                   value={modpackSearchQuery}
                   onChange={(e) => setModpackSearchQuery(e.target.value)}
-                  className="flex-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-lg px-6 py-3 text-white outline-none focus:border-brand/50 shadow-inner text-base"
+                  className="flex-1 bg-black/5 backdrop-blur-sm border border-white/5 rounded-lg px-6 py-3 text-white outline-none focus:border-brand/50 shadow-inner text-base"
                   disabled={isSearchingModpacks}
                 />
                 <button
                   type="submit"
                   disabled={isSearchingModpacks}
-                  className="px-8 bg-black/40 backdrop-blur-md border border-white/5 hover:bg-white/10 rounded-lg font-bold transition-all disabled:opacity-50 text-white shadow-lg flex items-center gap-2"
+                  className="px-8 bg-black/5 backdrop-blur-sm border border-white/5 hover:bg-white/10 rounded-lg font-bold transition-all disabled:opacity-50 text-white shadow-lg flex items-center gap-2"
                 >
                   <Search className="w-4 h-4" />
                   {isSearchingModpacks ? 'Searching...' : 'Search Modpacks'}
@@ -894,7 +894,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                       return (
                         <div
                           key={pack.id}
-                          className="bg-black/30 backdrop-blur-sm border border-white/5 rounded-xl p-5 flex flex-col md:flex-row gap-5 hover:bg-black/50 transition-all shadow-md group"
+                          className="bg-black/5 backdrop-blur-sm border border-white/5 rounded-xl p-5 flex flex-col md:flex-row gap-5 hover:bg-black/50 transition-all shadow-md group"
                         >
                           <img
                             src={pack.logo?.thumbnailUrl || 'https://via.placeholder.com/128'}
@@ -977,7 +977,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
             <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
               <form
                 onSubmit={handleSearchShaders}
-                className="flex gap-3 bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/5 mb-4 shrink-0 shadow-inner"
+                className="flex gap-3 bg-black/5 backdrop-blur-sm p-3 rounded-lg border border-white/5 mb-4 shrink-0 shadow-inner"
               >
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1040,7 +1040,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                       return (
                         <div
                           key={shader.id}
-                          className="bg-black/30 backdrop-blur-sm border border-white/5 rounded-xl p-4 flex flex-col hover:bg-black/50 transition-all shadow-md group relative overflow-hidden"
+                          className="bg-black/5 backdrop-blur-sm border border-white/5 rounded-xl p-4 flex flex-col hover:bg-black/50 transition-all shadow-md group relative overflow-hidden"
                         >
                           {isInstalled && (
                             <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">
@@ -1126,7 +1126,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
             <div className="flex-1 flex flex-col min-h-0 animate-in fade-in duration-300">
               <form
                 onSubmit={handleSearchResourcePacks}
-                className="flex gap-3 bg-black/40 backdrop-blur-md p-3 rounded-lg border border-white/5 mb-4 shrink-0 shadow-inner"
+                className="flex gap-3 bg-black/5 backdrop-blur-sm p-3 rounded-lg border border-white/5 mb-4 shrink-0 shadow-inner"
               >
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -1190,7 +1190,7 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                       return (
                         <div
                           key={pack.id}
-                          className="bg-black/30 backdrop-blur-sm border border-white/5 rounded-xl p-4 flex flex-col hover:bg-black/50 transition-all shadow-md group relative overflow-hidden"
+                          className="bg-black/5 backdrop-blur-sm border border-white/5 rounded-xl p-4 flex flex-col hover:bg-black/50 transition-all shadow-md group relative overflow-hidden"
                         >
                           {isInstalled && (
                             <div className="absolute top-0 right-0 w-16 h-16 overflow-hidden">

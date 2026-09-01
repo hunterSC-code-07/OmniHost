@@ -8,7 +8,7 @@ export const MinecraftHubHeader: React.FC = () => {
   const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
   const activeServer = servers.find(s => s.id === activeServerId);
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
-  const { isDarkMode, toggleDarkMode } = useMinecraftHubStore();
+  const { } = useMinecraftHubStore();
   
   if (!activeServer) return null;
   
@@ -38,9 +38,6 @@ export const MinecraftHubHeader: React.FC = () => {
           <h2 className="minecraft-title">{activeServer.name}</h2>
         </div>
         <div className="flex gap-3 items-center">
-          <button onClick={toggleDarkMode} className="minecraft-btn flex items-center justify-center p-2.5" title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}>
-            <span className="material-symbols-outlined text-[20px]">{isDarkMode ? 'light_mode' : 'dark_mode'}</span>
-          </button>
           <div className="flex">
             <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`minecraft-btn flex items-center justify-center ${tunnelStatus === 'Online' ? 'minecraft-btn-active' : ''}`} disabled={tunnelStatus === 'Starting...'}>
               <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
