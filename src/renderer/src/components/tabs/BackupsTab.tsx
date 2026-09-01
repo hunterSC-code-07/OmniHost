@@ -110,7 +110,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
 
   return (
     <div className="absolute inset-0 flex flex-col min-h-0">
-      <div className="bg-surface/80 backdrop-blur-md border border-outline-variant/30 p-6 rounded-xl shadow-md mb-8 mx-8 mt-8 shrink-0">
+      <div className="bg-black/5 backdrop-blur-sm border border-outline-variant/30 p-6 rounded-xl shadow-md mb-8 mx-8 mt-8 shrink-0">
         <h2 className="font-headline-md text-headline-md text-on-surface mb-4">
           Create World Backup
         </h2>
@@ -120,7 +120,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
             placeholder="Backup Name (optional)"
             value={newBackupName}
             onChange={(e) => setNewBackupName(e.target.value)}
-            className="flex-1 bg-surface-container-lowest border border-outline-variant/50 rounded-lg px-4 py-3 text-on-surface outline-none focus:border-primary transition-colors"
+            className="flex-1 bg-black/20 border border-outline-variant/50 rounded-lg px-4 py-3 text-white outline-none focus:border-primary transition-colors placeholder:text-gray-500"
             disabled={isProcessing}
           />
           <button
@@ -136,8 +136,8 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
         )}
       </div>
 
-      <div className="flex-1 bg-surface/40 backdrop-blur-md rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col shadow-md mx-8 mb-8">
-        <div className="p-4 border-b border-outline-variant/30 bg-surface/60 flex justify-between items-center shrink-0">
+      <div className="flex-1 bg-black/5 backdrop-blur-sm rounded-xl border border-outline-variant/30 overflow-hidden flex flex-col shadow-glass mx-8 mb-8">
+        <div className="p-4 border-b border-outline-variant/30 bg-black/20 flex justify-between items-center shrink-0">
           <h3 className="font-headline-sm text-headline-sm text-on-surface">Available Backups</h3>
           <div className="flex items-center gap-4">
             {backups.length > 0 && (
@@ -173,7 +173,7 @@ export const BackupsTab: React.FC<BackupsTabProps> = () => {
                 {backups.map((b) => (
                   <div
                     key={b.name}
-                    className="bg-surface-container-low border border-outline-variant/30 p-5 rounded-xl group hover:border-primary/50 transition-all flex flex-col"
+                    className="bg-black/20 border border-outline-variant/30 p-5 rounded-xl group hover:border-primary/50 transition-all flex flex-col"
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex-1 overflow-hidden">

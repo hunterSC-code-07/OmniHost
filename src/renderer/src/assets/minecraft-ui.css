@@ -1,7 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
 
 .minecraft-ui {
-  --mc-panel-bg: rgba(255, 255, 255, 0.25);
+  --mc-panel-bg: rgba(255, 255, 255, 0.05);
   --mc-panel-border-top: rgba(255, 255, 255, 0.6);
   --mc-panel-border-bottom: rgba(255, 255, 255, 0.6);
   --mc-text: #ffffff;
@@ -75,7 +75,8 @@
 }
 
 .minecraft-panel-dark {
-  background-color: var(--mc-inner-panel-bg);
+  background-color: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(8px);
   border: 2px solid var(--mc-inner-panel-border);
   box-shadow: none;
   color: var(--mc-inner-text);

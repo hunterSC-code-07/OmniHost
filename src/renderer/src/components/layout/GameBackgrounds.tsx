@@ -9,7 +9,7 @@ export const GameBackgrounds: React.FC = () => {
     <>
       {Object.values(HUB_REGISTRY).map(config => {
         if (!config.theme.bgGradient) return null;
-        const isActive = hoveredGame === config.gameName || activeGameHub === config.gameName;
+        const isActive = (hoveredGame === config.gameName && activeGameHub === null) || (activeGameHub === config.gameName && config.gameName !== 'Minecraft');
         return (
           <div 
             key={config.gameName}

@@ -76,7 +76,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
     const isToggled = invert ? !rawVal : rawVal
 
     return (
-      <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
+      <div className="bg-black/5 backdrop-blur-sm border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
         <span className="font-label-md text-label-md text-on-surface">{label}</span>
         <button
           onClick={() =>
@@ -100,7 +100,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
     const currentVal = props[propKey] || DEFAULT_PROPS[propKey] || 'Select...'
     return (
       <div
-        className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl relative"
+        className="bg-black/5 backdrop-blur-sm border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl relative"
         style={{ zIndex: isOpen ? 50 : 10 }}
       >
         <span className="font-label-md text-label-md text-on-surface">{label}</span>
@@ -146,7 +146,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
     const dec = () => setProps((prev) => ({ ...prev, [propKey]: Math.max(0, val - 1).toString() }))
 
     return (
-      <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
+      <div className="bg-black/5 backdrop-blur-sm border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl">
         <span className="font-label-md text-label-md text-on-surface">{label}</span>
         <div className="flex items-center gap-1 bg-background border border-surface-container-highest rounded-lg overflow-hidden focus-within:border-brand focus-within:ring-1 focus-within:ring-brand/50 transition-all">
           <button
@@ -176,7 +176,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
 
   const ConfigString = ({ label, propKey, placeholder, isFullWidth = false }: any) => (
     <div
-      className={`bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl ${isFullWidth ? 'col-span-1 md:col-span-2 xl:col-span-3' : ''} gap-4`}
+      className={`bg-black/5 backdrop-blur-sm border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-5 py-3 w-full h-14 shadow-sm rounded-xl ${isFullWidth ? 'col-span-1 md:col-span-2 xl:col-span-3' : ''} gap-4`}
     >
       <span className="font-label-md text-label-md text-on-surface whitespace-nowrap">{label}</span>
       <input
@@ -238,7 +238,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
           ) : (
             <div className="flex flex-col gap-6">
               {/* Resource Slider Section */}
-              <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl p-8 shadow-glass flex flex-col items-center">
+              <div className="bg-black/5 backdrop-blur-sm border border-surface-container-highest rounded-2xl p-8 shadow-glass flex flex-col items-center">
                 <div className="text-center mb-6">
                   <h3 className="font-headline-lg text-headline-lg text-on-surface">
                     {ramLimit} GB RAM
@@ -288,7 +288,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
 
               {/* Auto-Start / Auto-Stop Section */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-6 py-4 shadow-sm rounded-xl h-16">
+                <div className="bg-black/5 backdrop-blur-sm border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-6 py-4 shadow-sm rounded-xl h-16">
                   <span className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
                     Start when any player joins
                   </span>
@@ -302,7 +302,7 @@ export const OptionsTab: React.FC<OptionsTabProps> = React.memo(({ serverId, onC
                   </button>
                 </div>
 
-                <div className="bg-surface-container-low border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-6 py-4 shadow-sm rounded-xl h-16">
+                <div className="bg-black/5 backdrop-blur-sm border border-surface-container-highest hover:border-brand/40 transition-colors flex justify-between items-center px-6 py-4 shadow-sm rounded-xl h-16">
                   <span className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
                     Stop after 10m without players
                   </span>

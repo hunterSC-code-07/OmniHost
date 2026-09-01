@@ -32,10 +32,10 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
 
     const currentServer = servers.find((s) => s.id === activeServerId)
     const serverStatus = currentServer?.status || 'Offline'
-    const isMinecraft = currentServer?.game?.toLowerCase() === 'minecraft'
+    const isMinecraft = currentServer?.game?.toLowerCase().includes('minecraft')
     const isPalworld = currentServer?.game?.toLowerCase() === 'palworld'
     const isTheForest = currentServer?.game?.toLowerCase() === 'theforest'
-    const panelClass = isTheForest ? 'forest-panel' : isMinecraft ? 'minecraft-panel-dark' : isPalworld ? 'pal-panel' : 'bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl hover:bg-surface-container-high/80 transition-colors'
+    const panelClass = isTheForest ? 'forest-panel' : isMinecraft ? 'bg-black/5 backdrop-blur-sm border-[2px] border-white/10 text-white' : isPalworld ? 'pal-panel' : 'bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl hover:bg-surface-container-high/80 transition-colors'
 
     const statsHistory = activeServerId ? allStatsHistory[activeServerId.toString()] || [] : []
     const onlinePlayers = activeServerId ? allOnlinePlayers[activeServerId.toString()] || [] : []
@@ -151,7 +151,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
                     {currentCpu.toFixed(0)}%
                   </span>
                 </div>
-                <div className="h-32 w-full relative overflow-hidden rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20 mt-auto">
+                <div className="h-32 w-full relative overflow-hidden rounded-lg bg-transparent border border-outline-variant/20 mt-auto">
                   <svg
                     viewBox="0 0 100 50"
                     preserveAspectRatio="none"
@@ -185,7 +185,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
                     {currentRam.toFixed(1)} GB / {maxRam.toFixed(1)} GB
                   </span>
                 </div>
-                <div className="h-32 w-full relative overflow-hidden rounded-lg bg-surface-container-lowest/50 border border-outline-variant/20 mt-auto">
+                <div className="h-32 w-full relative overflow-hidden rounded-lg bg-transparent border border-outline-variant/20 mt-auto">
                   <svg
                     viewBox="0 0 100 50"
                     preserveAspectRatio="none"
@@ -256,7 +256,7 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
               <div className="border-b border-outline-variant/30 px-6 py-4">
                 <h3 className="font-headline-md text-headline-md text-on-surface">Recent Logs</h3>
               </div>
-              <div className="p-6 overflow-y-auto bg-surface-container-lowest/50 font-console-text text-console-text space-y-2 flex-1">
+              <div className="p-6 overflow-y-auto bg-transparent font-console-text text-console-text space-y-2 flex-1">
                 {recentLogs.length === 0 ? (
                   <div className="text-on-surface-variant italic font-body-md text-body-md">
                     No logs available.

@@ -10,6 +10,6 @@ export const config = {
     ringColor: 'hover:ring-green-500',
     shadowColor: 'hover:shadow-[0_0_30px_rgba(74,222,128,0.25)]',
     textColor: 'group-hover:text-green-400',
-    bgGradient: 'from-[#0a1f0a] via-[#1b5e20] to-[#051105]'
+    bgGradient: 'from-green-900/40 via-green-800/10 to-transparent'
   }
 };
