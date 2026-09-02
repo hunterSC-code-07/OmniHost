@@ -201,6 +201,42 @@ export function registerSystemIpc(
     return true
   })
 
+  ipcMain.handle('get-inventory', async (_, id, playerName) => {
+    if (activeServers[id] && typeof activeServers[id].getInventory === 'function') {
+      try {
+        return await activeServers[id].getInventory(playerName)
+      } catch (e) {
+        console.error('Error fetching inventory:', e)
+        return null
+      }
+    }
+    return null
+  })
+
+  ipcMain.handle('get-player-nbt-stats', async (_, id, playerName) => {
+    if (activeServers[id] && typeof activeServers[id].getPlayerNbtStats === 'function') {
+      try {
+        return await activeServers[id].getPlayerNbtStats(playerName)
+      } catch (e) {
+        console.error('Error fetching NBT stats:', e)
+        return null
+      }
+    }
+    return null
+  })
+
+  ipcMain.handle('edit-player-nbt', async (_, id, playerName, stats) => {
+    if (activeServers[id] && typeof activeServers[id].editPlayerNbt === 'function') {
+      try {
+        return await activeServers[id].editPlayerNbt(playerName, stats)
+      } catch (e) {
+        console.error('Error editing NBT stats:', e)
+        return false
+      }
+    }
+    return false
+  })
+
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database
