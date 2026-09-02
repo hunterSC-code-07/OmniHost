@@ -31,7 +31,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "electron-log": "^5.4.4",
-    "extract-zip": "^2.0.1",
+    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5",
     "fast-xml-parser": "^5.11.0",
     "lucide-react": "^1.32.0",
     "motion": "^13.1.0",
@@ -43,6 +43,7 @@
     "react-icons": "^5.7.0",
     "semver": "^7.8.5",
     "tailwind-merge": "^3.6.0",
+    "yauzl": "^3.4.0",
     "zustand": "^5.0.15"
   },
   "devDependencies": {
@@ -61,6 +62,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/semver": "^7.8.0",
+    "@types/yauzl": "^3.4.0",
     "@vitejs/plugin-react": "^5.1.1",
     "autoprefixer": "^10.5.4",
     "electron": "^39.2.6",
@@ -85,5 +87,10 @@
     "electron@39.8.10": true,
     "esbuild@0.25.12": true,
     "esbuild@0.28.2": true
+  },
+  "overrides": {
+    "adm-zip": "^0.6.0",
+    "sharp": "^0.35.0",
+    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5"
   }
 }
