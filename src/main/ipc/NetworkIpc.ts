@@ -7,7 +7,6 @@ import { FrpAdapter7dtd } from '../adapters/FrpAdapter7dtd'
 import { FrpAdapterTheForest } from '../adapters/FrpAdapterTheForest'
 import { FrpAdapterPalworld } from '../adapters/FrpAdapterPalworld'
 import { FrpAdapterTerraria } from '../adapters/FrpAdapterTerraria'
-import { FrpAdapterSonsOfTheForest } from '../adapters/FrpAdapterSonsOfTheForest'
 import { IVpnAdapter } from '../adapters/IVpnAdapter'
 
 let tunnelProviders: Record<string, BaseFrpAdapter> | null = null;
@@ -23,7 +22,6 @@ export function registerNetworkIpc(
       'satisfactory': new FrpAdapterSatisfactory(),
       '7dtd': new FrpAdapter7dtd(),
       'theforest': new FrpAdapterTheForest(),
-      'sonsoftheforest': new FrpAdapterSonsOfTheForest(),
       'palworld': new FrpAdapterPalworld(),
       'terraria': new FrpAdapterTerraria(),
     };
