@@ -1,6 +1,6 @@
-## graphify-ts
+## madar
 
-IMPORTANT: This project has a graphify-ts knowledge graph. You MUST follow these rules:
+IMPORTANT: This project has a madar knowledge graph. You MUST follow these rules:
 
 1. **BEFORE answering ANY codebase question**, start with the graph tool that matches the question:
    - `retrieve` for "how does X work?" and other direct codebase questions
@@ -15,10 +15,10 @@ IMPORTANT: This project has a graphify-ts knowledge graph. You MUST follow these
 ### Current Status
 
 ```
-[graphify status] attention needed
+[madar status] attention needed
 version 0.23.1
 graph fresh (26m)
 agents claude:missing cursor:missing gemini:configured copilot:missing
 mcp claude:missing cursor:missing copilot:missing
-next graphify-ts claude install; graphify-ts cursor install; graphify-ts copilot install
+next madar claude install; madar cursor install; madar copilot install
 ```
