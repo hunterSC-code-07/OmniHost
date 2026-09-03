@@ -465,8 +465,9 @@ export function registerSystemIpc(
         }
       }
 
-      const extractZip = require('extract-zip')
-      await extractZip(backupPath, { dir: serverDir })
+      const AdmZip = require('adm-zip')
+      const zip = new AdmZip(backupPath)
+      zip.extractAllTo(serverDir, true)
       return true
     } catch (e: any) {
       console.error('Restore error:', e.message)
