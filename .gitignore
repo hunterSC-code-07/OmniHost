@@ -8,3 +8,23 @@ out
 .omnihost-data
 graphify-out/
 scratch.html
+
+# AI / Agent state
+.reticle.json
+brain.md
+
+# Build info
+*.tsbuildinfo
+
+# Temp / Scratch / Tests
+scratch_*.js
+test_*.js
+refactor_*.js
+*.vite.config.*.mjs
+
+# Logs and runtime dumps
+crash.txt
+temp_*.txt
+
+# Steamworks local files
+steam_appid.txt
