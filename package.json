@@ -82,7 +82,7 @@
   },
   "allowScripts": {
     "better-sqlite3@13.0.3": true,
-    "electron@39.8.10": true,
+    "electron": true,
     "esbuild@0.25.12": true,
     "esbuild@0.28.2": true
   },
