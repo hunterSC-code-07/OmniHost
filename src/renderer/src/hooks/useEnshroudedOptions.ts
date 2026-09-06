@@ -10,6 +10,7 @@ export interface EnshroudedConfig {
   gamePort: number;
   queryPort: number;
   slotCount: number;
+  userGroups?: any[];
 }
 
 const DEFAULT_CONFIG: EnshroudedConfig = {
@@ -37,18 +38,18 @@ export function useEnshroudedOptions() {
     setLoading(true);
     try {
       // @ts-ignore
-      const serverPath = await window.api.system.getServerPath(activeServerId);
-      // @ts-ignore
-      const exists = await window.api.fs.exists(`${serverPath}/enshrouded_server.json`);
-      if (exists) {
-        // @ts-ignore
-        const data = await window.api.fs.readFile(`${serverPath}/enshrouded_server.json`);
-        setConfig(JSON.parse(data));
-      } else {
-        setConfig(DEFAULT_CONFIG);
+      const data = await window.api.fs.readFile(activeServerId, 'enshrouded_server.json');
+      const parsed = JSON.parse(data);
+      
+      // Map password from userGroups for the UI
+      if (parsed.userGroups && parsed.userGroups.length > 0) {
+        parsed.password = parsed.userGroups[0].password || "";
       }
+      
+      setConfig(parsed);
     } catch (e) {
-      console.error("Failed to load Enshrouded config", e);
+      console.error("Failed to load Enshrouded config (might not exist yet)", e);
+      setConfig(DEFAULT_CONFIG);
     }
     setLoading(false);
   };
@@ -56,11 +57,31 @@ export function useEnshroudedOptions() {
   const handleSave = async (newConfig: EnshroudedConfig) => {
     if (!activeServerId) return;
     try {
+      const configToSave = { ...newConfig };
+      
+      // Enshrouded no longer uses the root 'password' field. It uses 'userGroups'.
+      // We'll create a single Admin group with the provided password.
+      configToSave.userGroups = [
+        {
+          name: "Admin",
+          password: configToSave.password || "",
+          canKickBan: true,
+          canAccessInventories: true,
+          canEditBase: true,
+          canExtendBase: true,
+          reservedSlots: 0
+        }
+      ];
+
+      // Remove the root password property so it doesn't pollute the JSON
+      delete configToSave.password;
+
       // @ts-ignore
-      const serverPath = await window.api.system.getServerPath(activeServerId);
-      // @ts-ignore
-      await window.api.fs.writeFile(`${serverPath}/enshrouded_server.json`, JSON.stringify(newConfig, null, 2));
-      setConfig(newConfig);
+      await window.api.fs.writeFile(activeServerId, 'enshrouded_server.json', JSON.stringify(configToSave, null, 2));
+      
+      // Restore password for local UI state
+      configToSave.password = newConfig.password;
+      setConfig(configToSave);
       alert('Configuration saved successfully!');
     } catch (e) {
       console.error("Failed to save Enshrouded config", e);
