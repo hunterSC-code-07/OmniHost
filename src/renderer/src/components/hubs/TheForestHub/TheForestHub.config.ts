@@ -1,10 +1,11 @@
 import React from 'react';
+import theForestBg from '../../../assets/theforest-bg.jpg';
 
 export const config = {
   gameName: 'The Forest',
   steamAppId: 556450,
   component: React.lazy(() => import('./TheForestHub').then(m => ({ default: m.TheForestHub }))),
-  backgroundUrl: 'https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000',
+  backgroundUrl: theForestBg,
   theme: {
     ringColor: 'hover:ring-green-600',
     shadowColor: 'hover:shadow-[0_0_30px_rgba(22,163,74,0.2)]',
