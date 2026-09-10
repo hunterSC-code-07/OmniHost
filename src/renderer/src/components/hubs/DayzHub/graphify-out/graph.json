@@ -1,0 +1,2122 @@
+{
+  "schema_version": 1,
+  "directed": false,
+  "root_path": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub",
+  "extractor_version": 63,
+  "nodes": [
+    {
+      "id": "dayzanimatedbackground",
+      "label": "DayzAnimatedBackground.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzAnimatedBackground.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzAnimatedBackground.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 5
+    },
+    {
+      "id": "dayzhub",
+      "label": "DayzHub.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 5
+    },
+    {
+      "id": "dayzhub_dayzhubcontent",
+      "label": "DayzHubContent()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19-L163",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ],
+      "snippet": "DayzHubContent: React.FC = () => {\n  const { activeServer, activeServerId, activeTab, tabDirection, handleTabChange } = useDayzHubContext();\n  \n  if (!activeServer) return null;\n  const { radminIp } = useUiStore();\n  const { setShowTunnelModal } = useModalStore();\n  const { setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();\n  \n  const handleStart = startServer;\n  const handleStop = stopServer;\n  const handleRestart = restartServer;\n  const handleDelete = deleteServer;\n\n  // Keep download listener active as long as Hub is mounted\n  useDayzModDownloader(activeServerId);\n\n  return (\n    <div className=\"flex-1 flex flex-col relative overflow-hidden dayz-scrollbars\">\n      <DayzAnimatedBackground />\n\n      <div className=\"glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none\">\n        <div className=\"flex justify-between items-center relative z-20\">\n          <div className=\"flex items-center gap-4\">\n            <button onClick={() => setActiveServerId(null)} className=\"p-2 bg-white/5 hover:bg-white/10 rounded-lg text-gray-400 hover:text-white transition-colors border border-white/10 flex items-center justify-center group\" title=\"Back to Dashboard\">\n              <span className=\"material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform\">arrow_back</span>",
+      "node_kind": "component",
+      "community": 9
+    },
+    {
+      "id": "dayzhub_dayzhub",
+      "label": "DayzHub()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L165-L171",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L165"
+        }
+      ],
+      "snippet": "DayzHub: React.FC = () => {\n  return (\n    <DayzHubProvider>\n      <DayzHubContent />\n    </DayzHubProvider>\n  );\n}",
+      "node_kind": "component",
+      "community": 9
+    },
+    {
+      "id": "dayzconsoletab",
+      "label": "DayzConsoleTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 5
+    },
+    {
+      "id": "dayzeconomytab",
+      "label": "DayzEconomyTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 2
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab",
+      "label": "DayzEconomyTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L6-L236",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "DayzEconomyTab: React.FC = () => {\n  const { activeServerId } = useServerStore();\n  const [isLoading, setIsLoading] = useState(true);\n  const [isSaving, setIsSaving] = useState(false);\n  const [error, setError] = useState<string | null>(null);\n\n  // Economy State\n  const [pristineLoot, setPristineLoot] = useState(false);\n  \n  // Default multipliers are 1\n  const [multipliers, setMultipliers] = useState<Record<string, number>>({\n    food: 1.0,\n    weapons: 1.0,\n    clothes: 1.0,\n    tools: 1.0,\n    vehiclesparts: 1.0,\n  });\n\n  useEffect(() => {\n    loadEconomy();\n  }, [activeServerId]);\n\n  const loadEconomy = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);",
+      "node_kind": "component",
+      "community": 2
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab_loadeconomy",
+      "label": "loadEconomy()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L28-L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L28"
+        }
+      ],
+      "snippet": "loadEconomy = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);\n    setError(null);\n    try {\n      // @ts-ignore\n      const data = await window.api.getDayzEconomy(activeServerId);\n      if (data) {\n        setPristineLoot(data.pristineLoot);\n      } else {\n        setError('Could not read economy files. Make sure the server has been started at least once so the mission files exist.');\n      }\n    } catch (e) {\n      console.error(\"Failed to load DayZ economy\", e);\n      setError('An error occurred while reading economy files.');\n    } finally {\n      setIsLoading(false);\n    }\n  }",
+      "community": 2
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab_handlemultiplierchange",
+      "label": "handleMultiplierChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L48-L53",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L48"
+        }
+      ],
+      "snippet": "handleMultiplierChange = (category: string, value: number) => {\n    setMultipliers(prev => ({\n      ...prev,\n      [category]: value\n    }));\n  }",
+      "community": 2
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab_handlesave",
+      "label": "handleSave()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L55-L76",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "handleSave = async () => {\n    setIsSaving(true);\n    try {\n      const settings = {\n        pristineLoot,\n        multipliers\n      };\n      \n      // @ts-ignore\n      const success = await window.api.updateDayzEconomy(activeServerId, settings);\n      if (success) {\n        alert('Economy settings updated successfully! Original XML files were backed up.');\n      } else {\n        alert('Failed to update economy settings. Mission files might be missing.');\n      }\n    } catch (e) {\n      console.error(\"Failed to save DayZ economy\", e);\n      alert('An error occurred while saving.');\n    } finally {\n      setIsSaving(false);\n    }\n  }",
+      "community": 2
+    },
+    {
+      "id": "dayzeconomytab_dayzeconomytab_renderslider",
+      "label": "renderSlider()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L104-L125",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L104"
+        }
+      ],
+      "snippet": "renderSlider = (category: string, label: string) => (\n    <div className=\"space-y-2\">\n      <div className=\"flex justify-between\">\n        <label className=\"text-sm font-bold text-gray-300\">{label} Spawn Multiplier</label>\n        <span className=\"text-red-400 font-mono\">{multipliers[category]?.toFixed(1)}x</span>\n      </div>\n      <input \n        type=\"range\" \n        min=\"0.1\" \n        max=\"5.0\" \n        step=\"0.1\" \n        value={multipliers[category]} \n        onChange={(e) => handleMultiplierChange(category, parseFloat(e.target.value))}\n        className=\"w-full accent-red-500\"\n      />\n      <div className=\"relative h-4 text-[11px] text-gray-500 mt-1\">\n        <span className=\"absolute left-0\">0.1x</span>\n        <span className=\"absolute left-[18.4%] -translate-x-1/2\">1.0x (Vanilla)</span>\n        <span className=\"absolute right-0\">5.0x</span>\n      </div>\n    </div>\n  )",
+      "community": 2
+    },
+    {
+      "id": "dayzfilestab",
+      "label": "DayzFilesTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 8
+    },
+    {
+      "id": "dayzfilestab_fileentry",
+      "label": "FileEntry",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L6-L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L6"
+        }
+      ],
+      "snippet": "interface FileEntry {\n  name: string;\n  isDirectory: boolean;\n  size: number;\n  mtime: string;\n}",
+      "community": 8
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab",
+      "label": "DayzFilesTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L13-L246",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L13"
+        }
+      ],
+      "snippet": "DayzFilesTab: React.FC = () => {\n  const { activeServerId } = useServerStore();\n  const [currentPath, setCurrentPath] = useState<string>('');\n  const [files, setFiles] = useState<FileEntry[]>([]);\n  const [loading, setLoading] = useState(false);\n  const [editingFile, setEditingFile] = useState<{ path: string, content: string } | null>(null);\n  const [newFolderName, setNewFolderName] = useState<string | null>(null);\n\n  const fetchDir = async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  };\n\n  useEffect(() => {\n    fetchDir('');\n  }, [activeServerId]);",
+      "node_kind": "component",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_fetchdir",
+      "label": "fetchDir()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L21-L32",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "fetchDir = async (path: string) => {\n    setLoading(true);\n    try {\n      const res = await window.api.listDir(activeServerId, path);\n      setFiles(res);\n      setCurrentPath(path);\n    } catch (e) {\n      console.error(e);\n    } finally {\n      setLoading(false);\n    }\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlenavigate",
+      "label": "handleNavigate()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L38-L40",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L38"
+        }
+      ],
+      "snippet": "handleNavigate = (path: string) => {\n    fetchDir(path);\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlenavigateup",
+      "label": "handleNavigateUp()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L42-L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L42"
+        }
+      ],
+      "snippet": "handleNavigateUp = () => {\n    const parts = currentPath.split(/\\\\|\\//).filter(Boolean);\n    parts.pop();\n    fetchDir(parts.join('/'));\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlefileclick",
+      "label": "handleFileClick()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L48-L68",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L48"
+        }
+      ],
+      "snippet": "handleFileClick = async (file: FileEntry) => {\n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    if (file.isDirectory) {\n      handleNavigate(fullPath);\n    } else {\n      // Basic check to see if it's a text editable file\n      const editableExts = ['.txt', '.json', '.cfg', '.xml', '.yaml', '.yml', '.log'];\n      const isEditable = editableExts.some(ext => file.name.toLowerCase().endsWith(ext));\n      \n      if (isEditable || file.size < 1024 * 1024) { // allow small files to be opened\n        try {\n          const content = await window.api.readFile(activeServerId, fullPath);\n          setEditingFile({ path: fullPath, content });\n        } catch (e) {\n          alert('Could not read file');\n        }\n      } else {\n        alert('File type not supported for editing or too large.');\n      }\n    }\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handledelete",
+      "label": "handleDelete()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L70-L81",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L70"
+        }
+      ],
+      "snippet": "handleDelete = async (e: React.MouseEvent, file: FileEntry) => {\n    e.stopPropagation();\n    if (!confirm(`Are you sure you want to delete ${file.name}?`)) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${file.name}` : file.name;\n    try {\n      await window.api.deleteItem(activeServerId, fullPath);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to delete item');\n    }\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlesavefile",
+      "label": "handleSaveFile()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L83-L92",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L83"
+        }
+      ],
+      "snippet": "handleSaveFile = async () => {\n    if (!editingFile) return;\n    try {\n      await window.api.writeFile(activeServerId, editingFile.path, editingFile.content);\n      alert('File saved successfully!');\n      setEditingFile(null);\n    } catch (e) {\n      alert('Failed to save file');\n    }\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_handlecreatefolder",
+      "label": "handleCreateFolder()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L94-L106",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L94"
+        }
+      ],
+      "snippet": "handleCreateFolder = async (e: React.FormEvent) => {\n    e.preventDefault();\n    if (!newFolderName) return;\n    \n    const fullPath = currentPath ? `${currentPath}/${newFolderName}` : newFolderName;\n    try {\n      await window.api.createFolder(activeServerId, fullPath);\n      setNewFolderName(null);\n      fetchDir(currentPath);\n    } catch (e) {\n      alert('Failed to create folder');\n    }\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzfilestab_dayzfilestab_formatsize",
+      "label": "formatSize()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L108-L114",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L108"
+        }
+      ],
+      "snippet": "formatSize = (bytes: number) => {\n    if (bytes === 0) return '0 B';\n    const k = 1024;\n    const sizes = ['B', 'KB', 'MB', 'GB'];\n    const i = Math.floor(Math.log(bytes) / Math.log(k));\n    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];\n  }",
+      "community": 0
+    },
+    {
+      "id": "dayzinstalledmodstab",
+      "label": "DayzInstalledModsTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 6
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "label": "DayzInstalledModsTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L5-L375",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "DayzInstalledModsTab: React.FC = () => {\n  const {\n    mods,\n    loading,\n    downloadingMission,\n    steamCreds,\n    setSteamCreds,\n    rememberMe,\n    setRememberMe,\n    showCreds,\n    setShowCreds,\n    installingDep,\n    depProgress,\n    checkingDeps,\n    isRebuilding,\n    dependencyResult,\n    setDependencyResult,\n    handleToggleMap,\n    handleDownloadMission,\n    handleExtractLocalMission,\n    handleToggleModStatus,\n    handleCheckDependencies,\n    handleUninstall,\n    handleUninstallAll,\n    handleRebuildLoadOrder,",
+      "node_kind": "component",
+      "community": 6
+    },
+    {
+      "id": "dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage",
+      "label": "openWorkshopPage()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L37-L41",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L37"
+        }
+      ],
+      "snippet": "openWorkshopPage = (id: string) => {\n    if (/^\\d+$/.test(id)) {\n      window.open(`https://steamcommunity.com/sharedfiles/filedetails/?id=${id}`, '_blank');\n    }\n  }",
+      "community": 6
+    },
+    {
+      "id": "dayzmodstab",
+      "label": "DayzModsTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 10
+    },
+    {
+      "id": "dayzmodstab_dayzmodstabprops",
+      "label": "DayzModsTabProps",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L7-L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L7"
+        }
+      ],
+      "snippet": "interface DayzModsTabProps {\n  onNavigateToInstalled: () => void;\n}",
+      "community": 10
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab",
+      "label": "DayzModsTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L11-L549",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L11"
+        }
+      ],
+      "snippet": "DayzModsTab: React.FC<DayzModsTabProps> = ({ onNavigateToInstalled }) => {\n  const { activeServerId } = useServerStore();\n  const { pendingDownloads, addPendingDownload, removePendingDownload } = useDayzModStore();\n\n  const [searchQuery, setSearchQuery] = useState('');\n  const [activeCategory, setActiveCategory] = useState<number>(9);\n  const [results, setResults] = useState<any[]>([]);\n  const [page, setPage] = useState(1);\n  const [hasMore, setHasMore] = useState(true);\n  const [selectedTags, setSelectedTags] = useState<string[]>([]);\n  const [installedMods, setInstalledMods] = useState<any[]>([]);\n  const [workshopPath, setWorkshopPath] = useState<string>('');\n  const [isImporting, setIsImporting] = useState<boolean>(false);\n  const [loading, setLoading] = useState(false);\n  const loadMoreRef = React.useRef(null);\n  const [downloadProgress, setDownloadProgress] = useState<{ [id: string]: { percent: number, msg: string } }>({});\n  const [steamCreds, setSteamCreds] = useState(() => {\n    try {\n      const saved = localStorage.getItem('omnihost_steam_creds');\n      return saved ? JSON.parse(atob(saved)) : { username: '', password: '', steamGuard: '' };\n    } catch {\n      return { username: '', password: '', steamGuard: '' };\n    }\n  });\n  const [rememberMe, setRememberMe] = useState(() => !!localStorage.getItem('omnihost_steam_creds'));",
+      "node_kind": "component",
+      "community": 1
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_loadinstalledmods",
+      "label": "loadInstalledMods()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L60-L66",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L60"
+        }
+      ],
+      "snippet": "loadInstalledMods = async () => {\n    if (!activeServerId) return;\n    const mods = await window.api.getDayzInstalledMods(activeServerId);\n    if (mods) {\n      setInstalledMods(mods);\n    }\n  }",
+      "community": 1
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_handlesearch",
+      "label": "handleSearch()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L68-L92",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L68"
+        }
+      ],
+      "snippet": "handleSearch = async (queryOverride?: string, categoryOverride?: number, pageOverride: number = 1, tagsOverride?: string[]) => {\n    const queryToUse = queryOverride !== undefined ? queryOverride : searchQuery;\n    const categoryToUse = categoryOverride !== undefined ? categoryOverride : activeCategory;\n    const tagsToUse = tagsOverride !== undefined ? tagsOverride : selectedTags;\n\n    if (pageOverride === 1) {\n      setResults([]);\n      setHasMore(true);\n    }\n\n    setLoading(true);\n    const res = await window.api.searchSteamWorkshop(queryToUse, categoryToUse, pageOverride, tagsToUse);\n\n    if (res && res.length > 0) {\n      if (pageOverride === 1) {\n        setResults(res);\n      } else {\n        setResults(prev => [...prev, ...res]);\n      }\n      setPage(pageOverride);\n    } else {\n      setHasMore(false);\n    }\n    setLoading(false);\n  }",
+      "community": 11
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_handlecategorychange",
+      "label": "handleCategoryChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L94-L97",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L94"
+        }
+      ],
+      "snippet": "handleCategoryChange = (categoryId: number) => {\n    setActiveCategory(categoryId);\n    handleSearch(undefined, categoryId, 1, undefined);\n  }",
+      "community": 11
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_handleinstall",
+      "label": "handleInstall()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L120-L224",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L120"
+        }
+      ],
+      "snippet": "handleInstall = async (mod: any) => {\n    if (!steamCreds.username || !steamCreds.password) {\n      setShowCreds(true);\n      return;\n    }\n\n    setInstallingMod(mod.id);\n    setDownloadProgress(prev => ({\n      ...prev,\n      [mod.id]: { percent: 0, msg: 'Starting download...' }\n    }));\n\n    let modsToInstall = [mod];\n\n    try {\n      // Fetch dependencies\n      const dependencies = await window.api.getModDependencies(mod.id);\n\n      if (dependencies && dependencies.length > 0) {\n        // Exclude already installed mods\n        const missingDeps = dependencies.filter(depId => !installedMods.find(m => m.id === depId));\n\n        if (missingDeps.length > 0) {\n          const depDetails = await window.api.getWorkshopItemDetails(missingDeps);\n          if (depDetails && depDetails.length > 0) {",
+      "community": 1
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_handleuninstall",
+      "label": "handleUninstall()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L226-L232",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L226"
+        }
+      ],
+      "snippet": "handleUninstall = async (modId: string) => {\n    if (!activeServerId) return;\n    if (confirm('Are you sure you want to uninstall this mod?')) {\n      await window.api.uninstallDayzMod(activeServerId, modId);\n      await loadInstalledMods();\n    }\n  }",
+      "community": 1
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_handlebrowseworkshop",
+      "label": "handleBrowseWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L234-L239",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L234"
+        }
+      ],
+      "snippet": "handleBrowseWorkshop = async () => {\n    const path = await window.api.selectWorkshopFolder();\n    if (path) {\n      setWorkshopPath(path);\n    }\n  }",
+      "community": 1
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_handleimportworkshop",
+      "label": "handleImportWorkshop()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L241-L254",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L241"
+        }
+      ],
+      "snippet": "handleImportWorkshop = async () => {\n    if (!workshopPath || !activeServerId) return;\n    setIsImporting(true);\n    try {\n      const count = await window.api.importLocalWorkshop(activeServerId, workshopPath);\n      alert(`Successfully imported ${count} mods from your !Workshop folder!\\n\\nNote: They have been marked as 'DISABLED' by default so your server doesn't crash on startup. Go to the 'Installed Mods' tab to enable the ones you want.`);\n      loadInstalledMods();\n    } catch (e: any) {\n      console.error(e);\n      alert('Failed to import local workshop mods: ' + e.message);\n    } finally {\n      setIsImporting(false);\n    }\n  }",
+      "community": 1
+    },
+    {
+      "id": "dayzmodstab_dayzmodstab_stripbbcode",
+      "label": "stripBBCode()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L256-L259",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L256"
+        }
+      ],
+      "snippet": "stripBBCode = (text: string) => {\n    if (!text) return '';\n    return text.replace(/\\[\\/?(b|i|u|s|h\\d|url|img|list|code|quote|spoiler|\\*|hr)(?:=[^\\]]+)?\\]/gi, '');\n  }",
+      "community": 1
+    },
+    {
+      "id": "dayzoptionstab",
+      "label": "DayzOptionsTab.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 3
+    },
+    {
+      "id": "dayzoptionstab_customselect",
+      "label": "CustomSelect()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L5-L46",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L5"
+        }
+      ],
+      "snippet": "CustomSelect = ({ value, onChange, options }: { value: string, onChange: (val: string) => void, options: {label: string, value: string}[] }) => {\n  const [isOpen, setIsOpen] = useState(false);\n  const containerRef = useRef<HTMLDivElement>(null);\n\n  useEffect(() => {\n    const handleClickOutside = (event: MouseEvent) => {\n      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {\n        setIsOpen(false);\n      }\n    };\n    document.addEventListener(\"mousedown\", handleClickOutside);\n    return () => document.removeEventListener(\"mousedown\", handleClickOutside);\n  }, []);\n\n  return (\n    <div className=\"relative\" ref={containerRef}>\n      <div \n        className={`w-full bg-[#121212] border ${isOpen ? 'border-red-500' : 'border-white/10'} rounded-lg p-3 text-white outline-none cursor-pointer hover:border-red-500 transition-colors flex justify-between items-center`}\n        onClick={() => setIsOpen(!isOpen)}\n      >\n        <span>{options.find(o => o.value === value)?.label || value}</span>\n        <span className=\"material-symbols-outlined text-[20px] text-gray-400\">{isOpen ? 'expand_less' : 'expand_more'}</span>\n      </div>\n      {isOpen && (\n        <OverlayScrollbarsComponent",
+      "node_kind": "component",
+      "community": 3
+    },
+    {
+      "id": "dayzoptionstab_customselect_handleclickoutside",
+      "label": "handleClickOutside()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L10-L14",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L10"
+        }
+      ],
+      "snippet": "handleClickOutside = (event: MouseEvent) => {\n      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {\n        setIsOpen(false);\n      }\n    }",
+      "community": 3
+    },
+    {
+      "id": "dayzoptionstab_customnumberinput",
+      "label": "CustomNumberInput()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L49-L79",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L49"
+        }
+      ],
+      "snippet": "CustomNumberInput = ({ value, onChange, min, max }: { value: string, onChange: (val: string) => void, min?: number, max?: number }) => {\n  return (\n    <div className=\"flex bg-[#121212] border border-white/10 rounded-lg overflow-hidden focus-within:border-red-500 hover:border-white/20 transition-colors h-[48px]\">\n      <input \n        type=\"number\"\n        className=\"flex-1 bg-transparent px-3 text-white outline-none appearance-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none\"\n        value={value}\n        onChange={e => onChange(e.target.value)}\n        min={min}\n        max={max}\n        style={{ MozAppearance: 'textfield' }}\n      />\n      <div className=\"flex flex-col border-l border-white/10 w-8 bg-[#1a1a1a]\">\n        <button \n          type=\"button\"\n          className=\"flex-1 flex items-center justify-center hover:bg-red-900/40 hover:text-red-400 text-gray-400 transition-colors\"\n          onClick={() => onChange(String(Math.min(max ?? Infinity, Number(value) + 1)))}\n        >\n          <span className=\"material-symbols-outlined text-[16px]\">expand_less</span>\n        </button>\n        <button \n          type=\"button\"\n          className=\"flex-1 flex items-center justify-center hover:bg-red-900/40 hover:text-red-400 text-gray-400 transition-colors border-t border-white/10\"\n          onClick={() => onChange(String(Math.max(min ?? -Infinity, Number(value) - 1)))}\n        >",
+      "node_kind": "component",
+      "community": 3
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab",
+      "label": "DayzOptionsTab()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L83-L337",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L83"
+        }
+      ],
+      "snippet": "DayzOptionsTab: React.FC = () => {\n  const { activeServerId } = useServerStore();\n  const [configText, setConfigText] = useState<string>('');\n  const [isLoading, setIsLoading] = useState(true);\n  const [isSaving, setIsSaving] = useState(false);\n\n  // Form State\n  const [hostname, setHostname] = useState('');\n  const [password, setPassword] = useState('');\n  const [passwordAdmin, setPasswordAdmin] = useState('');\n  const [maxPlayers, setMaxPlayers] = useState('60');\n  const [serverTimeAcceleration, setServerTimeAcceleration] = useState('1');\n  const [serverNightTimeAcceleration, setServerNightTimeAcceleration] = useState('1');\n  const [template, setTemplate] = useState('dayzOffline.chernarusplus');\n  const [availableMissions, setAvailableMissions] = useState<string[]>([\n    'dayzOffline.chernarusplus',\n    'dayzOffline.enoch'\n  ]);\n\n  useEffect(() => {\n    loadConfig();\n  }, [activeServerId]);\n\n  const loadConfig = async () => {\n    if (!activeServerId) return;",
+      "node_kind": "component",
+      "community": 3
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_loadconfig",
+      "label": "loadConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L106-L134",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L106"
+        }
+      ],
+      "snippet": "loadConfig = async () => {\n    if (!activeServerId) return;\n    setIsLoading(true);\n    try {\n      // @ts-ignore\n      const config = await window.api.readDayzConfig(activeServerId);\n      if (config) {\n        setConfigText(config);\n        parseConfig(config);\n      }\n      \n      // Load available missions from mpmissions directory\n      try {\n        const res = await window.api.listDir(activeServerId, 'mpmissions');\n        if (res && res.length > 0) {\n          const dirs = res.filter((entry: any) => entry.isDirectory).map((entry: any) => entry.name);\n          if (dirs.length > 0) {\n            setAvailableMissions(dirs);\n          }\n        }\n      } catch (e) {\n        console.warn(\"Failed to load mpmissions directory\", e);\n      }\n    } catch (e) {\n      console.error(\"Failed to load DayZ config\", e);",
+      "community": 4
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_parseconfig",
+      "label": "parseConfig()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L136-L157",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L136"
+        }
+      ],
+      "snippet": "parseConfig = (text: string) => {\n    const extractString = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*\"([^\"]*)\"`, 'im'));\n      return match ? match[1] : defaultVal;\n    };\n    const extractNumber = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*(\\\\d+)`, 'im'));\n      return match ? match[1] : defaultVal;\n    };\n\n    setHostname(extractString('hostname', 'OmniHost DayZ Server'));\n    setPassword(extractString('password', ''));\n    setPasswordAdmin(extractString('passwordAdmin', ''));\n    setMaxPlayers(extractNumber('maxPlayers', '60'));\n    setServerTimeAcceleration(extractNumber('serverTimeAcceleration', '1'));\n    setServerNightTimeAcceleration(extractNumber('serverNightTimeAcceleration', '1'));\n\n    const templateMatch = text.match(/template\\s*=\\s*\"([^\"]*)\"/i);\n    if (templateMatch) {\n      setTemplate(templateMatch[1]);\n    }\n  }",
+      "community": 4
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_parseconfig_extractstring",
+      "label": "extractString()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L137-L140",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L137"
+        }
+      ],
+      "snippet": "extractString = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*\"([^\"]*)\"`, 'im'));\n      return match ? match[1] : defaultVal;\n    }",
+      "community": 4
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_parseconfig_extractnumber",
+      "label": "extractNumber()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L141-L144",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L141"
+        }
+      ],
+      "snippet": "extractNumber = (key: string, defaultVal: string) => {\n      const match = text.match(new RegExp(`^\\\\s*${key}\\\\s*=\\\\s*(\\\\d+)`, 'im'));\n      return match ? match[1] : defaultVal;\n    }",
+      "community": 4
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_handlesave",
+      "label": "handleSave()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L159-L205",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L159"
+        }
+      ],
+      "snippet": "handleSave = async () => {\n    setIsSaving(true);\n    try {\n      let newConfig = configText;\n\n      const replaceString = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\"[^\"]*\"`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1\"${val}\"`);\n        } else {\n          newConfig = `${key}=\"${val}\";\\n` + newConfig;\n        }\n      };\n\n      const replaceNumber = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\\\\d+`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1${val}`);\n        } else {\n          newConfig = `${key}=${val};\\n` + newConfig;\n        }\n      };\n\n      replaceString('hostname', hostname);\n      replaceString('password', password);",
+      "community": 7
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_handlesave_replacestring",
+      "label": "replaceString()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L164-L171",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L164"
+        }
+      ],
+      "snippet": "replaceString = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\"[^\"]*\"`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1\"${val}\"`);\n        } else {\n          newConfig = `${key}=\"${val}\";\\n` + newConfig;\n        }\n      }",
+      "community": 7
+    },
+    {
+      "id": "dayzoptionstab_dayzoptionstab_handlesave_replacenumber",
+      "label": "replaceNumber()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L173-L180",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L173"
+        }
+      ],
+      "snippet": "replaceNumber = (key: string, val: string) => {\n        const regex = new RegExp(`(^\\\\s*${key}\\\\s*=\\\\s*)\\\\d+`, 'im');\n        if (regex.test(newConfig)) {\n          newConfig = newConfig.replace(regex, `$1${val}`);\n        } else {\n          newConfig = `${key}=${val};\\n` + newConfig;\n        }\n      }",
+      "community": 7
+    }
+  ],
+  "links": [
+    {
+      "source": "dayzhub",
+      "target": "dayzconsoletab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L4",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L4"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzoptionstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L5"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzeconomytab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L6"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzmodstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L7"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzinstalledmodstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L8"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzfilestab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L9"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzanimatedbackground",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L11"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzhub_dayzhubcontent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub_dayzhubcontent",
+      "target": "dayzoptionstab_dayzoptionstab",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub_dayzhubcontent",
+      "target": "dayzeconomytab_dayzeconomytab",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub_dayzhubcontent",
+      "target": "dayzmodstab_dayzmodstab",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub_dayzhubcontent",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub_dayzhubcontent",
+      "target": "dayzfilestab_dayzfilestab",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L19",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L19"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzhub_dayzhub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L165",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L165"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub_dayzhub",
+      "target": "dayzhub_dayzhubcontent",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+      "source_location": "L165",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/DayzHub.tsx",
+          "source_location": "L165"
+        }
+      ]
+    },
+    {
+      "source": "dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L6"
+        }
+      ]
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab_loadeconomy",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L28",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L28"
+        }
+      ]
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab_handlemultiplierchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L48"
+        }
+      ]
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab_handlesave",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L55"
+        }
+      ]
+    },
+    {
+      "source": "dayzeconomytab_dayzeconomytab",
+      "target": "dayzeconomytab_dayzeconomytab_renderslider",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+      "source_location": "L181",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx",
+          "source_location": "L181"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab",
+      "target": "dayzfilestab_fileentry",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L6"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L13",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L13"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L21"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlenavigate",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L38"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlenavigateup",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L42"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlefileclick",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L48",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L48"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handledelete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L70",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L70"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlesavefile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L83"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_handlecreatefolder",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L94",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L94"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab",
+      "target": "dayzfilestab_dayzfilestab_formatsize",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L108",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L108"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlenavigate",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L39",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L39"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlenavigateup",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L45",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L45"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlefileclick",
+      "target": "dayzfilestab_dayzfilestab_handlenavigate",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L51",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L51"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handledelete",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L77",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L77"
+        }
+      ]
+    },
+    {
+      "source": "dayzfilestab_dayzfilestab_handlecreatefolder",
+      "target": "dayzfilestab_dayzfilestab_fetchdir",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+      "source_location": "L102",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzFilesTab.tsx",
+          "source_location": "L102"
+        }
+      ]
+    },
+    {
+      "source": "dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L5"
+        }
+      ]
+    },
+    {
+      "source": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab_openworkshoppage",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzInstalledModsTab.tsx",
+          "source_location": "L37"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab",
+      "target": "dayzmodstab_dayzmodstabprops",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L7"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L11",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L11"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_loadinstalledmods",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L60"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_handlesearch",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L68",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L68"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_handlecategorychange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L94",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L94"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_handleinstall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L120",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L120"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_handleuninstall",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L226",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L226"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_handlebrowseworkshop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L234",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L234"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_handleimportworkshop",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L241",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L241"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab",
+      "target": "dayzmodstab_dayzmodstab_stripbbcode",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L530",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L530"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab_handlecategorychange",
+      "target": "dayzmodstab_dayzmodstab_handlesearch",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L96",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L96"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab_handleinstall",
+      "target": "dayzmodstab_dayzmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L191",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L191"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab_handleuninstall",
+      "target": "dayzmodstab_dayzmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L230",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L230"
+        }
+      ]
+    },
+    {
+      "source": "dayzmodstab_dayzmodstab_handleimportworkshop",
+      "target": "dayzmodstab_dayzmodstab_loadinstalledmods",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+      "source_location": "L247",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx",
+          "source_location": "L247"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab",
+      "target": "dayzoptionstab_customselect",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L5"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_customselect",
+      "target": "dayzoptionstab_customselect_handleclickoutside",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L10",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L10"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab",
+      "target": "dayzoptionstab_customnumberinput",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L49"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab",
+      "target": "dayzoptionstab_dayzoptionstab",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L83"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab",
+      "target": "dayzoptionstab_dayzoptionstab_loadconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L106",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L106"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab",
+      "target": "dayzoptionstab_dayzoptionstab_parseconfig",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L136",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L136"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab_parseconfig",
+      "target": "dayzoptionstab_dayzoptionstab_parseconfig_extractstring",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L146",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L146"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab_parseconfig",
+      "target": "dayzoptionstab_dayzoptionstab_parseconfig_extractnumber",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L149",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L149"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab",
+      "target": "dayzoptionstab_dayzoptionstab_handlesave",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L159",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L159"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab_handlesave",
+      "target": "dayzoptionstab_dayzoptionstab_handlesave_replacestring",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L182",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L182"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab_handlesave",
+      "target": "dayzoptionstab_dayzoptionstab_handlesave_replacenumber",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L185",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L185"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab",
+      "target": "dayzoptionstab_customnumberinput",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L83"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab",
+      "target": "dayzoptionstab_customselect",
+      "relation": "renders",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L83",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L83"
+        }
+      ]
+    },
+    {
+      "source": "dayzoptionstab_dayzoptionstab_loadconfig",
+      "target": "dayzoptionstab_dayzoptionstab_parseconfig",
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+      "source_location": "L114",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx",
+          "source_location": "L114"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzoptionstab_dayzoptionstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+      "source_location": "L5",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+          "source_location": "L5"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzeconomytab_dayzeconomytab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+      "source_location": "L6",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+          "source_location": "L6"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzmodstab_dayzmodstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+      "source_location": "L7",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+          "source_location": "L7"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzinstalledmodstab_dayzinstalledmodstab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+      "source_location": "L8",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+          "source_location": "L8"
+        }
+      ]
+    },
+    {
+      "source": "dayzhub",
+      "target": "dayzfilestab_dayzfilestab",
+      "relation": "imports_from",
+      "confidence": "EXTRACTED",
+      "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+      "source_location": "L9",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\DayzHub\\DayzHub.tsx",
+          "source_location": "L9"
+        }
+      ]
+    }
+  ],
+  "hyperedges": [],
+  "community_labels": {
+    "0": "Tabs Dayz Files Tab",
+    "1": "Tabs Dayz Mods Tab",
+    "2": "Tabs Dayz Economy Tab",
+    "3": "Tabs Dayz Options Tab",
+    "4": "Tabs Dayz Options Tab — Config",
+    "5": "Tabs Dayz Animated Background",
+    "6": "Tabs Dayz Installed Mods Tab",
+    "7": "Tabs Dayz Options Tab — Replace",
+    "8": "Tabs Dayz Files Tab — Dayz",
+    "9": "Dayz Hub",
+    "10": "Tabs Dayz Mods Tab — Dayz",
+    "11": "Tabs Dayz Mods Tab — Handle"
+  },
+  "semantic_anomalies": [
+    {
+      "id": "bridge_node:dayzoptionstab_dayzoptionstab",
+      "kind": "bridge_node",
+      "severity": "HIGH",
+      "score": 1810,
+      "summary": "DayzOptionsTab() bridges Tabs Dayz Options Tab and Dayz Hub, Tabs Dayz Options Tab — Config, Tabs Dayz Options Tab — Replace, Tabs Dayz Animated Background.",
+      "why": "High betweenness centrality (362.000) across 5 communities makes this node a likely dependency chokepoint."
+    },
+    {
+      "id": "bridge_node:dayzhub_dayzhubcontent",
+      "kind": "bridge_node",
+      "severity": "HIGH",
+      "score": 1757,
+      "summary": "DayzHubContent() bridges Dayz Hub and Tabs Dayz Animated Background, Tabs Dayz Options Tab, Tabs Dayz Economy Tab, Tabs Dayz Mods Tab, Tabs Dayz Installed Mods Tab, Tabs Dayz Files Tab.",
+      "why": "High betweenness centrality (251.000) across 7 communities makes this node a likely dependency chokepoint."
+    },
+    {
+      "id": "bridge_node:dayzmodstab_dayzmodstab",
+      "kind": "bridge_node",
+      "severity": "HIGH",
+      "score": 1677.5,
+      "summary": "DayzModsTab() bridges Tabs Dayz Mods Tab and Dayz Hub, Tabs Dayz Mods Tab — Dayz, Tabs Dayz Mods Tab — Handle, Tabs Dayz Animated Background.",
+      "why": "High betweenness centrality (335.500) across 5 communities makes this node a likely dependency chokepoint."
+    },
+    {
+      "id": "cross_boundary_edge:DayzHubContent()->DayzEconomyTab():renders",
+      "kind": "cross_boundary_edge",
+      "severity": "HIGH",
+      "score": 5,
+      "summary": "DayzHubContent() → DayzEconomyTab() crosses graph boundaries in an unexpected way.",
+      "why": "bridges separate communities"
+    },
+    {
+      "id": "cross_boundary_edge:DayzHubContent()->DayzFilesTab():renders",
+      "kind": "cross_boundary_edge",
+      "severity": "HIGH",
+      "score": 5,
+      "summary": "DayzHubContent() → DayzFilesTab() crosses graph boundaries in an unexpected way.",
+      "why": "bridges separate communities"
+    }
+  ]
+}

@@ -31,6 +31,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "electron-log": "^5.4.4",
+    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5",
     "fast-xml-parser": "^5.11.0",
     "lucide-react": "^1.32.0",
     "motion": "^13.1.0",
@@ -50,6 +51,7 @@
     "@electron-toolkit/eslint-config-ts": "^3.1.0",
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@lubab/madar": "^0.32.1",
+    "@mohammednagy/graphify-ts": "^0.23.1",
     "@reticlehq/react": "^2.12.0",
     "@reticlehq/vite-plugin": "^2.12.0",
     "@testing-library/jest-dom": "^7.0.1",
@@ -92,6 +94,7 @@
     "@electron/asar": "^4.3.0",
     "@electron/get": "^5.1.0",
     "glob": "^13.0.0",
-    "rimraf": "npm:rimraf@^4.0.0"
+    "rimraf": "npm:rimraf@^4.0.0",
+    "extract-zip": "npm:@electron-internal/extract-zip@^1.0.5"
   }
 }

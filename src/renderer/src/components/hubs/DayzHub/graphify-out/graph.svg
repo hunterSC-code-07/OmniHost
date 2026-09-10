@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1776 936" role="img" aria-label="graphify-ts knowledge graph export">
+  <rect width="1776" height="936" fill="#111827" />
+  <text x="48" y="32" font-family="Inter, Arial, sans-serif" font-size="20" font-weight="600" fill="#f8fafc">graphify-ts</text>
+  <text x="48" y="54" font-family="Inter, Arial, sans-serif" font-size="12" fill="#94a3b8">Static SVG knowledge graph export</text>
+  <line x1="530.84" y1="501.00" x2="645.16" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="1356.20" y2="254.34" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="948.00" y2="98.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="948.00" y2="690.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="948.00" y2="402.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="228.00" y2="690.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="588.00" y2="402.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="588.00" y2="806.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="806.00" x2="1259.80" y2="254.34" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="806.00" x2="1025.94" y2="143.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="806.00" x2="588.00" y2="96.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="806.00" x2="1005.16" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="806.00" x2="228.00" y2="96.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="588.00" y2="690.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="690.00" x2="588.00" y2="806.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="948.00" y1="98.00" x2="1025.94" y2="143.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1025.94" y1="143.00" x2="870.06" y2="233.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1025.94" y1="143.00" x2="1025.94" y2="233.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1025.94" y1="143.00" x2="948.00" y2="278.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1025.94" y1="143.00" x2="870.06" y2="143.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="690.00" x2="228.00" y2="806.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="690.00" x2="228.00" y2="96.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="287.14" y2="117.52" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="148.33" y2="234.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="137.40" y2="172.02" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="196.53" y2="274.45" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="259.47" y2="274.45" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="168.86" y2="117.52" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="307.67" y2="234.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="96.00" x2="318.60" y2="172.02" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="148.33" y1="234.00" x2="287.14" y2="117.52" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="137.40" y1="172.02" x2="287.14" y2="117.52" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="196.53" y1="274.45" x2="148.33" y2="234.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="259.47" y1="274.45" x2="287.14" y2="117.52" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="307.67" y1="234.00" x2="287.14" y2="117.52" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="948.00" y1="402.00" x2="1005.16" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1005.16" y1="501.00" x2="890.84" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="948.00" y1="690.00" x2="948.00" y2="806.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="948.00" y1="690.00" x2="588.00" y2="96.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="498.31" y2="208.47" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="1308.00" y2="806.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="1308.00" y2="690.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="627.92" y2="270.89" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="548.08" y2="270.89" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="659.93" y2="130.64" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="677.69" y2="208.47" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="588.00" y1="96.00" x2="516.07" y2="130.64" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1308.00" y1="690.00" x2="1308.00" y2="806.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="627.92" y1="270.89" x2="498.31" y2="208.47" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="548.08" y1="270.89" x2="498.31" y2="208.47" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="677.69" y1="208.47" x2="498.31" y2="208.47" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1356.20" y1="254.34" x2="1385.99" y2="162.66" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1385.99" y1="162.66" x2="1230.01" y2="162.66" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1356.20" y1="254.34" x2="1308.00" y2="106.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1356.20" y1="254.34" x2="1259.80" y2="254.34" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1259.80" y1="254.34" x2="228.00" y2="542.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1259.80" y1="254.34" x2="154.00" y2="468.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="154.00" y1="468.00" x2="302.00" y2="468.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="154.00" y1="468.00" x2="228.00" y2="394.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1259.80" y1="254.34" x2="1308.00" y2="402.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1308.00" y1="402.00" x2="1250.84" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1308.00" y1="402.00" x2="1365.16" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1259.80" y1="254.34" x2="1308.00" y2="106.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="1259.80" y1="254.34" x2="1385.99" y2="162.66" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="228.00" y1="542.00" x2="154.00" y2="468.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="1259.80" y2="254.34" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="1025.94" y2="143.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="588.00" y2="96.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="1005.16" y2="501.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <line x1="530.84" y1="501.00" x2="228.00" y2="96.00" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.65" />
+  <circle cx="588.00" cy="402.00" r="11.14" fill="#EDC948" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="588.00" y="427.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzAnimatedBackground.tsx</text>
+  <circle cx="530.84" cy="501.00" r="26.00" fill="#EDC948" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="530.84" y="541.00" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzHub.tsx</text>
+  <circle cx="588.00" cy="806.00" r="18.00" fill="#BAB0AC" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="588.00" y="838.00" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzHubContent()</text>
+  <circle cx="588.00" cy="690.00" r="12.29" fill="#BAB0AC" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="588.00" y="716.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzHub()</text>
+  <circle cx="645.16" cy="501.00" r="11.14" fill="#EDC948" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="645.16" y="526.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzConsoleTab.tsx</text>
+  <circle cx="948.00" cy="98.00" r="12.29" fill="#E15759" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="948.00" y="124.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzEconomyTab.tsx</text>
+  <circle cx="1025.94" cy="143.00" r="18.00" fill="#E15759" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1025.94" y="175.00" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzEconomyTab()</text>
+  <circle cx="870.06" cy="233.00" r="11.14" fill="#E15759" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="870.06" y="258.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">loadEconomy()</text>
+  <circle cx="1025.94" cy="233.00" r="11.14" fill="#E15759" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1025.94" y="258.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleMultiplierChange()</text>
+  <circle cx="948.00" cy="278.00" r="11.14" fill="#E15759" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="948.00" y="303.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleSave()</text>
+  <circle cx="870.06" cy="143.00" r="11.14" fill="#E15759" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="870.06" y="168.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">renderSlider()</text>
+  <circle cx="228.00" cy="690.00" r="13.43" fill="#9C755F" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="228.00" y="717.43" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzFilesTab.tsx</text>
+  <circle cx="228.00" cy="806.00" r="11.14" fill="#9C755F" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="228.00" y="831.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">FileEntry</text>
+  <circle cx="228.00" cy="96.00" r="22.57" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="228.00" y="132.57" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzFilesTab()</text>
+  <circle cx="287.14" cy="117.52" r="15.71" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="287.14" y="147.24" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">fetchDir()</text>
+  <circle cx="148.33" cy="234.00" r="13.43" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="148.33" y="261.43" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleNavigate()</text>
+  <circle cx="137.40" cy="172.02" r="12.29" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="137.40" y="198.31" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleNavigateUp()</text>
+  <circle cx="196.53" cy="274.45" r="12.29" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="196.53" y="300.74" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleFileClick()</text>
+  <circle cx="259.47" cy="274.45" r="12.29" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="259.47" y="300.74" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleDelete()</text>
+  <circle cx="168.86" cy="117.52" r="11.14" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="168.86" y="142.67" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleSaveFile()</text>
+  <circle cx="307.67" cy="234.00" r="12.29" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="307.67" y="260.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleCreateFolder()</text>
+  <circle cx="318.60" cy="172.02" r="11.14" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="318.60" y="197.17" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">formatSize()</text>
+  <circle cx="948.00" cy="402.00" r="12.29" fill="#B07AA1" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="948.00" y="428.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzInstalledModsTab.tsx</text>
+  <circle cx="1005.16" cy="501.00" r="14.57" fill="#B07AA1" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1005.16" y="529.57" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzInstalledModsTab()</text>
+  <circle cx="890.84" cy="501.00" r="11.14" fill="#B07AA1" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="890.84" y="526.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">openWorkshopPage()</text>
+  <circle cx="948.00" cy="690.00" r="13.43" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="948.00" y="717.43" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzModsTab.tsx</text>
+  <circle cx="948.00" cy="806.00" r="11.14" fill="#4E79A7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="948.00" y="831.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzModsTabProps</text>
+  <circle cx="588.00" cy="96.00" r="22.57" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="588.00" y="132.57" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzModsTab()</text>
+  <circle cx="498.31" cy="208.47" r="14.57" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="498.31" y="237.04" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">loadInstalledMods()</text>
+  <circle cx="1308.00" cy="806.00" r="12.29" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1308.00" y="832.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleSearch()</text>
+  <circle cx="1308.00" cy="690.00" r="12.29" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1308.00" y="716.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleCategoryChange()</text>
+  <circle cx="627.92" cy="270.89" r="12.29" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="627.92" y="297.17" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleInstall()</text>
+  <circle cx="548.08" cy="270.89" r="12.29" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="548.08" y="297.17" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleUninstall()</text>
+  <circle cx="659.93" cy="130.64" r="11.14" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="659.93" y="155.78" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleBrowseWorkshop()</text>
+  <circle cx="677.69" cy="208.47" r="12.29" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="677.69" y="234.76" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleImportWorkshop()</text>
+  <circle cx="516.07" cy="130.64" r="11.14" fill="#F28E2B" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="516.07" y="155.78" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">stripBBCode()</text>
+  <circle cx="1356.20" cy="254.34" r="14.57" fill="#76B7B2" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1356.20" y="282.91" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzOptionsTab.tsx</text>
+  <circle cx="1385.99" cy="162.66" r="13.43" fill="#76B7B2" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1385.99" y="190.09" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">CustomSelect()</text>
+  <circle cx="1230.01" cy="162.66" r="11.14" fill="#76B7B2" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1230.01" y="187.80" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleClickOutside()</text>
+  <circle cx="1308.00" cy="106.00" r="12.29" fill="#76B7B2" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1308.00" y="132.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">CustomNumberInput()</text>
+  <circle cx="1259.80" cy="254.34" r="19.14" fill="#76B7B2" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1259.80" y="287.48" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">DayzOptionsTab()</text>
+  <circle cx="228.00" cy="542.00" r="12.29" fill="#59A14F" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="228.00" y="568.29" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">loadConfig()</text>
+  <circle cx="154.00" cy="468.00" r="14.57" fill="#59A14F" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="154.00" y="496.57" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">parseConfig()</text>
+  <circle cx="302.00" cy="468.00" r="11.14" fill="#59A14F" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="302.00" y="493.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">extractString()</text>
+  <circle cx="228.00" cy="394.00" r="11.14" fill="#59A14F" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="228.00" y="419.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">extractNumber()</text>
+  <circle cx="1308.00" cy="402.00" r="13.43" fill="#FF9DA7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1308.00" y="429.43" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">handleSave()</text>
+  <circle cx="1250.84" cy="501.00" r="11.14" fill="#FF9DA7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1250.84" y="526.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">replaceString()</text>
+  <circle cx="1365.16" cy="501.00" r="11.14" fill="#FF9DA7" fill-opacity="0.9" stroke="#ffffff" stroke-width="1.5" />
+  <text x="1365.16" y="526.14" font-family="Inter, Arial, sans-serif" font-size="12" text-anchor="middle" fill="#f8fafc">replaceNumber()</text>
+  <text x="1548" y="48" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="600" fill="#f8fafc">Communities</text>
+  <circle cx="1556" cy="76" r="6" fill="#4E79A7" />
+  <text x="1570" y="80" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Files Tab (9)</text>
+  <circle cx="1556" cy="100" r="6" fill="#F28E2B" />
+  <text x="1570" y="104" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Mods Tab (7)</text>
+  <circle cx="1556" cy="124" r="6" fill="#E15759" />
+  <text x="1570" y="128" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Economy Tab (6)</text>
+  <circle cx="1556" cy="148" r="6" fill="#76B7B2" />
+  <text x="1570" y="152" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Options Tab (5)</text>
+  <circle cx="1556" cy="172" r="6" fill="#59A14F" />
+  <text x="1570" y="176" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Options Tab — Config (4)</text>
+  <circle cx="1556" cy="196" r="6" fill="#EDC948" />
+  <text x="1570" y="200" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Animated Background (3)</text>
+  <circle cx="1556" cy="220" r="6" fill="#B07AA1" />
+  <text x="1570" y="224" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Installed Mods Tab (3)</text>
+  <circle cx="1556" cy="244" r="6" fill="#FF9DA7" />
+  <text x="1570" y="248" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Options Tab — Replace (3)</text>
+  <circle cx="1556" cy="268" r="6" fill="#9C755F" />
+  <text x="1570" y="272" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Files Tab — Dayz (2)</text>
+  <circle cx="1556" cy="292" r="6" fill="#BAB0AC" />
+  <text x="1570" y="296" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Dayz Hub (2)</text>
+  <circle cx="1556" cy="316" r="6" fill="#4E79A7" />
+  <text x="1570" y="320" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Mods Tab — Dayz (2)</text>
+  <circle cx="1556" cy="340" r="6" fill="#F28E2B" />
+  <text x="1570" y="344" font-family="Inter, Arial, sans-serif" font-size="12" fill="#e2e8f0">Tabs Dayz Mods Tab — Handle (2)</text>
+</svg>

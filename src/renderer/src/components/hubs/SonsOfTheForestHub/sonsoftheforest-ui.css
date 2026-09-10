@@ -1,0 +1,151 @@
+/* Sons of the Forest Hub Styles */
+
+:root {
+  --sotf-bg: #0a0a0a;
+  --sotf-panel: #111111;
+  --sotf-highlight: #facc15;
+  --sotf-text: #e5e5e5;
+  --sotf-text-dim: #737373;
+  --sotf-border: #333333;
+}
+
+.sotf-ui {
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--sotf-text);
+  background-color: var(--sotf-bg);
+  background-image: radial-gradient(circle at 50% 0%, rgba(20, 20, 20, 1) 0%, rgba(10, 10, 10, 1) 100%);
+}
+
+.sotf-glitch-text {
+  text-shadow: -1px 0 0 rgba(0,255,0,0.7), 1px 0 0 rgba(255,0,255,0.7);
+  letter-spacing: 0.1em;
+}
+
+.sotf-glitch-text-strong {
+  text-shadow: -2px 0 0 rgba(74, 222, 128, 0.9), 2px 0 0 rgba(217, 70, 239, 0.9);
+  letter-spacing: 0.15em;
+  font-weight: 800;
+}
+
+.sotf-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--sotf-border);
+  transition: all 0.2s ease;
+  background-color: transparent;
+  cursor: default;
+}
+
+.sotf-row:hover, .sotf-row.active {
+  background-color: #1a1a1a;
+}
+
+.sotf-row:hover .sotf-label, .sotf-row.active .sotf-label {
+  color: var(--sotf-highlight);
+}
+
+.sotf-label {
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  letter-spacing: 0.05em;
+  transition: color 0.2s ease;
+}
+
+.sotf-cycler {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  min-width: 200px;
+  justify-content: space-between;
+}
+
+.sotf-arrow {
+  cursor: pointer;
+  color: var(--sotf-text-dim);
+  font-weight: 900;
+  font-size: 1.1rem;
+  transition: color 0.2s ease;
+  user-select: none;
+}
+
+.sotf-arrow:hover {
+  color: white;
+}
+
+.sotf-section-header {
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  letter-spacing: 0.1em;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+  position: relative;
+}
+
+.sotf-section-header::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 1.5rem;
+  right: 1.5rem;
+  height: 2px;
+  background-color: white;
+  opacity: 0.8;
+}
+
+.sotf-btn {
+  background: transparent;
+  color: var(--sotf-text-dim);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+.sotf-btn:hover {
+  color: white;
+  text-shadow: 0 0 10px rgba(255,255,255,0.5);
+}
+
+.sotf-tab {
+  background: transparent;
+  color: var(--sotf-text-dim);
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease;
+}
+
+.sotf-tab.active {
+  color: white;
+  text-shadow: -1px 0 0 rgba(0,255,0,0.7), 1px 0 0 rgba(255,0,255,0.7);
+}
+
+.sotf-tab:hover:not(.active) {
+  color: var(--sotf-text);
+}
+
+.sotf-panel {
+  background-color: rgba(10, 10, 10, 0.8);
+  border: 1px solid var(--sotf-border);
+}
+
+.sotf-scrollbars .os-scrollbar-vertical .os-scrollbar-track .os-scrollbar-handle {
+  background: white !important;
+  border-radius: 0 !important;
+  opacity: 0.7 !important;
+  box-shadow: -1px 0 0 rgba(0,255,0,0.5), 1px 0 0 rgba(255,0,255,0.5) !important;
+}
+
+.sotf-scrollbars .os-scrollbar-vertical .os-scrollbar-track {
+  background: rgba(255,255,255,0.05) !important;
+  border-radius: 0 !important;
+}

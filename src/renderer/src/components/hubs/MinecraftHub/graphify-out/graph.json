@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "directed": false,
+  "root_path": "D:\\github\\OmniHost\\src\\renderer\\src\\components\\hubs\\MinecraftHub",
+  "extractor_version": 63,
+  "nodes": [
+    {
+      "id": "minecrafthub",
+      "label": "MinecraftHub.tsx",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L1",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L1"
+        }
+      ],
+      "community": 0
+    },
+    {
+      "id": "minecrafthub_minecrafthub",
+      "label": "MinecraftHub()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21-L275",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ],
+      "snippet": "export function MinecraftHub() {\n  const { activeServerId, setActiveServerId, servers, startServer, stopServer, restartServer, deleteServer } = useServerStore();\n  const currentServer = servers.find(s => s.id === activeServerId);\n  const prevServerRef = useRef(currentServer);\n  if (currentServer) {\n    prevServerRef.current = currentServer;\n  }\n  const activeServer = currentServer || prevServerRef.current;\n  \n  if (!activeServer) return null;\n  const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();\n  const { setShowTunnelModal } = useModalStore();\n  const handleStart = startServer;\n  const handleStop = stopServer;\n  const handleRestart = restartServer;\n  const handleDelete = deleteServer;\n  const handleTunnel = async () => {};\n  const onRedirectToCreateModpack = () => {};\n\n        const [activeTab, setActiveTab] = useState<'overview' | 'console' | 'options' | 'players' | 'software' | 'mods' | 'files' | 'backups'>('overview');\n        const [tabDirection, setTabDirection] = useState(0);\n        const handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);",
+      "node_kind": "component",
+      "community": 0
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handletunnel",
+      "label": "handleTunnel()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L37"
+        }
+      ],
+      "snippet": "handleTunnel = async () => {}",
+      "community": 0
+    },
+    {
+      "id": "minecrafthub_minecrafthub_onredirecttocreatemodpack",
+      "label": "onRedirectToCreateModpack()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L38"
+        }
+      ],
+      "snippet": "onRedirectToCreateModpack = () => {}",
+      "community": 0
+    },
+    {
+      "id": "minecrafthub_minecrafthub_handletabchange",
+      "label": "handleTabChange()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L42-L49",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L42"
+        }
+      ],
+      "snippet": "handleTabChange = (newTab: typeof activeTab) => {\n          if (newTab === activeTab) return;\n          const TABS = ['overview', 'console', 'options', 'players', 'mods', 'software', 'files', 'backups'];\n          const currentIndex = TABS.indexOf(activeTab);\n          const newIndex = TABS.indexOf(newTab);\n          setTabDirection(newIndex > currentIndex ? 1 : -1);\n          setActiveTab(newTab);\n        }",
+      "community": 0
+    },
+    {
+      "id": "minecrafthub_minecrafthub_fetchservermeta",
+      "label": "fetchServerMeta()",
+      "file_type": "code",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L55-L60",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L55"
+        }
+      ],
+      "snippet": "fetchServerMeta = async () => {\n    if (activeServerId === null) return;\n    // @ts-ignore\n    const meta = await window.api.getServerMeta(activeServerId);\n    setServerMeta(meta);\n  }",
+      "community": 0
+    }
+  ],
+  "links": [
+    {
+      "source": "minecrafthub",
+      "target": "minecrafthub_minecrafthub",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L21",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L21"
+        }
+      ]
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handletunnel",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L37",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L37"
+        }
+      ]
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_onredirecttocreatemodpack",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L38",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L38"
+        }
+      ]
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_handletabchange",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L42",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L42"
+        }
+      ]
+    },
+    {
+      "source": "minecrafthub_minecrafthub",
+      "target": "minecrafthub_minecrafthub_fetchservermeta",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+      "source_location": "L55",
+      "layer": "base",
+      "provenance": [
+        {
+          "capability_id": "builtin:extract:typescript",
+          "stage": "extract",
+          "source_file": "D:/github/OmniHost/src/renderer/src/components/hubs/MinecraftHub/MinecraftHub.tsx",
+          "source_location": "L55"
+        }
+      ]
+    }
+  ],
+  "hyperedges": [],
+  "community_labels": {
+    "0": "Minecraft Hub"
+  },
+  "semantic_anomalies": []
+}
