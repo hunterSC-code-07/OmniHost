@@ -1,11 +1,10 @@
 import React from 'react';
-import terrariaBg from '../../../assets/terraria/terraria-bg.jpg';
 
 export const config = {
   gameName: 'Terraria',
   steamAppId: 105600,
   component: React.lazy(() => import('./TerrariaHub').then(m => ({ default: m.TerrariaHub }))),
-  backgroundUrl: terrariaBg,
+  backgroundUrl: 'https://steamcdn-a.akamaihd.net/steam/apps/105600/library_hero.jpg',
   theme: {
     ringColor: 'hover:ring-green-500',
     shadowColor: 'hover:shadow-[0_0_30px_rgba(34,197,94,0.2)]',
