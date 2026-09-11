@@ -1,0 +1,196 @@
+.enshrouded-ui {
+  --enshrouded-accent: #e7b766;
+  --enshrouded-accent-bright: #ffd58d;
+  --enshrouded-accent-soft: rgba(231, 183, 102, 0.14);
+  --enshrouded-border: rgba(231, 183, 102, 0.2);
+  --enshrouded-panel: rgba(11, 16, 18, 0.78);
+  --enshrouded-panel-strong: rgba(8, 12, 14, 0.92);
+  background: #080c0e;
+  color: #f1eee7;
+  font-family: 'Hanken Grotesk', sans-serif;
+}
+
+.enshrouded-background {
+  position: absolute;
+  inset: 0;
+  background-position: center 28%;
+  background-size: cover;
+  filter: saturate(0.72) contrast(1.08) brightness(0.38);
+  transform: scale(1.025);
+}
+
+.enshrouded-background::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background:
+    radial-gradient(circle at 72% 6%, rgba(231, 183, 102, 0.2), transparent 34%),
+    linear-gradient(180deg, rgba(6, 10, 12, 0.28) 0%, rgba(6, 10, 12, 0.82) 58%, #080c0e 100%);
+}
+
+.enshrouded-header {
+  background: linear-gradient(180deg, rgba(8, 12, 14, 0.88), rgba(8, 12, 14, 0.66));
+  border-bottom: 1px solid var(--enshrouded-border);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(18px);
+}
+
+.enshrouded-title {
+  color: #fff8e9;
+  font-family: 'Sora', sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 28px rgba(231, 183, 102, 0.2);
+}
+
+.enshrouded-kicker {
+  color: var(--enshrouded-accent-bright);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.enshrouded-btn,
+.enshrouded-icon-btn,
+.enshrouded-tab {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: rgba(241, 238, 231, 0.72);
+  transition:
+    color 160ms ease,
+    border-color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.enshrouded-btn {
+  min-height: 40px;
+  padding: 0 18px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.045);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.enshrouded-icon-btn {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.045);
+}
+
+.enshrouded-btn:hover:not(:disabled),
+.enshrouded-icon-btn:hover:not(:disabled),
+.enshrouded-tab:hover:not(:disabled) {
+  color: #fff8e9;
+  border-color: rgba(231, 183, 102, 0.42);
+  background: rgba(231, 183, 102, 0.09);
+  transform: translateY(-1px);
+}
+
+.enshrouded-btn-primary {
+  color: #211708;
+  border-color: var(--enshrouded-accent);
+  background: linear-gradient(135deg, #f5cb85, #c88c37);
+  box-shadow: 0 8px 22px rgba(200, 140, 55, 0.16);
+}
+
+.enshrouded-btn-primary:hover:not(:disabled) {
+  color: #140d04;
+  background: linear-gradient(135deg, #ffdc9f, #daa14e);
+  box-shadow: 0 10px 28px rgba(231, 183, 102, 0.24);
+}
+
+.enshrouded-btn-danger {
+  color: #f5a29e;
+  border-color: rgba(239, 98, 91, 0.24);
+  background: rgba(127, 32, 29, 0.16);
+}
+
+.enshrouded-btn-danger:hover:not(:disabled) {
+  color: #ffd1cd;
+  border-color: rgba(239, 98, 91, 0.5);
+  background: rgba(127, 32, 29, 0.3);
+}
+
+.enshrouded-btn:disabled,
+.enshrouded-icon-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.enshrouded-tab {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  gap: 9px;
+  padding: 0 17px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.035);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.035em;
+  white-space: nowrap;
+}
+
+.enshrouded-tab.active {
+  color: var(--enshrouded-accent-bright);
+  border-color: rgba(231, 183, 102, 0.48);
+  background: var(--enshrouded-accent-soft);
+  box-shadow: inset 0 -2px 0 var(--enshrouded-accent);
+}
+
+.enshrouded-content {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(180deg, rgba(11, 16, 18, 0.68), rgba(8, 12, 14, 0.94));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+  backdrop-filter: blur(20px);
+}
+
+.enshrouded-panel {
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 14px;
+  background: var(--enshrouded-panel);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(12px);
+}
+
+.enshrouded-panel:hover {
+  border-color: var(--enshrouded-border);
+}
+
+.enshrouded-field {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  outline: none;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 10px 13px;
+  color: #fff8e9;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+.enshrouded-field:focus {
+  border-color: rgba(231, 183, 102, 0.72);
+  background: rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 3px rgba(231, 183, 102, 0.1);
+}
+
+.enshrouded-scrollbars .os-theme-dark {
+  --os-handle-bg: rgba(231, 183, 102, 0.28);
+  --os-handle-bg-hover: rgba(231, 183, 102, 0.58);
+  --os-handle-bg-active: rgba(231, 183, 102, 0.72);
+}

@@ -64,8 +64,8 @@ export function createWindow(): void {
     }
   )
 
-  mainWindow.webContents.on('console-message', (_event, _level, message) => {
-    console.log('[Renderer Console]: ' + message)
+  mainWindow.webContents.on('console-message', (details) => {
+    console.log('[Renderer Console]: ' + details.message)
   })
 
   mainWindow.on('ready-to-show', () => {

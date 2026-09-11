@@ -1,89 +1,256 @@
-import React, { useState, useEffect } from 'react';
-import { useEnshroudedOptions, EnshroudedConfig } from '../../../../hooks/useEnshroudedOptions';
+import { useEffect, useState } from 'react'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
+
+import { type EnshroudedConfig, useEnshroudedOptions } from '../../../../hooks/useEnshroudedOptions'
+import { useServerStore } from '../../../../store/useServerStore'
+
+const inputClassName =
+  'w-full rounded-xl border border-white/10 bg-black/25 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/25 hover:border-white/20 focus:border-amber-300/50 focus:ring-2 focus:ring-amber-300/10'
+
+const Field = ({
+  label,
+  hint,
+  children
+}: {
+  label: string
+  hint?: string
+  children: React.ReactNode
+}): React.JSX.Element => (
+  <label className="flex flex-col gap-2.5">
+    <span className="font-label-sm text-[11px] font-semibold uppercase tracking-[0.1em] text-white/60">
+      {label}
+    </span>
+    {children}
+    {hint && <span className="text-xs leading-5 text-white/35">{hint}</span>}
+  </label>
+)
 
 export const EnshroudedOptionsTab: React.FC = () => {
-  const { config, loading, handleSave } = useEnshroudedOptions();
-  const [localConfig, setLocalConfig] = useState<EnshroudedConfig | null>(null);
+  const { config, loading, handleSave } = useEnshroudedOptions()
+  const currentServer = useServerStore((state) =>
+    state.servers.find((server) => server.id === state.activeServerId)
+  )
+  const [localConfig, setLocalConfig] = useState<EnshroudedConfig | null>(null)
+  const [isSaving, setIsSaving] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
 
   useEffect(() => {
-    if (config) setLocalConfig(config);
-  }, [config]);
+    if (config) setLocalConfig(config)
+  }, [config])
 
   if (loading || !localConfig) {
-    return <div className="p-8 text-center text-gray-400">Loading Configuration...</div>;
+    return (
+      <div
+        className="flex h-full items-center justify-center"
+        data-testid="enshrouded-options-loading"
+      >
+        <div className="flex flex-col items-center gap-3 text-white/45">
+          <span className="material-symbols-outlined animate-spin text-3xl text-amber-300">
+            progress_activity
+          </span>
+          <span className="font-label-sm text-xs uppercase tracking-widest">
+            Loading configuration
+          </span>
+        </div>
+      </div>
+    )
   }
 
-  const handleChange = (field: keyof EnshroudedConfig, value: string | number) => {
-    setLocalConfig({ ...localConfig, [field]: value });
-  };
+  const handleChange = (field: keyof EnshroudedConfig, value: string | number): void => {
+    setLocalConfig((current) => (current ? { ...current, [field]: value } : current))
+  }
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    handleSave(localConfig);
-  };
+  const handleSubmit = async (event: React.FormEvent): Promise<void> => {
+    event.preventDefault()
+    setIsSaving(true)
+    try {
+      await handleSave(localConfig)
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const isOnline = currentServer?.status === 'Online'
 
   return (
-    <div className="h-full overflow-y-auto p-6 text-gray-200 dayz-scrollbars">
-      <h3 className="text-2xl font-bold mb-6 text-blue-100">Server Configuration</h3>
-      <form onSubmit={onSubmit} className="flex flex-col gap-6 max-w-2xl">
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">Server Name</label>
-          <input
-            type="text"
-            className="bg-black/40 border border-blue-900/50 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-            value={localConfig.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-          />
+    <form onSubmit={handleSubmit} className="flex h-full min-h-0 flex-col">
+      <div className="flex flex-col justify-between gap-4 border-b border-white/10 px-7 py-6 sm:flex-row sm:items-end">
+        <div>
+          <p className="enshrouded-kicker mb-2">World configuration</p>
+          <h2 className="font-headline-lg text-3xl font-bold text-white">Options</h2>
+          <p className="mt-2 text-sm text-white/45">
+            Identity, access, ports, capacity, and storage paths for this world.
+          </p>
         </div>
-        
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">Password</label>
-          <input
-            type="text"
-            placeholder="Leave empty for no password"
-            className="bg-black/40 border border-blue-900/50 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-            value={localConfig.password || ''}
-            onChange={(e) => handleChange('password', e.target.value)}
-          />
-        </div>
+        <button
+          type="submit"
+          disabled={isSaving}
+          className="enshrouded-btn enshrouded-btn-primary flex min-w-[150px] items-center justify-center gap-2"
+          data-testid="enshrouded-save-options"
+        >
+          <span
+            className={`material-symbols-outlined text-[18px] ${isSaving ? 'animate-spin' : ''}`}
+          >
+            {isSaving ? 'progress_activity' : 'save'}
+          </span>
+          {isSaving ? 'Saving' : 'Save changes'}
+        </button>
+      </div>
 
-        <div className="flex gap-4">
-          <div className="flex flex-col gap-2 flex-1">
-            <label className="font-semibold">Game Port</label>
-            <input
-              type="number"
-              className="bg-black/40 border border-blue-900/50 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-              value={localConfig.gamePort}
-              onChange={(e) => handleChange('gamePort', parseInt(e.target.value))}
-            />
-          </div>
-          <div className="flex flex-col gap-2 flex-1">
-            <label className="font-semibold">Query Port</label>
-            <input
-              type="number"
-              className="bg-black/40 border border-blue-900/50 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-              value={localConfig.queryPort}
-              onChange={(e) => handleChange('queryPort', parseInt(e.target.value))}
-            />
-          </div>
-        </div>
+      <OverlayScrollbarsComponent
+        className="min-h-0 flex-1"
+        options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }}
+        defer
+      >
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-5 p-7">
+          {isOnline && (
+            <div className="flex items-start gap-3 rounded-xl border border-amber-300/20 bg-amber-300/8 px-4 py-3 text-sm text-amber-100/75">
+              <span className="material-symbols-outlined mt-0.5 text-[19px] text-amber-300">
+                warning
+              </span>
+              <span>
+                Stop the server before saving. Enshrouded reads this file when the process starts.
+              </span>
+            </div>
+          )}
 
-        <div className="flex flex-col gap-2">
-          <label className="font-semibold">Max Players (Slots)</label>
-          <input
-            type="number"
-            className="bg-black/40 border border-blue-900/50 rounded px-3 py-2 text-white focus:outline-none focus:border-blue-500"
-            value={localConfig.slotCount}
-            onChange={(e) => handleChange('slotCount', parseInt(e.target.value))}
-          />
-        </div>
+          <section className="enshrouded-panel overflow-hidden">
+            <div className="flex items-center gap-3 border-b border-white/10 px-6 py-5">
+              <span className="material-symbols-outlined text-amber-300">badge</span>
+              <div>
+                <h3 className="font-headline-md text-lg font-semibold text-white">
+                  Identity & access
+                </h3>
+                <p className="mt-0.5 text-xs text-white/40">
+                  How the world appears and who can enter
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+              <Field label="Server name" hint="Shown in the Enshrouded server browser.">
+                <input
+                  type="text"
+                  value={localConfig.name}
+                  onChange={(event) => handleChange('name', event.target.value)}
+                  className={inputClassName}
+                  placeholder="My Enshrouded World"
+                  required
+                />
+              </Field>
 
-        <div className="mt-4">
-          <button type="submit" className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded transition-colors shadow-[0_0_15px_rgba(37,99,235,0.4)]">
-            SAVE SETTINGS
-          </button>
+              <Field label="Admin password" hint="Leave empty to allow access without a password.">
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={localConfig.password || ''}
+                    onChange={(event) => handleChange('password', event.target.value)}
+                    className={`${inputClassName} pr-12`}
+                    placeholder="No password"
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((visible) => !visible)}
+                    className="absolute inset-y-0 right-0 flex w-11 items-center justify-center text-white/35 transition hover:text-white"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    <span className="material-symbols-outlined text-[19px]">
+                      {showPassword ? 'visibility_off' : 'visibility'}
+                    </span>
+                  </button>
+                </div>
+              </Field>
+            </div>
+          </section>
+
+          <section className="enshrouded-panel overflow-hidden">
+            <div className="flex items-center gap-3 border-b border-white/10 px-6 py-5">
+              <span className="material-symbols-outlined text-amber-300">lan</span>
+              <div>
+                <h3 className="font-headline-md text-lg font-semibold text-white">
+                  Network & capacity
+                </h3>
+                <p className="mt-0.5 text-xs text-white/40">
+                  Listener address and public server capacity
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2 xl:grid-cols-4">
+              <Field label="Bind address" hint="0.0.0.0 listens on every network interface.">
+                <input
+                  type="text"
+                  value={localConfig.ip}
+                  onChange={(event) => handleChange('ip', event.target.value)}
+                  className={inputClassName}
+                />
+              </Field>
+              <Field label="Game port" hint="Default: 15636 UDP">
+                <input
+                  type="number"
+                  min={1}
+                  max={65535}
+                  value={localConfig.gamePort}
+                  onChange={(event) => handleChange('gamePort', Number(event.target.value))}
+                  className={inputClassName}
+                  required
+                />
+              </Field>
+              <Field label="Query port" hint="Default: 15637 UDP">
+                <input
+                  type="number"
+                  min={1}
+                  max={65535}
+                  value={localConfig.queryPort}
+                  onChange={(event) => handleChange('queryPort', Number(event.target.value))}
+                  className={inputClassName}
+                  required
+                />
+              </Field>
+              <Field label="Player slots" hint="Enshrouded supports up to 16 players.">
+                <input
+                  type="number"
+                  min={1}
+                  max={16}
+                  value={localConfig.slotCount}
+                  onChange={(event) => handleChange('slotCount', Number(event.target.value))}
+                  className={inputClassName}
+                  required
+                />
+              </Field>
+            </div>
+          </section>
+
+          <section className="enshrouded-panel overflow-hidden">
+            <div className="flex items-center gap-3 border-b border-white/10 px-6 py-5">
+              <span className="material-symbols-outlined text-amber-300">folder_data</span>
+              <div>
+                <h3 className="font-headline-md text-lg font-semibold text-white">Storage</h3>
+                <p className="mt-0.5 text-xs text-white/40">
+                  Paths are relative to the server installation
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-6 p-6 md:grid-cols-2">
+              <Field label="Save directory" hint="World and character persistence files.">
+                <input
+                  type="text"
+                  value={localConfig.saveDirectory}
+                  onChange={(event) => handleChange('saveDirectory', event.target.value)}
+                  className={inputClassName}
+                />
+              </Field>
+              <Field label="Log directory" hint="Runtime and diagnostic output files.">
+                <input
+                  type="text"
+                  value={localConfig.logDirectory}
+                  onChange={(event) => handleChange('logDirectory', event.target.value)}
+                  className={inputClassName}
+                />
+              </Field>
+            </div>
+          </section>
         </div>
-      </form>
-    </div>
-  );
-};
+      </OverlayScrollbarsComponent>
+    </form>
+  )
+}

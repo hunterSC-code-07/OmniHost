@@ -54,6 +54,18 @@ export class FileSystemController {
       return fsPromises.readFile(fullPath, 'utf8')
     })
 
+    ipcMain.handle('fs-read-file-if-exists', async (event, serverId, filePath) => {
+      assertTrustedIpcSender(event)
+      const fullPath = await resolveServerPath(serverId, filePath)
+
+      try {
+        return await fsPromises.readFile(fullPath, 'utf8')
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+        throw error
+      }
+    })
+
     ipcMain.handle('fs-write-file', async (event, serverId, filePath, content) => {
       assertTrustedIpcSender(event)
       if (typeof content !== 'string') throw new Error('File content must be text')

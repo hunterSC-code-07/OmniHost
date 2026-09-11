@@ -100,6 +100,8 @@ const api = {
     listDir: (id: number, relPath: string) => ipcRenderer.invoke('fs-list-dir', id, relPath),
     deleteItem: (id: number, relPath: string) => ipcRenderer.invoke('fs-delete', id, relPath),
     readFile: (id: number, relPath: string) => ipcRenderer.invoke('fs-read-file', id, relPath),
+    readFileIfExists: (id: number, relPath: string) =>
+      ipcRenderer.invoke('fs-read-file-if-exists', id, relPath),
     writeFile: (id: number, relPath: string, content: string) =>
       ipcRenderer.invoke('fs-write-file', id, relPath, content),
     createFolder: (id: number, relPath: string) =>

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789116084992-e47",
+  "createdAt": 1789116084993,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "no element matched {\"text\":\"Server Overview\"}",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "e47",
+        "source": {
+          "file": "src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx",
+          "line": 159,
+          "column": 24
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

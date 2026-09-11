@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "id": "1789116266625-e73",
+  "createdAt": 1789116266625,
+  "origin": "failed-assert",
+  "expected": "declared consequence",
+  "observed": "no element matched {\"text\":\"Identity & access\"}",
+  "steps": [
+    {
+      "tool": "reticle_act",
+      "anchor": {
+        "kind": "testid",
+        "value": "enshrouded-tab-options",
+        "source": {
+          "file": "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx",
+          "line": 177,
+          "column": 12
+        }
+      },
+      "action": "click"
+    }
+  ]
+}

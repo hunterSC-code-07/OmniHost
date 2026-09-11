@@ -15,6 +15,186 @@
         "grade": "presence",
         "at": 1789114125710
       }
+    },
+    "inline:opening-an-enshrouded-deployment-presents-a-hub-1a2501c1": {
+      "id": "inline:opening-an-enshrouded-deployment-presents-a-hub-1a2501c1",
+      "statement": "Opening an Enshrouded deployment presents a hub consistent with the other game hubs while preserving Enshrouded-specific controls.",
+      "state": "bound",
+      "declaredAt": 1789116074491,
+      "binding": {
+        "kind": "text",
+        "contains": "Server Overview"
+      }
+    },
+    "inline:recovering-the-enshrouded-hub-after-fixing-its-u-3b51d183": {
+      "id": "inline:recovering-the-enshrouded-hub-after-fixing-its-u-3b51d183",
+      "statement": "Recovering the Enshrouded hub after fixing its unstable player-state selector should render the redesigned server overview.",
+      "state": "proved",
+      "declaredAt": 1789116227956,
+      "binding": {
+        "kind": "text",
+        "contains": "Server Overview"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/layout/ErrorBoundary.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789116229632",
+        "grade": "presence",
+        "at": 1789116229632
+      }
+    },
+    "inline:the-enshrouded-options-navigation-should-reveal-3f95da15": {
+      "id": "inline:the-enshrouded-options-navigation-should-reveal-3f95da15",
+      "statement": "The Enshrouded Options navigation should reveal a game-specific configuration form presented in the same polished command-hub language as the overview.",
+      "state": "proved",
+      "declaredAt": 1789116561332,
+      "binding": {
+        "kind": "text",
+        "contains": "Identity & access"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789116561847",
+        "grade": "presence",
+        "at": 1789116561847
+      }
+    },
+    "inline:enshrouded-hub-tabs-should-switch-reliably-while-3984bcc1": {
+      "id": "inline:enshrouded-hub-tabs-should-switch-reliably-while-3984bcc1",
+      "statement": "Enshrouded hub tabs should switch reliably while preserving the shared game-hub visual structure.",
+      "state": "proved",
+      "declaredAt": 1789116548429,
+      "binding": {
+        "kind": "text",
+        "contains": "Server Overview"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789116548922",
+        "grade": "presence",
+        "at": 1789116548922
+      }
+    },
+    "inline:recovering-after-correcting-all-unstable-enshrou-6a83c2b1": {
+      "id": "inline:recovering-after-correcting-all-unstable-enshrou-6a83c2b1",
+      "statement": "Recovering after correcting all unstable Enshrouded state selectors should restore a functional server hub.",
+      "state": "bound",
+      "declaredAt": 1789116471110,
+      "binding": {
+        "kind": "text",
+        "contains": "Server Overview"
+      }
+    },
+    "inline:the-enshrouded-console-tab-should-present-runtim-f6bf0cb8": {
+      "id": "inline:the-enshrouded-console-tab-should-present-runtim-f6bf0cb8",
+      "statement": "The Enshrouded Console tab should present runtime output in the same structured game-hub shell without unsupported command controls.",
+      "state": "proved",
+      "declaredAt": 1789116574380,
+      "binding": {
+        "kind": "text",
+        "contains": "Runtime output"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789116574868",
+        "grade": "presence",
+        "at": 1789116574868
+      }
+    },
+    "inline:the-enshrouded-players-tab-should-make-current-p-e8d953a0": {
+      "id": "inline:the-enshrouded-players-tab-should-make-current-p-e8d953a0",
+      "statement": "The Enshrouded Players tab should make current population and the empty state clear within the shared game-hub visual structure.",
+      "state": "proved",
+      "declaredAt": 1789116585339,
+      "binding": {
+        "kind": "text",
+        "contains": "World population"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789116585833",
+        "grade": "presence",
+        "at": 1789116585833
+      }
+    },
+    "inline:the-finalized-enshrouded-hub-keeps-its-game-spec-6a6f6b33": {
+      "id": "inline:the-finalized-enshrouded-hub-keeps-its-game-spec-6a6f6b33",
+      "statement": "The finalized Enshrouded hub keeps its game-specific options reachable after its store subscriptions were made stable.",
+      "state": "proved",
+      "declaredAt": 1789116724749,
+      "binding": {
+        "kind": "text",
+        "contains": "Identity & access"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789116725273",
+        "grade": "presence",
+        "at": 1789116725273
+      }
+    },
+    "inline:opening-an-enshrouded-deployment-without-a-gener-16d709bf": {
+      "id": "inline:opening-an-enshrouded-deployment-without-a-gener-16d709bf",
+      "statement": "Opening an Enshrouded deployment without a generated config should remain functional and error-free.",
+      "state": "proved",
+      "declaredAt": 1789120035310,
+      "binding": {
+        "kind": "text",
+        "contains": "Server Overview"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789120036125",
+        "grade": "presence",
+        "at": 1789120036125
+      }
+    },
+    "inline:an-enshrouded-server-whose-config-has-not-been-g-222b2423": {
+      "id": "inline:an-enshrouded-server-whose-config-has-not-been-g-222b2423",
+      "statement": "An Enshrouded server whose config has not been generated should open Options with safe defaults and no failed IPC request or console error.",
+      "state": "proved",
+      "declaredAt": 1789120061085,
+      "binding": {
+        "kind": "text",
+        "contains": "Identity & access"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789120061600",
+        "grade": "presence",
+        "at": 1789120061600
+      }
     }
   }
 }

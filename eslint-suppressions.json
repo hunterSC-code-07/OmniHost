@@ -663,23 +663,12 @@
     }
   },
   "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx": {
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 2
-    },
     "@typescript-eslint/explicit-function-return-type": {
       "count": 2
     }
   },
   "src/renderer/src/components/hubs/EnshroudedHub/tabs/EnshroudedOptionsTab.tsx": {
-    "@typescript-eslint/explicit-function-return-type": {
-      "count": 2
-    },
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "src/renderer/src/components/hubs/EnshroudedHub/tabs/EnshroudedOverviewTab.tsx": {
-    "react/no-unescaped-entities": {
       "count": 1
     }
   },
@@ -1365,17 +1354,8 @@
     }
   },
   "src/renderer/src/hooks/useEnshroudedOptions.ts": {
-    "@typescript-eslint/ban-ts-comment": {
-      "count": 2
-    },
     "@typescript-eslint/explicit-function-return-type": {
-      "count": 3
-    },
-    "@typescript-eslint/no-explicit-any": {
-      "count": 1
-    },
-    "react-hooks/immutability": {
-      "count": 1
+      "count": 2
     }
   },
   "src/renderer/src/hooks/useIpcListeners.ts": {
