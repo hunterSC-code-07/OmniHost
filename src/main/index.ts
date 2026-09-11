@@ -1,27 +1,32 @@
-import { app } from 'electron';
-import { setupAppPreload, setupAppPostload } from './setup/app';
-import { setupWindowLifecycle } from './setup/window';
-import { registerAllIpcs } from './setup/ipc';
-import { registerSevenDaysToDieModDownloader } from './7dtd/SevenDaysToDieModDownloader';
+import { app } from 'electron'
+import { setupAppPreload, setupAppPostload } from './setup/app'
+import { setupWindowLifecycle } from './setup/window'
+import { registerAllIpcs } from './setup/ipc'
+import { registerSevenDaysToDieModDownloader } from './7dtd/SevenDaysToDieModDownloader'
+import { closeDatabase } from './db'
 
 // 1. Initial application setup (paths, logger, env, switches)
-setupAppPreload();
+setupAppPreload()
 
 // 2. Setup that requires app to be ready
 app.whenReady().then(() => {
-  setupAppPostload();
-  
+  setupAppPostload()
+
   // Register all IPCs and systems
-  registerAllIpcs();
-  registerSevenDaysToDieModDownloader();
-  
+  registerAllIpcs()
+  registerSevenDaysToDieModDownloader()
+
   // Setup window creation and lifecycle events
-  setupWindowLifecycle();
-});
+  setupWindowLifecycle()
+})
 
 // 3. Handle app termination
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
-    app.quit();
+    app.quit()
   }
-});
+})
+
+app.on('will-quit', () => {
+  closeDatabase()
+})

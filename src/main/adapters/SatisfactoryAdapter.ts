@@ -1,23 +1,23 @@
-import { SatisfactoryProcessManager } from '../satisfactory/SatisfactoryProcessManager';
+import { SatisfactoryProcessManager } from '../satisfactory/SatisfactoryProcessManager'
 
 export class SatisfactoryAdapter {
-  serverId: number;
-  private processManager: SatisfactoryProcessManager;
+  serverId: number
+  private processManager: SatisfactoryProcessManager
 
   constructor(serverId: number) {
-    this.serverId = serverId;
-    this.processManager = new SatisfactoryProcessManager(serverId);
+    this.serverId = serverId
+    this.processManager = new SatisfactoryProcessManager(serverId)
   }
 
   async start() {
-    await this.processManager.start();
+    await this.processManager.start()
   }
 
-  stop() {
-    this.processManager.stop();
+  async stop(): Promise<void> {
+    await this.processManager.stop()
   }
 
   get process() {
-    return this.processManager.process;
+    return this.processManager.process
   }
 }

@@ -1,4 +1,6 @@
-import { ipcMain, app } from 'electron'
+import { app } from 'electron'
+import { handleTrusted } from '../security/ipcSecurity'
+const ipcMain = { handle: handleTrusted }
 import { PalworldConfigManager } from '../palworld/PalworldConfigManager'
 import { PalworldModManager } from '../palworld/PalworldModManager'
 import fs from 'fs'
@@ -67,13 +69,18 @@ export function registerPalworldIpc() {
     const namesFile = path.join(serverDir, 'banned_names.json')
     let namesMap: Record<string, string> = {}
     if (fs.existsSync(namesFile)) {
-      try { namesMap = JSON.parse(fs.readFileSync(namesFile, 'utf8')) } catch (e) {}
+      try {
+        namesMap = JSON.parse(fs.readFileSync(namesFile, 'utf8'))
+      } catch (e) {}
     }
-    
+
     if (fs.existsSync(banlistPath)) {
       const data = fs.readFileSync(banlistPath, 'utf8')
-      const lines = data.split('\n').map(l => l.trim()).filter(l => l)
-      return lines.map(line => {
+      const lines = data
+        .split('\n')
+        .map((l) => l.trim())
+        .filter((l) => l)
+      return lines.map((line) => {
         const parts = line.split(',')
         const userId = parts[0] || 'Unknown'
         const playerId = parts[1] || 'Unknown'

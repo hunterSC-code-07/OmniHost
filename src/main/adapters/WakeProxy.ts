@@ -5,10 +5,12 @@ export class WakeProxy {
   private server: net.Server | null = null
   private adapter: MinecraftProcessManager
   private port: number
+  private wake: () => Promise<void>
 
-  constructor(adapter: MinecraftProcessManager, port: number = 25565) {
+  constructor(adapter: MinecraftProcessManager, port: number = 25565, wake?: () => Promise<void>) {
     this.adapter = adapter
     this.port = port
+    this.wake = wake ?? (() => adapter.start())
   }
 
   startListening() {
@@ -25,7 +27,9 @@ export class WakeProxy {
           this.adapter.sendLog(`[WakeProxy] Port fully released. Starting Minecraft...`)
           // Use a small delay just to let OS clear TCP TIME_WAIT
           setTimeout(() => {
-            this.adapter.start()
+            void this.wake().catch((error) =>
+              this.adapter.sendLog(`[WakeProxy] Could not start server: ${error.message}`)
+            )
           }, 1000)
         })
         this.server = null

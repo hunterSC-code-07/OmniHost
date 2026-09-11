@@ -1,4 +1,5 @@
-import { ipcMain } from 'electron'
+import { handleTrusted } from '../security/ipcSecurity'
+const ipcMain = { handle: handleTrusted }
 import { BaseFrpAdapter } from '../adapters/BaseFrpAdapter'
 import { FrpAdapterMinecraft } from '../adapters/FrpAdapterMinecraft'
 import { FrpAdapterDayz } from '../adapters/FrpAdapterDayz'
@@ -11,44 +12,42 @@ import { FrpAdapterEnshrouded } from '../adapters/FrpAdapterEnshrouded'
 import { FrpAdapterSonsOfTheForest } from '../adapters/FrpAdapterSonsOfTheForest'
 import { IVpnAdapter } from '../adapters/IVpnAdapter'
 
-let tunnelProviders: Record<string, BaseFrpAdapter> | null = null;
-let currentTunnelProvider: BaseFrpAdapter | null = null;
+let tunnelProviders: Record<string, BaseFrpAdapter> | null = null
+let currentTunnelProvider: BaseFrpAdapter | null = null
 
-export function registerNetworkIpc(
-  vpnProvider: IVpnAdapter
-) {
+export function registerNetworkIpc(vpnProvider: IVpnAdapter) {
   if (!tunnelProviders) {
     tunnelProviders = {
-      'minecraft': new FrpAdapterMinecraft(),
-      'dayz': new FrpAdapterDayz(),
-      'satisfactory': new FrpAdapterSatisfactory(),
+      minecraft: new FrpAdapterMinecraft(),
+      dayz: new FrpAdapterDayz(),
+      satisfactory: new FrpAdapterSatisfactory(),
       '7dtd': new FrpAdapter7dtd(),
-      'theforest': new FrpAdapterTheForest(),
-      'sonsoftheforest': new FrpAdapterSonsOfTheForest(),
-      'palworld': new FrpAdapterPalworld(),
-      'terraria': new FrpAdapterTerraria(),
-      'enshrouded': new FrpAdapterEnshrouded(),
-    };
+      theforest: new FrpAdapterTheForest(),
+      sonsoftheforest: new FrpAdapterSonsOfTheForest(),
+      palworld: new FrpAdapterPalworld(),
+      terraria: new FrpAdapterTerraria(),
+      enshrouded: new FrpAdapterEnshrouded()
+    }
   }
 
   // --- Tunnels ---
-  ipcMain.handle('start-tunnel', async (_, ip: string, game: string) => {
+  ipcMain.handle('start-tunnel', async (_, ip: string, game: string, port?: number) => {
     if (currentTunnelProvider) {
-      currentTunnelProvider.stop();
+      currentTunnelProvider.stop()
     }
-    const provider = tunnelProviders![game];
+    const provider = tunnelProviders![game]
     if (provider) {
-      currentTunnelProvider = provider;
-      await currentTunnelProvider.start(ip);
-      return true;
+      currentTunnelProvider = provider
+      await currentTunnelProvider.start(ip, port)
+      return true
     }
-    return false;
+    return false
   })
 
   ipcMain.handle('stop-tunnel', async () => {
     if (currentTunnelProvider) {
-      currentTunnelProvider.stop();
-      currentTunnelProvider = null;
+      currentTunnelProvider.stop()
+      currentTunnelProvider = null
     }
   })
 

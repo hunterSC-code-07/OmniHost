@@ -1,51 +1,51 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'
 
 interface Props {
-  serverId: number;
+  serverId: number
 }
 
 export const SevenDaysToDieNexusTab: React.FC<Props> = ({ serverId }) => {
-  const [apiKey, setApiKey] = useState<string | null>(null);
-  const [inputKey, setInputKey] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [apiKey, setApiKey] = useState<string | null>(null)
+  const [inputKey, setInputKey] = useState('')
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Register active server for downloads
     // @ts-ignore
-    window.api.sevenDaysToDie.setActiveDownloadServer(serverId);
+    window.api.sevenDaysToDie.setActiveDownloadServer(serverId)
 
     const fetchKey = async () => {
       // @ts-ignore
-      const key = await window.api.sevenDaysToDie.getNexusApiKey();
-      setApiKey(key);
-      setLoading(false);
-    };
-    fetchKey();
+      const key = await window.api.sevenDaysToDie.getNexusApiKey()
+      setApiKey(key)
+      setLoading(false)
+    }
+    fetchKey()
 
     return () => {
       // Unregister on unmount
       // @ts-ignore
-      window.api.sevenDaysToDie.setActiveDownloadServer(null);
-    };
-  }, [serverId]);
+      window.api.sevenDaysToDie.setActiveDownloadServer(null)
+    }
+  }, [serverId])
 
   const handleSaveKey = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inputKey.trim()) return;
-    
+    e.preventDefault()
+    if (!inputKey.trim()) return
+
     // @ts-ignore
-    const success = await window.api.sevenDaysToDie.setNexusApiKey(inputKey.trim());
+    const success = await window.api.sevenDaysToDie.setNexusApiKey(inputKey.trim())
     if (success) {
-      setApiKey(inputKey.trim());
+      setApiKey(inputKey.trim())
     }
-  };
+  }
 
   if (loading) {
     return (
       <div className="flex-1 flex items-center justify-center bg-black/60">
         <div className="text-white text-lg animate-pulse">Checking API Key...</div>
       </div>
-    );
+    )
   }
 
   if (!apiKey) {
@@ -57,21 +57,21 @@ export const SevenDaysToDieNexusTab: React.FC<Props> = ({ serverId }) => {
           </div>
           <h2 className="sevendays-title text-3xl">NEXUSMODS API KEY</h2>
           <p className="text-[var(--7dtd-text-dim)] uppercase">
-            To automatically resolve dependencies for Nexus mods, please provide your personal API key. 
-            You can generate one for free on your NexusMods account settings page.
+            To automatically resolve dependencies for Nexus mods, please provide your personal API
+            key. You can generate one for free on your NexusMods account settings page.
           </p>
-          <a 
-            href="https://next.nexusmods.com/settings/api-keys" 
-            target="_blank" 
+          <a
+            href="https://next.nexusmods.com/settings/api-keys"
+            target="_blank"
             rel="noreferrer"
             className="text-[#da8e35] hover:text-[#f3a64b] underline uppercase font-bold"
           >
             GET YOUR API KEY HERE
           </a>
-          
+
           <form onSubmit={handleSaveKey} className="flex flex-col gap-6 mt-4">
             <div className="sevendays-input-container">
-              <input 
+              <input
                 type="password"
                 value={inputKey}
                 onChange={(e) => setInputKey(e.target.value)}
@@ -79,7 +79,7 @@ export const SevenDaysToDieNexusTab: React.FC<Props> = ({ serverId }) => {
                 className="sevendays-input w-full px-4 py-2 uppercase"
               />
             </div>
-            <button 
+            <button
               type="submit"
               disabled={!inputKey.trim()}
               className="sevendays-btn px-8 py-3 text-lg"
@@ -89,16 +89,23 @@ export const SevenDaysToDieNexusTab: React.FC<Props> = ({ serverId }) => {
           </form>
         </div>
       </div>
-    );
+    )
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden bg-white">
-      <webview 
-        src="https://www.nexusmods.com/7daystodie" 
-        className="w-full h-full"
-        allowpopups={true}
-      />
+    <div className="flex-1 flex flex-col items-center justify-center gap-4 overflow-hidden bg-black/60 p-8 text-center">
+      <h2 className="sevendays-title text-3xl">NEXUS MODS</h2>
+      <p className="max-w-xl text-[var(--7dtd-text-dim)]">
+        Nexus Mods opens in your browser so remote content cannot access OmniHost.
+      </p>
+      <a
+        href="https://www.nexusmods.com/7daystodie"
+        target="_blank"
+        rel="noreferrer"
+        className="sevendays-btn px-8 py-3 text-lg"
+      >
+        OPEN NEXUS MODS
+      </a>
     </div>
-  );
-};
+  )
+}

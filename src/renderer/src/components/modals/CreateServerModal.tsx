@@ -1,18 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from 'react'
 
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 
-import { useServerStore } from '../../store/useServerStore';
-import { useUiStore } from '../../store/useUiStore';
-import { useToastStore } from '../../store/useToastStore';
-import { useModalStore } from '../../store/useModalStore';
-import { HUB_REGISTRY } from '../layout/HubRegistry';
+import { useServerStore } from '../../store/useServerStore'
+import { useUiStore } from '../../store/useUiStore'
+import { useToastStore } from '../../store/useToastStore'
+import { useModalStore } from '../../store/useModalStore'
+import { HUB_REGISTRY } from '../layout/HubRegistry'
 
 export function CreateServerModal({ onClose }: { onClose: () => void }) {
-  const { setServers, setActiveServerId } = useServerStore();
-  const { activeGameHub } = useUiStore();
-  const { showToast } = useToastStore();
-  const { openSteamLoginModal, createServerDefaultType } = useModalStore();
+  const { setServers, setActiveServerId } = useServerStore()
+  const { activeGameHub } = useUiStore()
+  const { showToast } = useToastStore()
+  const { openSteamLoginModal, createServerDefaultType } = useModalStore()
 
   const [newServerName, setNewServerName] = useState('')
   const [newServerType, setNewServerType] = useState(createServerDefaultType || 'Vanilla')
@@ -23,7 +23,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const [isNewServerTypeMenuOpen, setIsNewServerTypeMenuOpen] = useState(false)
   const [isNewServerVersionMenuOpen, setIsNewServerVersionMenuOpen] = useState(false)
   const [isNewServerLoaderMenuOpen, setIsNewServerLoaderMenuOpen] = useState(false)
-  
+
   const [terrariaDifficulty, setTerrariaDifficulty] = useState('0')
   const [terrariaWorldSize, setTerrariaWorldSize] = useState('2')
 
@@ -38,225 +38,303 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
   const [modpackVersionFilter, setModpackVersionFilter] = useState('')
   const [isModpackLoaderMenuOpen, setIsModpackLoaderMenuOpen] = useState(false)
   const [modpackLoaderFilter, setModpackLoaderFilter] = useState('')
+  const pendingServerId = useRef<number | null>(null)
+
+  const createPendingServer = async (
+    ...args: Parameters<typeof window.api.server.createServer>
+  ) => {
+    if (pendingServerId.current !== null) return pendingServerId.current
+    const id = Number(await window.api.server.createServer(...args))
+    pendingServerId.current = id
+    return id
+  }
+
+  const finalizePendingServer = async (id: number) => {
+    await window.api.server.finalizeServerCreation(id)
+    pendingServerId.current = null
+  }
+
+  const cancelPendingServer = async () => {
+    const id = pendingServerId.current
+    if (id === null) return
+    pendingServerId.current = null
+    await window.api.server.cancelServerCreation(id)
+  }
+
+  const closeAndCancel = async () => {
+    await cancelPendingServer().catch((error) =>
+      console.error('Failed to cancel server creation', error)
+    )
+    onClose()
+  }
 
   const handleCreateServer = async (credentials?: any) => {
     // Prevent event object from being treated as credentials
     if (credentials && credentials.nativeEvent) {
-      credentials = undefined;
+      credentials = undefined
     }
 
-    if (!newServerName) return;
+    if (!newServerName) return
     if (!HUB_REGISTRY[activeGameHub as string]?.steamAppId) {
-      if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return;
-      if (newServerType === 'CurseForge Modpack' && !selectedModpack) return;
+      if (newServerType !== 'CurseForge Modpack' && !newServerVersion) return
+      if (newServerType === 'CurseForge Modpack' && !selectedModpack) return
     }
 
-    setIsCreatingServer(true);
-    setDownloadProgress(0);
+    setIsCreatingServer(true)
+    setDownloadProgress(0)
 
     try {
       if (newServerType === 'CurseForge Modpack') {
-        const versionFilter = modpackVersionFilter || selectedModpack.latestFiles[0].gameVersions.find(v => v.includes('.'));
-        // @ts-ignore
-        const newId = await window.api.server.createServer(newServerName, 'Minecraft', 'CurseForge', versionFilter);
+        const versionFilter =
+          modpackVersionFilter ||
+          selectedModpack.latestFiles[0].gameVersions.find((v) => v.includes('.'))
+        const newId = await createPendingServer(
+          newServerName,
+          'Minecraft',
+          'CurseForge',
+          versionFilter
+        )
 
         // @ts-ignore
         window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
           setDownloadProgress(progress)
           if (text) setDownloadText(text)
-        });
+        })
 
         // @ts-ignore
-        const result = await window.api.minecraft.installCurseforgeModpack(newId, selectedModpack.id, versionFilter);
+        const result = await window.api.minecraft.installCurseforgeModpack(
+          newId,
+          selectedModpack.id,
+          versionFilter
+        )
 
         if (result && result.isClientPack) {
           // @ts-ignore
           window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
             setDownloadProgress(progress)
             if (text) setDownloadText(text)
-          });
+          })
           // @ts-ignore
-          await window.api.minecraft.downloadServerJar(newId, result.modloader, result.version);
+          await window.api.minecraft.downloadServerJar(newId, result.modloader, result.version)
         }
+        await finalizePendingServer(newId)
       } else if (HUB_REGISTRY[activeGameHub as string]?.steamAppId) {
-        const appId = HUB_REGISTRY[activeGameHub as string].steamAppId;
+        const appId = HUB_REGISTRY[activeGameHub as string].steamAppId
         // @ts-ignore
-        const isCached = await window.api.steam.checkCache(appId);
+        const isCached = await window.api.steam.checkCache(appId)
 
         if (!isCached && !credentials) {
-          setIsCreatingServer(false);
-          openSteamLoginModal('create', handleCreateServer);
-          return;
+          setIsCreatingServer(false)
+          openSteamLoginModal('create', handleCreateServer)
+          return
         }
 
-        // @ts-ignore
-        const newId = await window.api.server.createServer(newServerName, activeGameHub, 'Vanilla', 'Latest');
+        const newId = await createPendingServer(newServerName, activeGameHub, 'Vanilla', 'Latest')
 
         // @ts-ignore
         window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
           setDownloadProgress(progress)
           if (text) setDownloadText(text)
-        });
+        })
 
         try {
-          let success = false;
+          let success = false
           if (isCached) {
-            showToast("Server files found in cache! Copying...");
+            showToast('Server files found in cache! Copying...')
             // @ts-ignore
-            success = await window.api.steam.copyCache(newId, appId);
+            success = await window.api.steam.copyCache(newId, appId)
           } else {
             // @ts-ignore
-            success = await window.api.steam.installApp(newId, appId, credentials.steamUsername, credentials.steamPassword, credentials.steamGuardCode);
+            success = await window.api.steam.installApp(
+              newId,
+              appId,
+              credentials.steamUsername,
+              credentials.steamPassword,
+              credentials.steamGuardCode
+            )
           }
+
+          if (!success) throw new Error('SteamCMD did not install the server files')
 
           if (success) {
             if (activeGameHub === 'Terraria') {
-              const configData = `autocreate=${terrariaWorldSize}\nworld=worlds\\World1.wld\nworldname=OmniHost World\ndifficulty=${terrariaDifficulty}\nmaxplayers=8\nport=7777\npassword=\nmotd=Powered by OmniHost\nworldpath=worlds\nbanlist=banlist.txt`;
+              const configData = `autocreate=${terrariaWorldSize}\nworld=worlds\\World1.wld\nworldname=OmniHost World\ndifficulty=${terrariaDifficulty}\nmaxplayers=8\nport=7777\npassword=\nmotd=Powered by OmniHost\nworldpath=worlds\nbanlist=banlist.txt`
               // @ts-ignore
-              await window.api.fs.writeFile(newId, 'serverconfig.txt', configData);
+              await window.api.fs.writeFile(newId, 'serverconfig.txt', configData)
             }
 
+            await finalizePendingServer(newId)
             // Refresh list
             // @ts-ignore
-            const data = await window.api.server.getServers();
-            setServers(data);
-            setActiveServerId(newId);
-            showToast(`${activeGameHub} Server created successfully!`);
-            onClose();
-            return;
+            const data = await window.api.server.getServers()
+            setServers(data)
+            setActiveServerId(newId)
+            showToast(`${activeGameHub} Server created successfully!`)
+            onClose()
+            return
           }
         } catch (err: any) {
           if (err.message && err.message.includes('STEAM_GUARD_REQUIRED')) {
-            showToast("Steam Guard Code required!");
-            openSteamLoginModal('create', handleCreateServer);
+            showToast('Steam Guard Code required!')
+            openSteamLoginModal('create', handleCreateServer)
           } else if (err.message && err.message.includes('INVALID_CREDENTIALS')) {
-            showToast("Invalid Username or Password!", "error");
-            openSteamLoginModal('create', handleCreateServer);
+            showToast('Invalid Username or Password!', 'error')
+            openSteamLoginModal('create', handleCreateServer)
           } else {
-            alert('Failed to download DayZ Server via SteamCMD: ' + err.message);
+            await cancelPendingServer()
+            showToast('Failed to download server files: ' + err.message, 'error')
           }
-          return;
+          return
         } finally {
-          setIsCreatingServer(false);
+          setIsCreatingServer(false)
           // @ts-ignore
-          window.api.removeDownloadProgressListener && window.api.removeDownloadProgressListener(newId);
+          window.api.removeDownloadProgressListener &&
+            window.api.removeDownloadProgressListener(newId)
         }
       } else {
-        // @ts-ignore
-        const newId = await window.api.server.createServer(newServerName, 'Minecraft', newServerType, newServerVersion, newServerLoaderVersion);
+        const newId = await createPendingServer(
+          newServerName,
+          'Minecraft',
+          newServerType,
+          newServerVersion,
+          newServerLoaderVersion
+        )
 
         // @ts-ignore
         window.api.server.onDownloadProgress(newId, (progress: number, text?: string) => {
           setDownloadProgress(progress)
           if (text) setDownloadText(text)
-        });
+        })
 
         // @ts-ignore
-        await window.api.minecraft.downloadServerJar(newId, newServerType, newServerVersion, newServerLoaderVersion);
+        await window.api.minecraft.downloadServerJar(
+          newId,
+          newServerType,
+          newServerVersion,
+          newServerLoaderVersion
+        )
+        await finalizePendingServer(newId)
       }
 
-      showToast('Server Created Successfully!');
+      showToast('Server Created Successfully!')
       // @ts-ignore
-      const data = await window.api.server.getServers();
-      setServers(data);
-      onClose();
-
+      const data = await window.api.server.getServers()
+      setServers(data)
+      onClose()
     } catch (e: any) {
-      alert("Error creating server: " + e.message);
+      await cancelPendingServer().catch((cleanupError) => {
+        console.error('Failed to roll back server creation', cleanupError)
+      })
+      showToast('Failed to create server: ' + e.message, 'error')
     } finally {
-      setIsCreatingServer(false);
+      setIsCreatingServer(false)
     }
   }
 
   useEffect(() => {
     const fetchModpacks = async () => {
-      if (newServerType !== 'CurseForge Modpack') return;
-      setIsSearchingPacks(true);
+      if (newServerType !== 'CurseForge Modpack') return
+      setIsSearchingPacks(true)
       try {
-        const typeStr = modpackLoaderFilter || 'Any';
-        const versionStr = modpackVersionFilter || '';
+        const typeStr = modpackLoaderFilter || 'Any'
+        const versionStr = modpackVersionFilter || ''
         // @ts-ignore
-        const results = await window.api.minecraft.searchCurseforgeMods(modpackSearch, typeStr, versionStr, 0, 4471, 2);
-        setModpacks(results || []);
+        const results = await window.api.minecraft.searchCurseforgeMods(
+          modpackSearch,
+          typeStr,
+          versionStr,
+          0,
+          4471,
+          2
+        )
+        setModpacks(results || [])
       } catch (e) {
-        console.error(e);
-        setModpacks([]);
+        console.error(e)
+        setModpacks([])
       } finally {
-        setIsSearchingPacks(false);
+        setIsSearchingPacks(false)
       }
-    };
+    }
 
     const timer = setTimeout(() => {
-      fetchModpacks();
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [modpackSearch, modpackVersionFilter, modpackLoaderFilter, newServerType]);
+      fetchModpacks()
+    }, 500)
+    return () => clearTimeout(timer)
+  }, [modpackSearch, modpackVersionFilter, modpackLoaderFilter, newServerType])
 
   useEffect(() => {
     const fetchVersions = async () => {
       let versions: string[] = []
       // @ts-ignore
-      if (newServerType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions();
+      if (newServerType === 'Vanilla') versions = await window.api.minecraft.getVanillaVersions()
       // @ts-ignore
-      else if (newServerType === 'Paper') versions = await window.api.minecraft.getPaperVersions();
+      else if (newServerType === 'Paper') versions = await window.api.minecraft.getPaperVersions()
       // @ts-ignore
-      else if (newServerType === 'Fabric') versions = await window.api.minecraft.getFabricVersions();
+      else if (newServerType === 'Fabric') versions = await window.api.minecraft.getFabricVersions()
       // @ts-ignore
-      else if (newServerType === 'Forge') versions = await window.api.minecraft.getForgeVersions();
+      else if (newServerType === 'Forge') versions = await window.api.minecraft.getForgeVersions()
       // @ts-ignore
-      else if (newServerType === 'NeoForge') versions = await window.api.minecraft.getNeoForgeVersions();
+      else if (newServerType === 'NeoForge')
+        versions = await window.api.minecraft.getNeoForgeVersions()
 
-      setAvailableVersions(versions);
+      setAvailableVersions(versions)
       if (versions.length > 0) {
-        setNewServerVersion(prev => versions.includes(prev) ? prev : versions[0]);
+        setNewServerVersion((prev) => (versions.includes(prev) ? prev : versions[0]))
       }
     }
 
     if (newServerType !== 'CurseForge Modpack') {
       fetchVersions()
     } else {
-      setAvailableVersions([]);
+      setAvailableVersions([])
     }
   }, [newServerType])
 
   useEffect(() => {
     const fetchLoaderVersions = async () => {
-      if (!newServerVersion) return;
+      if (!newServerVersion) return
       if (['Forge', 'Fabric', 'NeoForge'].includes(newServerType)) {
-        setAvailableLoaderVersions([]);
+        setAvailableLoaderVersions([])
         // @ts-ignore
-        const versions = await window.api.minecraft.getLoaderVersions(newServerType, newServerVersion);
-        setAvailableLoaderVersions(versions);
+        const versions = await window.api.minecraft.getLoaderVersions(
+          newServerType,
+          newServerVersion
+        )
+        setAvailableLoaderVersions(versions)
         if (versions && versions.length > 0) {
-          setNewServerLoaderVersion(prev => versions.includes(prev) ? prev : versions[0]);
+          setNewServerLoaderVersion((prev) => (versions.includes(prev) ? prev : versions[0]))
         }
       } else {
-        setAvailableLoaderVersions([]);
-        setNewServerLoaderVersion('');
+        setAvailableLoaderVersions([])
+        setNewServerLoaderVersion('')
       }
     }
-    fetchLoaderVersions();
+    fetchLoaderVersions()
   }, [newServerType, newServerVersion])
-
 
   return (
     <>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 animate-fade-in">
-        <div className={`bg-black/30 backdrop-blur-2xl p-8 rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] w-full relative ${newServerType === 'CurseForge Modpack' ? 'max-w-4xl' : 'max-w-md'}`}>
+        <div
+          className={`bg-black/30 backdrop-blur-2xl p-8 rounded-xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.9),inset_0_1px_2px_rgba(255,255,255,0.1)] w-full relative ${newServerType === 'CurseForge Modpack' ? 'max-w-4xl' : 'max-w-md'}`}
+        >
           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none"></div>
           <div className="relative z-10">
             <h2 className="text-2xl font-bold text-white mb-6 drop-shadow-md">Create New Server</h2>
 
-            <div className={`flex gap-8 ${newServerType === 'CurseForge Modpack' ? 'flex-row' : 'flex-col'}`}>
-
+            <div
+              className={`flex gap-8 ${newServerType === 'CurseForge Modpack' ? 'flex-row' : 'flex-col'}`}
+            >
               {/* Left Column (Always visible) */}
-              <div className={`space-y-4 ${newServerType === 'CurseForge Modpack' ? 'w-1/3' : 'w-full'}`}>
+              <div
+                className={`space-y-4 ${newServerType === 'CurseForge Modpack' ? 'w-1/3' : 'w-full'}`}
+              >
                 <div>
                   <label className="block text-sm font-bold text-gray-400 mb-1">Server Name</label>
                   <input
                     type="text"
                     value={newServerName}
-                    onChange={e => setNewServerName(e.target.value)}
+                    onChange={(e) => setNewServerName(e.target.value)}
                     className="w-full bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner"
                     placeholder="My Awesome Server"
                     disabled={isCreatingServer}
@@ -265,31 +343,62 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
 
                 {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && (
                   <div className="relative z-50">
-                    <label className="block text-sm font-bold text-gray-400 mb-1">Software Type</label>
+                    <label className="block text-sm font-bold text-gray-400 mb-1">
+                      Software Type
+                    </label>
                     <button
                       onClick={() => setIsNewServerTypeMenuOpen(!isNewServerTypeMenuOpen)}
                       className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold"
                       disabled={isCreatingServer}
                     >
                       {newServerType}
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
+                      <svg
+                        className="w-4 h-4 text-gray-400"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                      </svg>
                     </button>
                     {isNewServerTypeMenuOpen && (
                       <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
-                        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                          {(activeGameHub === 'DayZ' ? [
-                            { val: 'Vanilla', label: 'Vanilla (DayZ)' },
-                            { val: 'Experimental', label: 'Experimental (DayZ)' }
-                          ] : [
-                            { val: 'Vanilla', label: 'Vanilla (Official)' },
-                            { val: 'Paper', label: 'Paper (Optimized)' },
-                            { val: 'Fabric', label: 'Fabric (Mods)' },
-                            { val: 'Forge', label: 'Forge (Mods)' },
-                            { val: 'NeoForge', label: 'NeoForge (Mods)' },
-                            { val: 'CurseForge Modpack', label: 'CurseForge Modpack' }
-                          ]).map(opt => (
-                            <div key={opt.val} onClick={() => { setNewServerType(opt.val); setIsNewServerTypeMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerType === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
-                              {opt.label} {newServerType === opt.val && <span className="float-right text-brand">✓</span>}
+                        <OverlayScrollbarsComponent
+                          options={{
+                            scrollbars: {
+                              theme: 'os-theme-dark',
+                              autoHide: 'leave',
+                              autoHideDelay: 200
+                            }
+                          }}
+                          defer
+                          className="max-h-60 w-full block"
+                        >
+                          {(activeGameHub === 'DayZ'
+                            ? [
+                                { val: 'Vanilla', label: 'Vanilla (DayZ)' },
+                                { val: 'Experimental', label: 'Experimental (DayZ)' }
+                              ]
+                            : [
+                                { val: 'Vanilla', label: 'Vanilla (Official)' },
+                                { val: 'Paper', label: 'Paper (Optimized)' },
+                                { val: 'Fabric', label: 'Fabric (Mods)' },
+                                { val: 'Forge', label: 'Forge (Mods)' },
+                                { val: 'NeoForge', label: 'NeoForge (Mods)' },
+                                { val: 'CurseForge Modpack', label: 'CurseForge Modpack' }
+                              ]
+                          ).map((opt) => (
+                            <div
+                              key={opt.val}
+                              onClick={() => {
+                                setNewServerType(opt.val)
+                                setIsNewServerTypeMenuOpen(false)
+                              }}
+                              className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerType === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                            >
+                              {opt.label}{' '}
+                              {newServerType === opt.val && (
+                                <span className="float-right text-brand">✓</span>
+                              )}
                             </div>
                           ))}
                         </OverlayScrollbarsComponent>
@@ -301,8 +410,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                 {activeGameHub === 'Terraria' && (
                   <>
                     <div className="relative z-40">
-                      <label className="block text-sm font-bold text-gray-400 mb-1">World Size</label>
-                      <select 
+                      <label className="block text-sm font-bold text-gray-400 mb-1">
+                        World Size
+                      </label>
+                      <select
                         className="w-full bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
                         value={terrariaWorldSize}
                         onChange={(e) => setTerrariaWorldSize(e.target.value)}
@@ -314,8 +425,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                       </select>
                     </div>
                     <div className="relative z-30">
-                      <label className="block text-sm font-bold text-gray-400 mb-1">Difficulty</label>
-                      <select 
+                      <label className="block text-sm font-bold text-gray-400 mb-1">
+                        Difficulty
+                      </label>
+                      <select
                         className="w-full bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand shadow-inner font-bold appearance-none"
                         value={terrariaDifficulty}
                         onChange={(e) => setTerrariaDifficulty(e.target.value)}
@@ -330,154 +443,293 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   </>
                 )}
 
-                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && newServerType !== 'CurseForge Modpack' && (
-                  <div className="relative z-40">
-                    <label className="block text-sm font-bold text-gray-400 mb-1">Minecraft Version</label>
-                    <button
-                      onClick={() => { if (!isCreatingServer && availableVersions.length > 0) setIsNewServerVersionMenuOpen(!isNewServerVersionMenuOpen) }}
-                      className={`w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {availableVersions.length === 0 ? 'Loading...' : (newServerVersion || 'Select version')}
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-                    </button>
-                    {isNewServerVersionMenuOpen && availableVersions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
-                        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                          {availableVersions.map(opt => (
-                            <div key={opt} onClick={() => { setNewServerVersion(opt); setIsNewServerVersionMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
-                              {opt} {newServerVersion === opt && <span className="float-right text-brand">✓</span>}
-                            </div>
-                          ))}
-                        </OverlayScrollbarsComponent>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
-                  <div className="relative z-30">
-                    <label className="block text-sm font-bold text-gray-400 mb-1">Loader Version</label>
-                    <button
-                      onClick={() => { if (!isCreatingServer && availableLoaderVersions.length > 0) setIsNewServerLoaderMenuOpen(!isNewServerLoaderMenuOpen) }}
-                      className={`w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${(isCreatingServer || availableLoaderVersions.length === 0) ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      {availableLoaderVersions.length === 0 ? 'Loading...' : (newServerLoaderVersion || 'Select version')}
-                      <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-                    </button>
-                    {isNewServerLoaderMenuOpen && availableLoaderVersions.length > 0 && (
-                      <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
-                        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                          {availableLoaderVersions.map(opt => (
-                            <div key={opt} onClick={() => { setNewServerLoaderVersion(opt); setIsNewServerLoaderMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerLoaderVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
-                              {opt} {newServerLoaderVersion === opt && <span className="float-right text-brand">✓</span>}
-                            </div>
-                          ))}
-                        </OverlayScrollbarsComponent>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId &&
+                  newServerType !== 'CurseForge Modpack' && (
+                    <div className="relative z-40">
+                      <label className="block text-sm font-bold text-gray-400 mb-1">
+                        Minecraft Version
+                      </label>
+                      <button
+                        onClick={() => {
+                          if (!isCreatingServer && availableVersions.length > 0)
+                            setIsNewServerVersionMenuOpen(!isNewServerVersionMenuOpen)
+                        }}
+                        className={`w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${isCreatingServer || availableVersions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {availableVersions.length === 0
+                          ? 'Loading...'
+                          : newServerVersion || 'Select version'}
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                        </svg>
+                      </button>
+                      {isNewServerVersionMenuOpen && availableVersions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                          <OverlayScrollbarsComponent
+                            options={{
+                              scrollbars: {
+                                theme: 'os-theme-dark',
+                                autoHide: 'leave',
+                                autoHideDelay: 200
+                              }
+                            }}
+                            defer
+                            className="max-h-60 w-full block"
+                          >
+                            {availableVersions.map((opt) => (
+                              <div
+                                key={opt}
+                                onClick={() => {
+                                  setNewServerVersion(opt)
+                                  setIsNewServerVersionMenuOpen(false)
+                                }}
+                                className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                              >
+                                {opt}{' '}
+                                {newServerVersion === opt && (
+                                  <span className="float-right text-brand">✓</span>
+                                )}
+                              </div>
+                            ))}
+                          </OverlayScrollbarsComponent>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                {!HUB_REGISTRY[activeGameHub as string]?.steamAppId &&
+                  ['Forge', 'Fabric', 'NeoForge'].includes(newServerType) && (
+                    <div className="relative z-30">
+                      <label className="block text-sm font-bold text-gray-400 mb-1">
+                        Loader Version
+                      </label>
+                      <button
+                        onClick={() => {
+                          if (!isCreatingServer && availableLoaderVersions.length > 0)
+                            setIsNewServerLoaderMenuOpen(!isNewServerLoaderMenuOpen)
+                        }}
+                        className={`w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold ${isCreatingServer || availableLoaderVersions.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      >
+                        {availableLoaderVersions.length === 0
+                          ? 'Loading...'
+                          : newServerLoaderVersion || 'Select version'}
+                        <svg
+                          className="w-4 h-4 text-gray-400"
+                          fill="currentColor"
+                          viewBox="0 0 20 20"
+                        >
+                          <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                        </svg>
+                      </button>
+                      {isNewServerLoaderMenuOpen && availableLoaderVersions.length > 0 && (
+                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                          <OverlayScrollbarsComponent
+                            options={{
+                              scrollbars: {
+                                theme: 'os-theme-dark',
+                                autoHide: 'leave',
+                                autoHideDelay: 200
+                              }
+                            }}
+                            defer
+                            className="max-h-60 w-full block"
+                          >
+                            {availableLoaderVersions.map((opt) => (
+                              <div
+                                key={opt}
+                                onClick={() => {
+                                  setNewServerLoaderVersion(opt)
+                                  setIsNewServerLoaderMenuOpen(false)
+                                }}
+                                className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${newServerLoaderVersion === opt ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                              >
+                                {opt}{' '}
+                                {newServerLoaderVersion === opt && (
+                                  <span className="float-right text-brand">✓</span>
+                                )}
+                              </div>
+                            ))}
+                          </OverlayScrollbarsComponent>
+                        </div>
+                      )}
+                    </div>
+                  )}
               </div>
 
               {/* Right Column (Modpack Browser) */}
-              {!HUB_REGISTRY[activeGameHub as string]?.steamAppId && newServerType === 'CurseForge Modpack' && (
-                <div className="w-2/3 flex flex-col border-l border-gray-800/50 pl-8">
-                  <div className="flex gap-4 mb-4">
-                    <input
-                      type="text"
-                      placeholder="Search Modpacks..."
-                      className="flex-1 bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
-                      value={modpackSearch}
-                      onChange={e => setModpackSearch(e.target.value)}
-                    />
-                    <div className="relative z-50 flex-1">
-                      <button
-                        onClick={() => setIsModpackVersionMenuOpen(!isModpackVersionMenuOpen)}
-                        className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
-                      >
-                        {modpackVersionFilter || 'All Versions'}
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-                      </button>
-                      {isModpackVersionMenuOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
-                          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                            {[
-                              { val: '', label: 'All Versions' },
-                              { val: '1.20.1', label: '1.20.1' },
-                              { val: '1.19.2', label: '1.19.2' },
-                              { val: '1.18.2', label: '1.18.2' },
-                              { val: '1.16.5', label: '1.16.5' }
-                            ].map(opt => (
-                              <div key={opt.val} onClick={() => { setModpackVersionFilter(opt.val); setIsModpackVersionMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${modpackVersionFilter === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
-                                {opt.label} {modpackVersionFilter === opt.val && <span className="float-right text-brand">✓</span>}
-                              </div>
-                            ))}
-                          </OverlayScrollbarsComponent>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="relative z-50 flex-1">
-                      <button
-                        onClick={() => setIsModpackLoaderMenuOpen(!isModpackLoaderMenuOpen)}
-                        className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
-                      >
-                        {modpackLoaderFilter || 'Any Loader'}
-                        <svg className="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>
-                      </button>
-                      {isModpackLoaderMenuOpen && (
-                        <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
-                          <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="max-h-60 w-full block">
-                            {[
-                              { val: '', label: 'Any Loader' },
-                              { val: 'Forge', label: 'Forge' },
-                              { val: 'Fabric', label: 'Fabric' },
-                              { val: 'NeoForge', label: 'NeoForge' }
-                            ].map(opt => (
-                              <div key={opt.val} onClick={() => { setModpackLoaderFilter(opt.val); setIsModpackLoaderMenuOpen(false); }} className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${modpackLoaderFilter === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}>
-                                {opt.label} {modpackLoaderFilter === opt.val && <span className="float-right text-brand">✓</span>}
-                              </div>
-                            ))}
-                          </OverlayScrollbarsComponent>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex-1 bg-black/20 rounded-lg border border-gray-800 relative flex flex-col min-h-[400px] max-h-[400px]">
-                    <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} defer className="flex-1 w-full block min-h-0">
-                      <div className="p-2 space-y-2">
-                        {isSearchingPacks && (
-                          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
-                            <span className="text-white font-bold">Searching...</span>
+              {!HUB_REGISTRY[activeGameHub as string]?.steamAppId &&
+                newServerType === 'CurseForge Modpack' && (
+                  <div className="w-2/3 flex flex-col border-l border-gray-800/50 pl-8">
+                    <div className="flex gap-4 mb-4">
+                      <input
+                        type="text"
+                        placeholder="Search Modpacks..."
+                        className="flex-1 bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand"
+                        value={modpackSearch}
+                        onChange={(e) => setModpackSearch(e.target.value)}
+                      />
+                      <div className="relative z-50 flex-1">
+                        <button
+                          onClick={() => setIsModpackVersionMenuOpen(!isModpackVersionMenuOpen)}
+                          className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
+                        >
+                          {modpackVersionFilter || 'All Versions'}
+                          <svg
+                            className="w-4 h-4 text-gray-400"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                          </svg>
+                        </button>
+                        {isModpackVersionMenuOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                            <OverlayScrollbarsComponent
+                              options={{
+                                scrollbars: {
+                                  theme: 'os-theme-dark',
+                                  autoHide: 'leave',
+                                  autoHideDelay: 200
+                                }
+                              }}
+                              defer
+                              className="max-h-60 w-full block"
+                            >
+                              {[
+                                { val: '', label: 'All Versions' },
+                                { val: '1.20.1', label: '1.20.1' },
+                                { val: '1.19.2', label: '1.19.2' },
+                                { val: '1.18.2', label: '1.18.2' },
+                                { val: '1.16.5', label: '1.16.5' }
+                              ].map((opt) => (
+                                <div
+                                  key={opt.val}
+                                  onClick={() => {
+                                    setModpackVersionFilter(opt.val)
+                                    setIsModpackVersionMenuOpen(false)
+                                  }}
+                                  className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${modpackVersionFilter === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                                >
+                                  {opt.label}{' '}
+                                  {modpackVersionFilter === opt.val && (
+                                    <span className="float-right text-brand">✓</span>
+                                  )}
+                                </div>
+                              ))}
+                            </OverlayScrollbarsComponent>
                           </div>
                         )}
-                        {modpacks.length === 0 && !isSearchingPacks && (
-                          <div className="text-gray-500 text-center py-8">No modpacks found.</div>
-                        )}
-                        {modpacks.map(pack => (
-                          <div
-                            key={pack.id}
-                            onClick={() => setSelectedModpack(pack)}
-                            className={`flex gap-4 p-3 rounded-lg cursor-pointer transition-colors border ${selectedModpack?.id === pack.id ? 'bg-brand/20 border-brand' : 'hover:bg-gray-800/50 border-transparent'}`}
+                      </div>
+
+                      <div className="relative z-50 flex-1">
+                        <button
+                          onClick={() => setIsModpackLoaderMenuOpen(!isModpackLoaderMenuOpen)}
+                          className="w-full flex justify-between items-center bg-black/20 border border-gray-800 rounded p-2 text-white outline-none focus:border-brand font-bold"
+                        >
+                          {modpackLoaderFilter || 'Any Loader'}
+                          <svg
+                            className="w-4 h-4 text-gray-400"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
                           >
-                            <img src={pack.logo?.thumbnailUrl || undefined} alt={pack.name} className="w-16 h-16 rounded-md object-cover" />
-                            <div className="flex-1 overflow-hidden">
-                              <h3 className="text-white font-bold truncate">{pack.name}</h3>
-                              <p className="text-xs text-gray-400 truncate">{pack.summary}</p>
-                              <div className="flex gap-2 mt-2">
-                                <span className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">{pack.downloadCount.toLocaleString()} DLs</span>
-                                {pack.latestFiles[0]?.gameVersions[0] && (
-                                  <span className="text-xs bg-brand/20 text-brand px-2 py-0.5 rounded">{pack.latestFiles[0].gameVersions[0]}</span>
-                                )}
+                            <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                          </svg>
+                        </button>
+                        {isModpackLoaderMenuOpen && (
+                          <div className="absolute top-full left-0 right-0 mt-2 bg-[#0a0a0a]/95 backdrop-blur-3xl border border-white/20 rounded-md shadow-[0_8px_32px_rgba(0,0,0,0.8)] z-50 py-2">
+                            <OverlayScrollbarsComponent
+                              options={{
+                                scrollbars: {
+                                  theme: 'os-theme-dark',
+                                  autoHide: 'leave',
+                                  autoHideDelay: 200
+                                }
+                              }}
+                              defer
+                              className="max-h-60 w-full block"
+                            >
+                              {[
+                                { val: '', label: 'Any Loader' },
+                                { val: 'Forge', label: 'Forge' },
+                                { val: 'Fabric', label: 'Fabric' },
+                                { val: 'NeoForge', label: 'NeoForge' }
+                              ].map((opt) => (
+                                <div
+                                  key={opt.val}
+                                  onClick={() => {
+                                    setModpackLoaderFilter(opt.val)
+                                    setIsModpackLoaderMenuOpen(false)
+                                  }}
+                                  className={`px-4 py-2.5 cursor-pointer hover:bg-white/10 transition-colors ${modpackLoaderFilter === opt.val ? 'text-brand font-bold' : 'text-[#bfbfbf]'}`}
+                                >
+                                  {opt.label}{' '}
+                                  {modpackLoaderFilter === opt.val && (
+                                    <span className="float-right text-brand">✓</span>
+                                  )}
+                                </div>
+                              ))}
+                            </OverlayScrollbarsComponent>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex-1 bg-black/20 rounded-lg border border-gray-800 relative flex flex-col min-h-[400px] max-h-[400px]">
+                      <OverlayScrollbarsComponent
+                        options={{
+                          scrollbars: {
+                            theme: 'os-theme-dark',
+                            autoHide: 'leave',
+                            autoHideDelay: 200
+                          }
+                        }}
+                        defer
+                        className="flex-1 w-full block min-h-0"
+                      >
+                        <div className="p-2 space-y-2">
+                          {isSearchingPacks && (
+                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                              <span className="text-white font-bold">Searching...</span>
+                            </div>
+                          )}
+                          {modpacks.length === 0 && !isSearchingPacks && (
+                            <div className="text-gray-500 text-center py-8">No modpacks found.</div>
+                          )}
+                          {modpacks.map((pack) => (
+                            <div
+                              key={pack.id}
+                              onClick={() => setSelectedModpack(pack)}
+                              className={`flex gap-4 p-3 rounded-lg cursor-pointer transition-colors border ${selectedModpack?.id === pack.id ? 'bg-brand/20 border-brand' : 'hover:bg-gray-800/50 border-transparent'}`}
+                            >
+                              <img
+                                src={pack.logo?.thumbnailUrl || undefined}
+                                alt={pack.name}
+                                className="w-16 h-16 rounded-md object-cover"
+                              />
+                              <div className="flex-1 overflow-hidden">
+                                <h3 className="text-white font-bold truncate">{pack.name}</h3>
+                                <p className="text-xs text-gray-400 truncate">{pack.summary}</p>
+                                <div className="flex gap-2 mt-2">
+                                  <span className="text-xs bg-gray-800 px-2 py-0.5 rounded text-gray-300">
+                                    {pack.downloadCount.toLocaleString()} DLs
+                                  </span>
+                                  {pack.latestFiles[0]?.gameVersions[0] && (
+                                    <span className="text-xs bg-brand/20 text-brand px-2 py-0.5 rounded">
+                                      {pack.latestFiles[0].gameVersions[0]}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        ))}
-                      </div>
-                    </OverlayScrollbarsComponent>
+                          ))}
+                        </div>
+                      </OverlayScrollbarsComponent>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
             </div>
 
             {isCreatingServer && (
@@ -487,14 +739,17 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
                   <span>{downloadProgress}%</span>
                 </div>
                 <div className="w-full bg-gray-800 rounded-full h-2">
-                  <div className="bg-brand h-2 rounded-full transition-all duration-300" style={{ width: `${downloadProgress}%` }}></div>
+                  <div
+                    className="bg-brand h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${downloadProgress}%` }}
+                  ></div>
                 </div>
               </div>
             )}
 
             <div className="flex justify-end gap-3 mt-8">
               <button
-                onClick={() => onClose()}
+                onClick={() => void closeAndCancel()}
                 className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
                 disabled={isCreatingServer}
               >
@@ -502,7 +757,12 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               </button>
               <button
                 onClick={handleCreateServer}
-                disabled={isCreatingServer || !newServerName || (!HUB_REGISTRY[activeGameHub as string]?.steamAppId && (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))}
+                disabled={
+                  isCreatingServer ||
+                  !newServerName ||
+                  (!HUB_REGISTRY[activeGameHub as string]?.steamAppId &&
+                    (newServerType === 'CurseForge Modpack' ? !selectedModpack : !newServerVersion))
+                }
                 className="bg-brand hover:bg-yellow-600 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 rounded font-bold shadow-lg transition-colors"
               >
                 {isCreatingServer ? 'Creating...' : 'Create Server'}
@@ -512,5 +772,5 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
         </div>
       </div>
     </>
-  );
+  )
 }

@@ -26,8 +26,8 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
   step,
   note
 }) => {
-  const percent = ((Number(value) - min) / (max - min)) * 100;
-  
+  const percent = ((Number(value) - min) / (max - min)) * 100
+
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-3 border-b border-white/5 last:border-0 hover:bg-white/[0.02] px-4 -mx-4 rounded-lg transition-colors group">
       <div className="flex flex-col max-w-[50%]">
@@ -35,7 +35,9 @@ const SettingSlider: React.FC<SettingSliderProps> = ({
         {note && <span className="text-xs text-on-surface-variant/70 mt-1">{note}</span>}
       </div>
       <div className="flex items-center gap-4 flex-1 max-w-[300px]">
-        <div className="bg-[#121b2b] border border-[#1e293b] rounded text-white font-mono font-bold w-12 py-1.5 text-center text-sm shadow-inner shrink-0">{value}</div>
+        <div className="bg-[#121b2b] border border-[#1e293b] rounded text-white font-mono font-bold w-12 py-1.5 text-center text-sm shadow-inner shrink-0">
+          {value}
+        </div>
         <input
           type="range"
           min={min}
@@ -85,8 +87,6 @@ SettingSelect.displayName = 'SettingSelect'
 
 export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(({ serverId }) => {
   const [cpuLimit, setCpuLimit] = useState(4)
-  const [autoStart, setAutoStart] = useState(false)
-  const [autoStop, setAutoStop] = useState(false)
   const [sysInfo, setSysInfo] = useState({ totalMem: 8, cpus: 4 })
   const [isSavingMeta, setIsSavingMeta] = useState(false)
 
@@ -103,8 +103,6 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
     window.api.server.getServerMeta(serverId).then((meta: Record<string, unknown>) => {
       if (meta) {
         if (meta.cpu) setCpuLimit(parseInt(String(meta.cpu), 10))
-        if (meta.autoStart !== undefined) setAutoStart(Boolean(meta.autoStart))
-        if (meta.autoStop !== undefined) setAutoStop(Boolean(meta.autoStop))
       }
     })
 
@@ -116,11 +114,8 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
   const saveMetaAndConfig = async () => {
     setIsSavingMeta(true)
     await window.api.server.updateServerMeta(serverId, {
-      cpu: cpuLimit,
-      autoStart,
-      autoStop
+      cpu: cpuLimit
     })
-    await window.api.server.toggleAutoStart(serverId, autoStart)
     await window.api.palworld.setConfig(serverId, gameSettings)
     setIsSavingMeta(false)
   }
@@ -155,9 +150,7 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
                 className="pal-btn pal-btn-blue"
               >
                 <Save className="w-4 h-4 mr-2" />
-                <span>
-                  {isSavingMeta ? 'Saving...' : 'Save Settings'}
-                </span>
+                <span>{isSavingMeta ? 'Saving...' : 'Save Settings'}</span>
               </button>
             </div>
           </div>
@@ -188,7 +181,11 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
                   value={cpuLimit}
                   onChange={(e) => setCpuLimit(parseInt(e.target.value, 10))}
                   className="w-full"
-                  style={{ '--val': `${((cpuLimit - 1) / (Math.max(1, sysInfo.cpus - 1))) * 100}%` } as React.CSSProperties}
+                  style={
+                    {
+                      '--val': `${((cpuLimit - 1) / Math.max(1, sysInfo.cpus - 1)) * 100}%`
+                    } as React.CSSProperties
+                  }
                 />
                 <div className="flex justify-between font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mt-4 px-1">
                   <span>1 Core</span>
@@ -201,259 +198,257 @@ export const PalworldOptionsTab: React.FC<PalworldOptionsTabProps> = React.memo(
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="pal-panel hover:border-blue-500/40 transition-colors flex justify-between items-center px-6 py-4 h-16">
                 <span className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
-                  Start when any player joins
+                  Wake-on-connect unavailable for Palworld
                 </span>
                 <button
-                  onClick={() => setAutoStart(!autoStart)}
-                  className={`w-14 h-7 rounded-full relative transition-all duration-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] ${autoStart ? 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]' : 'bg-surface-container-highest'}`}
+                  type="button"
+                  disabled
+                  title="Palworld uses UDP; the Minecraft TCP wake proxy is not compatible"
+                  className="w-14 h-7 rounded-full relative bg-surface-container-highest opacity-50 cursor-not-allowed"
                 >
-                  <div
-                    className={`absolute top-1 w-5 h-5 rounded-full transition-transform duration-300 shadow-md ${autoStart ? 'translate-x-8 bg-background' : 'translate-x-1 bg-on-surface-variant'}`}
-                  ></div>
+                  <div className="absolute top-1 w-5 h-5 rounded-full translate-x-1 bg-on-surface-variant"></div>
                 </button>
               </div>
 
               <div className="pal-panel hover:border-blue-500/40 transition-colors flex justify-between items-center px-6 py-4 h-16">
                 <span className="font-label-md text-label-md text-on-surface uppercase tracking-widest">
-                  Stop when empty for 15 mins
+                  Auto-stop unavailable for Palworld
                 </span>
                 <button
-                  onClick={() => setAutoStop(!autoStop)}
-                  className={`w-14 h-7 rounded-full relative transition-all duration-300 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)] ${autoStop ? 'bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.4)]' : 'bg-surface-container-highest'}`}
+                  type="button"
+                  disabled
+                  title="Reliable player-idle detection is not implemented for Palworld"
+                  className="w-14 h-7 rounded-full relative bg-surface-container-highest opacity-50 cursor-not-allowed"
                 >
-                  <div
-                    className={`absolute top-1 w-5 h-5 rounded-full transition-transform duration-300 shadow-md ${autoStop ? 'translate-x-8 bg-background' : 'translate-x-1 bg-on-surface-variant'}`}
-                  ></div>
+                  <div className="absolute top-1 w-5 h-5 rounded-full translate-x-1 bg-on-surface-variant"></div>
                 </button>
               </div>
             </div>
 
             {/* Game Settings */}
             <div className="pal-panel p-8">
-              <h3 className="pal-title mb-6">
-                Game Settings
-              </h3>
+              <h3 className="pal-title mb-6">Game Settings</h3>
 
-                <div className="flex flex-col gap-1">
-                  <SettingSlider
-                    label="Day Time Speed"
-                    value={getFloat('DayTimeSpeedRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('DayTimeSpeedRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Night Time Speed"
-                    value={getFloat('NightTimeSpeedRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('NightTimeSpeedRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="EXP Rate"
-                    value={getFloat('ExpRate')}
-                    onChange={(v: string) => updateGameSetting('ExpRate', Number(v).toFixed(6))}
-                    min={0}
-                    max={20}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Pal Capture Rate"
-                    value={getFloat('PalCaptureRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalCaptureRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={2}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Pal Appearance Rate"
-                    value={getFloat('PalSpawnNumRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalSpawnNumRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={3}
-                    step={0.1}
-                    note="*Note: Affects game performance"
-                  />
-                  <SettingSlider
-                    label="Damage from Pals Multiplier"
-                    value={getFloat('PalDamageRateAttack')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalDamageRateAttack', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Damage to Pals Multiplier"
-                    value={getFloat('PalDamageRateDefense')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalDamageRateDefense', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Pal Hunger Depletion Rate"
-                    value={getFloat('PalStomachDecreaceRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalStomachDecreaceRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Pal Stamina Reduction Rate"
-                    value={getFloat('PalStaminaDecreaceRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalStaminaDecreaceRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Pal Auto Health Regeneration Rate"
-                    value={getFloat('PalAutoHPRegeneRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PalAutoHPRegeneRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Damage from Player Multiplier"
-                    value={getFloat('PlayerDamageRateAttack')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PlayerDamageRateAttack', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Damage to Player Multiplier"
-                    value={getFloat('PlayerDamageRateDefense')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PlayerDamageRateDefense', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Player Hunger Depletion Rate"
-                    value={getFloat('PlayerStomachDecreaceRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PlayerStomachDecreaceRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Player Stamina Reduction Rate"
-                    value={getFloat('PlayerStaminaDecreaceRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PlayerStaminaDecreaceRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
-                  <SettingSlider
-                    label="Player Auto Health Regeneration Rate"
-                    value={getFloat('PlayerAutoHPRegeneRate')}
-                    onChange={(v: string) =>
-                      updateGameSetting('PlayerAutoHPRegeneRate', Number(v).toFixed(6))
-                    }
-                    min={0.1}
-                    max={5}
-                    step={0.1}
-                  />
+              <div className="flex flex-col gap-1">
+                <SettingSlider
+                  label="Day Time Speed"
+                  value={getFloat('DayTimeSpeedRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('DayTimeSpeedRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Night Time Speed"
+                  value={getFloat('NightTimeSpeedRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('NightTimeSpeedRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="EXP Rate"
+                  value={getFloat('ExpRate')}
+                  onChange={(v: string) => updateGameSetting('ExpRate', Number(v).toFixed(6))}
+                  min={0}
+                  max={20}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Pal Capture Rate"
+                  value={getFloat('PalCaptureRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalCaptureRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={2}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Pal Appearance Rate"
+                  value={getFloat('PalSpawnNumRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalSpawnNumRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={3}
+                  step={0.1}
+                  note="*Note: Affects game performance"
+                />
+                <SettingSlider
+                  label="Damage from Pals Multiplier"
+                  value={getFloat('PalDamageRateAttack')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalDamageRateAttack', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Damage to Pals Multiplier"
+                  value={getFloat('PalDamageRateDefense')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalDamageRateDefense', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Pal Hunger Depletion Rate"
+                  value={getFloat('PalStomachDecreaceRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalStomachDecreaceRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Pal Stamina Reduction Rate"
+                  value={getFloat('PalStaminaDecreaceRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalStaminaDecreaceRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Pal Auto Health Regeneration Rate"
+                  value={getFloat('PalAutoHPRegeneRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PalAutoHPRegeneRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Damage from Player Multiplier"
+                  value={getFloat('PlayerDamageRateAttack')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PlayerDamageRateAttack', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Damage to Player Multiplier"
+                  value={getFloat('PlayerDamageRateDefense')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PlayerDamageRateDefense', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Player Hunger Depletion Rate"
+                  value={getFloat('PlayerStomachDecreaceRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PlayerStomachDecreaceRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Player Stamina Reduction Rate"
+                  value={getFloat('PlayerStaminaDecreaceRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PlayerStaminaDecreaceRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
+                <SettingSlider
+                  label="Player Auto Health Regeneration Rate"
+                  value={getFloat('PlayerAutoHPRegeneRate')}
+                  onChange={(v: string) =>
+                    updateGameSetting('PlayerAutoHPRegeneRate', Number(v).toFixed(6))
+                  }
+                  min={0.1}
+                  max={5}
+                  step={0.1}
+                />
 
-                  <div className="my-4 border-t border-white/5"></div>
+                <div className="my-4 border-t border-white/5"></div>
 
-                  <SettingSlider
-                    label="Maximum Number of Dropped Items in a World"
-                    value={getInt('DropItemMaxNum', 3000)}
-                    onChange={(v: string) => updateGameSetting('DropItemMaxNum', v)}
-                    min={0}
-                    max={5000}
-                    step={100}
-                    note="Increasing the limit may affect processing load."
-                  />
-                  <SettingSlider
-                    label="Maximum Number of Guild Members"
-                    value={getInt('GuildPlayerMaxNum', 20)}
-                    onChange={(v: string) => updateGameSetting('GuildPlayerMaxNum', v)}
-                    min={1}
-                    max={100}
-                    step={1}
-                  />
-                  <SettingSlider
-                    label="Maximum number of bases for each guild"
-                    value={getInt('BaseCampMaxNumInGuild', 4)}
-                    onChange={(v: string) => updateGameSetting('BaseCampMaxNumInGuild', v)}
-                    min={1}
-                    max={10}
-                    step={1}
-                  />
-                  <SettingSlider
-                    label="Maximum number of work pals at the base"
-                    value={getInt('BaseCampWorkerMaxNum', 15)}
-                    onChange={(v: string) => updateGameSetting('BaseCampWorkerMaxNum', v)}
-                    min={1}
-                    max={20}
-                    step={1}
-                  />
+                <SettingSlider
+                  label="Maximum Number of Dropped Items in a World"
+                  value={getInt('DropItemMaxNum', 3000)}
+                  onChange={(v: string) => updateGameSetting('DropItemMaxNum', v)}
+                  min={0}
+                  max={5000}
+                  step={100}
+                  note="Increasing the limit may affect processing load."
+                />
+                <SettingSlider
+                  label="Maximum Number of Guild Members"
+                  value={getInt('GuildPlayerMaxNum', 20)}
+                  onChange={(v: string) => updateGameSetting('GuildPlayerMaxNum', v)}
+                  min={1}
+                  max={100}
+                  step={1}
+                />
+                <SettingSlider
+                  label="Maximum number of bases for each guild"
+                  value={getInt('BaseCampMaxNumInGuild', 4)}
+                  onChange={(v: string) => updateGameSetting('BaseCampMaxNumInGuild', v)}
+                  min={1}
+                  max={10}
+                  step={1}
+                />
+                <SettingSlider
+                  label="Maximum number of work pals at the base"
+                  value={getInt('BaseCampWorkerMaxNum', 15)}
+                  onChange={(v: string) => updateGameSetting('BaseCampWorkerMaxNum', v)}
+                  min={1}
+                  max={20}
+                  step={1}
+                />
 
-                  <div className="my-4 border-t border-white/5"></div>
+                <div className="my-4 border-t border-white/5"></div>
 
-                  <SettingSelect
-                    label="Death Penalty"
-                    value={getString('DeathPenalty', 'All')}
-                    onChange={(v: string) => updateGameSetting('DeathPenalty', v)}
-                    options={[
-                      { label: 'None', value: 'None' },
-                      { label: 'Drop items only', value: 'Item' },
-                      { label: 'Drop items and equipment', value: 'ItemAndEquipment' },
-                      { label: 'Drop all items and pals', value: 'All' }
-                    ]}
-                  />
-                  <SettingSelect
-                    label="Enable Raid Events"
-                    value={getString('bEnableInvaderEnemy', 'True')}
-                    onChange={(v: string) => updateGameSetting('bEnableInvaderEnemy', v)}
-                    options={[
-                      { label: 'ON', value: 'True' },
-                      { label: 'OFF', value: 'False' }
-                    ]}
-                  />
-                  <SettingSelect
-                    label="Enable Predator Pals"
-                    value={getString('EnablePredatorBossPal', 'True')}
-                    onChange={(v: string) => updateGameSetting('EnablePredatorBossPal', v)}
-                    options={[
-                      { label: 'ON', value: 'True' },
-                      { label: 'OFF', value: 'False' }
-                    ]}
-                  />
-                </div>
+                <SettingSelect
+                  label="Death Penalty"
+                  value={getString('DeathPenalty', 'All')}
+                  onChange={(v: string) => updateGameSetting('DeathPenalty', v)}
+                  options={[
+                    { label: 'None', value: 'None' },
+                    { label: 'Drop items only', value: 'Item' },
+                    { label: 'Drop items and equipment', value: 'ItemAndEquipment' },
+                    { label: 'Drop all items and pals', value: 'All' }
+                  ]}
+                />
+                <SettingSelect
+                  label="Enable Raid Events"
+                  value={getString('bEnableInvaderEnemy', 'True')}
+                  onChange={(v: string) => updateGameSetting('bEnableInvaderEnemy', v)}
+                  options={[
+                    { label: 'ON', value: 'True' },
+                    { label: 'OFF', value: 'False' }
+                  ]}
+                />
+                <SettingSelect
+                  label="Enable Predator Pals"
+                  value={getString('EnablePredatorBossPal', 'True')}
+                  onChange={(v: string) => updateGameSetting('EnablePredatorBossPal', v)}
+                  options={[
+                    { label: 'ON', value: 'True' },
+                    { label: 'OFF', value: 'False' }
+                  ]}
+                />
               </div>
+            </div>
           </div>
         </div>
       </OverlayScrollbarsComponent>

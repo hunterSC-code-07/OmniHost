@@ -1,0 +1,1607 @@
+{
+  "src/main/7dtd/SevenDaysToDieAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    }
+  },
+  "src/main/7dtd/SevenDaysToDieModDownloader.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/7dtd/SevenDaysToDieProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/CacheManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    }
+  },
+  "src/main/adapters/AdapterRegistry.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/main/adapters/BaseFrpAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/main/adapters/DayzLogParser.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/main/adapters/DayzModGraph.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/main/adapters/FrpAdapterTerraria.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/adapters/JavaManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/adapters/PlayitAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/main/adapters/RadminVpnAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/main/adapters/SatisfactoryAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/main/adapters/WakeProxy.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/main/api/SteamWebAPI.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    }
+  },
+  "src/main/dayz/DayzConfigManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    }
+  },
+  "src/main/dayz/DayzEconomyManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/main/dayz/DayzMissionManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/main/dayz/DayzModInstaller.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/main/dayz/DayzModStatusManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/main/dayz/DayzProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    }
+  },
+  "src/main/enshrouded/EnshroudedAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/main/enshrouded/EnshroudedProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    }
+  },
+  "src/main/ipc/CacheIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/DayzController.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/main/ipc/LogIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/MinecraftController.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/MinecraftIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/NetworkIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/PalworldIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/SatisfactoryController.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/main/ipc/SevenDaysToDieIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/main/ipc/SteamCMDIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/ipc/SystemIpc.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 5
+    },
+    "no-empty": {
+      "count": 4
+    }
+  },
+  "src/main/minecraft/CurseForgeApiClient.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/MinecraftCommandBuilder.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "no-empty": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/MinecraftConfigManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/MinecraftDownloader.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 8
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/main/minecraft/MinecraftEventCoordinator.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/MinecraftPlayerManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    }
+  },
+  "src/main/minecraft/MinecraftProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "no-async-promise-executor": {
+      "count": 1
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/MinecraftStatsService.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/downloaders/FabricStrategy.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/downloaders/ForgeStrategy.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/downloaders/NeoForgeStrategy.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/main/minecraft/downloaders/VanillaStrategy.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/main/palworld/PalworldConfigManager.ts": {
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/main/palworld/PalworldModManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    }
+  },
+  "src/main/palworld/PalworldProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    },
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 5
+    },
+    "no-empty": {
+      "count": 3
+    }
+  },
+  "src/main/satisfactory/SatisfactoryModManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/main/satisfactory/SatisfactoryProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 7
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/sonsoftheforest/SonsOfTheForestAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    }
+  },
+  "src/main/sonsoftheforest/SonsOfTheForestProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 7
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 2
+    }
+  },
+  "src/main/steam/SteamCMDSetup.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/main/steam/SteamCache.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/main/steam/SteamDownloader.ts": {
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    },
+    "no-useless-catch": {
+      "count": 1
+    }
+  },
+  "src/main/steam/SteamWorkshopDownloader.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    },
+    "no-empty": {
+      "count": 1
+    },
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/main/terraria/TerrariaProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 7
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/theforest/TheForestAdapter.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    }
+  },
+  "src/main/theforest/TheForestProcessManager.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "src/main/utils/FileTailer.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "no-empty": {
+      "count": 2
+    }
+  },
+  "src/main/utils/logger.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/preload/index.d.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/preload/index.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 9
+    }
+  },
+  "src/renderer/src/App.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/AnimatedBackground.tsx": {
+    "prefer-const": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/background.worker.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/common/CustomInputs.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react/no-unescaped-entities": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/DayzAnimatedBackground.tsx": {
+    "prefer-const": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/DayzHubHeader.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/DayzHubNavigation.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/DayzConsoleTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/DayzEconomyTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react/no-unescaped-entities": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/DayzModsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/DayzOptionsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "react/no-unescaped-entities": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/components/DayzDependencyResultModal.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/components/DayzInstalledModCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/components/DayzInstalledModsGridPanel.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/components/DayzInstalledModsHeaderPanel.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/DayzHub/tabs/components/DayzPendingDownloadCard.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/EnshroudedHub/EnshroudedHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/EnshroudedHub/tabs/EnshroudedOptionsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/EnshroudedHub/tabs/EnshroudedOverviewTab.tsx": {
+    "react/no-unescaped-entities": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/MinecraftHub/MinecraftHubHeader.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/MinecraftHub/MinecraftHubNavigation.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/MinecraftHub/MinecraftHubTabContent.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/PalworldHub/PalworldAnimatedBackground.tsx": {
+    "prefer-const": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/PalworldHub/PalworldHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 8
+    },
+    "react-hooks/rules-of-hooks": {
+      "count": 5
+    }
+  },
+  "src/renderer/src/components/hubs/PalworldHub/PalworldModsTab.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/components/hubs/PalworldHub/PalworldOptionsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "react/prop-types": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/PalworldHub/PalworldPlayersTab.tsx": {
+    "prefer-const": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SatisfactoryHub/SatisfactoryAnimatedBackground.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SatisfactoryHub/SatisfactoryHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SatisfactoryHub/tabs/SatisfactoryConsoleTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SatisfactoryHub/tabs/SatisfactoryInstalledModsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SatisfactoryHub/tabs/SatisfactoryModsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SatisfactoryHub/tabs/SatisfactoryPlayersTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react/no-unescaped-entities": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/SevenDaysToDieHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieCommunityModsTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieConsoleTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieInstalledModsTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieNexusTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 4
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieOptionsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieOverviewTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    },
+    "react/prop-types": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDiePlayersTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SevenDaysToDieHub/tabs/SevenDaysToDieSpawnTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SonsOfTheForestHub/SonsOfTheForestHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/SonsOfTheForestHub/tabs/SonsOfTheForestConsoleTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/SonsOfTheForestHub/tabs/SonsOfTheForestOptionsTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/renderer/src/components/hubs/SonsOfTheForestHub/tabs/SonsOfTheForestPlayersTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/TerrariaHub/TerrariaHubHeader.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/TerrariaHub/tabs/TerrariaOptionsTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 3
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/TerrariaHub/tabs/TerrariaOverviewTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/TerrariaHub/tabs/TerrariaPlayersTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/hubs/TheForestHub/TheForestHub.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/TheForestHub/tabs/TheForestAdminTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/TheForestHub/tabs/TheForestConsoleTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-control-regex": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/hubs/TheForestHub/tabs/TheForestOptionsTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    }
+  },
+  "src/renderer/src/components/layout/ErrorBoundary.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/renderer/src/components/layout/HubRegistry.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/layout/HubRouter.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "react-hooks/refs": {
+      "count": 8
+    }
+  },
+  "src/renderer/src/components/layout/TopNavbar.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/modals/CreateServerModal.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 21
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 9
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/modals/DayzModals.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/modals/DeleteConfirmationModal.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/modals/SettingsModal.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/modals/SteamLoginModal.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react/no-unescaped-entities": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/modals/TunnelModal.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/tabs/BackupsTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/tabs/ConsoleTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "react/display-name": {
+      "count": 1
+    },
+    "react/prop-types": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/tabs/FilesTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    }
+  },
+  "src/renderer/src/components/tabs/ModsTab.tsx": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 12
+    },
+    "react/display-name": {
+      "count": 1
+    },
+    "react/prop-types": {
+      "count": 9
+    }
+  },
+  "src/renderer/src/components/tabs/OptionsTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 7
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 6
+    },
+    "react/prop-types": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/components/tabs/OverviewTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    },
+    "react/prop-types": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/components/tabs/PlayersTab.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/purity": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 2
+    },
+    "react/prop-types": {
+      "count": 18
+    }
+  },
+  "src/renderer/src/components/tabs/SoftwareTab.tsx": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react/display-name": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/unlumen-ui/list-view-icon.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/components/unlumen-ui/motion-faqs-accordion.tsx": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/renderer/src/hooks/useCreateServerData.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 7
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzEconomy.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzFileEditor.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/hooks/useDayzFileNavigation.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    }
+  },
+  "src/renderer/src/hooks/useDayzFileOperations.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/hooks/useDayzInstalledMods.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzMissions.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/hooks/useDayzModDependencies.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "src/renderer/src/hooks/useDayzModDownloader.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzModImport.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzModInstallation.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "src/renderer/src/hooks/useDayzModRebuild.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzModSearch.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "no-useless-escape": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzModStatus.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/hooks/useDayzModUninstall.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  },
+  "src/renderer/src/hooks/useDayzMods.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzOptions.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 8
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzVppAdmins.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzVppConfig.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useDayzVppCredentials.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 4
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useEnshroudedOptions.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 2
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useIpcListeners.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 6
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 2
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/hooks/useMinecraftConfig.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 8
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useMinecraftMods.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 14
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 18
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 5
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useMinecraftPlayers.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 11
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 10
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 5
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    },
+    "no-empty": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useMinecraftSoftware.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 6
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 3
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 2
+    }
+  },
+  "src/renderer/src/hooks/usePalworldMods.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 5
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 7
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 3
+    },
+    "react-hooks/set-state-in-effect": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/hooks/useSevenDaysToDieOptions.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 5
+    },
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 6
+    },
+    "react-hooks/immutability": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/lib/utils.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/store/useDayzModStore.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 11
+    }
+  },
+  "src/renderer/src/store/useMinecraftHubStore.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 1
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/store/useModalStore.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 8
+    }
+  },
+  "src/renderer/src/store/usePlayerStore.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 4
+    }
+  },
+  "src/renderer/src/store/useServerStore.ts": {
+    "@typescript-eslint/ban-ts-comment": {
+      "count": 6
+    },
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/utils/formatSize.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "src/renderer/src/utils/rendererLogger.ts": {
+    "@typescript-eslint/explicit-function-return-type": {
+      "count": 1
+    }
+  },
+  "test_cf.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test_cf_2.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test_cf_3.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test_cf_4.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test_config.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test_dl.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test_pid.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 2
+    }
+  },
+  "test_rcon.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "test_rcon_2.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test_rcon_3.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 1
+    }
+  },
+  "test_tree.js": {
+    "@typescript-eslint/no-require-imports": {
+      "count": 3
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 1
+    }
+  },
+  "tests/main/minecraft/MinecraftCommandBuilder.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 1
+    }
+  },
+  "tests/main/utils/FileTailer.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 10
+    },
+    "@typescript-eslint/no-unused-vars": {
+      "count": 2
+    }
+  },
+  "tests/renderer/hooks/useDayzModSearch.test.ts": {
+    "@typescript-eslint/no-explicit-any": {
+      "count": 3
+    }
+  }
+}

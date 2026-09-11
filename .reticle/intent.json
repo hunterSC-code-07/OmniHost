@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "intents": {
+    "inline:a-fresh-omnihost-profile-opens-the-dashboard-suc-b2d0dcda": {
+      "id": "inline:a-fresh-omnihost-profile-opens-the-dashboard-suc-b2d0dcda",
+      "statement": "A fresh OmniHost profile opens the dashboard successfully without fabricated server records.",
+      "state": "proved",
+      "declaredAt": 1789114125605,
+      "binding": {
+        "kind": "text",
+        "contains": "No servers found"
+      },
+      "provenBy": {
+        "verdictId": "reticle_assert:1789114125710",
+        "grade": "presence",
+        "at": 1789114125710
+      }
+    }
+  }
+}

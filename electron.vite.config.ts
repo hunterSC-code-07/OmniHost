@@ -1,7 +1,7 @@
 import { resolve } from 'path'
 import { defineConfig } from 'electron-vite'
 import react from '@vitejs/plugin-react'
-// import { reticle } from '@reticlehq/vite-plugin'
+import { reticle } from '@reticlehq/vite-plugin'
 
 export default defineConfig({
   main: {
@@ -29,6 +29,7 @@ export default defineConfig({
     optimizeDeps: {
       include: ['motion/react', 'lucide-react', 'react-icons', 'overlayscrollbars-react']
     },
-    plugins: [react() /*, reticle() as any*/]
+    // Reticle currently publishes Vite types from a different minor; runtime APIs are compatible.
+    plugins: [react(), reticle() as never]
   }
 })

@@ -6,11 +6,13 @@ out
 *.log*
 .env
 .omnihost-data
+.omnihost-data-reticle/
 graphify-out/
 scratch.html
 
 # AI / Agent state
 .reticle.json
+.reticle/impact.json
 brain.md
 
 # Build info

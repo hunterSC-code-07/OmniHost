@@ -1,8 +1,11 @@
-import { app, ipcMain } from 'electron'
+import { app } from 'electron'
+import { handleTrusted } from '../security/ipcSecurity'
+const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
 import os from 'os'
+import { resolveServerPath } from '../security/serverPath'
 
 async function exists(path: string) {
   try {
@@ -13,10 +16,7 @@ async function exists(path: string) {
   }
 }
 
-export function registerSystemIpc(
-  activeServers: Record<number, any>,
-  getServers: () => any[]
-) {
+export function registerSystemIpc(activeServers: Record<number, any>, getServers: () => any[]) {
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database
@@ -81,22 +81,22 @@ export function registerSystemIpc(
         meta = JSON.parse(await fsPromises.readFile(metaPath, 'utf-8'))
       } catch (e) {}
     }
-    
+
     // Fallback if omnihost.json is missing or missing type
     if (!meta || !meta.type) {
-       const servers = getServers()
-       const srv = servers.find((s: any) => s.id === id)
-       if (srv) {
-          if (!meta) meta = {}
-          meta.version = '1.20.4' // Default version if missing
-          if (srv.game) {
-             const typeMatch = srv.game.match(/\((.*?)\)/)
-             if (typeMatch) meta.type = typeMatch[1]
-             else meta.type = 'Vanilla'
-          } else {
-             meta.type = 'Vanilla'
-          }
-       }
+      const servers = getServers()
+      const srv = servers.find((s: any) => s.id === id)
+      if (srv) {
+        if (!meta) meta = {}
+        meta.version = '1.20.4' // Default version if missing
+        if (srv.game) {
+          const typeMatch = srv.game.match(/\((.*?)\)/)
+          if (typeMatch) meta.type = typeMatch[1]
+          else meta.type = 'Vanilla'
+        } else {
+          meta.type = 'Vanilla'
+        }
+      }
     }
     return meta
   })
@@ -118,7 +118,16 @@ export function registerSystemIpc(
     try {
       const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'))
       if (meta.game === 'DayZ') configName = 'serverDZ.cfg'
-      if (meta.game === 'The Forest') customPath = join(os.homedir(), 'AppData', 'LocalLow', 'SKS', 'TheForestDedicatedServer', 'ds', 'Server.cfg')
+      if (meta.game === 'The Forest')
+        customPath = join(
+          os.homedir(),
+          'AppData',
+          'LocalLow',
+          'SKS',
+          'TheForestDedicatedServer',
+          'ds',
+          'Server.cfg'
+        )
     } catch (e) {}
 
     const configPath = customPath || join(serverDir, configName)
@@ -144,7 +153,14 @@ export function registerSystemIpc(
       const meta = JSON.parse(await fsPromises.readFile(join(serverDir, 'omnihost.json'), 'utf-8'))
       if (meta.game === 'DayZ') configName = 'serverDZ.cfg'
       if (meta.game === 'The Forest') {
-        const forestDir = join(os.homedir(), 'AppData', 'LocalLow', 'SKS', 'TheForestDedicatedServer', 'ds')
+        const forestDir = join(
+          os.homedir(),
+          'AppData',
+          'LocalLow',
+          'SKS',
+          'TheForestDedicatedServer',
+          'ds'
+        )
         if (!(await exists(forestDir))) await fsPromises.mkdir(forestDir, { recursive: true })
         customPath = join(forestDir, 'Server.cfg')
       }
@@ -165,7 +181,8 @@ export function registerSystemIpc(
   // Config Editor
   // Player JSON Editor
   ipcMain.handle('read-json', async (_, id, filename) => {
-    const filePath = join(app.getPath('userData'), 'servers', id.toString(), `${filename}.json`)
+    const safeFilename = validateDataFileName(filename)
+    const filePath = await resolveServerPath(id, `${safeFilename}.json`)
     if (await exists(filePath)) return JSON.parse(await fsPromises.readFile(filePath, 'utf-8'))
     return []
   })
@@ -180,9 +197,9 @@ export function registerSystemIpc(
   // Config Editor
   // Player JSON Editor
   ipcMain.handle('write-json', async (_, id, filename, data) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-    if (!(await exists(serverDir))) await fsPromises.mkdir(serverDir, { recursive: true })
-    await fsPromises.writeFile(join(serverDir, `${filename}.json`), JSON.stringify(data, null, 2))
+    const safeFilename = validateDataFileName(filename)
+    const filePath = await resolveServerPath(id, `${safeFilename}.json`)
+    await fsPromises.writeFile(filePath, JSON.stringify(data, null, 2))
     return true
   })
 
@@ -248,126 +265,6 @@ export function registerSystemIpc(
   // Player JSON Editor
   // Live Commands & Inventory
   // --- File Manager ---
-  ipcMain.handle('list-dir', async (_, id, relPath) => {
-    try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      // Prevent directory traversal
-      const targetPath = join(serverDir, relPath)
-      if (!targetPath.startsWith(serverDir)) return []
-
-      if (!(await exists(targetPath))) return []
-
-      const files = await fsPromises.readdir(targetPath)
-      const result: any[] = []
-      for (const f of files) {
-        try {
-          const stat = await fsPromises.stat(join(targetPath, f))
-          result.push({
-            name: f,
-            isDirectory: stat.isDirectory(),
-            size: stat.size,
-            lastModified: stat.mtimeMs
-          })
-        } catch (e) {}
-      }
-      return result
-    } catch (e: any) {
-      console.error(e.message)
-      return []
-    }
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  // Config Editor
-  // Player JSON Editor
-  // Live Commands & Inventory
-  // --- File Manager ---
-  ipcMain.handle('delete-item', async (_, id, relPath) => {
-    try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      const targetPath = join(serverDir, relPath)
-      if (!targetPath.startsWith(serverDir)) return false
-
-      const stat = await fsPromises.stat(targetPath)
-      if (stat.isDirectory()) {
-        await fsPromises.rm(targetPath, { recursive: true, force: true })
-      } else {
-        await fsPromises.unlink(targetPath)
-      }
-      return true
-    } catch (e: any) {
-      console.error(e.message)
-      return false
-    }
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  // Config Editor
-  // Player JSON Editor
-  // Live Commands & Inventory
-  // --- File Manager ---
-  ipcMain.handle('read-file', async (_, id, relPath) => {
-    try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      const targetPath = join(serverDir, relPath)
-      if (!targetPath.startsWith(serverDir)) return null
-
-      if (!(await exists(targetPath))) return null
-      return await fsPromises.readFile(targetPath, 'utf-8')
-    } catch (e: any) {
-      console.error(e.message)
-      return null
-    }
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  // Config Editor
-  // Player JSON Editor
-  // Live Commands & Inventory
-  // --- File Manager ---
-  ipcMain.handle('write-file', async (_, id, relPath, content) => {
-    try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      const targetPath = join(serverDir, relPath)
-      if (!targetPath.startsWith(serverDir)) return false
-
-      await fsPromises.writeFile(targetPath, content)
-      return true
-    } catch (e: any) {
-      console.error(e.message)
-      return false
-    }
-  })
-
-  // --- 2. IPC HANDLERS (THE BRIDGE) ---
-
-  // Database
-  // Versions & Downloads
-  // Server Lifecycle
-  // Tunnels
-  // Radmin VPN
-  // Config Editor
-  // Player JSON Editor
-  // Live Commands & Inventory
-  // --- File Manager ---
   // --- Backups ---
   ipcMain.handle('create-backup', async (_, id, name) => {
     try {
@@ -378,7 +275,8 @@ export function registerSystemIpc(
       }
 
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
-      const safeName = name ? name.replace(/[^a-zA-Z0-9_-]/g, '') : 'backup'
+      const requestedName = typeof name === 'string' ? name.replace(/[^a-zA-Z0-9_-]/g, '') : ''
+      const safeName = requestedName || 'backup'
       const backupName = `${safeName}_${timestamp}.zip`
       const backupPath = join(backupsDir, backupName)
 
@@ -402,7 +300,7 @@ export function registerSystemIpc(
       return false
     } catch (e: any) {
       console.error('Backup error:', e.message)
-      throw e instanceof Error ? e : new Error((e as any)?.message || String(e));
+      throw e instanceof Error ? e : new Error((e as any)?.message || String(e))
     }
   })
 
@@ -453,7 +351,10 @@ export function registerSystemIpc(
   ipcMain.handle('restore-backup', async (_, id, filename) => {
     try {
       const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-      const backupPath = join(serverDir, 'backups', filename)
+      const backupPath = await resolveServerPath(
+        id,
+        join('backups', validateBackupFilename(filename))
+      )
 
       if (!fs.existsSync(backupPath)) throw new Error('Backup file not found')
 
@@ -467,6 +368,16 @@ export function registerSystemIpc(
 
       const AdmZip = require('adm-zip')
       const zip = new AdmZip(backupPath)
+      for (const entry of zip.getEntries()) {
+        const normalized = entry.entryName.replace(/\\/g, '/')
+        if (
+          normalized.startsWith('/') ||
+          normalized.split('/').includes('..') ||
+          !['world', 'world_nether', 'world_the_end'].includes(normalized.split('/')[0])
+        ) {
+          throw new Error(`Unsafe path in backup: ${entry.entryName}`)
+        }
+      }
       zip.extractAllTo(serverDir, true)
       return true
     } catch (e: any) {
@@ -488,12 +399,42 @@ export function registerSystemIpc(
   // --- File Manager ---
   // --- Backups ---
   ipcMain.handle('delete-backup', async (_, id, filename) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
-    const backupPath = join(serverDir, 'backups', filename)
+    const backupPath = await resolveServerPath(
+      id,
+      join('backups', validateBackupFilename(filename))
+    )
     if (fs.existsSync(backupPath)) {
       await fsPromises.unlink(backupPath)
       return true
     }
     return false
   })
+
+  ipcMain.handle('delete-all-backups', async (_, id) => {
+    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const backupsDir = join(serverDir, 'backups')
+    if (!fs.existsSync(backupsDir)) return true
+
+    const files = await fsPromises.readdir(backupsDir, { withFileTypes: true })
+    await Promise.all(
+      files
+        .filter((entry) => entry.isFile() && entry.name.endsWith('.zip'))
+        .map((entry) => fsPromises.unlink(join(backupsDir, entry.name)))
+    )
+    return true
+  })
+}
+
+function validateDataFileName(filename: unknown): string {
+  if (typeof filename !== 'string' || !/^[a-zA-Z0-9_-]+$/.test(filename)) {
+    throw new Error('Invalid data filename')
+  }
+  return filename
+}
+
+function validateBackupFilename(filename: unknown): string {
+  if (typeof filename !== 'string' || !/^[a-zA-Z0-9_-]+_[0-9TZ-]+\.zip$/.test(filename)) {
+    throw new Error('Invalid backup filename')
+  }
+  return filename
 }

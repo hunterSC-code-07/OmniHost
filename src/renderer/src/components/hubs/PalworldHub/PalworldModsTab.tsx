@@ -1,7 +1,19 @@
 import React, { useState, useMemo } from 'react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
-import { Download, Search, ExternalLink, Trash2, Package, Layers, Globe, ShieldCheck, AlertCircle, RefreshCw, CheckCircle2 } from 'lucide-react'
+import {
+  Download,
+  Search,
+  ExternalLink,
+  Trash2,
+  Package,
+  Layers,
+  Globe,
+  ShieldCheck,
+  AlertCircle,
+  RefreshCw,
+  CheckCircle2
+} from 'lucide-react'
 import { usePalworldMods } from '../../../hooks/usePalworldMods'
 
 const formatBytes = (bytes?: number): string => {
@@ -34,7 +46,9 @@ export const PalworldModsTab: React.FC = React.memo(() => {
     handleInstallAllMissingDependencies
   } = usePalworldMods()
 
-  const [activeTab, setActiveTab] = useState<'search' | 'installed' | 'nexus' | 'dependencies'>('search')
+  const [activeTab, setActiveTab] = useState<'search' | 'installed' | 'nexus' | 'dependencies'>(
+    'search'
+  )
   const [depSearchFilter, setDepSearchFilter] = useState('')
 
   // Calculate dependency stats
@@ -82,9 +96,7 @@ export const PalworldModsTab: React.FC = React.memo(() => {
           {/* Header Controls */}
           <div className="flex justify-between items-end z-20 py-4">
             <div>
-              <h2 className="pal-title">
-                Mods
-              </h2>
+              <h2 className="pal-title">Mods</h2>
             </div>
 
             <div className="flex gap-2 p-1 pal-panel-dark">
@@ -103,11 +115,13 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                 Installed ({installedMods.length})
               </button>
               <button
-                onClick={() => setActiveTab('dependencies')}
-                className={`pal-btn ${activeTab === 'dependencies' ? 'pal-btn-active' : ''}`}
+                type="button"
+                disabled
+                title="Palworld dependency scanning is not available"
+                className="pal-btn cursor-not-allowed opacity-50"
               >
                 <Layers className="w-4 h-4" />
-                Dependencies
+                Dependencies (Unavailable)
                 {depStats.missingDeps > 0 && (
                   <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
                 )}
@@ -189,12 +203,18 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                             <ExternalLink className="w-5 h-5" />
                           </a>
                           {(() => {
-                            const isInstalled = installedMods.some(m => {
+                            const isInstalled = installedMods.some((m) => {
                               const cleanModName = mod.name.toLowerCase().replace(/[^a-z0-9]/g, '')
-                              const cleanInstalledName = m.name.toLowerCase().replace(/(_p)?\.(pak|zip)$/g, '').replace(/[^a-z0-9]/g, '')
-                              return cleanModName.includes(cleanInstalledName) || cleanInstalledName.includes(cleanModName)
+                              const cleanInstalledName = m.name
+                                .toLowerCase()
+                                .replace(/(_p)?\.(pak|zip)$/g, '')
+                                .replace(/[^a-z0-9]/g, '')
+                              return (
+                                cleanModName.includes(cleanInstalledName) ||
+                                cleanInstalledName.includes(cleanModName)
+                              )
                             })
-                            
+
                             if (isInstalled) {
                               return (
                                 <div
@@ -202,13 +222,15 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                                   title="Mod is installed"
                                 >
                                   <span className="font-bold text-sm flex items-center gap-2">
-                                    <span className="material-symbols-outlined text-[20px]">check_circle</span>
+                                    <span className="material-symbols-outlined text-[20px]">
+                                      check_circle
+                                    </span>
                                     Installed
                                   </span>
                                 </div>
                               )
                             }
-                            
+
                             return (
                               <button
                                 onClick={() => handleInstallMod(mod)}
@@ -306,7 +328,9 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                         <p className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
                           Total Mods
                         </p>
-                        <h4 className="text-2xl font-bold text-on-surface mt-0.5">{installedMods.length}</h4>
+                        <h4 className="text-2xl font-bold text-on-surface mt-0.5">
+                          {installedMods.length}
+                        </h4>
                       </div>
                       <div className="w-10 h-10 rounded-lg bg-surface-container flex items-center justify-center text-on-surface-variant">
                         <Package className="w-5 h-5" />
@@ -434,7 +458,9 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                       <div className="flex flex-col items-center justify-center flex-1 py-12 text-center">
                         <Layers className="w-12 h-12 text-on-surface-variant opacity-50 mb-4 stroke-1" />
                         <h4 className="text-lg font-bold text-on-surface">
-                          {installedMods.length === 0 ? 'No Mods Installed' : 'No Matching Mods Found'}
+                          {installedMods.length === 0
+                            ? 'No Mods Installed'
+                            : 'No Matching Mods Found'}
                         </h4>
                         <p className="text-on-surface-variant text-sm mt-1 max-w-sm">
                           {installedMods.length === 0
@@ -460,7 +486,9 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/5">
                                 <div>
                                   <div className="flex items-center gap-2.5 flex-wrap">
-                                    <h4 className="font-bold text-on-surface text-base">{mod.name}</h4>
+                                    <h4 className="font-bold text-on-surface text-base">
+                                      {mod.name}
+                                    </h4>
                                     {mod.version && (
                                       <span className="text-xs font-mono bg-white/10 text-on-surface-variant px-2 py-0.5 rounded">
                                         v{mod.version}
@@ -477,7 +505,8 @@ export const PalworldModsTab: React.FC = React.memo(() => {
 
                                 <div className="text-xs text-on-surface-variant shrink-0 font-semibold flex items-center gap-2">
                                   <span>
-                                    {deps.length} {deps.length === 1 ? 'dependency' : 'dependencies'}
+                                    {deps.length}{' '}
+                                    {deps.length === 1 ? 'dependency' : 'dependencies'}
                                   </span>
                                   {deps.length > 0 && !hasMissing && (
                                     <span className="text-emerald-400 flex items-center gap-1">
@@ -521,7 +550,9 @@ export const PalworldModsTab: React.FC = React.memo(() => {
                                           )}
 
                                           <div className="flex items-center gap-1.5">
-                                            <span className="font-bold text-on-surface">{dep.name}</span>
+                                            <span className="font-bold text-on-surface">
+                                              {dep.name}
+                                            </span>
                                             {dep.version && dep.version !== '*' && (
                                               <span className="text-[11px] font-mono text-on-surface-variant opacity-80">
                                                 ({dep.version})
@@ -573,11 +604,19 @@ export const PalworldModsTab: React.FC = React.memo(() => {
               )}
 
               {activeTab === 'nexus' && (
-                <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl shadow-glass flex flex-col min-h-[600px] overflow-hidden">
-                  <webview
-                    src="https://www.nexusmods.com/palworld"
-                    className="w-full h-full border-none flex-1 bg-surface-container-lowest min-h-[600px]"
-                  />
+                <div className="bg-surface-container-low border border-surface-container-highest rounded-2xl shadow-glass flex min-h-[600px] flex-col items-center justify-center gap-4 overflow-hidden p-8 text-center">
+                  <h2 className="text-2xl font-bold text-white">Nexus Mods</h2>
+                  <p className="max-w-xl text-on-surface-variant">
+                    Nexus Mods opens in your browser so remote content cannot access OmniHost.
+                  </p>
+                  <a
+                    href="https://www.nexusmods.com/palworld"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-lg bg-primary px-6 py-3 font-bold text-on-primary transition-opacity hover:opacity-90"
+                  >
+                    Open Nexus Mods
+                  </a>
                 </div>
               )}
             </div>

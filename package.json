@@ -5,6 +5,9 @@
   "main": "./out/main/index.js",
   "author": "example.com",
   "homepage": "https://electron-vite.org",
+  "os": [
+    "win32"
+  ],
   "scripts": {
     "format": "prettier --write .",
     "lint": "eslint --cache .",
@@ -17,9 +20,7 @@
     "dev": "electron-vite dev",
     "build": "npm run typecheck && electron-vite build",
     "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "npm run build && electron-builder --win",
-    "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:win": "npm run build && electron-builder --win"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.2",
@@ -52,8 +53,9 @@
     "@electron-toolkit/tsconfig": "^2.0.0",
     "@lubab/madar": "^0.32.1",
     "@mohammednagy/graphify-ts": "^0.23.1",
-    "@reticlehq/react": "^2.12.0",
-    "@reticlehq/vite-plugin": "^2.12.0",
+    "@reticlehq/electron": "^2.14.0",
+    "@reticlehq/react": "^2.14.0",
+    "@reticlehq/vite-plugin": "^2.14.0",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.2",
     "@types/adm-zip": "^0.5.8",

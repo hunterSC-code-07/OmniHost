@@ -1,4 +1,6 @@
-import { app, ipcMain } from 'electron'
+import { app } from 'electron'
+import { handleTrusted } from '../security/ipcSecurity'
+const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
 import { SteamDownloader } from '../steam/SteamDownloader'
 import { SteamCache } from '../steam/SteamCache'

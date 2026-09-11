@@ -14,8 +14,8 @@ export class DayzAdapter {
     await this.processManager.start()
   }
 
-  stop(): void {
-    this.processManager.stop()
+  async stop(): Promise<void> {
+    await this.processManager.stop()
   }
 
   sendCommand(cmd: string): void {

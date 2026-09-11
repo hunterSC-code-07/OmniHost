@@ -171,10 +171,12 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
               <Package className="w-3.5 h-3.5" /> Installed ({installedMods.length})
             </button>
             <button
-              onClick={() => setModViewType('dependencies')}
-              className={`px-3.5 py-1.5 rounded-md font-bold text-sm transition-all flex items-center gap-1.5 ${modViewType === 'dependencies' ? 'bg-brand text-black shadow-md' : 'text-gray-400 hover:text-white'}`}
+              type="button"
+              disabled
+              title="Dependency scanning is not available for this server type"
+              className="px-3.5 py-1.5 rounded-md font-bold text-sm flex items-center gap-1.5 text-gray-600 cursor-not-allowed"
             >
-              <Layers className="w-3.5 h-3.5" /> Dependencies
+              <Layers className="w-3.5 h-3.5" /> Dependencies (Unavailable)
               {depStats.missingDeps > 0 && (
                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
               )}
@@ -223,7 +225,11 @@ export const ModsTab: React.FC<ModsTabProps> = React.memo(({ serverMeta }) => {
                       <OverlayScrollbarsComponent
                         className="max-h-[300px]"
                         options={{
-                          scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 }
+                          scrollbars: {
+                            theme: 'os-theme-dark',
+                            autoHide: 'leave',
+                            autoHideDelay: 200
+                          }
                         }}
                         defer
                       >

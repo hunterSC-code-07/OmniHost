@@ -7,8 +7,7 @@ import https from 'https'
 
 export class PalworldModManager {
   private static getApiKey(): string {
-    const FALLBACK_CURSEFORGE_API_KEY = '$2a$10$WLjUD.aJlcjuSSdEOByujetqwwhUeTTfS2AsFhIOq31vLq./E1nRO'
-    const key = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY
+    const key = process.env.CURSEFORGE_API_KEY
     if (!key) throw new Error('CURSEFORGE_API_KEY is not set in .env')
     return key
   }
@@ -78,7 +77,7 @@ export class PalworldModManager {
       const fileRes = await this.fetchCurseForge<{
         data: { downloadUrl: string; fileName: string }
       }>(`/mods/${modId}/files/${fileId}`)
-      
+
       if (!fileRes.data || !fileRes.data.fileName) {
         throw new Error('Could not fetch file details from CurseForge')
       }
@@ -98,18 +97,24 @@ export class PalworldModManager {
       // 2. Download the zip file (following redirects)
       await new Promise<void>((resolve, reject) => {
         const downloadFile = (url: string) => {
-          https.get(url, (res) => {
-            if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
-              return downloadFile(res.headers.location)
-            }
-            if (res.statusCode && res.statusCode >= 400) {
-              return reject(new Error(`Download failed with status ${res.statusCode}`))
-            }
-            const fileStream = fs.createWriteStream(tempZip)
-            res.pipe(fileStream)
-            fileStream.on('finish', () => resolve())
-            fileStream.on('error', reject)
-          }).on('error', reject)
+          https
+            .get(url, (res) => {
+              if (
+                res.statusCode &&
+                [301, 302, 303, 307, 308].includes(res.statusCode) &&
+                res.headers.location
+              ) {
+                return downloadFile(res.headers.location)
+              }
+              if (res.statusCode && res.statusCode >= 400) {
+                return reject(new Error(`Download failed with status ${res.statusCode}`))
+              }
+              const fileStream = fs.createWriteStream(tempZip)
+              res.pipe(fileStream)
+              fileStream.on('finish', () => resolve())
+              fileStream.on('error', reject)
+            })
+            .on('error', reject)
         }
         downloadFile(downloadUrl)
       })

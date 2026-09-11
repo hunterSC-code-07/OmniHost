@@ -1,8 +1,15 @@
 import axios from 'axios'
 
-const FALLBACK_CURSEFORGE_API_KEY = '$2a$10$WLjUD.aJlcjuSSdEOByujetqwwhUeTTfS2AsFhIOq31vLq./E1nRO';
-
 export class CurseForgeApiClient {
+  private static getApiKey(): string {
+    require('dotenv').config()
+    const apiKey = process.env.CURSEFORGE_API_KEY
+    if (!apiKey) {
+      throw new Error('CURSEFORGE_API_KEY is not configured')
+    }
+    return apiKey
+  }
+
   static async searchCurseforgeMods(
     search: string,
     type: string,
@@ -12,23 +19,18 @@ export class CurseForgeApiClient {
     sortField: number = 2
   ) {
     try {
-      require('dotenv').config();
-      const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY;
-      if (!apiKey) {
-        console.error('Error searching Curseforge mods: API Key is missing from environment.');
-      }
+      const apiKey = this.getApiKey()
 
       let url = `https://api.curseforge.com/v1/mods/search?gameId=432&classId=${classId}&sortField=${sortField}&sortOrder=desc&index=${page * 50}`
-      
+
       if (search) url += `&searchFilter=${encodeURIComponent(search)}`
-      
+
       if (version) {
-        const cfVersion = version.endsWith('.0') && version.split('.').length === 3 
-          ? version.slice(0, -2) 
-          : version
+        const cfVersion =
+          version.endsWith('.0') && version.split('.').length === 3 ? version.slice(0, -2) : version
         url += `&gameVersion=${encodeURIComponent(cfVersion)}`
       }
-      
+
       if (type && (classId === 6 || classId === 4471 || classId === 5)) {
         if (type === 'Forge') url += '&modLoaderType=1'
         else if (type === 'Fabric') url += '&modLoaderType=4'
@@ -38,12 +40,12 @@ export class CurseForgeApiClient {
 
       const res = await axios.get(url, { headers: { 'x-api-key': apiKey } })
       let results = res.data.data
-      
+
       if (search) {
         const searchLower = search.toLowerCase()
         results = results.filter((mod: any) => mod.name.toLowerCase().includes(searchLower))
       }
-      
+
       return results
     } catch (e: any) {
       console.error('Error searching Curseforge mods:', e.message)
@@ -53,8 +55,7 @@ export class CurseForgeApiClient {
 
   static async getCurseforgeMod(modId: number) {
     try {
-      require('dotenv').config();
-      const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY;
+      const apiKey = this.getApiKey()
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}`, {
         headers: { 'x-api-key': apiKey }
       })
@@ -67,8 +68,7 @@ export class CurseForgeApiClient {
 
   static async getCurseforgeFile(modId: number, fileId: number) {
     try {
-      require('dotenv').config();
-      const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY;
+      const apiKey = this.getApiKey()
       const res = await axios.get(`https://api.curseforge.com/v1/mods/${modId}/files/${fileId}`, {
         headers: { 'x-api-key': apiKey }
       })
