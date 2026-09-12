@@ -119,11 +119,13 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
         }
         await finalizePendingServer(newId)
       } else if (HUB_REGISTRY[activeGameHub as string]?.steamAppId) {
-        const appId = HUB_REGISTRY[activeGameHub as string].steamAppId
+        const hubConfig = HUB_REGISTRY[activeGameHub as string]
+        const appId = hubConfig.steamAppId
+        const supportsAnonymousDownload = hubConfig.steamAnonymous === true
         // @ts-ignore
         const isCached = await window.api.steam.checkCache(appId)
 
-        if (!isCached && !credentials) {
+        if (!isCached && !credentials && !supportsAnonymousDownload) {
           setIsCreatingServer(false)
           openSteamLoginModal('create', handleCreateServer)
           return
@@ -148,9 +150,9 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
             success = await window.api.steam.installApp(
               newId,
               appId,
-              credentials.steamUsername,
-              credentials.steamPassword,
-              credentials.steamGuardCode
+              credentials?.steamUsername,
+              credentials?.steamPassword,
+              credentials?.steamGuardCode
             )
           }
 

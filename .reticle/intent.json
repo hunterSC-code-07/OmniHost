@@ -195,6 +195,72 @@
         "grade": "presence",
         "at": 1789120061600
       }
+    },
+    "inline:returning-to-the-dashboard-should-expose-the-gam-2f286eec": {
+      "id": "inline:returning-to-the-dashboard-should-expose-the-gam-2f286eec",
+      "statement": "Returning to the dashboard should expose the game hubs needed to manage Enshrouded base files.",
+      "state": "proved",
+      "declaredAt": 1789120914474,
+      "binding": {
+        "kind": "text",
+        "contains": "Command Center"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/layout/TopNavbar.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789120916630",
+        "grade": "presence",
+        "at": 1789120916630
+      }
+    },
+    "inline:selecting-enshrouded-should-expose-its-base-inst-3108258b": {
+      "id": "inline:selecting-enshrouded-should-expose-its-base-inst-3108258b",
+      "statement": "Selecting Enshrouded should expose its base installation cache controls without requiring a Steam credential prompt.",
+      "state": "proved",
+      "declaredAt": 1789120943239,
+      "binding": {
+        "kind": "text",
+        "contains": "Enshrouded Hub"
+      },
+      "surface": {
+        "files": [
+          "src/renderer/src/components/hubs/DashboardHub/DashboardHub.tsx"
+        ]
+      },
+      "provenBy": {
+        "verdictId": "reticle_act_and_wait:1789120945624",
+        "grade": "presence",
+        "at": 1789120945624
+      }
+    },
+    "inline:enshrouded-base-server-files-can-be-initiated-fr-d4204ec7": {
+      "id": "inline:enshrouded-base-server-files-can-be-initiated-fr-d4204ec7",
+      "statement": "Enshrouded base server files can be initiated from the game hub without requiring Steam credentials.",
+      "state": "bound",
+      "declaredAt": 1789121051720,
+      "binding": {
+        "kind": "allOf",
+        "predicates": [
+          {
+            "kind": "text",
+            "contains": "Enshrouded Hub"
+          },
+          {
+            "kind": "text",
+            "contains": "Download Base"
+          },
+          {
+            "kind": "not",
+            "predicate": {
+              "kind": "text",
+              "contains": "Steam Login"
+            }
+          }
+        ]
+      }
     }
   }
 }

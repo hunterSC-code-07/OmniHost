@@ -4,6 +4,7 @@ import { ENSHROUDED_BACKGROUND_URL } from './EnshroudedHub.constants'
 export const config = {
   gameName: 'Enshrouded',
   steamAppId: 2278520,
+  steamAnonymous: true,
   component: React.lazy(() =>
     import('./EnshroudedHub').then((m) => ({ default: m.EnshroudedHub }))
   ),
