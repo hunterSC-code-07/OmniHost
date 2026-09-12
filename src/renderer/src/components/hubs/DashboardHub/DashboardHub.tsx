@@ -49,6 +49,7 @@ import { useToastStore } from '../../../store/useToastStore'
 import { useModalStore } from '../../../store/useModalStore'
 import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore'
 import { HUB_REGISTRY } from '../../layout/HubRegistry'
+import { getDisplayErrorMessage } from '../../../utils/errors'
 
 export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { servers, setActiveServerId, startServer, stopServer, restartServer } = useServerStore()
@@ -82,7 +83,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
       setGameCacheStatus(activeGameHub, true)
       showToast(`${activeGameHub} Base Files Updated Successfully!`)
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error)
+      const message = getDisplayErrorMessage(error)
       showToast(`Failed to update ${activeGameHub} base files: ${message}`, 'error')
     } finally {
       setUpdatingSteamCacheGame(null)

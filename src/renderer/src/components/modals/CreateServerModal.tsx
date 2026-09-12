@@ -6,6 +6,7 @@ import { useServerStore } from '../../store/useServerStore'
 import { useUiStore } from '../../store/useUiStore'
 import { useToastStore } from '../../store/useToastStore'
 import { useModalStore } from '../../store/useModalStore'
+import { getDisplayErrorMessage } from '../../utils/errors'
 import { HUB_REGISTRY } from '../layout/HubRegistry'
 
 export function CreateServerModal({ onClose }: { onClose: () => void }) {
@@ -184,7 +185,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
             openSteamLoginModal('create', handleCreateServer)
           } else {
             await cancelPendingServer()
-            showToast('Failed to download server files: ' + err.message, 'error')
+            showToast(`Failed to download server files: ${getDisplayErrorMessage(err)}`, 'error')
           }
           return
         } finally {
@@ -227,7 +228,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
       await cancelPendingServer().catch((cleanupError) => {
         console.error('Failed to roll back server creation', cleanupError)
       })
-      showToast('Failed to create server: ' + e.message, 'error')
+      showToast(`Failed to create server: ${getDisplayErrorMessage(e)}`, 'error')
     } finally {
       setIsCreatingServer(false)
     }

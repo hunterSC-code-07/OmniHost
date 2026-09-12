@@ -216,6 +216,9 @@ const api = {
     getWorkshopItemDetails: (modIds: string[]) =>
       ipcRenderer.invoke('get-workshop-item-details', modIds),
     selectWorkshopFolder: () => ipcRenderer.invoke('select-workshop-folder'),
+    getCacheStorage: () => ipcRenderer.invoke('get-steam-cache-storage'),
+    selectCacheStorage: () => ipcRenderer.invoke('select-steam-cache-storage'),
+    resetCacheStorage: () => ipcRenderer.invoke('reset-steam-cache-storage'),
     installApp: (
       id: number,
       appId: number,

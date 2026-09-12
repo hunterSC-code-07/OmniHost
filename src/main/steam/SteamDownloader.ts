@@ -1,6 +1,7 @@
 import { spawn } from 'child_process'
 import type { ChildProcess } from 'child_process'
 import fs from 'fs'
+import { join } from 'path'
 
 import { SteamAuth } from './SteamAuth'
 import { SteamCache } from './SteamCache'
@@ -10,14 +11,16 @@ export const ENSHROUDED_DEDICATED_SERVER_APP_ID = 2278520
 
 const SUCCESS_EXIT_CODES = new Set([0, 7])
 const MAX_CODE_EIGHT_RETRIES = 1
-const OUTPUT_TAIL_LIMIT = 4000
+const OUTPUT_TAIL_LIMIT = 16_000
+const LOG_READ_LIMIT = 64 * 1024
 
 type SteamUpdateResult = true | 'RETRY_FULL_LOGIN'
 
 class SteamCmdExitError extends Error {
   constructor(
     readonly exitCode: number | null,
-    message: string
+    message: string,
+    readonly retryable = true
   ) {
     super(message)
     this.name = 'SteamCmdExitError'
@@ -36,14 +39,157 @@ function appendOutputTail(current: string, next: string): string {
   return `${current}\n${next}`.trim().slice(-OUTPUT_TAIL_LIMIT)
 }
 
-function buildSteamCmdError(appId: number, exitCode: number | null, outputTail: string): Error {
+function parseByteSize(value: string): number | null {
+  const match = value.trim().match(/^([0-9]+(?:\.[0-9]+)?)\s*([kmgt]?i?b)$/i)
+  if (!match) return null
+
+  const amount = Number.parseFloat(match[1])
+  const unit = match[2].toLowerCase().replace('ib', 'b')
+  const exponent = ['b', 'kb', 'mb', 'gb', 'tb'].indexOf(unit)
+  if (!Number.isFinite(amount) || exponent < 0) return null
+  return Math.ceil(amount * 1024 ** exponent)
+}
+
+function formatBytes(bytes: number): string {
+  if (!Number.isFinite(bytes) || bytes < 0) return 'an unknown amount of space'
+  const units = ['B', 'KB', 'MB', 'GB', 'TB']
+  let value = bytes
+  let unitIndex = 0
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024
+    unitIndex += 1
+  }
+  return `${value.toFixed(unitIndex === 0 ? 0 : 2)} ${units[unitIndex]}`
+}
+
+export function parseSteamDiskSpaceFailure(output: string): {
+  requiredLabel?: string
+  requiredBytes?: number
+} | null {
+  if (!/not enough disk space|failed to preallocate/i.test(output)) return null
+
+  const sizeMatch = output.match(
+    /(?:not enough disk space|failed to preallocate)[^\r\n]*?["']([0-9.]+\s*[kmgt]?i?b)["']/i
+  )
+  const requiredLabel = sizeMatch?.[1]?.trim()
+  const requiredBytes = requiredLabel ? parseByteSize(requiredLabel) : null
+  return {
+    ...(requiredLabel ? { requiredLabel } : {}),
+    ...(requiredBytes !== null ? { requiredBytes } : {})
+  }
+}
+
+export function parseIncompleteManifestRequirement(manifest: string): number | null {
+  const readNumber = (key: string): number | null => {
+    const match = manifest.match(new RegExp(`"${key}"\\s+"(\\d+)"`, 'i'))
+    if (!match) return null
+    const value = Number.parseInt(match[1], 10)
+    return Number.isSafeInteger(value) ? value : null
+  }
+
+  const sizeOnDisk = readNumber('SizeOnDisk')
+  const bytesToStage = readNumber('BytesToStage')
+  const bytesStaged = readNumber('BytesStaged') ?? 0
+  if (sizeOnDisk !== 0 || bytesToStage === null) return null
+  return Math.max(0, bytesToStage - bytesStaged)
+}
+
+function getAvailableBytes(directory: string): number | null {
+  try {
+    const stats = fs.statfsSync(directory, { bigint: true })
+    return Number(stats.bavail * stats.bsize)
+  } catch {
+    return null
+  }
+}
+
+function buildDiskSpaceError(
+  appId: number,
+  cacheDir: string,
+  exitCode: number | null,
+  requirement: { requiredLabel?: string; requiredBytes?: number }
+): SteamCmdExitError {
+  const availableBytes = getAvailableBytes(cacheDir)
+  const required =
+    requirement.requiredLabel ??
+    (requirement.requiredBytes !== undefined
+      ? formatBytes(requirement.requiredBytes)
+      : 'more space')
+  const available =
+    availableBytes === null ? '' : `, but only ${formatBytes(availableBytes)} is available`
+  const deficit =
+    availableBytes !== null && requirement.requiredBytes !== undefined
+      ? ` Free at least ${formatBytes(Math.max(0, requirement.requiredBytes - availableBytes))}`
+      : ' Free additional space'
+
+  return new SteamCmdExitError(
+    exitCode,
+    `Insufficient disk space for Steam App ${appId}. SteamCMD needs ${required} free in "${cacheDir}"${available}.${deficit}, or choose a different Steam cache folder in Settings > Storage.`,
+    false
+  )
+}
+
+function getLogSize(path: string): number {
+  try {
+    return fs.statSync(path).size
+  } catch {
+    return 0
+  }
+}
+
+function readLogSince(path: string, offset: number): string {
+  let descriptor: number | undefined
+  try {
+    const size = fs.statSync(path).size
+    const validOffset = size >= offset ? offset : 0
+    const start = Math.max(validOffset, size - LOG_READ_LIMIT)
+    const length = size - start
+    if (length <= 0) return ''
+
+    descriptor = fs.openSync(path, 'r')
+    const buffer = Buffer.alloc(length)
+    fs.readSync(descriptor, buffer, 0, length, start)
+    return buffer.toString('utf8')
+  } catch {
+    return ''
+  } finally {
+    if (descriptor !== undefined) fs.closeSync(descriptor)
+  }
+}
+
+function readIncompleteCacheRequirement(cacheDir: string, appId: number): number | null {
+  try {
+    const manifest = fs.readFileSync(
+      join(cacheDir, 'steamapps', `appmanifest_${appId}.acf`),
+      'utf8'
+    )
+    return parseIncompleteManifestRequirement(manifest)
+  } catch {
+    return null
+  }
+}
+
+function buildSteamCmdError(
+  appId: number,
+  cacheDir: string,
+  exitCode: number | null,
+  outputTail: string
+): SteamCmdExitError {
   const lowerOutput = outputTail.toLowerCase()
   let reason = ''
+  let retryable = true
+
+  const diskSpaceFailure = parseSteamDiskSpaceFailure(outputTail)
+  if (diskSpaceFailure) {
+    return buildDiskSpaceError(appId, cacheDir, exitCode, diskSpaceFailure)
+  }
 
   if (lowerOutput.includes('no subscription')) {
     reason = 'Steam did not grant access to the dedicated-server app.'
+    retryable = false
   } else if (lowerOutput.includes('disk write failure')) {
     reason = 'SteamCMD could not write the downloaded files. Check free space and folder access.'
+    retryable = false
   } else if (
     lowerOutput.includes('timeout') ||
     lowerOutput.includes('failed to connect') ||
@@ -62,7 +208,8 @@ function buildSteamCmdError(appId: number, exitCode: number | null, outputTail: 
   const detail = reason ? ` ${reason}` : ''
   return new SteamCmdExitError(
     exitCode,
-    `SteamCMD failed to download App ${appId} (exit code ${exitCode ?? 'unknown'}).${detail}`
+    `SteamCMD failed to download App ${appId} (exit code ${exitCode ?? 'unknown'}).${detail}`,
+    retryable
   )
 }
 
@@ -115,6 +262,7 @@ export class SteamDownloader {
         if (
           error instanceof SteamCmdExitError &&
           error.exitCode === 8 &&
+          error.retryable &&
           codeEightRetries < MAX_CODE_EIGHT_RETRIES
         ) {
           codeEightRetries += 1
@@ -125,6 +273,7 @@ export class SteamDownloader {
           )
           continue
         }
+        if (error instanceof Error) SteamCMDSetup.sendLog(serverId, 0, error.message)
         throw error
       }
     }
@@ -146,6 +295,24 @@ export class SteamDownloader {
       const cacheDir = SteamCache.getCacheDir(appId)
 
       if (!fs.existsSync(cacheDir)) fs.mkdirSync(cacheDir, { recursive: true })
+
+      const incompleteRequirement = readIncompleteCacheRequirement(cacheDir, appId)
+      const availableBytes = getAvailableBytes(cacheDir)
+      if (
+        incompleteRequirement !== null &&
+        availableBytes !== null &&
+        availableBytes < incompleteRequirement
+      ) {
+        reject(
+          buildDiskSpaceError(appId, cacheDir, null, {
+            requiredBytes: incompleteRequirement
+          })
+        )
+        return
+      }
+
+      const contentLogPath = join(SteamCMDSetup.getSteamCMDDir(), 'logs', 'content_log.txt')
+      const contentLogOffset = getLogSize(contentLogPath)
 
       const args = [
         '+force_install_dir',
@@ -222,7 +389,11 @@ export class SteamDownloader {
         } else if (invalidCredentials) {
           reject(new Error('INVALID_CREDENTIALS'))
         } else {
-          reject(buildSteamCmdError(appId, code, outputTail))
+          const diagnosticOutput = appendOutputTail(
+            outputTail,
+            readLogSince(contentLogPath, contentLogOffset)
+          )
+          reject(buildSteamCmdError(appId, cacheDir, code, diagnosticOutput))
         }
       })
 
