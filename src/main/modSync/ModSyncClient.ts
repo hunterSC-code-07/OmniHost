@@ -9,9 +9,7 @@ import crypto from 'crypto'
 
 export class ModSyncClient {
   public registerIpc(): void {
-    ipcMain.handle = handleTrusted
-
-    ipcMain.handle(
+    handleTrusted(
       'start-mod-sync',
       async (
         _event,

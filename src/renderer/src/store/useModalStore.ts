@@ -20,6 +20,11 @@ interface ModalStore {
   openSteamLoginModal: (action: 'create' | 'cache', callback?: (credentials: any) => void) => void;
   closeSteamLoginModal: () => void;
 
+  // Mod Sync Modals
+  modSyncModalConfig: { isOpen: boolean; url: string | null };
+  openModSyncModal: (url: string) => void;
+  closeModSyncModal: () => void;
+
   // DayZ Hub Modals
   dayzInfoModal: { isOpen: boolean; message: string };
   openDayzInfoModal: (message: string) => void;
@@ -72,6 +77,11 @@ export const useModalStore = create<ModalStore>((set) => ({
   closeSteamLoginModal: () => set((state) => ({
     steamLoginModalConfig: { ...state.steamLoginModalConfig, isOpen: false, callback: undefined }
   })),
+
+  // Mod Sync Modals
+  modSyncModalConfig: { isOpen: false, url: null },
+  openModSyncModal: (url) => set({ modSyncModalConfig: { isOpen: true, url } }),
+  closeModSyncModal: () => set({ modSyncModalConfig: { isOpen: false, url: null } }),
 
   // DayZ Hub Modals
   dayzInfoModal: { isOpen: false, message: '' },

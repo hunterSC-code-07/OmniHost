@@ -54,9 +54,15 @@ export const SevenDaysToDieHub: React.FC = () => {
       await window.api.system.stopTunnel();
     }
   };
-  
+
   if (!activeServer) return null;
 
+  const handleCopyJoinLink = () => {
+    const link = `omnihost://join/${tunnelIp || '127.0.0.1'}/26905/7dtd/${activeServer.id}`;
+    navigator.clipboard.writeText(link);
+    alert('Mod Sync Join Link copied to clipboard!\n\n' + link);
+  };
+  
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black sevendays-ui">
       
@@ -80,6 +86,12 @@ export const SevenDaysToDieHub: React.FC = () => {
                 <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
               </button>
             </div>
+            
+            <button onClick={handleCopyJoinLink} className="sevendays-btn !bg-blue-600 hover:!bg-blue-500 !border-blue-500" title="Copy Mod Sync Join Link">
+              <span className="material-symbols-outlined text-[18px] mr-1">link</span>
+              JOIN LINK
+            </button>
+
             <button onClick={() => deleteServer(activeServer.id)} className="sevendays-btn sevendays-btn-danger">
               DELETE
             </button>

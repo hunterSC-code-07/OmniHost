@@ -42,6 +42,13 @@ export function useIpcListeners() {
       useUiStore.getState().setTunnelStatus(status);
     }, 2000);
 
+    // @ts-ignore
+    window.api.server.onDeepLink((url: string) => {
+      import('../store/useModalStore').then(({ useModalStore }) => {
+        useModalStore.getState().openModSyncModal(url);
+      });
+    });
+
     return () => {
       clearInterval(tunnelInterval);
       clearInterval(serverInterval);

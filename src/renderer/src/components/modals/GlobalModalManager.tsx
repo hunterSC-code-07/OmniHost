@@ -4,6 +4,7 @@ import { CreateServerModal } from './CreateServerModal';
 import { DeleteConfirmationModal } from './DeleteConfirmationModal';
 import { SteamLoginModal } from './SteamLoginModal';
 import { DayzModals } from './DayzModals';
+import { ModSyncModal } from './ModSyncModal';
 
 export const GlobalModalManager: React.FC = () => {
   const { 
@@ -35,6 +36,8 @@ export const GlobalModalManager: React.FC = () => {
           onClose={closeSteamLoginModal}
         />
       )}
+
+      <ModSyncModal />
       
       <DayzModals />
     </>
