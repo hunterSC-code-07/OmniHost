@@ -77,6 +77,10 @@ const api = {
     onDownloadProgress: (id: number, callback: (progress: number, text?: string) => void) => {
       ipcRenderer.removeAllListeners(`download-progress-${id}`)
       ipcRenderer.on(`download-progress-${id}`, (_, progress, text) => callback(progress, text))
+    },
+    onDeepLink: (callback: (url: string) => void) => {
+      ipcRenderer.removeAllListeners('handle-deep-link')
+      ipcRenderer.on('handle-deep-link', (_, url) => callback(url))
     }
   },
 
