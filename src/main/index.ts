@@ -4,6 +4,7 @@ import { setupWindowLifecycle } from './setup/window'
 import { registerAllIpcs } from './setup/ipc'
 import { registerSevenDaysToDieModDownloader } from './7dtd/SevenDaysToDieModDownloader'
 import { modSyncServer } from './modSync/ModSyncServer'
+import { modSyncClient } from './modSync/ModSyncClient'
 import { closeDatabase } from './db'
 import path from 'path'
 
@@ -54,6 +55,7 @@ if (!gotTheLock) {
     registerAllIpcs()
     registerSevenDaysToDieModDownloader()
     modSyncServer.start()
+    modSyncClient.registerIpc()
 
     // Setup window creation and lifecycle events
     setupWindowLifecycle()

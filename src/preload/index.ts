@@ -81,6 +81,10 @@ const api = {
     onDeepLink: (callback: (url: string) => void) => {
       ipcRenderer.removeAllListeners('handle-deep-link')
       ipcRenderer.on('handle-deep-link', (_, url) => callback(url))
+    },
+    onModSyncProgress: (callback: (progress: number, text: string) => void) => {
+      ipcRenderer.removeAllListeners('mod-sync-progress')
+      ipcRenderer.on('mod-sync-progress', (_, progress, text) => callback(progress, text))
     }
   },
 
@@ -97,7 +101,15 @@ const api = {
     radminCheck: () => ipcRenderer.invoke('radmin-check'),
     radminInstall: () => ipcRenderer.invoke('radmin-install'),
     radminOpen: () => ipcRenderer.invoke('radmin-open'),
-    radminGetIp: () => ipcRenderer.invoke('radmin-get-ip')
+    radminGetIp: () => ipcRenderer.invoke('radmin-get-ip'),
+    startModSync: (
+      hostIp: string,
+      port: number,
+      gameId: string,
+      serverId: number,
+      appId: number,
+      gameFolderName: string
+    ) => ipcRenderer.invoke('start-mod-sync', hostIp, port, gameId, serverId, appId, gameFolderName)
   },
 
   fs: {
