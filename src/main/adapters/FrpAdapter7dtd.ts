@@ -30,6 +30,13 @@ type = "udp"
 localIP = "${localIp}"
 localPort = 26902
 remotePort = 26902
+
+[[proxies]]
+name = "7dtd-mod-sync-tcp"
+type = "tcp"
+localIP = "${localIp}"
+localPort = 26905
+remotePort = 26905
 `;
   }
 }

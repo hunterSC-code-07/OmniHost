@@ -3,6 +3,7 @@ import { setupAppPreload, setupAppPostload } from './setup/app'
 import { setupWindowLifecycle } from './setup/window'
 import { registerAllIpcs } from './setup/ipc'
 import { registerSevenDaysToDieModDownloader } from './7dtd/SevenDaysToDieModDownloader'
+import { modSyncServer } from './modSync/ModSyncServer'
 import { closeDatabase } from './db'
 import path from 'path'
 
@@ -52,6 +53,7 @@ if (!gotTheLock) {
     // Register all IPCs and systems
     registerAllIpcs()
     registerSevenDaysToDieModDownloader()
+    modSyncServer.start()
 
     // Setup window creation and lifecycle events
     setupWindowLifecycle()
@@ -77,6 +79,7 @@ if (!gotTheLock) {
   })
 
   app.on('will-quit', () => {
+    modSyncServer.stop()
     closeDatabase()
   })
 }
