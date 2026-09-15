@@ -9,6 +9,7 @@ import { AdapterRegistry, IServerAdapter } from '../adapters/AdapterRegistry'
 import { WakeProxy } from '../adapters/WakeProxy'
 import { assertTrustedIpcSender } from '../security/ipcSecurity'
 import { resolveServerPort } from '../serverPorts'
+import { SteamDownloader } from '../steam/SteamDownloader'
 
 type LifecycleState = 'Offline' | 'Starting' | 'Online' | 'Stopping' | 'Failed'
 
@@ -272,14 +273,18 @@ export class ServerLifecycleController {
       return id
     })
 
-    ipcMain.handle('finalize-server-creation', async (event, rawId) => {
+    ipcMain.handle('finalize-server-creation', async (event, rawId, skipAssertion) => {
       assertTrustedIpcSender(event)
       const id = requireServerId(rawId)
       return runExclusive(id, async () => {
         readServerGame(id)
         const metadataPath = join(serverStorage.getPath(), String(id), 'omnihost.json')
         const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'))
-        await assertInstallationReady(id, metadata)
+        
+        if (!skipAssertion) {
+          await assertInstallationReady(id, metadata)
+        }
+        
         await fsPromises.writeFile(
           metadataPath,
           JSON.stringify({ ...metadata, creationState: 'ready' }, null, 2),
@@ -293,7 +298,6 @@ export class ServerLifecycleController {
       assertTrustedIpcSender(event)
       const id = requireServerId(rawId)
       return runExclusive(id, async () => {
-        const { SteamDownloader } = require('../steam/SteamDownloader')
         SteamDownloader.cancel()
         await removeServerData(id)
         return true

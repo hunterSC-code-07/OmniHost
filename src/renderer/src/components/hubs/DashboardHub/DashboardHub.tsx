@@ -95,14 +95,14 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const handleRestart = restartServer
   return (
     <div className="relative w-full h-full flex-1 min-h-0">
-      <AnimatePresence>
+      <AnimatePresence initial={false} mode="sync">
         {activeGameHub === null ? (
           <motion.div
             key="dashboard"
-            initial={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}
-            animate={{ opacity: 1, filter: 'blur(0px)', scale: 1 }}
-            exit={{ opacity: 0, filter: 'blur(10px)', scale: 0.98 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            initial={{ opacity: 0, filter: 'blur(6px)', scale: 0.994, y: 8 }}
+            animate={{ opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 }}
+            exit={{ opacity: 0, filter: 'blur(4px)', scale: 0.992, y: -8 }}
+            transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0 w-full h-full flex flex-col min-h-0"
           >
             <OverlayScrollbarsComponent
@@ -331,10 +331,10 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
         ) : (
           <motion.div
             key="game-hub"
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ duration: 0.4, ease: 'easeOut' }}
+            initial={{ opacity: 0, scale: 1.008, y: 14, filter: 'blur(5px)' }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 0.992, y: -10, filter: 'blur(4px)' }}
+            transition={{ duration: 0.48, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0 w-full h-full flex flex-col min-h-0"
           >
             <OverlayScrollbarsComponent
@@ -531,7 +531,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                 <div
                                   key={server.id}
                                   onClick={() => setActiveServerId(server.id)}
-                                  className="group relative rounded-xl overflow-hidden bg-black/10 backdrop-blur-md p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-all duration-300 ease-out hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
+                                  className="group relative rounded-xl overflow-hidden bg-black/10 backdrop-blur-md p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
                                 >
                                   <div className="flex justify-between items-start">
                                     <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
@@ -622,7 +622,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                   </div>
 
                                   <div className="mt-6 pt-4 border-t border-surface-container-high flex justify-end">
-                                    <button className="text-primary font-label-md text-label-md uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-all">
+                                    <button className="text-primary font-label-md text-label-md uppercase tracking-widest flex items-center gap-2 group-hover:gap-4 transition-[gap,color,transform] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]">
                                       Manage{' '}
                                       <span className="material-symbols-outlined text-sm">
                                         arrow_forward

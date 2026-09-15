@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
 import './enshrouded-ui.css'
+import '../../../assets/gamehub-ui.css'
 
 import { useServerStore } from '../../../store/useServerStore'
 import { useUiStore } from '../../../store/useUiStore'
@@ -64,7 +65,7 @@ export const EnshroudedHub: React.FC = () => {
 
   return (
     <div
-      className="enshrouded-ui enshrouded-scrollbars flex flex-1 flex-col overflow-hidden relative"
+      className="gamehub-theme enshrouded-ui enshrouded-scrollbars flex flex-1 flex-col overflow-hidden relative" data-game="enshrouded"
       data-testid="enshrouded-hub"
     >
       <div
@@ -72,8 +73,8 @@ export const EnshroudedHub: React.FC = () => {
         style={{ backgroundImage: `url('${ENSHROUDED_BACKGROUND_URL}')` }}
       />
 
-      <header className="enshrouded-header relative z-10 px-6 pt-5 pb-4 flex flex-col gap-5">
-        <div className="flex items-center justify-between gap-6">
+      <header className="enshrouded-header hub-frame-header relative z-10 px-6 pt-5 pb-4 flex flex-col gap-5">
+        <div className="hub-header-row flex items-center justify-between gap-6">
           <div className="flex items-center gap-4 min-w-0">
             <button
               type="button"
@@ -103,13 +104,13 @@ export const EnshroudedHub: React.FC = () => {
                   {activeServer.status}
                 </span>
               </div>
-              <h1 className="enshrouded-title truncate text-2xl lg:text-3xl">
+              <h1 className="hub-title enshrouded-title truncate text-2xl lg:text-3xl">
                 {activeServer.name}
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center justify-end gap-2 shrink-0">
+          <div className="hub-header-actions flex items-center justify-end gap-2 shrink-0">
             <div className="flex items-center gap-1 mr-1">
               <button
                 type="button"
@@ -191,7 +192,7 @@ export const EnshroudedHub: React.FC = () => {
       </header>
 
       <main className="relative z-10 flex-1 min-h-0 px-6 pt-5">
-        <div className="enshrouded-content relative h-full min-h-0 overflow-hidden">
+        <div className="hub-frame-content enshrouded-content relative h-full min-h-0 overflow-hidden">
           <AnimatePresence custom={tabDirection} mode="sync" initial={false}>
             <motion.div
               key={activeTab}

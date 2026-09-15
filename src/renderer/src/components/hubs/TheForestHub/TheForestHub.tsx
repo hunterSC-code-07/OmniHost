@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import '../../../assets/theforest-ui.css';
+import '../../../assets/gamehub-ui.css';
 import { motion, AnimatePresence } from 'motion/react';
 
 import { useServerStore } from '../../../store/useServerStore';
@@ -35,18 +36,18 @@ export const TheForestHub: React.FC = () => {
   if (!activeServer) return null;
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black theforest-ui">
+    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black theforest-ui" data-game="the-forest">
       
-      <div className="p-10 flex flex-col gap-6 z-10">
-        <div className="flex justify-between items-center relative z-20">
+      <div className="hub-frame-header p-10 flex flex-col gap-6 z-10">
+        <div className="hub-header-row flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
             <button onClick={() => setActiveServerId(null)} className="p-2 text-white hover:text-[var(--forest-yellow)] transition-colors flex items-center justify-center group" title="Back to Dashboard">
               <span className="material-symbols-outlined text-[24px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </button>
-            <h2 className="text-4xl font-bold text-white uppercase tracking-wider">{activeServer.name}</h2>
+            <h2 className="hub-title text-4xl font-bold text-white uppercase tracking-wider">{activeServer.name}</h2>
           </div>
 
-          <div className="flex gap-4 items-center">
+          <div className="hub-header-actions flex gap-4 items-center">
             <div className="flex bg-[var(--forest-gray)] items-center">
               <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-2 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'text-[var(--forest-green)]' : tunnelStatus === 'Starting...' ? 'text-[var(--forest-gray-light)] cursor-not-allowed' : 'text-white hover:text-[var(--forest-yellow)]'}`}>
                 <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
@@ -87,7 +88,7 @@ export const TheForestHub: React.FC = () => {
             </div>
         </div>
 
-      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-10 pb-10">
+      <div className="hub-frame-content flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-10 pb-10">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
           <AnimatePresence mode="wait" initial={false}>
             <motion.div

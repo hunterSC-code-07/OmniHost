@@ -26,14 +26,14 @@ export const HubRouter: React.FC = () => {
 
   return (
     <div className="flex flex-col w-full relative h-full">
-      <AnimatePresence>
+      <AnimatePresence initial={false} mode="sync">
         {/* DASHBOARD VIEW */}
         {activeServerId === null && (
           <motion.div 
             key="dashboard-hub" 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1, transition: { duration: 0.2 } }}
-            exit={{ opacity: 1, transition: { duration: 0.4 } }} 
+            initial={{ opacity: 0, scale: 1.012, y: 8, filter: 'blur(5px)' }}
+            animate={{ opacity: 1, scale: 1, y: 0, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, scale: 0.992, y: -8, filter: 'blur(4px)' }}
             className="absolute inset-0 w-full h-full flex flex-col min-h-0"
           >
             <DashboardHub getGameImageUrl={getGameImageUrl} isGameSupported={isGameSupported} />
@@ -44,10 +44,10 @@ export const HubRouter: React.FC = () => {
         {activeServer !== undefined && activeServerId !== null && (
           <motion.div 
             key="active-server"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 30 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+            initial={{ opacity: 0, y: 14, scale: 0.992, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+            exit={{ opacity: 0, y: -10, scale: 1.008, filter: 'blur(4px)' }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="absolute inset-0 w-full h-full flex flex-col overflow-hidden z-10 bg-[#050505]"
           >
             <ErrorBoundary>

@@ -3,6 +3,7 @@ import 'overlayscrollbars/overlayscrollbars.css';
 import { motion, AnimatePresence } from 'motion/react';
 import { SatisfactoryAnimatedBackground } from './SatisfactoryAnimatedBackground';
 import './satisfactory-ui.css';
+import '../../../assets/gamehub-ui.css';
 
 import { useServerStore } from '../../../store/useServerStore';
 import { useUiStore } from '../../../store/useUiStore';
@@ -43,7 +44,7 @@ export const SatisfactoryHub: React.FC = () => {
   const currentTabLabel = TABS.find(t => t.id === activeTab)?.label;
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden satisfactory-ui satisfactory-scrollbars">
+    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden satisfactory-ui satisfactory-scrollbars" data-game="satisfactory">
       <SatisfactoryAnimatedBackground />
 
       <div className="flex flex-col z-10 w-full h-full pointer-events-none">
@@ -52,7 +53,7 @@ export const SatisfactoryHub: React.FC = () => {
         <div className="bg-[rgba(20,20,20,0.85)] flex-1 flex flex-col relative pointer-events-auto backdrop-blur-md w-full">
           
           {/* Top Header Tabs */}
-          <div className="flex bg-[rgba(10,10,10,0.9)] border-b-2 border-black">
+          <div className="hub-frame-header flex bg-[rgba(10,10,10,0.9)] border-b-2 border-black">
             <div className="flex items-center px-4 py-2 text-gray-400 font-bold text-sm tracking-wide gap-2 border-r border-black">
               {activeServer.name.toUpperCase()}
             </div>

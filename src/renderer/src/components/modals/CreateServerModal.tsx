@@ -50,8 +50,8 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
     return id
   }
 
-  const finalizePendingServer = async (id: number) => {
-    await window.api.server.finalizeServerCreation(id)
+  const finalizePendingServer = async (id: number, skipAssertion?: boolean) => {
+    await window.api.server.finalizeServerCreation(id, skipAssertion)
     pendingServerId.current = null
   }
 
@@ -142,7 +142,10 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
 
         try {
           let success = false
-          if (isCached) {
+          if (credentials?.skipDownload) {
+            success = true
+            showToast('Skipped base files download.')
+          } else if (isCached) {
             showToast('Server files found in cache! Copying...')
             // @ts-ignore
             success = await window.api.steam.copyCache(newId, appId)
@@ -166,7 +169,7 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               await window.api.fs.writeFile(newId, 'serverconfig.txt', configData)
             }
 
-            await finalizePendingServer(newId)
+            await finalizePendingServer(newId, credentials?.skipDownload)
             // Refresh list
             // @ts-ignore
             const data = await window.api.server.getServers()

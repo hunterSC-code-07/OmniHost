@@ -38,8 +38,8 @@ export const TerrariaHubHeader: React.FC = () => {
     <>
       <div className="flex justify-between items-center relative z-20">
         <div className="flex items-center gap-4">
-          <button onClick={() => setActiveServerId(null)} className="terraria-btn px-3 py-2" title="Back to Dashboard">
-            <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+          <button onClick={() => setActiveServerId(null)} className="terraria-btn group px-3 py-2 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-x-0.5" title="Back to Dashboard">
+            <span className="material-symbols-outlined text-[20px] group-hover:-translate-x-1 transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]">arrow_back</span>
           </button>
           <h2 className="terraria-title">{activeServer.name}</h2>
         </div>

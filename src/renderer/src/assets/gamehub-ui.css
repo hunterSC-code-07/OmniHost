@@ -1,0 +1,297 @@
+/* Shared command-center language for the non-reference game hubs. */
+.gamehub-theme {
+  --hub-accent: #7dd3fc;
+  --hub-accent-strong: #38bdf8;
+  --hub-accent-soft: rgba(125, 211, 252, 0.12);
+  --hub-bg: #071016;
+  --hub-panel: rgba(8, 16, 22, 0.82);
+  --hub-panel-strong: rgba(4, 9, 13, 0.94);
+  --hub-border: rgba(148, 163, 184, 0.18);
+  --hub-text: #f8fafc;
+  --hub-muted: #94a3b8;
+  --hub-radius: 18px;
+  position: relative;
+  isolation: isolate;
+  color: var(--hub-text);
+  background: var(--hub-bg);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.gamehub-theme::before,
+.gamehub-theme::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.gamehub-theme::before {
+  z-index: -2;
+  background:
+    radial-gradient(circle at 82% 0%, var(--hub-accent-soft), transparent 33%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(45deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+  background-size: auto, 34px 34px, 34px 34px;
+  opacity: 0.95;
+}
+
+.gamehub-theme::after {
+  z-index: -1;
+  background: linear-gradient(180deg, rgba(3, 7, 10, 0.22), var(--hub-bg) 92%);
+}
+
+.gamehub-theme .hub-frame-header {
+  margin: 18px 22px 0;
+  padding: 20px 22px 16px;
+  border: 1px solid var(--hub-border);
+  border-bottom-color: color-mix(in srgb, var(--hub-accent) 28%, transparent);
+  border-radius: var(--hub-radius) var(--hub-radius) 0 0;
+  background: linear-gradient(135deg, rgba(12, 22, 29, 0.92), rgba(5, 10, 14, 0.76));
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(18px);
+}
+
+.hub-frame-header::after {
+  content: '';
+  display: block;
+  height: 1px;
+  margin-top: 18px;
+  background: linear-gradient(90deg, var(--hub-accent), transparent 72%);
+  opacity: 0.52;
+}
+
+.gamehub-theme .hub-frame-content {
+  margin: 0 22px 22px;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--hub-border);
+  border-top: 0;
+  border-radius: 0 0 var(--hub-radius) var(--hub-radius);
+  background: linear-gradient(180deg, rgba(8, 16, 22, 0.78), var(--hub-panel-strong));
+  box-shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
+  backdrop-filter: blur(20px);
+}
+
+.gamehub-theme .hub-kicker {
+  color: var(--hub-accent);
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.gamehub-theme .hub-title {
+  margin: 4px 0 0;
+  color: #fff;
+  font-size: clamp(1.4rem, 2.7vw, 2.25rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  text-shadow: 0 8px 30px color-mix(in srgb, var(--hub-accent) 18%, transparent);
+}
+
+.gamehub-theme .hub-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--hub-border);
+  border-radius: 999px;
+  color: var(--hub-muted);
+  background: rgba(255, 255, 255, 0.035);
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.gamehub-theme .hub-status.is-online {
+  border-color: color-mix(in srgb, var(--hub-accent) 42%, transparent);
+  color: var(--hub-accent);
+  background: var(--hub-accent-soft);
+}
+
+.gamehub-theme .hub-status::before {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 12px currentColor;
+  content: '';
+}
+
+.gamehub-theme .hub-action,
+.gamehub-theme .hub-back,
+.gamehub-theme .hub-tab,
+.gamehub-theme button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gamehub-theme .hub-action,
+.gamehub-theme .hub-back {
+  display: inline-flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid var(--hub-border);
+  border-radius: 10px;
+  color: rgba(248, 250, 252, 0.76);
+  background: rgba(255, 255, 255, 0.045);
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: 160ms ease;
+}
+
+.gamehub-theme .hub-action { padding: 0 15px; }
+.gamehub-theme .hub-back { width: 40px; padding: 0; }
+
+.gamehub-theme .hub-action:hover:not(:disabled),
+.gamehub-theme .hub-back:hover:not(:disabled),
+.gamehub-theme button:hover:not(:disabled) {
+  border-color: color-mix(in srgb, var(--hub-accent) 58%, transparent);
+  color: #fff;
+  background: var(--hub-accent-soft);
+  box-shadow: 0 8px 24px color-mix(in srgb, var(--hub-accent) 12%, transparent);
+  transform: translateY(-1px);
+}
+
+.gamehub-theme .hub-action:active:not(:disabled),
+.gamehub-theme .hub-back:active:not(:disabled),
+.gamehub-theme button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.98);
+  box-shadow: none;
+}
+
+.gamehub-theme button:focus-visible,
+.gamehub-theme input:focus-visible,
+.gamehub-theme select:focus-visible,
+.gamehub-theme textarea:focus-visible {
+  outline: 2px solid var(--hub-accent);
+  outline-offset: 3px;
+}
+
+.gamehub-theme button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.gamehub-theme .hub-action-primary {
+  border-color: color-mix(in srgb, var(--hub-accent) 62%, transparent);
+  color: #061017;
+  background: linear-gradient(135deg, var(--hub-accent), var(--hub-accent-strong));
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--hub-accent) 22%, transparent);
+}
+
+.gamehub-theme .hub-action-danger {
+  color: #fda4af;
+  border-color: rgba(251, 113, 133, 0.3);
+  background: rgba(159, 18, 57, 0.15);
+}
+
+.gamehub-theme .hub-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 18px 2px 1px;
+  scrollbar-width: none;
+}
+
+.gamehub-theme .hub-nav::-webkit-scrollbar { display: none; }
+
+.gamehub-theme .hub-tab {
+  display: inline-flex;
+  min-height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: var(--hub-muted);
+  background: transparent;
+  font-family: 'JetBrains Mono', 'Cascadia Code', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  transition: 160ms ease;
+}
+
+.gamehub-theme .hub-tab:hover:not(:disabled) { color: var(--hub-text); }
+
+.gamehub-theme .hub-tab.is-active {
+  border-color: color-mix(in srgb, var(--hub-accent) 42%, transparent);
+  color: var(--hub-accent);
+  background: var(--hub-accent-soft);
+  box-shadow: inset 0 -2px 0 var(--hub-accent);
+}
+
+.gamehub-theme .hub-panel,
+.gamehub-theme [class*='panel'] {
+  border-color: var(--hub-border);
+}
+
+.gamehub-theme input:not([type='range']),
+.gamehub-theme select,
+.gamehub-theme textarea {
+  border-color: var(--hub-border);
+  background: rgba(0, 0, 0, 0.24);
+  transition: 160ms ease;
+}
+
+.gamehub-theme input:not([type='range']):focus,
+.gamehub-theme select:focus,
+.gamehub-theme textarea:focus {
+  border-color: color-mix(in srgb, var(--hub-accent) 68%, transparent);
+  box-shadow: 0 0 0 3px var(--hub-accent-soft);
+}
+
+/* Game-specific identity: distinct palettes and material cues. */
+.gamehub-theme[data-game='enshrouded'] { --hub-accent: #f3c878; --hub-accent-strong: #c58a37; --hub-accent-soft: rgba(243, 200, 120, 0.13); --hub-bg: #0b1114; }
+.gamehub-theme[data-game='palworld'] { --hub-accent: #60d8ff; --hub-accent-strong: #2a8cff; --hub-accent-soft: rgba(96, 216, 255, 0.13); --hub-bg: #08111d; --hub-radius: 22px; }
+.gamehub-theme[data-game='satisfactory'] { --hub-accent: #f5a24c; --hub-accent-strong: #da5c25; --hub-accent-soft: rgba(245, 162, 76, 0.13); --hub-bg: #15120e; --hub-radius: 6px; }
+.gamehub-theme[data-game='7-days'] { --hub-accent: #f87171; --hub-accent-strong: #b91c1c; --hub-accent-soft: rgba(248, 113, 113, 0.13); --hub-bg: #141314; --hub-radius: 3px; }
+.gamehub-theme[data-game='sons-of-the-forest'] { --hub-accent: #9af5bd; --hub-accent-strong: #25a66a; --hub-accent-soft: rgba(154, 245, 189, 0.11); --hub-bg: #07100e; --hub-radius: 4px; }
+.gamehub-theme[data-game='terraria'] { --hub-accent: #ffe36d; --hub-accent-strong: #4db7ff; --hub-accent-soft: rgba(255, 227, 109, 0.13); --hub-bg: #081426; --hub-radius: 12px; }
+.gamehub-theme[data-game='the-forest'] { --hub-accent: #f2c14e; --hub-accent-strong: #bb741c; --hub-accent-soft: rgba(242, 193, 78, 0.12); --hub-bg: #100f0b; --hub-radius: 2px; }
+
+.gamehub-theme[data-game='satisfactory'] .hub-frame-header { background-image: linear-gradient(135deg, rgba(36, 23, 13, 0.94), rgba(11, 11, 10, 0.82)); }
+.gamehub-theme[data-game='7-days'] .hub-frame-header,
+.gamehub-theme[data-game='the-forest'] .hub-frame-header { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.025) 0 2px, transparent 2px 10px), linear-gradient(135deg, rgba(29,27,24,.96), rgba(10,10,9,.9)); }
+.gamehub-theme[data-game='sons-of-the-forest']::before { background-image: radial-gradient(circle at 18% 4%, rgba(154,245,189,.16), transparent 26%), linear-gradient(115deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: auto, 52px 18px; }
+
+@media (max-width: 900px) {
+  .gamehub-theme .hub-frame-header { margin: 10px 10px 0; padding: 16px; }
+  .gamehub-theme .hub-frame-content { margin: 0 10px 10px; }
+  .gamehub-theme .hub-header-row { flex-wrap: wrap; gap: 14px; }
+  .gamehub-theme .hub-header-actions { width: 100%; justify-content: flex-start; overflow-x: auto; padding-bottom: 2px; }
+}
+
+@media (max-width: 560px) {
+  .gamehub-theme .hub-frame-header { border-radius: 12px 12px 0 0; }
+  .gamehub-theme .hub-frame-content { border-radius: 0 0 12px 12px; }
+  .gamehub-theme .hub-title { font-size: 1.45rem; }
+  .gamehub-theme .hub-action { min-height: 38px; padding: 0 11px; }
+  .gamehub-theme .hub-action-label { display: none; }
+  .gamehub-theme .hub-nav { margin-right: -4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gamehub-theme *, .gamehub-theme *::before, .gamehub-theme *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* Asset-led atmospheres keep every hub immediately recognizable at a glance. */
+.gamehub-theme[data-game='palworld']::after { background: linear-gradient(180deg, rgba(4, 12, 24, .35), #08111d 88%), url('./palworld-bg.jpg') center/cover; opacity: .62; }
+.gamehub-theme[data-game='7-days']::after { background: linear-gradient(180deg, rgba(11, 9, 10, .38), #141314 88%), url('./7dtd-bg.jpg') center/cover; opacity: .58; }
+.gamehub-theme[data-game='terraria']::after { background: linear-gradient(180deg, rgba(4, 16, 38, .28), #081426 88%), url('./terraria/terraria-bg.jpg') center/cover; opacity: .52; }
+.gamehub-theme[data-game='the-forest']::after { background: linear-gradient(180deg, rgba(12, 12, 8, .34), #100f0b 88%), url('./theforest-bg.jpg') center/cover; opacity: .55; }
+.gamehub-theme[data-game='satisfactory']::after { background: linear-gradient(180deg, rgba(21, 13, 5, .24), #15120e 88%), url('./satisfactory-bg.jpg') center/cover; opacity: .5; }
+
+.gamehub-theme .hub-frame-content > div,
+.gamehub-theme .hub-frame-content [class*='overflow-y-auto'] { scrollbar-color: var(--hub-accent) transparent; }

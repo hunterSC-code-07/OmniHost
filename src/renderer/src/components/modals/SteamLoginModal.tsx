@@ -139,6 +139,20 @@ export function SteamLoginModal({ action, handleCreateServer, onClose }: any) {
               </div>
 
               <div className="flex justify-end gap-3 mt-8">
+                {action === 'create' && (
+                  <button
+                    onClick={() => {
+                      if (handleCreateServer) {
+                        handleCreateServer({ skipDownload: true });
+                      }
+                      onClose();
+                    }}
+                    className="mr-auto px-4 py-2 text-gray-400 hover:text-white transition-colors"
+                    disabled={isUpdating}
+                  >
+                    Proceed without base files
+                  </button>
+                )}
                 <button 
                   onClick={() => onClose()}
                   className="px-4 py-2 text-gray-400 hover:text-white transition-colors"

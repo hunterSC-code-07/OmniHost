@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
 import '../../../assets/palworld-ui.css'
+import '../../../assets/gamehub-ui.css'
 
 import { ConsoleTab } from '../../tabs/ConsoleTab'
 import { PalworldOptionsTab } from './PalworldOptionsTab'
@@ -87,11 +88,11 @@ export const PalworldHub: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden palworld-ui">
+    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden palworld-ui" data-game="palworld">
       <PalworldAnimatedBackground />
 
-      <div className="pal-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
-        <div className="flex justify-between items-center relative z-20">
+      <div className="pal-panel hub-frame-header p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
+        <div className="hub-header-row flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
             <button
               onClick={() => useServerStore.getState().setActiveServerId(null)}
@@ -102,13 +103,13 @@ export const PalworldHub: React.FC = () => {
                 arrow_back
               </span>
             </button>
-            <h2 className="pal-title">{activeServer.name}</h2>
+            <h2 className="hub-title pal-title">{activeServer.name}</h2>
             <span className="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider ml-2">
               Palworld
             </span>
           </div>
 
-          <div className="flex gap-3 items-center">
+          <div className="hub-header-actions flex gap-3 items-center">
             <div className="flex pal-panel rounded-full p-1 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105">
               <button
                 onClick={handleTunnel}
@@ -176,12 +177,12 @@ export const PalworldHub: React.FC = () => {
             }}
             defer
           >
-            <div className="flex items-center gap-2 min-w-max pt-2 pb-2 px-1">
+            <div className="hub-nav flex items-center gap-2 min-w-max pt-2 pb-2 px-1">
               {TABS.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id as any)}
-                  className={`pal-btn ${
+                  className={`hub-tab pal-btn ${
                     activeTab === tab.id
                       ? 'pal-btn-active'
                       : ''
@@ -196,7 +197,7 @@ export const PalworldHub: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
+      <div className="hub-frame-content flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
           <AnimatePresence custom={tabDirection} mode="wait" initial={false}>
             <motion.div

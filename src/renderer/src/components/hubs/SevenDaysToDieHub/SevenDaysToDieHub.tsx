@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import './sevendays-ui.css';
+import '../../../assets/gamehub-ui.css';
 import { SevenDaysToDieConsoleTab } from './tabs/SevenDaysToDieConsoleTab';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -64,20 +65,20 @@ export const SevenDaysToDieHub: React.FC = () => {
   };
   
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black sevendays-ui">
+    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black sevendays-ui" data-game="7-days">
       
       <div className="sevendays-bg"></div>
 
-      <div className="p-8 flex flex-col gap-6 z-10 relative">
-        <div className="flex justify-between items-center relative z-20">
+      <div className="hub-frame-header p-8 flex flex-col gap-6 z-10 relative">
+        <div className="hub-header-row flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
             <button onClick={() => setActiveServerId(null)} className="p-2 text-white/50 hover:text-white transition-colors flex items-center justify-center group" title="Back to Dashboard">
               <span className="material-symbols-outlined text-[24px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
             </button>
-            <h2 className="text-3xl font-bold sevendays-title tracking-wider">{activeServer.name}</h2>
+            <h2 className="hub-title text-3xl font-bold sevendays-title tracking-wider">{activeServer.name}</h2>
           </div>
 
-          <div className="flex gap-3 items-center">
+          <div className="hub-header-actions flex gap-3 items-center">
             <div className="flex bg-[var(--7dtd-bg-panel-dark)] items-center border border-[var(--7dtd-border)]">
               <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-1.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'text-green-400' : tunnelStatus === 'Starting...' ? 'text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
                 <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
@@ -105,7 +106,7 @@ export const SevenDaysToDieHub: React.FC = () => {
         </div>
 
         {/* Tabs */}
-        <div className="w-full flex justify-end pr-2 border-b-2 border-transparent relative -bottom-2 z-10 sevendays-tabs-container">
+        <div className="hub-nav w-full flex justify-end pr-2 border-b-2 border-transparent relative -bottom-2 z-10 sevendays-tabs-container">
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -118,7 +119,7 @@ export const SevenDaysToDieHub: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-8 pb-8">
+      <div className="hub-frame-content flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-8 pb-8">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden sevendays-panel shadow-2xl">
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div

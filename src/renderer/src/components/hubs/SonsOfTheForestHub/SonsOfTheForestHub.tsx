@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import './sonsoftheforest-ui.css';
+import '../../../assets/gamehub-ui.css';
 import { motion, AnimatePresence } from 'motion/react';
 
 import { useServerStore } from '../../../store/useServerStore';
@@ -50,21 +51,21 @@ export const SonsOfTheForestHub: React.FC = () => {
   if (!activeServer) return null;
 
   return (
-    <div className="flex-1 flex flex-col relative overflow-hidden sotf-scrollbars sotf-ui">
+    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden sotf-scrollbars sotf-ui" data-game="sons-of-the-forest">
       
       <div className="absolute inset-0 z-0 pointer-events-none opacity-50" style={{ backgroundImage: 'url(https://images.unsplash.com/photo-1448375240586-882707db888b?q=80&w=1000)', backgroundSize: 'cover', backgroundPosition: 'center', filter: 'brightness(0.3) contrast(1.2)' }} />
 
-      <div className="flex flex-col z-10 relative px-10 pt-10 pb-4">
-        <div className="flex justify-between items-center w-full mb-8">
+      <div className="hub-frame-header flex flex-col z-10 relative px-10 pt-10 pb-4">
+        <div className="hub-header-row flex justify-between items-center w-full mb-8">
           <button onClick={() => setActiveServerId(null)} className="sotf-btn flex items-center justify-center hover:-translate-x-1" title="BACK">
             <span className="material-symbols-outlined text-[28px]">chevron_left</span>
           </button>
           
-          <h2 className="text-3xl sotf-glitch-text-strong uppercase tracking-widest absolute left-1/2 -translate-x-1/2">
+          <h2 className="hub-title text-3xl sotf-glitch-text-strong uppercase tracking-widest absolute left-1/2 -translate-x-1/2">
             {activeServer.name}
           </h2>
 
-          <div className="flex gap-6 items-center">
+          <div className="hub-header-actions flex gap-6 items-center">
             <div className="flex bg-[var(--sotf-panel)] items-center border border-[var(--sotf-border)]">
               <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`px-4 py-2 flex items-center justify-center transition-colors ${tunnelStatus === 'Online' ? 'text-green-500' : tunnelStatus === 'Starting...' ? 'text-gray-500 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
                 <span className={`material-symbols-outlined text-[20px] ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
@@ -89,7 +90,7 @@ export const SonsOfTheForestHub: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-10 pb-10">
+      <div className="hub-frame-content flex-1 overflow-hidden relative min-h-0 flex flex-col z-10 px-10 pb-10">
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
           <AnimatePresence mode="wait" initial={false} custom={direction}>
             <motion.div
