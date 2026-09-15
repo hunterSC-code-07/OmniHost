@@ -2,8 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import type { SteamCacheStorageInfo } from '@shared/steamCacheStorage'
 import { useToastStore } from '../../store/useToastStore'
+import { useUiStore } from '../../store/useUiStore'
 
-type SettingsTab = 'storage' | 'diagnostics' | 'integrations'
+type SettingsTab = 'general' | 'storage' | 'diagnostics' | 'integrations'
 
 function formatBytes(bytes: number | null): string {
   if (bytes === null) return 'Unavailable'
@@ -20,7 +21,7 @@ function getErrorMessage(error: unknown): string {
 }
 
 export function SettingsModal({ onClose }: { onClose: () => void }) {
-  const [activeTab, setActiveTab] = useState<SettingsTab>('storage')
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
   const [logs, setLogs] = useState<string>('Loading logs...')
   const [logPath, setLogPath] = useState<string>('')
   const [storageInfo, setStorageInfo] = useState<SteamCacheStorageInfo | null>(null)
@@ -32,7 +33,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [discordAutoStart, setDiscordAutoStart] = useState(false)
   const [discordRunning, setDiscordRunning] = useState(false)
   const [discordLoading, setDiscordLoading] = useState(false)
+  const [isSelectingSound, setIsSelectingSound] = useState(false)
   const { showToast } = useToastStore()
+  const { playBootSound, setPlayBootSound, bootSoundVolume, setBootSoundVolume, useCustomBootSound, setUseCustomBootSound } = useUiStore()
 
   const loadLogs = useCallback(async () => {
     try {
@@ -164,6 +167,18 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           <div className="flex w-64 shrink-0 flex-col gap-2 border-r border-outline-variant/30 p-4">
             <button
               type="button"
+              onClick={() => setActiveTab('general')}
+              className={`flex items-center gap-3 rounded-lg border px-4 py-3 font-bold transition-colors ${
+                activeTab === 'general'
+                  ? 'border-primary/30 bg-primary/10 text-primary'
+                  : 'border-transparent text-on-surface-variant hover:bg-surface-bright/50 hover:text-white'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]">tune</span>
+              General
+            </button>
+            <button
+              type="button"
               onClick={() => setActiveTab('storage')}
               className={`flex items-center gap-3 rounded-lg border px-4 py-3 font-bold transition-colors ${
                 activeTab === 'storage'
@@ -201,6 +216,112 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col p-6">
+            {activeTab === 'general' && (
+              <div className="flex h-full flex-col overflow-y-auto pr-2">
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">General Settings</h3>
+                    <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
+                      Manage basic application preferences.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-outline-variant/30 bg-surface-container/50 p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Play Boot Sound</h4>
+                        <p className="text-xs text-on-surface-variant">Play an audio greeting when OmniHost is launched.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setPlayBootSound(!playBootSound)}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          playBootSound ? 'bg-primary' : 'bg-surface-bright'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            playBootSound ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    {playBootSound && (
+                      <div className="mt-4 border-t border-outline-variant/20 pt-4">
+                        <div className="flex items-center justify-between mb-2">
+                          <label className="text-sm font-bold text-white">Volume</label>
+                          <span className="text-xs text-on-surface-variant font-mono">{Math.round(bootSoundVolume * 100)}%</span>
+                        </div>
+                        <input 
+                          type="range" 
+                          min="0" 
+                          max="1" 
+                          step="0.01" 
+                          value={bootSoundVolume}
+                          onChange={(e) => setBootSoundVolume(parseFloat(e.target.value))}
+                          className="w-full accent-primary bg-surface-bright h-2 rounded-lg appearance-none cursor-pointer mb-6"
+                        />
+
+                        <div className="flex flex-col gap-2">
+                          <label className="text-sm font-bold text-white">Custom Audio File</label>
+                          <div className="flex flex-wrap items-center gap-3">
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                setIsSelectingSound(true)
+                                try {
+                                  // @ts-ignore
+                                  const success = await window.api.system.selectCustomBootSound()
+                                  if (success) {
+                                    setUseCustomBootSound(true)
+                                    showToast('Custom boot sound selected successfully.', 'success')
+                                  }
+                                } catch (e) {
+                                  showToast(`Could not select audio file: ${getErrorMessage(e)}`, 'error')
+                                } finally {
+                                  setIsSelectingSound(false)
+                                }
+                              }}
+                              disabled={isSelectingSound}
+                              className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/20 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <span className="material-symbols-outlined text-[19px]">
+                                {isSelectingSound ? 'progress_activity' : 'audio_file'}
+                              </span>
+                              {useCustomBootSound ? 'Change Custom Audio...' : 'Select Custom Audio...'}
+                            </button>
+                            
+                            {useCustomBootSound && (
+                              <button
+                                type="button"
+                                onClick={async () => {
+                                  try {
+                                    // @ts-ignore
+                                    await window.api.system.clearCustomBootSound()
+                                    setUseCustomBootSound(false)
+                                    showToast('Reset to default boot sound.', 'success')
+                                  } catch (e) {
+                                    showToast(`Could not reset audio file: ${getErrorMessage(e)}`, 'error')
+                                  }
+                                }}
+                                className="flex items-center gap-2 rounded-lg border border-outline-variant/30 bg-surface-bright/30 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-surface-bright/60"
+                              >
+                                <span className="material-symbols-outlined text-[19px]">restart_alt</span>
+                                Reset to Default
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'storage' && (
               <div className="flex h-full flex-col overflow-y-auto pr-2">
                 <div className="mb-6 flex items-start justify-between gap-4">

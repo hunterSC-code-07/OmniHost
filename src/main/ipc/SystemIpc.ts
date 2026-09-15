@@ -78,6 +78,45 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
     return serverStorage.resetPath()
   })
 
+  ipcMain.handle('select-custom-boot-sound', async (event) => {
+    const browserWindow = BrowserWindow.fromWebContents(event.sender)
+    const options: OpenDialogOptions = {
+      title: 'Select Custom Boot Sound',
+      properties: ['openFile'],
+      filters: [{ name: 'Audio Files', extensions: ['mp3', 'flac', 'wav', 'ogg', 'aac'] }]
+    }
+
+    const result = browserWindow
+      ? await dialog.showOpenDialog(browserWindow, options)
+      : await dialog.showOpenDialog(options)
+
+    if (result.canceled || result.filePaths.length === 0) return false
+    
+    const { app } = require('electron')
+    const dest = join(app.getPath('userData'), 'custom-boot-sound')
+    await fsPromises.copyFile(result.filePaths[0], dest)
+    return true
+  })
+
+  ipcMain.handle('get-custom-boot-sound', async () => {
+    const { app } = require('electron')
+    const dest = join(app.getPath('userData'), 'custom-boot-sound')
+    if (await exists(dest)) {
+      return await fsPromises.readFile(dest)
+    }
+    return null
+  })
+
+  ipcMain.handle('clear-custom-boot-sound', async () => {
+    const { app } = require('electron')
+    const dest = join(app.getPath('userData'), 'custom-boot-sound')
+    if (await exists(dest)) {
+      await fsPromises.unlink(dest)
+    }
+    return true
+  })
+
+
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database

@@ -39,7 +39,8 @@ export function createWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
-      webviewTag: false
+      webviewTag: false,
+      autoplayPolicy: 'no-user-gesture-required'
     }
   })
 

@@ -11,6 +11,9 @@ interface UiStore {
   isClearingCache: boolean;
   cacheSizes: { minecraft: number, dayzBase: number, dayzWorkshop: number, satisfactoryBase: number };
   gameCacheStatus: Record<string, boolean>;
+  playBootSound: boolean;
+  useCustomBootSound: boolean;
+  bootSoundVolume: number;
   
   setActiveGameHub: (hub: string | null) => void;
   setLastGameHub: (hub: string | null) => void;
@@ -22,6 +25,9 @@ interface UiStore {
   setIsClearingCache: (isClearing: boolean) => void;
   setCacheSizes: (sizes: { minecraft: number, dayzBase: number, dayzWorkshop: number, satisfactoryBase: number }) => void;
   setGameCacheStatus: (game: string, isCached: boolean) => void;
+  setPlayBootSound: (play: boolean) => void;
+  setUseCustomBootSound: (use: boolean) => void;
+  setBootSoundVolume: (volume: number) => void;
 }
 
 export const useUiStore = create<UiStore>((set) => ({
@@ -35,6 +41,9 @@ export const useUiStore = create<UiStore>((set) => ({
   isClearingCache: false,
   cacheSizes: { minecraft: 0, dayzBase: 0, dayzWorkshop: 0, satisfactoryBase: 0 },
   gameCacheStatus: {},
+  playBootSound: localStorage.getItem('playBootSound') !== 'false',
+  useCustomBootSound: localStorage.getItem('useCustomBootSound') === 'true',
+  bootSoundVolume: localStorage.getItem('bootSoundVolume') ? Number(localStorage.getItem('bootSoundVolume')) : 0.5,
   
   setActiveGameHub: (hub) => set(() => {
     if (hub) return { activeGameHub: hub, lastGameHub: hub };
@@ -53,5 +62,17 @@ export const useUiStore = create<UiStore>((set) => ({
   setCacheSizes: (sizes) => set({ cacheSizes: sizes }),
   setGameCacheStatus: (game, isCached) => set((state) => ({ 
     gameCacheStatus: { ...state.gameCacheStatus, [game]: isCached } 
-  }))
+  })),
+  setPlayBootSound: (play) => {
+    localStorage.setItem('playBootSound', String(play));
+    set({ playBootSound: play });
+  },
+  setUseCustomBootSound: (use) => {
+    localStorage.setItem('useCustomBootSound', String(use));
+    set({ useCustomBootSound: use });
+  },
+  setBootSoundVolume: (volume) => {
+    localStorage.setItem('bootSoundVolume', String(volume));
+    set({ bootSoundVolume: volume });
+  }
 }));
