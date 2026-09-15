@@ -66,6 +66,9 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { openCreateServerModal, openDeleteModal, openSteamLoginModal } = useModalStore()
   const { isDarkMode, toggleDarkMode } = useMinecraftHubStore()
   const [updatingSteamCacheGame, setUpdatingSteamCacheGame] = useState<string | null>(null)
+  const onlineServers = servers.filter((server) => server.status === 'Online').length
+  const offlineServers = servers.length - onlineServers
+  const deployedGames = new Set(servers.map((server) => server.game)).size
 
   const handleSteamCacheUpdate = async (): Promise<void> => {
     if (!activeGameHub) return
@@ -117,50 +120,100 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent pointer-events-none"></div>
 
                 {/* Header */}
-                <div className="px-gutter pt-stack-lg pb-stack-md relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-stack-md">
-                  <div>
-                    <p className="font-label-md text-label-md text-primary tracking-widest uppercase mb-2">
+                <div className="px-gutter pt-stack-lg pb-stack-sm relative z-10 flex flex-col xl:flex-row justify-between items-start xl:items-end gap-6">
+                  <div className="max-w-2xl">
+                    <p className="font-label-md text-label-md text-primary tracking-widest uppercase mb-1.5">
                       Command Center
                     </p>
-                    <h1 className="font-headline-xl text-headline-xl text-on-background mb-2">
+                    <h1 className="font-headline-lg text-headline-lg text-on-background mb-2">
                       Welcome back, <span className="text-primary">Admin</span>.
                     </h1>
-                    <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
-                      Select a Game Hub below to initiate configuration or view your active
-                      instances in the list.
+                    <p className="font-body-md text-body-md text-on-surface-variant max-w-xl">
+                      Launch a hub to configure a server, or jump straight into an existing deployment.
                     </p>
+                  </div>
+
+                  <div className="grid grid-cols-3 w-full xl:w-auto xl:min-w-[510px] rounded-2xl border border-outline-variant/30 bg-surface-container/45 backdrop-blur-md overflow-hidden shadow-lg shadow-black/10">
+                    {[
+                      { label: 'Online', value: onlineServers, icon: 'bolt', tone: 'text-green-400' },
+                      { label: 'Offline', value: offlineServers, icon: 'pause_circle', tone: 'text-on-surface-variant' },
+                      { label: 'Games hosted', value: deployedGames, icon: 'sports_esports', tone: 'text-primary' }
+                    ].map((stat, index) => (
+                      <div
+                        key={stat.label}
+                        className={`flex items-center gap-3 px-4 py-3.5 ${index > 0 ? 'border-l border-outline-variant/25' : ''}`}
+                      >
+                        <span className={`material-symbols-outlined text-xl ${stat.tone}`}>
+                          {stat.icon}
+                        </span>
+                        <div>
+                          <p className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+                            {stat.label}
+                          </p>
+                          <p className="font-headline-sm text-headline-sm text-on-surface leading-none mt-1">
+                            {stat.value}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 {/* Game Hub Cards */}
                 <div className="px-gutter py-stack-md relative z-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {Object.values(HUB_REGISTRY).map((hub) => (
-                      <div
-                        key={hub.gameName}
-                        onMouseEnter={() => setHoveredGame(hub.gameName)}
-                        onMouseLeave={() => setHoveredGame(null)}
-                        onClick={() => setActiveGameHub(hub.gameName)}
-                        className={`group relative rounded-xl overflow-hidden bg-surface-container h-[250px] flex flex-col justify-end transition-all duration-300 ${hub.theme.shadowColor} ring-1 ${hub.theme.ringColor} cursor-pointer ring-surface-container-high`}
-                      >
-                        <motion.div
-                          layoutId={`game-bg-${hub.gameName}`}
-                          className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100"
-                          style={{ backgroundImage: `url('${getGameImageUrl(hub.gameName)}')` }}
-                        ></motion.div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
-                        <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
-                          <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest mb-1 shadow-black drop-shadow-md">
-                            Game Hub
-                          </p>
-                          <h2
-                            className={`font-headline-lg text-headline-lg text-on-surface leading-tight ${hub.theme.textColor} transition-colors drop-shadow-lg shadow-black`}
-                          >
-                            {hub.gameName}
-                          </h2>
-                        </div>
-                      </div>
-                    ))}
+                    {Object.values(HUB_REGISTRY).map((hub) => {
+                      const hubServers = servers.filter((server) => server.game.includes(hub.gameName))
+                      const hubOnlineServers = hubServers.filter((server) => server.status === 'Online').length
+
+                      return (
+                        <button
+                          type="button"
+                          key={hub.gameName}
+                          onMouseEnter={() => setHoveredGame(hub.gameName)}
+                          onMouseLeave={() => setHoveredGame(null)}
+                          onClick={() => setActiveGameHub(hub.gameName)}
+                          className={`group relative rounded-xl overflow-hidden bg-surface-container h-[252px] flex flex-col justify-end text-left transition-[transform,box-shadow,ring-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${hub.theme.shadowColor} ring-1 ${hub.theme.ringColor} cursor-pointer ring-surface-container-high hover:-translate-y-1 hover:shadow-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-surface active:translate-y-0 active:scale-[0.99]`}
+                          aria-label={`Open ${hub.gameName} Hub`}
+                        >
+                          <motion.div
+                            layoutId={`game-bg-${hub.gameName}`}
+                            className="absolute inset-0 bg-cover bg-center z-0 transition-all duration-700 ease-out group-hover:scale-105 blur-[3px] group-hover:blur-0 contrast-125 saturate-[1.2] brightness-75 group-hover:brightness-100"
+                            style={{ backgroundImage: `url('${getGameImageUrl(hub.gameName)}')` }}
+                          ></motion.div>
+                          <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest via-surface-container-lowest/80 to-transparent z-10 transition-opacity duration-500 group-hover:opacity-60"></div>
+                          <div className="relative z-20 p-6 flex flex-col gap-2 w-full">
+                            <div className="flex items-center justify-between gap-3">
+                              <p className="font-label-sm text-label-sm text-primary uppercase tracking-widest shadow-black drop-shadow-md">
+                                Game Hub
+                              </p>
+                              <span className="rounded-full border border-white/15 bg-black/25 px-2.5 py-1 font-label-sm text-label-sm text-on-surface shadow-black drop-shadow-md">
+                                {hubServers.length === 0
+                                  ? 'New setup'
+                                  : `${hubServers.length} server${hubServers.length === 1 ? '' : 's'}`}
+                              </span>
+                            </div>
+                            <h2
+                              className={`font-headline-lg text-headline-lg text-on-surface leading-tight ${hub.theme.textColor} transition-colors drop-shadow-lg shadow-black`}
+                            >
+                              {hub.gameName}
+                            </h2>
+                            <div className="mt-2 flex items-center justify-between border-t border-white/10 pt-3">
+                              <span className="font-label-sm text-label-sm uppercase tracking-wider text-on-surface-variant">
+                                {hubOnlineServers > 0
+                                  ? `${hubOnlineServers} online now`
+                                  : hubServers.length > 0
+                                    ? 'Manage servers'
+                                    : 'Create server'}
+                              </span>
+                              <span className="flex items-center gap-1 font-label-sm text-label-sm uppercase tracking-wider text-on-surface transition-[gap,color] duration-300 group-hover:gap-2 group-hover:text-primary">
+                                Open <span className="material-symbols-outlined text-base">arrow_forward</span>
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
