@@ -74,7 +74,7 @@ OmniHost is built using the latest web and desktop technologies:
 ### Prerequisites
 
 - **OS**: Windows 10/11 (OmniHost relies on Windows-specific scripts and paths).
-- **Node.js**: v18.0.0 or newer.
+- **Node.js**: v22.12.0 or newer (the current Electron release requires it). Use the latest Node.js LTS when possible.
 - **Git**
 
 ### Running Locally
