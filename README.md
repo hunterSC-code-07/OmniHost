@@ -13,7 +13,7 @@
     OmniHost is a modern, high-performance desktop application built with Electron, React, and TypeScript. It is designed to provide a seamless, beautiful, and robust experience for deploying, configuring, and managing dedicated servers for your favorite multiplayer games—all from your local machine, while bypassing the headaches of traditional port-forwarding.
   </p>
 
-  <img src="https://via.placeholder.com/1200x600.png?text=OmniHost+Dashboard" alt="OmniHost UI Preview" width="100%"/>
+  <img src="resources/preview.png" alt="OmniHost UI Preview" width="100%"/>
 </div>
 
 ---
