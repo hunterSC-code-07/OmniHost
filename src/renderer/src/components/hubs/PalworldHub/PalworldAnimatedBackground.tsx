@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import BackgroundWorker from '../../background.worker?worker';
+import BackgroundWorker from '../../common/background/background.worker?worker';
 
 export const PalworldAnimatedBackground: React.FC = React.memo(() => {
   const containerRef = useRef<HTMLDivElement>(null);

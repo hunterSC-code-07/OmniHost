@@ -3,7 +3,7 @@ import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
 import fs from 'fs'
-import { CacheManager } from '../CacheManager'
+import { CacheManager } from '../storage/CacheManager'
 import { SteamCache } from '../steam/SteamCache'
 
 export function registerCacheIpc() {

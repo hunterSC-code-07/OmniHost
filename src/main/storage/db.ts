@@ -1,4 +1,4 @@
-import { serverStorage } from './storage/ServerStorage'
+import { serverStorage } from './ServerStorage'
 import Database from 'better-sqlite3'
 import { app } from 'electron'
 import { join } from 'path'

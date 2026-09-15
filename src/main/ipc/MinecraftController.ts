@@ -3,7 +3,7 @@ import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
 import fs from 'fs'
-import { updateServerSoftware } from '../db'
+import { updateServerSoftware } from '../storage/db'
 
 export class MinecraftController {
   static register() {

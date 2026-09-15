@@ -5,7 +5,7 @@ import { registerAllIpcs } from './setup/ipc'
 import { registerSevenDaysToDieModDownloader } from './7dtd/SevenDaysToDieModDownloader'
 import { modSyncServer } from './modSync/ModSyncServer'
 import { modSyncClient } from './modSync/ModSyncClient'
-import { closeDatabase } from './db'
+import { closeDatabase } from './storage/db'
 import path from 'path'
 
 // 1. Initial application setup (paths, logger, env, switches)

@@ -2,7 +2,7 @@ import { serverStorage } from '../storage/ServerStorage'
 import { basename, isAbsolute, join, relative, resolve, sep } from 'path'
 import { promises as fsPromises } from 'fs'
 import AdmZip from 'adm-zip'
-import { CacheManager } from '../CacheManager'
+import { CacheManager } from '../storage/CacheManager'
 import { CurseForgeApiClient } from './CurseForgeApiClient'
 
 type ProgressEvent = {

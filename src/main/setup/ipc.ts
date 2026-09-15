@@ -13,7 +13,7 @@ import { registerLogIpc } from '../ipc/LogIpc'
 import { registerNetworkIpc } from '../ipc/NetworkIpc'
 import { registerPalworldIpc } from '../ipc/PalworldIpc'
 import { registerSevenDaysToDieIpc } from '../ipc/SevenDaysToDieIpc'
-import { getServers } from '../db'
+import { getServers } from '../storage/db'
 import { IServerAdapter } from '../adapters/AdapterRegistry'
 
 export function registerAllIpcs(): void {

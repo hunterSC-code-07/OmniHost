@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from 'fs'
 import { join } from 'path'
-import { getGameCapability, normalizeGameName } from '../shared/gameCapabilities'
+import { getGameCapability, normalizeGameName } from '../../shared/gameCapabilities'
 
 function readPort(filePath: string, pattern: RegExp): number | undefined {
   if (!existsSync(filePath)) return undefined

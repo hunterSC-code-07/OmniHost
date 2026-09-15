@@ -3,7 +3,7 @@ import path from 'path'
 import fs from 'fs'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
-import { CacheManager } from '../CacheManager'
+import { CacheManager } from '../storage/CacheManager'
 
 export class JavaManager {
   private static get javaDir() {

@@ -11,6 +11,7 @@ export default defineConfig(
       '**/node_modules',
       '**/dist',
       '**/out',
+      'tools/**',
       'electron.vite.config.*.mjs',
       'refactor_minecraft.js',
       'scratch_test_spawn.js'
