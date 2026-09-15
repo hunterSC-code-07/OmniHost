@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { PalworldConfigManager } from '../palworld/PalworldConfigManager'
@@ -43,7 +43,7 @@ export function registerPalworldIpc() {
   ipcMain.handle(
     'uninstall-palworld-mod',
     async (_, serverId: number, modType: string, modName: string) => {
-      const serverDir = path.join(app.getPath('userData'), 'servers', serverId.toString())
+      const serverDir = path.join(serverStorage.getPath(), serverId.toString())
       let targetPath = ''
       if (modType === 'Pak') {
         targetPath = path.join(serverDir, 'Pal', 'Content', 'Paks', 'LogicMods', modName)
@@ -64,7 +64,7 @@ export function registerPalworldIpc() {
   )
 
   ipcMain.handle('get-banned-players', async (_, serverId: number) => {
-    const serverDir = path.join(app.getPath('userData'), 'servers', serverId.toString())
+    const serverDir = path.join(serverStorage.getPath(), serverId.toString())
     const banlistPath = path.join(serverDir, 'Pal', 'Saved', 'SaveGames', 'banlist.txt')
     const namesFile = path.join(serverDir, 'banned_names.json')
     let namesMap: Record<string, string> = {}

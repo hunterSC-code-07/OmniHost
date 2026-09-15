@@ -216,6 +216,17 @@ function buildSteamCmdError(
 export class SteamDownloader {
   static activeProcess: ChildProcess | null = null
 
+  static cancel(): void {
+    if (this.activeProcess) {
+      try {
+        this.activeProcess.kill()
+      } catch (e) {
+        console.warn('Failed to kill active SteamCMD process', e)
+      }
+      this.activeProcess = null
+    }
+  }
+
   static async updateCache(
     serverId: number,
     appId: number,

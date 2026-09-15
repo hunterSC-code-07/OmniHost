@@ -1,4 +1,5 @@
-import { app, ipcMain } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
+import { ipcMain } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
@@ -25,11 +26,18 @@ function requireServerId(value: unknown): number {
   return Number(value)
 }
 
+export interface ServerLifecycleMethods {
+  shutdownServers: () => Promise<void>
+  startServer: (id: number) => Promise<boolean>
+  stopServer: (id: number) => Promise<boolean>
+  getServerList: () => any[]
+}
+
 export class ServerLifecycleController {
   static register(
     activeServers: Record<number, IServerAdapter>,
     activeProxies: Record<number, WakeProxy>
-  ): () => Promise<void> {
+  ): ServerLifecycleMethods {
     const states = new Map<number, LifecycleState>()
     const operations = new Map<number, Promise<unknown>>()
 
@@ -50,7 +58,7 @@ export class ServerLifecycleController {
       )
       if (!server) throw new Error(`Server ${id} does not exist`)
       let game = server.game || 'Minecraft'
-      const metaPath = join(app.getPath('userData'), 'servers', String(id), 'omnihost.json')
+      const metaPath = join(serverStorage.getPath(), String(id), 'omnihost.json')
       try {
         if (fs.existsSync(metaPath)) {
           const metadata = JSON.parse(fs.readFileSync(metaPath, 'utf8'))
@@ -109,7 +117,7 @@ export class ServerLifecycleController {
       await stopServer(id)
       delete activeServers[id]
 
-      const serverDirectory = join(app.getPath('userData'), 'servers', String(id))
+      const serverDirectory = join(serverStorage.getPath(), String(id))
       if (await exists(serverDirectory)) {
         for (let attempt = 0; attempt < 5; attempt += 1) {
           try {
@@ -137,8 +145,7 @@ export class ServerLifecycleController {
       }
       const manager = getOrCreateManager(id)
       const propertiesPath = join(
-        app.getPath('userData'),
-        'servers',
+        serverStorage.getPath(),
         String(id),
         'server.properties'
       )
@@ -158,7 +165,7 @@ export class ServerLifecycleController {
       id: number,
       metadata: Record<string, unknown>
     ): Promise<void> => {
-      const serverDirectory = join(app.getPath('userData'), 'servers', String(id))
+      const serverDirectory = join(serverStorage.getPath(), String(id))
       const game = String(metadata.game ?? readServerGame(id))
       if (game === 'Minecraft') {
         const entries = await fsPromises.readdir(serverDirectory)
@@ -180,12 +187,11 @@ export class ServerLifecycleController {
       }
     }
 
-    ipcMain.handle('get-servers', (event) => {
-      assertTrustedIpcSender(event)
+    const getServerList = () => {
       const list = getServers() as Array<
         Record<string, unknown> & { id: number; game?: string; status?: string }
       >
-      const serversDirectory = join(app.getPath('userData'), 'servers')
+      const serversDirectory = serverStorage.getPath()
       return list
         .map((server) => {
           let metadata: Record<string, unknown> = {}
@@ -222,6 +228,11 @@ export class ServerLifecycleController {
           }
         })
         .filter((server) => server.creationState !== 'installing')
+    }
+
+    ipcMain.handle('get-servers', (event) => {
+      assertTrustedIpcSender(event)
+      return getServerList()
     })
 
     ipcMain.handle('delete-server', async (event, rawId) => {
@@ -239,7 +250,7 @@ export class ServerLifecycleController {
       if (typeof game !== 'string' || !game.trim()) throw new Error('Game is required')
       const gameString = game === 'Minecraft' ? `Minecraft (${type})` : game
       const id = Number(createServer(name.trim(), gameString))
-      const serverDirectory = join(app.getPath('userData'), 'servers', String(id))
+      const serverDirectory = join(serverStorage.getPath(), String(id))
       try {
         await fsPromises.mkdir(serverDirectory, { recursive: true })
         await fsPromises.writeFile(
@@ -266,7 +277,7 @@ export class ServerLifecycleController {
       const id = requireServerId(rawId)
       return runExclusive(id, async () => {
         readServerGame(id)
-        const metadataPath = join(app.getPath('userData'), 'servers', String(id), 'omnihost.json')
+        const metadataPath = join(serverStorage.getPath(), String(id), 'omnihost.json')
         const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'))
         await assertInstallationReady(id, metadata)
         await fsPromises.writeFile(
@@ -282,6 +293,8 @@ export class ServerLifecycleController {
       assertTrustedIpcSender(event)
       const id = requireServerId(rawId)
       return runExclusive(id, async () => {
+        const { SteamDownloader } = require('../steam/SteamDownloader')
+        SteamDownloader.cancel()
         await removeServerData(id)
         return true
       })
@@ -314,8 +327,7 @@ export class ServerLifecycleController {
 
     for (const server of getServers() as Array<{ id: number }>) {
       const metadataPath = join(
-        app.getPath('userData'),
-        'servers',
+        serverStorage.getPath(),
         String(server.id),
         'omnihost.json'
       )
@@ -331,10 +343,27 @@ export class ServerLifecycleController {
       }
     }
 
-    return async () => {
+    const shutdownServers = async () => {
       for (const proxy of Object.values(activeProxies)) proxy.stopListening()
       const ids = Object.keys(activeServers).map(Number)
       await Promise.allSettled(ids.map((id) => runExclusive(id, () => stopServer(id))))
+    }
+
+    const startServerPublic = (id: number) => runExclusive(id, async () => {
+      await startManager(id)
+      return true
+    })
+    
+    const stopServerPublic = (id: number) => runExclusive(id, async () => {
+      await stopServer(id)
+      return true
+    })
+
+    return {
+      shutdownServers,
+      startServer: startServerPublic,
+      stopServer: stopServerPublic,
+      getServerList
     }
   }
 }

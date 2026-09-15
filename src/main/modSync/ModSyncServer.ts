@@ -1,8 +1,8 @@
+import { serverStorage } from '../storage/ServerStorage'
 import * as http from 'http'
 import * as fs from 'fs'
 import * as path from 'path'
 import * as crypto from 'crypto'
-import { app } from 'electron'
 import { URL } from 'url'
 
 export interface ModManifestEntry {
@@ -18,7 +18,7 @@ export class ModSyncServer {
   private getModsDir(_gameId: string, serverId: number): string {
     // Basic implementation: assumes all games store mods in `userData/servers/<id>/Mods`
     // This can be expanded based on gameId if some games use different folders.
-    return path.join(app.getPath('userData'), 'servers', serverId.toString(), 'Mods')
+    return path.join(serverStorage.getPath(), serverId.toString(), 'Mods')
   }
 
   private async calculateHash(filePath: string): Promise<string> {

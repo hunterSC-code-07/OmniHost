@@ -1,10 +1,11 @@
+import { serverStorage } from '../storage/ServerStorage'
 import fsPromises from 'fs/promises'
 import semver from 'semver'
 import { spawn } from 'child_process'
 import { CacheManager } from '../CacheManager'
 import { JavaManager } from '../adapters/JavaManager'
 import { join } from 'path'
-import { app } from 'electron'
+import {  } from 'electron'
 
 import { IServerDownloaderStrategy } from './downloaders/IServerDownloaderStrategy'
 import { VanillaStrategy } from './downloaders/VanillaStrategy'
@@ -52,7 +53,7 @@ export class MinecraftDownloader {
   }
 
   static async downloadServerJar(event: any, id: number, type: string, version: string, loaderVersion: string) {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     const jarPath = join(serverDir, 'server.jar')
     const installerPath = join(serverDir, 'installer.jar')
 

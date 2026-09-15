@@ -3,7 +3,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import type { SteamCacheStorageInfo } from '@shared/steamCacheStorage'
 import { useToastStore } from '../../store/useToastStore'
 
-type SettingsTab = 'storage' | 'diagnostics'
+type SettingsTab = 'storage' | 'diagnostics' | 'integrations'
 
 function formatBytes(bytes: number | null): string {
   if (bytes === null) return 'Unavailable'
@@ -24,8 +24,14 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [logs, setLogs] = useState<string>('Loading logs...')
   const [logPath, setLogPath] = useState<string>('')
   const [storageInfo, setStorageInfo] = useState<SteamCacheStorageInfo | null>(null)
+  const [serverStorageInfo, setServerStorageInfo] = useState<any | null>(null)
   const [storageLoading, setStorageLoading] = useState(true)
   const [storageAction, setStorageAction] = useState<'browse' | 'reset' | null>(null)
+  const [serverStorageAction, setServerStorageAction] = useState<'browse' | 'reset' | null>(null)
+  const [discordToken, setDiscordToken] = useState('')
+  const [discordAutoStart, setDiscordAutoStart] = useState(false)
+  const [discordRunning, setDiscordRunning] = useState(false)
+  const [discordLoading, setDiscordLoading] = useState(false)
   const { showToast } = useToastStore()
 
   const loadLogs = useCallback(async () => {
@@ -43,6 +49,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     setStorageLoading(true)
     try {
       setStorageInfo(await window.api.steam.getCacheStorage())
+      setServerStorageInfo(await window.api.system.getServerStorage())
     } catch (error) {
       showToast(`Could not load storage settings: ${getErrorMessage(error)}`, 'error')
     } finally {
@@ -53,8 +60,16 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     if (activeTab === 'storage') {
       void loadStorageInfo()
-    } else {
+    } else if (activeTab === 'diagnostics') {
       void loadLogs()
+    } else if (activeTab === 'integrations') {
+      void window.api.discord.getSettings().then((settings: any) => {
+        setDiscordToken(settings.token)
+        setDiscordAutoStart(settings.autoStart)
+      })
+      void window.api.discord.getBotStatus().then((status: boolean) => {
+        setDiscordRunning(status)
+      })
     }
   }, [activeTab, loadLogs, loadStorageInfo])
 
@@ -84,6 +99,34 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
       showToast(`Could not reset the cache folder: ${getErrorMessage(error)}`, 'error')
     } finally {
       setStorageAction(null)
+    }
+  }
+
+  const browseForServerStorage = async (): Promise<void> => {
+    setServerStorageAction('browse')
+    try {
+      const selectedStorage = await window.api.system.selectServerStorage()
+      if (selectedStorage) {
+        setServerStorageInfo(selectedStorage)
+        showToast('Server instances folder updated.', 'success')
+      }
+    } catch (error) {
+      showToast(`Could not change the server instances folder: ${getErrorMessage(error)}`, 'error')
+    } finally {
+      setServerStorageAction(null)
+    }
+  }
+
+  const resetServerStorage = async (): Promise<void> => {
+    setServerStorageAction('reset')
+    try {
+      const defaultStorage = await window.api.system.resetServerStorage()
+      setServerStorageInfo(defaultStorage)
+      showToast('Server instances folder reset to default.', 'success')
+    } catch (error) {
+      showToast(`Could not reset the server instances folder: ${getErrorMessage(error)}`, 'error')
+    } finally {
+      setServerStorageAction(null)
     }
   }
 
@@ -143,11 +186,23 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
               <span className="material-symbols-outlined text-[20px]">bug_report</span>
               Diagnostics
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('integrations')}
+              className={`flex items-center gap-3 rounded-lg border px-4 py-3 font-bold transition-colors ${
+                activeTab === 'integrations'
+                  ? 'border-primary/30 bg-primary/10 text-primary'
+                  : 'border-transparent text-on-surface-variant hover:bg-surface-bright/50 hover:text-white'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px]">integration_instructions</span>
+              Integrations
+            </button>
           </div>
 
           <div className="flex min-w-0 flex-1 flex-col p-6">
             {activeTab === 'storage' && (
-              <div className="flex h-full flex-col">
+              <div className="flex h-full flex-col overflow-y-auto pr-2">
                 <div className="mb-6 flex items-start justify-between gap-4">
                   <div>
                     <h3 className="text-lg font-bold text-white">Steam Base Cache</h3>
@@ -245,6 +300,86 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                         left there. Avoid changing it while a Steam download is running.
                       </p>
                     </div>
+
+                    {/* Divider */}
+                    <div className="my-8 border-t border-outline-variant/30"></div>
+
+                    {/* Server Instances Storage */}
+                    <div className="mb-6 flex items-start justify-between gap-4">
+                      <div>
+                        <h3 className="text-lg font-bold text-white">Server Instances Folder</h3>
+                        <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
+                          Choose where OmniHost stores the game server files.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-xl border border-outline-variant/30 bg-surface-container/50 p-5">
+                      <div className="mb-3 flex items-center justify-between gap-3">
+                        <span className="text-xs font-bold uppercase tracking-[0.16em] text-on-surface-variant">
+                          Current folder
+                        </span>
+                        <span className="rounded-full border border-primary/25 bg-primary/10 px-2.5 py-1 text-xs font-bold text-primary">
+                          {serverStorageInfo?.isCustom ? 'Custom' : 'Default'}
+                        </span>
+                      </div>
+                      <p
+                        title={serverStorageInfo?.path}
+                        className="select-all break-all rounded-lg border border-outline-variant/20 bg-black/20 px-3 py-3 font-mono text-sm text-white"
+                      >
+                        {serverStorageInfo?.path ?? 'Storage information unavailable'}
+                      </p>
+
+                      <div className="mt-4 flex items-center gap-3 rounded-lg bg-black/15 px-3 py-3">
+                        <span className="material-symbols-outlined text-primary">database</span>
+                        <div>
+                          <p className="text-xs text-on-surface-variant">Available space</p>
+                          <p className="font-bold text-white">
+                            {formatBytes(serverStorageInfo?.freeBytes ?? null)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {serverStorageInfo?.isCustom && (
+                        <p className="mt-4 break-all text-xs text-on-surface-variant">
+                          Default: <span className="font-mono">{serverStorageInfo.defaultPath}</span>
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-3 mt-4">
+                      <button
+                        type="button"
+                        onClick={() => void browseForServerStorage()}
+                        disabled={serverStorageAction !== null}
+                        className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/20 px-4 py-2.5 text-sm font-bold text-primary transition-colors hover:bg-primary/30 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-[19px]">
+                          {serverStorageAction === 'browse' ? 'progress_activity' : 'folder_open'}
+                        </span>
+                        Browse…
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => void resetServerStorage()}
+                        disabled={!serverStorageInfo?.isCustom || serverStorageAction !== null}
+                        className="flex items-center gap-2 rounded-lg border border-outline-variant/30 bg-surface-bright/30 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-surface-bright/60 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <span className="material-symbols-outlined text-[19px]">restart_alt</span>
+                        Reset to Default
+                      </button>
+                    </div>
+                    
+                    <div className="flex gap-3 mt-4 rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm text-on-surface-variant">
+                      <span className="material-symbols-outlined shrink-0 text-red-400">
+                        warning
+                      </span>
+                      <p className="text-red-300">
+                        Important: Changing this folder does not automatically move your existing servers. 
+                        Your existing servers will disappear from the UI until you manually move the files to the new location.
+                      </p>
+                    </div>
+
                   </div>
                 )}
               </div>
@@ -287,6 +422,139 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       {logs}
                     </pre>
                   </OverlayScrollbarsComponent>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'integrations' && (
+              <div className="flex h-full flex-col overflow-y-auto pr-2">
+                <div className="mb-6 flex items-start justify-between gap-4">
+                  <div>
+                    <h3 className="text-lg font-bold text-white">Discord Bot</h3>
+                    <p className="mt-1 max-w-2xl text-sm text-on-surface-variant">
+                      Allow users to start and stop OmniHost servers directly from Discord.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className={`h-2.5 w-2.5 rounded-full ${discordRunning ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500/50'}`} />
+                    <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
+                      {discordRunning ? 'Online' : 'Offline'}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="rounded-xl border border-outline-variant/30 bg-surface-container/50 p-5">
+                    <label className="mb-2 block text-sm font-bold text-white">
+                      Bot Token
+                    </label>
+                    <div className="flex gap-3">
+                      <input
+                        type="password"
+                        value={discordToken}
+                        onChange={(e) => {
+                          setDiscordToken(e.target.value)
+                          window.api.discord.setToken(e.target.value)
+                        }}
+                        placeholder="Paste your Discord Bot Token here..."
+                        className="flex-1 rounded-lg border border-outline-variant/30 bg-black/20 px-4 py-2.5 font-mono text-sm text-white focus:border-primary/50 focus:outline-none"
+                      />
+                    </div>
+                    <p className="mt-2 text-xs text-on-surface-variant">
+                      Create a bot on the <a href="https://discord.com/developers/applications" target="_blank" rel="noreferrer" className="text-primary hover:underline">Discord Developer Portal</a> to get your token.
+                    </p>
+
+                    <div className="mt-6 flex items-center justify-between">
+                      <div>
+                        <h4 className="text-sm font-bold text-white">Auto-Start with OmniHost</h4>
+                        <p className="text-xs text-on-surface-variant">Automatically connect the bot when OmniHost launches.</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newVal = !discordAutoStart
+                          setDiscordAutoStart(newVal)
+                          window.api.discord.setAutoStart(newVal)
+                        }}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                          discordAutoStart ? 'bg-primary' : 'bg-surface-bright'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            discordAutoStart ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="mt-6 flex gap-3 pt-6 border-t border-outline-variant/20">
+                      {!discordRunning ? (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (!discordToken) {
+                              showToast('Please enter a Discord Bot Token first', 'error')
+                              return
+                            }
+                            setDiscordLoading(true)
+                            try {
+                              const isRunning = await window.api.discord.startBot(discordToken)
+                              setDiscordRunning(isRunning)
+                              if (isRunning) showToast('Discord Bot started successfully!', 'success')
+                            } catch (e) {
+                              showToast(`Failed to start bot: ${getErrorMessage(e)}`, 'error')
+                            } finally {
+                              setDiscordLoading(false)
+                            }
+                          }}
+                          disabled={discordLoading}
+                          className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-bold text-on-primary transition-colors hover:bg-primary/90 disabled:opacity-50"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">
+                            {discordLoading ? 'progress_activity' : 'play_arrow'}
+                          </span>
+                          Start Bot
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            setDiscordLoading(true)
+                            try {
+                              await window.api.discord.stopBot()
+                              setDiscordRunning(false)
+                              showToast('Discord Bot stopped.', 'success')
+                            } catch (e) {
+                              showToast(`Failed to stop bot: ${getErrorMessage(e)}`, 'error')
+                            } finally {
+                              setDiscordLoading(false)
+                            }
+                          }}
+                          disabled={discordLoading}
+                          className="flex items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-5 py-2.5 text-sm font-bold text-red-500 transition-colors hover:bg-red-500/20 disabled:opacity-50"
+                        >
+                          <span className="material-symbols-outlined text-[20px]">
+                            {discordLoading ? 'progress_activity' : 'stop'}
+                          </span>
+                          Stop Bot
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-primary/20 bg-primary/5 p-4">
+                    <h4 className="mb-2 flex items-center gap-2 text-sm font-bold text-primary">
+                      <span className="material-symbols-outlined text-[18px]">terminal</span>
+                      Available Slash Commands
+                    </h4>
+                    <ul className="list-inside list-disc space-y-1 text-sm text-on-surface-variant">
+                      <li><strong className="text-white">/list</strong> - View all your servers and their status</li>
+                      <li><strong className="text-white">/start &lt;id&gt;</strong> - Start a server</li>
+                      <li><strong className="text-white">/stop &lt;id&gt;</strong> - Stop a server</li>
+                      <li><strong className="text-white">/status &lt;id&gt;</strong> - View detailed live status of a server</li>
+                    </ul>
+                  </div>
                 </div>
               </div>
             )}

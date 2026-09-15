@@ -1,4 +1,5 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
+import {  } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import { XMLParser, XMLBuilder } from 'fast-xml-parser'
@@ -8,7 +9,7 @@ export class DayzEconomyManager {
   static async getEconomy(serverId: number) {
     if (serverId == null) return { pristineLoot: false };
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       const cfgPath = join(serverDir, 'serverDZ.cfg');
       if (!await DayzConfigManager.exists(cfgPath)) return null;
       
@@ -40,7 +41,7 @@ export class DayzEconomyManager {
 
   static async updateEconomy(serverId: number, settings: { pristineLoot: boolean, multipliers: Record<string, number> }) {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       const cfgPath = join(serverDir, 'serverDZ.cfg');
       if (!await DayzConfigManager.exists(cfgPath)) return false;
       
@@ -168,7 +169,7 @@ export class DayzEconomyManager {
 
   static async wipeLoot(serverId: number, isRunning: boolean) {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       const cfgPath = join(serverDir, 'serverDZ.cfg');
       if (!await DayzConfigManager.exists(cfgPath)) return false;
       

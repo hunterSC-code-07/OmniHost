@@ -1,6 +1,6 @@
+import { serverStorage } from '../storage/ServerStorage'
 import { spawn, ChildProcess } from 'child_process'
 import { join } from 'path'
-import { app } from 'electron'
 import fs from 'fs'
 import { MinecraftCommandBuilder } from './MinecraftCommandBuilder'
 import pidusage from 'pidusage'
@@ -25,7 +25,7 @@ export class MinecraftProcessManager {
 
   constructor(serverId: number) {
     this.serverId = serverId
-    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString())
+    this.serverDir = join(serverStorage.getPath(), serverId.toString())
     this.playerManager = new MinecraftPlayerManager(serverId, this.serverDir)
   }
 

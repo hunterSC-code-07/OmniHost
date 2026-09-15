@@ -1,4 +1,5 @@
-import { app, BrowserWindow, dialog } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
+import { BrowserWindow, dialog } from 'electron'
 import type { OpenDialogOptions } from 'electron'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
@@ -23,7 +24,7 @@ export function registerSteamCMDIpc() {
   ipcMain.handle(
     'install-steam-app',
     async (_, id, appId, username?: string, password?: string, steamGuardCode?: string) => {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const serverDir = join(serverStorage.getPath(), id.toString())
       await SteamDownloader.installApp(id, appId, serverDir, username, password, steamGuardCode)
       return true
     }
@@ -89,7 +90,7 @@ export function registerSteamCMDIpc() {
 
   // Database
   ipcMain.handle('copy-steam-cache', async (_, id: number, appId: number) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     await SteamCache.copyFromCache(id, appId, serverDir)
     return true
   })

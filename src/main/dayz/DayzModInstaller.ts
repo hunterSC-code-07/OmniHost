@@ -1,4 +1,5 @@
-import { app, dialog } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
+import { dialog } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
@@ -42,7 +43,7 @@ export class DayzModInstaller {
         throw new Error(`Could not find !Workshop folder at ${actualWorkshopPath}. Make sure you selected the correct DayZ directory.`);
       }
 
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       const keysDir = join(serverDir, 'keys');
       
       if (!(await exists(keysDir))) {
@@ -99,7 +100,7 @@ export class DayzModInstaller {
 
   static async installMods(serverId: number, modsToInstall: any[], username?: string, password?: string, steamGuardCode?: string) {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       const appId = 221100;
       
       const modIds = modsToInstall.map((m: any) => m.modId);
@@ -188,7 +189,7 @@ export class DayzModInstaller {
 
   static async installMod(serverId: number, modId: string, modTitle: string, username?: string, password?: string, steamGuardCode?: string) {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       const appId = 221100;
 
       // 1. Download via SteamWorkshopDownloader
@@ -263,7 +264,7 @@ export class DayzModInstaller {
 
   static async uninstallMod(serverId: number, modIdOrFolder: string) {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+      const serverDir = join(serverStorage.getPath(), serverId.toString());
       
       // If it's a folder name (starts with @), remove it directly
       if (modIdOrFolder.startsWith('@')) {

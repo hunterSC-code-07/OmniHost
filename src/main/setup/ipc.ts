@@ -1,5 +1,6 @@
 import { WakeProxy } from '../adapters/WakeProxy'
 import { RadminVpnAdapter } from '../adapters/RadminVpnAdapter'
+import { discordBot } from '../discord/DiscordBot'
 import { app, BrowserWindow } from 'electron'
 import { setupMinecraftEventCoordinator } from '../minecraft/MinecraftEventCoordinator'
 
@@ -30,7 +31,7 @@ export function registerAllIpcs(): void {
 
   // Register IPCs
   registerLogIpc()
-  const shutdownServers = registerServerIpc(activeServers, activeProxies)
+  const lifecycleMethods = registerServerIpc(activeServers, activeProxies)
   registerSteamCMDIpc()
   registerCacheIpc()
   registerNetworkIpc(radminVpnProvider)
@@ -39,11 +40,13 @@ export function registerAllIpcs(): void {
   registerPalworldIpc()
   registerSevenDaysToDieIpc()
 
+  discordBot.init(lifecycleMethods)
+
   let shutdownStarted = false
   app.on('before-quit', (event) => {
     if (shutdownStarted) return
     event.preventDefault()
     shutdownStarted = true
-    void shutdownServers().finally(() => app.quit())
+    void lifecycleMethods.shutdownServers().finally(() => app.quit())
   })
 }

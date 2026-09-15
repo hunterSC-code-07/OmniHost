@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
@@ -19,7 +19,7 @@ export class SatisfactoryController {
   static register(activeServers: Record<number, any>) {
     ipcMain.handle('get-satisfactory-token', async (_, id) => {
       try {
-        const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+        const serverDir = join(serverStorage.getPath(), id.toString())
         const cfgPath = join(serverDir, 'omnihost-config.json')
         if (await exists(cfgPath)) {
           const data = JSON.parse(await fsPromises.readFile(cfgPath, 'utf-8'))
@@ -34,7 +34,7 @@ export class SatisfactoryController {
 
     ipcMain.handle('save-satisfactory-token', async (_, id, token) => {
       try {
-        const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+        const serverDir = join(serverStorage.getPath(), id.toString())
         const cfgPath = join(serverDir, 'omnihost-config.json')
         let data: any = {}
         if (await exists(cfgPath)) {

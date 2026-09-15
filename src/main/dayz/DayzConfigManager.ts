@@ -1,4 +1,5 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
+import {  } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
 import fs from 'fs'
@@ -55,7 +56,7 @@ class Missions
 
   static async readConfig(serverId: number) {
     if (serverId == null) return null
-    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())
+    const serverDir = join(serverStorage.getPath(), serverId.toString())
     const cfgPath = join(serverDir, 'serverDZ.cfg')
     if (await this.exists(cfgPath)) {
       return await fsPromises.readFile(cfgPath, 'utf-8')
@@ -65,7 +66,7 @@ class Missions
 
   static async writeConfig(serverId: number, content: string) {
     if (serverId == null) return false
-    const serverDir = join(app.getPath('userData'), 'servers', serverId.toString())
+    const serverDir = join(serverStorage.getPath(), serverId.toString())
     const cfgPath = join(serverDir, 'serverDZ.cfg')
     if (await this.exists(cfgPath)) {
       await fsPromises.writeFile(cfgPath, content)

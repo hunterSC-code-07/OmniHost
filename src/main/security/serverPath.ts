@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
 import { lstat } from 'fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'path'
 
@@ -44,7 +44,7 @@ export async function resolveServerPath(
     throw new Error('Absolute paths are not allowed')
   }
 
-  const serverRoot = resolve(app.getPath('userData'), 'servers', String(serverId))
+  const serverRoot = resolve(serverStorage.getPath(), String(serverId))
   const targetPath = resolve(serverRoot, untrustedRelativePath || '.')
   const relativeTarget = relative(serverRoot, targetPath)
 

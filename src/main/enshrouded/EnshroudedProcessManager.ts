@@ -1,6 +1,7 @@
+import { serverStorage } from '../storage/ServerStorage'
 import { spawn, ChildProcess } from 'child_process'
 import { join } from 'path'
-import { app, BrowserWindow } from 'electron'
+import { BrowserWindow } from 'electron'
 import fs from 'fs'
 
 export class EnshroudedProcessManager {
@@ -11,7 +12,7 @@ export class EnshroudedProcessManager {
   
   constructor(serverId: number) {
     this.serverId = serverId;
-    this.serverDir = join(app.getPath('userData'), 'servers', serverId.toString());
+    this.serverDir = join(serverStorage.getPath(), serverId.toString());
   }
 
   sendLog(msg: string) {

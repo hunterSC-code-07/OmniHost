@@ -1,6 +1,6 @@
+import { serverStorage } from '../storage/ServerStorage'
 import fs from 'fs'
 import path from 'path'
-import { app } from 'electron'
 import yauzl from 'yauzl'
 import { IncomingMessage } from 'http'
 import https from 'https'
@@ -91,7 +91,7 @@ export class PalworldModManager {
         downloadUrl = `https://edge.forgecdn.net/files/${part1}/${part2}/${encodeURIComponent(fileName)}`
       }
 
-      const serverDir = path.join(app.getPath('userData'), 'servers', serverId.toString())
+      const serverDir = path.join(serverStorage.getPath(), serverId.toString())
       const tempZip = path.join(serverDir, fileName)
 
       // 2. Download the zip file (following redirects)
@@ -188,7 +188,7 @@ export class PalworldModManager {
   }
 
   static async getInstalledMods(serverId: number) {
-    const serverDir = path.join(app.getPath('userData'), 'servers', serverId.toString())
+    const serverDir = path.join(serverStorage.getPath(), serverId.toString())
     const pakDir = path.join(serverDir, 'Pal', 'Content', 'Paks', 'LogicMods')
     const scriptsDir = path.join(serverDir, 'Pal', 'Binaries', 'Win64', 'Mods')
 

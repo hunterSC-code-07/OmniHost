@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
@@ -22,7 +22,7 @@ export class DayzController {
   static register(activeServers: Record<number, any>) {
     // --- DayZ Config ---
     ipcMain.handle('read-dayz-config', async (_, id) => {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const serverDir = join(serverStorage.getPath(), id.toString())
       const cfgPath = join(serverDir, 'serverDZ.cfg')
       if (await exists(cfgPath)) {
         return await fsPromises.readFile(cfgPath, 'utf-8')
@@ -31,7 +31,7 @@ export class DayzController {
     })
 
     ipcMain.handle('write-dayz-config', async (_, id, content) => {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const serverDir = join(serverStorage.getPath(), id.toString())
       const cfgPath = join(serverDir, 'serverDZ.cfg')
       if (await exists(cfgPath)) {
         await fsPromises.writeFile(cfgPath, content)
@@ -43,7 +43,7 @@ export class DayzController {
     // --- DayZ Economy ---
     ipcMain.handle('get-dayz-economy', async (_, id) => {
       try {
-        const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+        const serverDir = join(serverStorage.getPath(), id.toString())
         const cfgPath = join(serverDir, 'serverDZ.cfg')
         if (!(await exists(cfgPath))) return null
 
@@ -76,7 +76,7 @@ export class DayzController {
       'update-dayz-economy',
       async (_, id, settings: { pristineLoot: boolean; multipliers: Record<string, number> }) => {
         try {
-          const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+          const serverDir = join(serverStorage.getPath(), id.toString())
           const cfgPath = join(serverDir, 'serverDZ.cfg')
           if (!(await exists(cfgPath))) return false
 
@@ -191,7 +191,7 @@ export class DayzController {
 
     ipcMain.handle('wipe-dayz-loot', async (_, id, wipePlayers) => {
       try {
-        const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+        const serverDir = join(serverStorage.getPath(), id.toString())
         const cfgPath = join(serverDir, 'serverDZ.cfg')
         if (!(await exists(cfgPath))) return true
 

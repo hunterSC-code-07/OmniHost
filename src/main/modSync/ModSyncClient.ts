@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow } from 'electron'
+import { BrowserWindow } from 'electron'
 import { handleTrusted } from '../security/ipcSecurity'
 import { SteamLibrary } from '../steam/SteamLibrary'
 import { ModManifestEntry } from './ModSyncServer'

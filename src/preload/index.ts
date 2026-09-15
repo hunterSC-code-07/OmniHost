@@ -90,6 +90,9 @@ const api = {
 
   system: {
     getSystemInfo: () => ipcRenderer.invoke('get-system-info'),
+    getServerStorage: () => ipcRenderer.invoke('get-server-storage'),
+    selectServerStorage: () => ipcRenderer.invoke('select-server-storage'),
+    resetServerStorage: () => ipcRenderer.invoke('reset-server-storage'),
     getCacheInfo: () => ipcRenderer.invoke('get-cache-info'),
     getDetailedCacheInfo: () => ipcRenderer.invoke('get-detailed-cache-info'),
     clearCache: () => ipcRenderer.invoke('clear-cache'),
@@ -111,6 +114,20 @@ const api = {
       gameFolderName: string
     ) => ipcRenderer.invoke('start-mod-sync', hostIp, port, gameId, serverId, appId, gameFolderName)
   },
+
+  discord: {
+    getSettings: () => ipcRenderer.invoke('discord-get-settings'),
+    setToken: (token: string) => ipcRenderer.invoke('discord-set-token', token),
+    setAutoStart: (autoStart: boolean) => ipcRenderer.invoke('discord-set-auto-start', autoStart),
+    startBot: (token: string) => ipcRenderer.invoke('discord-start-bot', token),
+    stopBot: () => ipcRenderer.invoke('discord-stop-bot'),
+    getBotStatus: () => ipcRenderer.invoke('discord-get-status'),
+    onBotStatusChanged: (callback: (isRunning: boolean) => void) => {
+      ipcRenderer.removeAllListeners('discord-status-changed')
+      ipcRenderer.on('discord-status-changed', (_, isRunning) => callback(isRunning))
+    }
+  },
+
 
   fs: {
     listDir: (id: number, relPath: string) => ipcRenderer.invoke('fs-list-dir', id, relPath),

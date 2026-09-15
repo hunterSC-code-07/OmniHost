@@ -754,7 +754,6 @@ export function CreateServerModal({ onClose }: { onClose: () => void }) {
               <button
                 onClick={() => void closeAndCancel()}
                 className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                disabled={isCreatingServer}
               >
                 Cancel
               </button>

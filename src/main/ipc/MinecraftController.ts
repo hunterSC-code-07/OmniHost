@@ -1,4 +1,4 @@
-import { app } from 'electron'
+import { serverStorage } from '../storage/ServerStorage'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
@@ -8,7 +8,7 @@ import { updateServerSoftware } from '../db'
 export class MinecraftController {
   static register() {
     ipcMain.handle('change-server-software', async (_, id, type, version, loaderVersion) => {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const serverDir = join(serverStorage.getPath(), id.toString())
       const modsDir = join(serverDir, 'mods')
 
       // Rename old mods folder to prevent compatibility issues

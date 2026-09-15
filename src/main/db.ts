@@ -1,3 +1,4 @@
+import { serverStorage } from './storage/ServerStorage'
 import Database from 'better-sqlite3'
 import { app } from 'electron'
 import { join } from 'path'
@@ -33,7 +34,7 @@ function getDatabase(): Database.Database {
     rows[1]?.name === 'My Palworld Base' &&
     rows[1]?.game === 'Palworld' &&
     rows.every((row) =>
-      !existsSync(join(app.getPath('userData'), 'servers', String(row.id), 'omnihost.json'))
+      !existsSync(join(serverStorage.getPath(), String(row.id), 'omnihost.json'))
     )
 
   if (isUntouchedLegacyDemoDatabase) {

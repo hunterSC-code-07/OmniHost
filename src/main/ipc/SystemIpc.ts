@@ -1,4 +1,5 @@
-import { app } from 'electron'
+import { dialog, BrowserWindow } from 'electron'
+import type { OpenDialogOptions } from 'electron'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import { join } from 'path'
@@ -6,6 +7,9 @@ import fsPromises from 'fs/promises'
 import fs from 'fs'
 import os from 'os'
 import { resolveServerPath } from '../security/serverPath'
+import { serverStorage } from '../storage/ServerStorage'
+import { discordBotSettings } from '../discord/DiscordBotSettings'
+import { discordBot } from '../discord/DiscordBot'
 
 async function exists(path: string) {
   try {
@@ -17,6 +21,29 @@ async function exists(path: string) {
 }
 
 export function registerSystemIpc(activeServers: Record<number, any>, getServers: () => any[]) {
+  // Discord IPCs
+  ipcMain.handle('discord-get-settings', () => discordBotSettings.readSettings())
+  
+  ipcMain.handle('discord-set-token', (_, token: string) => {
+    return discordBotSettings.setToken(token)
+  })
+
+  ipcMain.handle('discord-set-auto-start', (_, autoStart: boolean) => {
+    return discordBotSettings.setAutoStart(autoStart)
+  })
+
+  ipcMain.handle('discord-start-bot', async (_, token: string) => {
+    await discordBot.start(token)
+    return discordBot.isRunning()
+  })
+
+  ipcMain.handle('discord-stop-bot', async () => {
+    await discordBot.stop()
+    return false
+  })
+
+  ipcMain.handle('discord-get-status', () => discordBot.isRunning())
+
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database
@@ -28,12 +55,35 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
     }
   })
 
+  ipcMain.handle('get-server-storage', () => serverStorage.getInfo())
+
+  ipcMain.handle('select-server-storage', async (event) => {
+    const currentStorage = serverStorage.getInfo()
+    const browserWindow = BrowserWindow.fromWebContents(event.sender)
+    const options: OpenDialogOptions = {
+      title: 'Choose Server Instances Folder',
+      buttonLabel: 'Use This Folder',
+      defaultPath: currentStorage.path,
+      properties: ['openDirectory', 'createDirectory']
+    }
+    const result = browserWindow
+      ? await dialog.showOpenDialog(browserWindow, options)
+      : await dialog.showOpenDialog(options)
+
+    if (result.canceled || result.filePaths.length === 0) return null
+    return serverStorage.setPath(result.filePaths[0])
+  })
+
+  ipcMain.handle('reset-server-storage', () => {
+    return serverStorage.resetPath()
+  })
+
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 
   // Database
   // Versions & Downloads
   ipcMain.handle('update-server-meta', async (_, id, changes) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     const metaPath = join(serverDir, 'omnihost.json')
     let meta = {}
     if (fs.existsSync(metaPath)) {
@@ -56,7 +106,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Database
   // Versions & Downloads
   ipcMain.handle('get-player-stats', async (_, id) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     const statsPath = join(serverDir, 'player-stats.json')
     if (fs.existsSync(statsPath)) {
       try {
@@ -73,7 +123,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Database
   // Versions & Downloads
   ipcMain.handle('get-server-meta', async (_, id) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     const metaPath = join(serverDir, 'omnihost.json')
     let meta: any = null
     if (await exists(metaPath)) {
@@ -112,7 +162,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Radmin VPN
   // Config Editor
   ipcMain.handle('read-config', async (_, id) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     let configName = 'server.properties'
     let customPath = ''
     try {
@@ -144,7 +194,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Radmin VPN
   // Config Editor
   ipcMain.handle('write-config', async (_, id, data) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     if (!(await exists(serverDir))) await fsPromises.mkdir(serverDir, { recursive: true })
 
     let configName = 'server.properties'
@@ -268,7 +318,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // --- Backups ---
   ipcMain.handle('create-backup', async (_, id, name) => {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const serverDir = join(serverStorage.getPath(), id.toString())
       const backupsDir = join(serverDir, 'backups')
       if (!fs.existsSync(backupsDir)) {
         await fsPromises.mkdir(backupsDir, { recursive: true })
@@ -317,7 +367,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // --- File Manager ---
   // --- Backups ---
   ipcMain.handle('get-backups', async (_, id) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     const backupsDir = join(serverDir, 'backups')
     if (!fs.existsSync(backupsDir)) return []
 
@@ -350,7 +400,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // --- Backups ---
   ipcMain.handle('restore-backup', async (_, id, filename) => {
     try {
-      const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+      const serverDir = join(serverStorage.getPath(), id.toString())
       const backupPath = await resolveServerPath(
         id,
         join('backups', validateBackupFilename(filename))
@@ -411,7 +461,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   })
 
   ipcMain.handle('delete-all-backups', async (_, id) => {
-    const serverDir = join(app.getPath('userData'), 'servers', id.toString())
+    const serverDir = join(serverStorage.getPath(), id.toString())
     const backupsDir = join(serverDir, 'backups')
     if (!fs.existsSync(backupsDir)) return true
 
