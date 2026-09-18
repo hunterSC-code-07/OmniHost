@@ -1,4 +1,4 @@
-import { BaseFrpAdapter } from './BaseFrpAdapter';
+import { BaseFrpAdapter } from './BaseFrpAdapter'
 
 export class FrpAdapterPalworld extends BaseFrpAdapter {
   getProxyConfig(localIp: string): string {
@@ -16,6 +16,6 @@ type = "tcp"
 localIP = "${localIp}"
 localPort = 25575
 remotePort = 25575
-`;
+`
   }
 }

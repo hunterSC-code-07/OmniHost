@@ -7,16 +7,17 @@ import { useServerStore } from '../../../store/useServerStore'
 
 export const PalworldPlayersTab: React.FC = () => {
   const activeServerId = useServerStore((s) => s.activeServerId)
-  const { onlinePlayers, bannedPlayers, setBannedPlayers, playerListType, setPlayerListType } = usePlayerStore()
+  const { onlinePlayers, bannedPlayers, setBannedPlayers, playerListType, setPlayerListType } =
+    usePlayerStore()
   const players = onlinePlayers[activeServerId!] || []
   const banned = bannedPlayers[activeServerId!] || []
-  
+
   const isBannedView = playerListType === 'banned-players'
   const displayPlayers = isBannedView ? banned : players
 
   React.useEffect(() => {
     if (isBannedView && activeServerId) {
-      window.api.palworld.getBannedPlayers(activeServerId).then(list => {
+      window.api.palworld.getBannedPlayers(activeServerId).then((list) => {
         setBannedPlayers(activeServerId.toString(), list)
       })
     }
@@ -62,14 +63,16 @@ export const PalworldPlayersTab: React.FC = () => {
               </div>
             ) : (
               displayPlayers.map((playerData) => {
-                const isObject = typeof playerData === 'object' && playerData !== null;
-                let rawName = isObject ? (playerData.name || playerData.userId || 'Unknown') : String(playerData);
-                const name = typeof rawName === 'object' ? JSON.stringify(rawName) : String(rawName);
-                const userId = isObject ? playerData.userId : null;
-                const playerId = isObject ? playerData.playerId : null;
-                const uniqueId = userId || playerId || name;
-                const targetId = userId || playerId || name;
-                
+                const isObject = typeof playerData === 'object' && playerData !== null
+                let rawName = isObject
+                  ? playerData.name || playerData.userId || 'Unknown'
+                  : String(playerData)
+                const name = typeof rawName === 'object' ? JSON.stringify(rawName) : String(rawName)
+                const userId = isObject ? playerData.userId : null
+                const playerId = isObject ? playerData.playerId : null
+                const uniqueId = userId || playerId || name
+                const targetId = userId || playerId || name
+
                 return (
                   <div
                     key={uniqueId}
@@ -85,11 +88,16 @@ export const PalworldPlayersTab: React.FC = () => {
                     </div>
                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       {isBannedView ? (
-                        <button 
+                        <button
                           onClick={() => {
-                            window.api.server.sendCommand(activeServerId!, `/UnbanPlayer ${targetId}`)
+                            window.api.server.sendCommand(
+                              activeServerId!,
+                              `/UnbanPlayer ${targetId}`
+                            )
                             setTimeout(() => {
-                              window.api.palworld.getBannedPlayers(activeServerId!).then(list => setBannedPlayers(activeServerId!.toString(), list))
+                              window.api.palworld
+                                .getBannedPlayers(activeServerId!)
+                                .then((list) => setBannedPlayers(activeServerId!.toString(), list))
                             }, 1000)
                           }}
                           className="pal-btn"
@@ -99,15 +107,25 @@ export const PalworldPlayersTab: React.FC = () => {
                         </button>
                       ) : (
                         <>
-                          <button 
-                            onClick={() => window.api.server.sendCommand(activeServerId!, `/KickPlayer ${targetId}`)}
+                          <button
+                            onClick={() =>
+                              window.api.server.sendCommand(
+                                activeServerId!,
+                                `/KickPlayer ${targetId}`
+                              )
+                            }
                             className="pal-btn pal-btn-orange"
                             title="Kick Player"
                           >
                             Kick
                           </button>
-                          <button 
-                            onClick={() => window.api.server.sendCommand(activeServerId!, `/BanPlayer ${targetId}`)}
+                          <button
+                            onClick={() =>
+                              window.api.server.sendCommand(
+                                activeServerId!,
+                                `/BanPlayer ${targetId}`
+                              )
+                            }
                             className="pal-btn"
                             title="Ban Player"
                           >
@@ -117,7 +135,7 @@ export const PalworldPlayersTab: React.FC = () => {
                       )}
                     </div>
                   </div>
-                );
+                )
               })
             )}
           </div>

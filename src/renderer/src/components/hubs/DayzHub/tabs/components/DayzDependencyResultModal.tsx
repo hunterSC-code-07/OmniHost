@@ -1,12 +1,12 @@
-import React from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
+import React from 'react'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 
-import { useModalStore } from '../../../../../store/useModalStore';
+import { useModalStore } from '../../../../../store/useModalStore'
 
 export const DayzDependencyResultModal: React.FC = () => {
-  const { dayzDependencyResultModal, closeDayzDependencyResultModal } = useModalStore();
-  
-  if (!dayzDependencyResultModal.isOpen) return null;
+  const { dayzDependencyResultModal, closeDayzDependencyResultModal } = useModalStore()
+
+  if (!dayzDependencyResultModal.isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
@@ -18,21 +18,29 @@ export const DayzDependencyResultModal: React.FC = () => {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white mb-1">Mod Dependencies</h2>
-              <p className="text-sm text-on-surface-variant">Dependencies for {dayzDependencyResultModal.modTitle}</p>
+              <p className="text-sm text-on-surface-variant">
+                Dependencies for {dayzDependencyResultModal.modTitle}
+              </p>
             </div>
           </div>
-          <button 
-            onClick={closeDayzDependencyResultModal} 
+          <button
+            onClick={closeDayzDependencyResultModal}
             className="w-10 h-10 rounded-full hover:bg-surface-bright/50 flex items-center justify-center text-on-surface-variant hover:text-white transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
 
-        <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} className="flex-1 p-6">
+        <OverlayScrollbarsComponent
+          options={{ scrollbars: { theme: 'os-theme-dark' } }}
+          className="flex-1 p-6"
+        >
           <div className="flex flex-col gap-3">
             {dayzDependencyResultModal.deps.map((dep: any) => (
-              <div key={dep.id} className="bg-surface-bright/20 border border-outline-variant/30 rounded-xl p-4 flex justify-between items-center hover:bg-surface-bright/40 transition-colors">
+              <div
+                key={dep.id}
+                className="bg-surface-bright/20 border border-outline-variant/30 rounded-xl p-4 flex justify-between items-center hover:bg-surface-bright/40 transition-colors"
+              >
                 <div className="flex flex-col">
                   <span className="text-sm font-bold text-white">{dep.title}</span>
                   <span className="text-xs text-on-surface-variant">ID: {dep.id}</span>
@@ -63,5 +71,5 @@ export const DayzDependencyResultModal: React.FC = () => {
         </OverlayScrollbarsComponent>
       </div>
     </div>
-  );
-};
+  )
+}

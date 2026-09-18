@@ -1,21 +1,21 @@
-import React from 'react';
-import 'overlayscrollbars/overlayscrollbars.css';
-import dayzBgVideo from '../../../assets/dayz-animated-bg.mp4';
-import { useServerStore } from '../../../store/useServerStore';
-import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader';
-import { DayzHubHeader } from './DayzHubHeader';
-import { DayzHubNavigation } from './DayzHubNavigation';
-import { DayzHubTabContent } from './DayzHubTabContent';
+import React from 'react'
+import 'overlayscrollbars/overlayscrollbars.css'
+import dayzBgVideo from '../../../assets/dayz-animated-bg.mp4'
+import { useServerStore } from '../../../store/useServerStore'
+import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader'
+import { DayzHubHeader } from './DayzHubHeader'
+import { DayzHubNavigation } from './DayzHubNavigation'
+import { DayzHubTabContent } from './DayzHubTabContent'
 
 const DayzHubContent: React.FC = () => {
-  const { activeServerId, servers } = useServerStore();
-  const currentServer = servers.find(s => s.id === activeServerId);
-  const activeServer = currentServer;
+  const { activeServerId, servers } = useServerStore()
+  const currentServer = servers.find((s) => s.id === activeServerId)
+  const activeServer = currentServer
 
   // Keep download listener active as long as Hub is mounted
-  useDayzModDownloader(activeServerId);
+  useDayzModDownloader(activeServerId)
 
-  if (!activeServer) return null;
+  if (!activeServer) return null
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars">
@@ -39,7 +39,7 @@ const DayzHubContent: React.FC = () => {
         <DayzHubTabContent />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export const DayzHub = DayzHubContent;
+export const DayzHub = DayzHubContent

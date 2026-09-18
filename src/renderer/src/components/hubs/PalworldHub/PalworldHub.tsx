@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import 'overlayscrollbars/overlayscrollbars.css'
@@ -42,13 +42,11 @@ export const PalworldHub: React.FC = () => {
     }))
   )
 
-  const prevServerRef = useRef(currentServer)
-  if (currentServer) {
-    prevServerRef.current = currentServer
+  const [lastServer, setLastServer] = useState(currentServer)
+  if (currentServer && currentServer !== lastServer) {
+    setLastServer(currentServer)
   }
-  const activeServer = currentServer || prevServerRef.current
-
-  if (!activeServer) return null
+  const activeServer = currentServer || lastServer
 
   const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore(
     useShallow((s) => ({
@@ -59,14 +57,14 @@ export const PalworldHub: React.FC = () => {
   )
   const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false)
 
-  const handleTunnel = async () => {
+  const handleTunnel = async (): Promise<void> => {
     if (tunnelStatus === 'Online' || tunnelStatus === 'Starting...') {
-      // @ts-ignore
+      // @ts-ignore - window.api is injected via preload script
       await window.api.system.stopTunnel()
       useUiStore.getState().setTunnelStatus('Offline')
     } else {
       useUiStore.getState().setTunnelStatus('Starting...')
-      // @ts-ignore
+      // @ts-ignore - window.api is injected via preload script
       await window.api.system.startTunnel(tunnelIp, 'palworld')
       // Because FrpAdapter doesn't send a specific "connected" IPC, we assume Online after it spawns
       useUiStore.getState().setTunnelStatus('Online')
@@ -78,7 +76,7 @@ export const PalworldHub: React.FC = () => {
   >('overview')
   const [tabDirection, setTabDirection] = useState(0)
 
-  const handleTabChange = (newTab: typeof activeTab) => {
+  const handleTabChange = (newTab: typeof activeTab): void => {
     if (newTab === activeTab) return
     const tabIds = TABS.map((t) => t.id)
     const currentIndex = tabIds.indexOf(activeTab)
@@ -87,8 +85,13 @@ export const PalworldHub: React.FC = () => {
     setActiveTab(newTab)
   }
 
+  if (!activeServer) return null
+
   return (
-    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden palworld-ui" data-game="palworld">
+    <div
+      className="gamehub-theme flex-1 flex flex-col relative overflow-hidden palworld-ui"
+      data-game="palworld"
+    >
       {/* Animated Background Video */}
       <video
         autoPlay
@@ -100,7 +103,7 @@ export const PalworldHub: React.FC = () => {
         <source src={palworldBgVideo} type="video/mp4" />
       </video>
 
-      <div className="pal-panel hub-frame-header p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
+      <div className="pal-panel hub-frame-header p-6 flex flex-col gap-6 z-10 mb-6 !overflow-visible">
         <div className="hub-header-row flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
             <button
@@ -119,7 +122,7 @@ export const PalworldHub: React.FC = () => {
           </div>
 
           <div className="hub-header-actions flex gap-3 items-center">
-            <div className="flex pal-panel rounded-full p-1 transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105">
+            <div className="flex pal-panel rounded-full transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-105">
               <button
                 onClick={handleTunnel}
                 title={
@@ -129,7 +132,7 @@ export const PalworldHub: React.FC = () => {
                       ? 'Starting...'
                       : 'Start Tunnel'
                 }
-                className={`relative overflow-hidden group px-4 py-2.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
+                className={`relative overflow-hidden group pl-5 pr-4 py-3.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'bg-blue-500/10 text-blue-400 hover:bg-blue-500/20' : tunnelStatus === 'Starting...' ? 'bg-gray-800/50 text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white hover:bg-white/5'}`}
               >
                 <span
                   className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}
@@ -137,22 +140,20 @@ export const PalworldHub: React.FC = () => {
                   {tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}
                 </span>
               </button>
+              <div className="w-[1px] h-8 bg-white/10 my-auto" />
               <button
                 onClick={() => {
                   setTempTunnelIp(tunnelIp)
                   setIsTunnelModalOpen(true)
                 }}
-                className="px-3 border-l border-white/10 text-gray-400 hover:text-white transition-colors flex items-center justify-center"
+                className="pl-3 pr-4 text-gray-400 hover:bg-white/5 hover:text-white transition-colors flex items-center justify-center"
                 title="Tunnel IP Settings"
               >
                 <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
               </button>
             </div>
 
-            <button
-              onClick={() => deleteServer(activeServer.id)}
-              className="pal-btn"
-            >
+            <button onClick={() => deleteServer(activeServer.id)} className="pal-btn">
               <span>DELETE</span>
             </button>
 
@@ -162,42 +163,37 @@ export const PalworldHub: React.FC = () => {
                   ? stopServer(activeServer.id)
                   : startServer(activeServer.id)
               }
-              className={activeServer.status === 'Online' ? 'pal-btn pal-btn-orange' : 'pal-btn pal-btn-blue'}
+              className={
+                activeServer.status === 'Online' ? 'pal-btn pal-btn-orange' : 'pal-btn pal-btn-blue'
+              }
             >
-              <span>
-                {activeServer.status === 'Online' ? 'STOP' : 'START'}
-              </span>
+              <span>{activeServer.status === 'Online' ? 'STOP' : 'START'}</span>
             </button>
 
-            <button
-              onClick={() => restartServer(activeServer.id)}
-              className="pal-btn pal-btn-blue"
-            >
+            <button onClick={() => restartServer(activeServer.id)} className="pal-btn pal-btn-blue">
               <span>RESTART</span>
             </button>
           </div>
         </div>
 
         {/* Sub Top Nav Bar for Server Tabs */}
-        <div className="w-full pb-1">
+        <div className="w-full pb-1 -mb-4 -mx-5">
           <OverlayScrollbarsComponent
             options={{
               scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 }
             }}
             defer
           >
-            <div className="hub-nav flex items-center gap-2 min-w-max pt-2 pb-2 px-1">
+            <div className="hub-nav flex items-center gap-2 min-w-max !overflow-visible !pb-6 !px-6">
               {TABS.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => handleTabChange(tab.id as any)}
-                  className={`hub-tab pal-btn ${
-                    activeTab === tab.id
-                      ? 'pal-btn-active'
-                      : ''
+                  onClick={() => handleTabChange(tab.id as typeof activeTab)}
+                  className={`hub-tab pal-btn !text-[14px] !py-2.5 !px-6 ${
+                    activeTab === tab.id ? 'pal-btn-active' : ''
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
+                  <span className="material-symbols-outlined !text-[20px]">{tab.icon}</span>
                   {tab.label}
                 </button>
               ))}
@@ -206,7 +202,10 @@ export const PalworldHub: React.FC = () => {
         </div>
       </div>
 
-      <div className="hub-frame-content flex-1 overflow-hidden relative min-h-0 flex flex-col border border-t-0 border-white/5 shadow-inner z-10">
+      <div
+        className="hub-frame-content flex-1 overflow-hidden relative min-h-0 flex flex-col border border-white/5 shadow-inner z-10"
+        style={{ borderRadius: '1.5rem', borderTopWidth: '1px' }}
+      >
         <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
           <AnimatePresence custom={tabDirection} mode="wait" initial={false}>
             <motion.div

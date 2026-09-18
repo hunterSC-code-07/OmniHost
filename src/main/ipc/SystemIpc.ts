@@ -23,7 +23,7 @@ async function exists(path: string) {
 export function registerSystemIpc(activeServers: Record<number, any>, getServers: () => any[]) {
   // Discord IPCs
   ipcMain.handle('discord-get-settings', () => discordBotSettings.readSettings())
-  
+
   ipcMain.handle('discord-set-token', (_, token: string) => {
     return discordBotSettings.setToken(token)
   })
@@ -91,7 +91,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
       : await dialog.showOpenDialog(options)
 
     if (result.canceled || result.filePaths.length === 0) return false
-    
+
     const { app } = require('electron')
     const dest = join(app.getPath('userData'), 'custom-boot-sound')
     await fsPromises.copyFile(result.filePaths[0], dest)
@@ -115,7 +115,6 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
     }
     return true
   })
-
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 

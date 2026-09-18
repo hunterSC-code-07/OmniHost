@@ -45,43 +45,53 @@ export class PalworldProcessManager {
   }
 
   async sendCommand(cmd: string) {
-    if (cmd.startsWith('/KickPlayer ') || cmd.startsWith('/BanPlayer ') || cmd.startsWith('/UnbanPlayer ')) {
-      const parts = cmd.split(' ');
-      const action = parts[0] === '/KickPlayer' ? 'kick' : (parts[0] === '/BanPlayer' ? 'ban' : 'unban');
-      const target = parts[1];
+    if (
+      cmd.startsWith('/KickPlayer ') ||
+      cmd.startsWith('/BanPlayer ') ||
+      cmd.startsWith('/UnbanPlayer ')
+    ) {
+      const parts = cmd.split(' ')
+      const action =
+        parts[0] === '/KickPlayer' ? 'kick' : parts[0] === '/BanPlayer' ? 'ban' : 'unban'
+      const target = parts[1]
 
-      const adminPass = (this as any).adminPassword || '';
-      const auth = Buffer.from(`admin:${adminPass}`).toString('base64');
-      
+      const adminPass = (this as any).adminPassword || ''
+      const auth = Buffer.from(`admin:${adminPass}`).toString('base64')
+
       try {
         const res = await fetch(`http://127.0.0.1:8212/v1/api/${action}`, {
           method: 'POST',
-          headers: { 
-            'Authorization': `Basic ${auth}`,
+          headers: {
+            Authorization: `Basic ${auth}`,
             'Content-Type': 'application/json'
           },
           body: JSON.stringify({ userid: target })
-        });
-        
-        this.sendLog(`> ${cmd} (via REST API)`);
+        })
+
+        this.sendLog(`> ${cmd} (via REST API)`)
         if (res.ok) {
-          this.sendLog(`[REST] Successfully executed ${action} on ${target}`);
+          this.sendLog(`[REST] Successfully executed ${action} on ${target}`)
           if (action === 'ban') {
-            const p = this.onlinePlayers.find(op => op.userId === target || op.playerId === target || op.name === target);
+            const p = this.onlinePlayers.find(
+              (op) => op.userId === target || op.playerId === target || op.name === target
+            )
             if (p && p.name) {
-              const namesFile = join(this.serverDir, 'banned_names.json');
-              let namesMap: Record<string, string> = {};
-              try { if (fs.existsSync(namesFile)) namesMap = JSON.parse(fs.readFileSync(namesFile, 'utf8')); } catch(e) {}
-              namesMap[p.userId || p.playerId || target] = p.name;
-              fs.writeFileSync(namesFile, JSON.stringify(namesMap, null, 2));
+              const namesFile = join(this.serverDir, 'banned_names.json')
+              let namesMap: Record<string, string> = {}
+              try {
+                if (fs.existsSync(namesFile))
+                  namesMap = JSON.parse(fs.readFileSync(namesFile, 'utf8'))
+              } catch (e) {}
+              namesMap[p.userId || p.playerId || target] = p.name
+              fs.writeFileSync(namesFile, JSON.stringify(namesMap, null, 2))
             }
           }
         } else {
-          this.sendLog(`[REST Error] Failed to ${action} ${target} (HTTP ${res.status})`);
+          this.sendLog(`[REST Error] Failed to ${action} ${target} (HTTP ${res.status})`)
         }
-        return;
+        return
       } catch (e) {
-        this.sendLog(`[REST Error] ${e}`);
+        this.sendLog(`[REST Error] ${e}`)
         // Fallback to RCON if REST fails
       }
     }
@@ -95,26 +105,26 @@ export class PalworldProcessManager {
 
   private getActualPid(): Promise<number> {
     return new Promise((resolve) => {
-      const proc = this.process;
-      if (!proc || !proc.pid) return resolve(0);
-      if (this.serverPid) return resolve(this.serverPid);
-      if (process.platform !== 'win32') return resolve(proc.pid);
+      const proc = this.process
+      if (!proc || !proc.pid) return resolve(0)
+      if (this.serverPid) return resolve(this.serverPid)
+      if (process.platform !== 'win32') return resolve(proc.pid)
 
-      const { spawn } = require('child_process');
-      const ps = spawn('powershell', ['-NoProfile', '-Command', '-']);
-      
-      let out = '';
-      ps.stdout.on('data', (data: any) => out += data.toString());
-      
+      const { spawn } = require('child_process')
+      const ps = spawn('powershell', ['-NoProfile', '-Command', '-'])
+
+      let out = ''
+      ps.stdout.on('data', (data: any) => (out += data.toString()))
+
       ps.on('close', () => {
-        const pid = parseInt(out.trim());
+        const pid = parseInt(out.trim())
         if (!isNaN(pid) && pid > 0) {
-          this.serverPid = pid;
-          resolve(pid);
+          this.serverPid = pid
+          resolve(pid)
         } else {
-          resolve(proc.pid!);
+          resolve(proc.pid!)
         }
-      });
+      })
 
       const script = `
         $all = Get-CimInstance Win32_Process | Select-Object ProcessId, ParentProcessId, Name
@@ -144,10 +154,10 @@ export class PalworldProcessManager {
             if ($found -ne 0) { break }
         }
         Write-Output $found
-      `;
-      ps.stdin.write(script);
-      ps.stdin.end();
-    });
+      `
+      ps.stdin.write(script)
+      ps.stdin.end()
+    })
   }
 
   async start() {
@@ -162,18 +172,24 @@ export class PalworldProcessManager {
     this.sendLog('[System] Starting Palworld Server...')
 
     // Force enable RCON, REST API, and set an AdminPassword so we can track players
-    const config = await PalworldConfigManager.getConfig(this.serverId);
-    let adminPassword = config['AdminPassword'] ? config['AdminPassword'].replace(/"/g, '') : '';
-    
+    const config = await PalworldConfigManager.getConfig(this.serverId)
+    let adminPassword = config['AdminPassword'] ? config['AdminPassword'].replace(/"/g, '') : ''
+
     if (config['RCONEnabled'] !== 'True' || config['RESTAPIEnabled'] !== 'True' || !adminPassword) {
-      this.sendLog('[System] Enabling RCON & REST API, generating Admin Password for player tracking...');
-      const newPassword = `"${Math.random().toString(36).substring(2, 10)}"`;
-      await PalworldConfigManager.setConfig(this.serverId, { RCONEnabled: 'True', RESTAPIEnabled: 'True', AdminPassword: newPassword });
-      adminPassword = newPassword.replace(/"/g, '');
+      this.sendLog(
+        '[System] Enabling RCON & REST API, generating Admin Password for player tracking...'
+      )
+      const newPassword = `"${Math.random().toString(36).substring(2, 10)}"`
+      await PalworldConfigManager.setConfig(this.serverId, {
+        RCONEnabled: 'True',
+        RESTAPIEnabled: 'True',
+        AdminPassword: newPassword
+      })
+      adminPassword = newPassword.replace(/"/g, '')
     }
-    
+
     // Store it on the class so the interval can use it
-    (this as any).adminPassword = adminPassword;
+    ;(this as any).adminPassword = adminPassword
 
     const logDir = join(this.serverDir, 'Pal', 'Saved', 'Logs')
     if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true })
@@ -184,14 +200,22 @@ export class PalworldProcessManager {
       this.sendLog(`[System Warning] Could not clear old Pal.log: ${e}`)
     }
 
-    const shippingExePath = join(this.serverDir, 'Pal', 'Binaries', 'Win64', 'PalServer-Win64-Shipping.exe')
-    const args = [
-      '/c',
-      `""${shippingExePath}" Pal -log > "${logFilePath}" 2>&1"`
-    ]
-    const startTime = Date.now() - 5000;
+    const shippingExePath = join(
+      this.serverDir,
+      'Pal',
+      'Binaries',
+      'Win64',
+      'PalServer-Win64-Shipping.exe'
+    )
+    const args = ['/c', `""${shippingExePath}" Pal -log > "${logFilePath}" 2>&1"`]
+    const startTime = Date.now() - 5000
 
-    this.process = spawn('cmd.exe', args, { cwd: this.serverDir, shell: false, windowsHide: false, windowsVerbatimArguments: true })
+    this.process = spawn('cmd.exe', args, {
+      cwd: this.serverDir,
+      shell: false,
+      windowsHide: false,
+      windowsVerbatimArguments: true
+    })
 
     // Wait a few seconds for the child process to spawn before applying CPU limit
     setTimeout(() => {
@@ -238,80 +262,95 @@ export class PalworldProcessManager {
       startTime,
       onLine: (line) => this.sendLog(`[Palworld] ${line}`),
       onLog: (msg) => this.sendLog(msg)
-    });
-    this.fileTailer.start();
+    })
+    this.fileTailer.start()
 
     if (this.process.pid) {
       this.statsTimer = setInterval(async () => {
-        if (!this.process || !this.process.pid) return;
+        if (!this.process || !this.process.pid) return
         try {
-          const actualPid = await this.getActualPid();
-          if (actualPid === 0) return;
-          const stats = await pidusage(actualPid);
+          const actualPid = await this.getActualPid()
+          if (actualPid === 0) return
+          const stats = await pidusage(actualPid)
           BrowserWindow.getAllWindows().forEach((win) => {
             if (!win.isDestroyed())
-              win.webContents.send('server-stats', { id: this.serverId, cpu: stats.cpu, ram: stats.memory })
+              win.webContents.send('server-stats', {
+                id: this.serverId,
+                cpu: stats.cpu,
+                ram: stats.memory
+              })
           })
         } catch (e: any) {
           // PID might not exist anymore
-          this.serverPid = null;
+          this.serverPid = null
         }
-      }, 2000);
+      }, 2000)
     }
 
     // Start REST API polling for players (Palworld RCON is broken and times out)
     this.playerInterval = setInterval(async () => {
-      if (!this.process) return;
+      if (!this.process) return
       try {
-        const adminPass = (this as any).adminPassword || '';
-        const auth = Buffer.from(`admin:${adminPass}`).toString('base64');
+        const adminPass = (this as any).adminPassword || ''
+        const auth = Buffer.from(`admin:${adminPass}`).toString('base64')
         const res = await fetch('http://127.0.0.1:8212/v1/api/players', {
-          headers: { 'Authorization': `Basic ${auth}` }
-        });
-        
+          headers: { Authorization: `Basic ${auth}` }
+        })
+
         if (res.ok) {
-          const data = await res.json();
+          const data = await res.json()
           // data.players is an array of objects: { name, playerId, userId, ip, ping }
-          const currentPlayers = data.players || [];
-          
+          const currentPlayers = data.players || []
+
           // Only send update if players changed
-          const getIds = (arr: any[]) => arr.map(p => p.userId || p.name);
-          const currIds = getIds(currentPlayers);
-          const oldIds = getIds(this.onlinePlayers);
-          
+          const getIds = (arr: any[]) => arr.map((p) => p.userId || p.name)
+          const currIds = getIds(currentPlayers)
+          const oldIds = getIds(this.onlinePlayers)
+
           if (JSON.stringify(currIds) !== JSON.stringify(oldIds)) {
             // Find joined and left players to emit real-time logs (bypassing slow file buffer)
-            const joined = currentPlayers.filter((p: any) => !oldIds.includes(p.userId || p.name));
-            const left = this.onlinePlayers.filter((p: any) => !currIds.includes(p.userId || p.name));
-            
+            const joined = currentPlayers.filter((p: any) => !oldIds.includes(p.userId || p.name))
+            const left = this.onlinePlayers.filter(
+              (p: any) => !currIds.includes(p.userId || p.name)
+            )
+
             for (const p of joined) {
-              this.sendLog(`[System] ${p.name || 'Unknown Player'} joined the game`);
+              this.sendLog(`[System] ${p.name || 'Unknown Player'} joined the game`)
             }
             for (const p of left) {
-              this.sendLog(`[System] ${p.name || 'Unknown Player'} left the game`);
+              this.sendLog(`[System] ${p.name || 'Unknown Player'} left the game`)
             }
 
-            this.onlinePlayers = currentPlayers;
-            this.sendPlayerUpdate();
+            this.onlinePlayers = currentPlayers
+            this.sendPlayerUpdate()
           }
         }
       } catch (e) {
         // Ignore polling errors while server is booting or REST API is unreachable
       }
-    }, 10000);
+    }, 10000)
 
     this.process.on('close', (code) => {
       this.sendLog(`[System] Palworld Server stopped (Code: ${code})`)
       this.fileTailer?.stop()
-      if (this.playerInterval) { clearInterval(this.playerInterval); this.playerInterval = null; }
-      if (this.statsTimer) { clearInterval(this.statsTimer); this.statsTimer = null; }
-      try { this.rcon.disconnect() } catch (e) {}
+      if (this.playerInterval) {
+        clearInterval(this.playerInterval)
+        this.playerInterval = null
+      }
+      if (this.statsTimer) {
+        clearInterval(this.statsTimer)
+        this.statsTimer = null
+      }
+      try {
+        this.rcon.disconnect()
+      } catch (e) {}
       this.process = null
       this.serverPid = null
       this.onlinePlayers = []
       this.sendPlayerUpdate()
       BrowserWindow.getAllWindows().forEach((win) => {
-        if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 })
+        if (!win.isDestroyed())
+          win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 })
       })
     })
 
@@ -336,15 +375,24 @@ export class PalworldProcessManager {
       this.process = null
       this.serverPid = null
       this.fileTailer?.stop()
-      if (this.playerInterval) { clearInterval(this.playerInterval); this.playerInterval = null; }
-      if (this.statsTimer) { clearInterval(this.statsTimer); this.statsTimer = null; }
-      try { this.rcon.disconnect() } catch (e) {}
+      if (this.playerInterval) {
+        clearInterval(this.playerInterval)
+        this.playerInterval = null
+      }
+      if (this.statsTimer) {
+        clearInterval(this.statsTimer)
+        this.statsTimer = null
+      }
+      try {
+        this.rcon.disconnect()
+      } catch (e) {}
     }
 
     this.onlinePlayers = []
     this.sendPlayerUpdate()
     BrowserWindow.getAllWindows().forEach((win) => {
-      if (!win.isDestroyed()) win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 })
+      if (!win.isDestroyed())
+        win.webContents.send('server-stats', { id: this.serverId, cpu: 0, ram: 0 })
     })
   }
 }

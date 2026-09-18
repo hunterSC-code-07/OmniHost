@@ -1,22 +1,22 @@
-import React, { useState, useMemo } from 'react';
-import 'overlayscrollbars/overlayscrollbars.css';
-import './sevendays-ui.css';
-import '../../../assets/gamehub-ui.css';
-import { SevenDaysToDieConsoleTab } from './tabs/SevenDaysToDieConsoleTab';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useState, useMemo } from 'react'
+import 'overlayscrollbars/overlayscrollbars.css'
+import './sevendays-ui.css'
+import '../../../assets/gamehub-ui.css'
+import { SevenDaysToDieConsoleTab } from './tabs/SevenDaysToDieConsoleTab'
+import { motion, AnimatePresence } from 'motion/react'
 
-import { useServerStore } from '../../../store/useServerStore';
-import { useUiStore } from '../../../store/useUiStore';
-import { TunnelModal } from '../../modals/TunnelModal';
+import { useServerStore } from '../../../store/useServerStore'
+import { useUiStore } from '../../../store/useUiStore'
+import { TunnelModal } from '../../modals/TunnelModal'
 
-import { SevenDaysToDieFilesTab as FilesTab } from './tabs/SevenDaysToDieFilesTab';
-import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab';
-import { SevenDaysToDiePlayersTab } from './tabs/SevenDaysToDiePlayersTab';
-import { SevenDaysToDieOverviewTab } from './tabs/SevenDaysToDieOverviewTab';
-import { SevenDaysToDieSpawnTab } from './tabs/SevenDaysToDieSpawnTab';
-import { SevenDaysToDieInstalledModsTab } from './tabs/SevenDaysToDieInstalledModsTab';
-import { SevenDaysToDieNexusTab } from './tabs/SevenDaysToDieNexusTab';
-import { SevenDaysToDieCommunityModsTab } from './tabs/SevenDaysToDieCommunityModsTab';
+import { SevenDaysToDieFilesTab as FilesTab } from './tabs/SevenDaysToDieFilesTab'
+import { SevenDaysToDieOptionsTab as OptionsTab } from './tabs/SevenDaysToDieOptionsTab'
+import { SevenDaysToDiePlayersTab } from './tabs/SevenDaysToDiePlayersTab'
+import { SevenDaysToDieOverviewTab } from './tabs/SevenDaysToDieOverviewTab'
+import { SevenDaysToDieSpawnTab } from './tabs/SevenDaysToDieSpawnTab'
+import { SevenDaysToDieInstalledModsTab } from './tabs/SevenDaysToDieInstalledModsTab'
+import { SevenDaysToDieNexusTab } from './tabs/SevenDaysToDieNexusTab'
+import { SevenDaysToDieCommunityModsTab } from './tabs/SevenDaysToDieCommunityModsTab'
 
 const TABS = [
   { id: 'overview', label: 'Overview', icon: 'dashboard' },
@@ -28,75 +28,131 @@ const TABS = [
   { id: 'nexus_mods', label: 'Nexus Mods', icon: 'travel_explore' },
   { id: 'community_mods', label: 'Community Mods', icon: 'language' },
   { id: 'files', label: 'Config & Files', icon: 'folder' }
-];
+]
 
 export const SevenDaysToDieHub: React.FC = () => {
-  const { activeServerId, servers, setActiveServerId, startServer, stopServer, restartServer, deleteServer } = useServerStore();
-  const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore();
-  const [activeTab, setActiveTab] = useState('overview');
-  const [direction, setDirection] = useState(1);
-  const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false);
+  const {
+    activeServerId,
+    servers,
+    setActiveServerId,
+    startServer,
+    stopServer,
+    restartServer,
+    deleteServer
+  } = useServerStore()
+  const { tunnelStatus, tunnelIp, setTempTunnelIp } = useUiStore()
+  const [activeTab, setActiveTab] = useState('overview')
+  const [direction, setDirection] = useState(1)
+  const [isTunnelModalOpen, setIsTunnelModalOpen] = useState(false)
 
   const handleTabChange = (newTabId: string) => {
-    const currentIndex = TABS.findIndex(t => t.id === activeTab);
-    const newIndex = TABS.findIndex(t => t.id === newTabId);
-    setDirection(newIndex > currentIndex ? 1 : -1);
-    setActiveTab(newTabId);
-  };
+    const currentIndex = TABS.findIndex((t) => t.id === activeTab)
+    const newIndex = TABS.findIndex((t) => t.id === newTabId)
+    setDirection(newIndex > currentIndex ? 1 : -1)
+    setActiveTab(newTabId)
+  }
 
-  const activeServer = useMemo(() => servers.find(s => s.id === activeServerId), [servers, activeServerId]);
+  const activeServer = useMemo(
+    () => servers.find((s) => s.id === activeServerId),
+    [servers, activeServerId]
+  )
 
   const handleTunnel = async () => {
     if (tunnelStatus === 'Offline' || tunnelStatus === '') {
       // @ts-ignore
-      await window.api.system.startTunnel(tunnelIp, '7dtd');
+      await window.api.system.startTunnel(tunnelIp, '7dtd')
     } else if (tunnelStatus === 'Online') {
       // @ts-ignore
-      await window.api.system.stopTunnel();
+      await window.api.system.stopTunnel()
     }
-  };
+  }
 
-  if (!activeServer) return null;
+  if (!activeServer) return null
 
   const handleCopyJoinLink = () => {
-    const link = `omnihost://join/${tunnelIp || '127.0.0.1'}/26905/7dtd/${activeServer.id}`;
-    navigator.clipboard.writeText(link);
-    alert('Mod Sync Join Link copied to clipboard!\n\n' + link);
-  };
-  
+    const link = `omnihost://join/${tunnelIp || '127.0.0.1'}/26905/7dtd/${activeServer.id}`
+    navigator.clipboard.writeText(link)
+    alert('Mod Sync Join Link copied to clipboard!\n\n' + link)
+  }
+
   return (
-    <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black sevendays-ui" data-game="7-days">
-      
+    <div
+      className="gamehub-theme flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black sevendays-ui"
+      data-game="7-days"
+    >
       <div className="sevendays-bg"></div>
 
       <div className="hub-frame-header p-8 flex flex-col gap-6 z-10 relative">
         <div className="hub-header-row flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
-            <button onClick={() => setActiveServerId(null)} className="p-2 text-white/50 hover:text-white transition-colors flex items-center justify-center group" title="Back to Dashboard">
-              <span className="material-symbols-outlined text-[24px] group-hover:-translate-x-1 transition-transform">arrow_back</span>
+            <button
+              onClick={() => setActiveServerId(null)}
+              className="p-2 text-white/50 hover:text-white transition-colors flex items-center justify-center group"
+              title="Back to Dashboard"
+            >
+              <span className="material-symbols-outlined text-[24px] group-hover:-translate-x-1 transition-transform">
+                arrow_back
+              </span>
             </button>
-            <h2 className="hub-title text-3xl font-bold sevendays-title tracking-wider">{activeServer.name}</h2>
+            <h2 className="hub-title text-3xl font-bold sevendays-title tracking-wider">
+              {activeServer.name}
+            </h2>
           </div>
 
           <div className="hub-header-actions flex gap-3 items-center">
             <div className="flex bg-[var(--7dtd-bg-panel-dark)] items-center border border-[var(--7dtd-border)]">
-              <button onClick={handleTunnel} title={tunnelStatus === 'Online' ? 'Stop Tunnel' : tunnelStatus === 'Starting...' ? 'Starting...' : 'Start Tunnel'} className={`relative overflow-hidden group px-4 py-1.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'text-green-400' : tunnelStatus === 'Starting...' ? 'text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}>
-                <span className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}>{tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}</span>
+              <button
+                onClick={handleTunnel}
+                title={
+                  tunnelStatus === 'Online'
+                    ? 'Stop Tunnel'
+                    : tunnelStatus === 'Starting...'
+                      ? 'Starting...'
+                      : 'Start Tunnel'
+                }
+                className={`relative overflow-hidden group px-4 py-1.5 transition-all flex items-center justify-center ${tunnelStatus === 'Online' ? 'text-green-400' : tunnelStatus === 'Starting...' ? 'text-gray-400 cursor-not-allowed' : 'text-gray-400 hover:text-white'}`}
+              >
+                <span
+                  className={`material-symbols-outlined text-[20px] leading-none ${tunnelStatus === 'Starting...' ? 'animate-spin' : ''}`}
+                >
+                  {tunnelStatus === 'Starting...' ? 'sync' : 'cell_tower'}
+                </span>
               </button>
-              <button onClick={() => { setTempTunnelIp(tunnelIp); setIsTunnelModalOpen(true); }} className="px-3 border-l border-[var(--7dtd-border)] text-gray-400 hover:text-white transition-colors flex items-center justify-center" title="Tunnel IP Settings">
+              <button
+                onClick={() => {
+                  setTempTunnelIp(tunnelIp)
+                  setIsTunnelModalOpen(true)
+                }}
+                className="px-3 border-l border-[var(--7dtd-border)] text-gray-400 hover:text-white transition-colors flex items-center justify-center"
+                title="Tunnel IP Settings"
+              >
                 <span className="material-symbols-outlined text-[18px] leading-none">settings</span>
               </button>
             </div>
-            
-            <button onClick={handleCopyJoinLink} className="sevendays-btn !bg-blue-600 hover:!bg-blue-500 !border-blue-500" title="Copy Mod Sync Join Link">
+
+            <button
+              onClick={handleCopyJoinLink}
+              className="sevendays-btn !bg-blue-600 hover:!bg-blue-500 !border-blue-500"
+              title="Copy Mod Sync Join Link"
+            >
               <span className="material-symbols-outlined text-[18px] mr-1">link</span>
               JOIN LINK
             </button>
 
-            <button onClick={() => deleteServer(activeServer.id)} className="sevendays-btn sevendays-btn-danger">
+            <button
+              onClick={() => deleteServer(activeServer.id)}
+              className="sevendays-btn sevendays-btn-danger"
+            >
               DELETE
             </button>
-            <button onClick={() => activeServer.status === 'Online' ? stopServer(activeServer.id) : startServer(activeServer.id)} className={`sevendays-btn ${activeServer.status === 'Online' ? 'sevendays-btn-danger' : ''}`}>
+            <button
+              onClick={() =>
+                activeServer.status === 'Online'
+                  ? stopServer(activeServer.id)
+                  : startServer(activeServer.id)
+              }
+              className={`sevendays-btn ${activeServer.status === 'Online' ? 'sevendays-btn-danger' : ''}`}
+            >
               {activeServer.status === 'Online' ? 'STOP' : 'START'}
             </button>
             <button onClick={() => restartServer(activeServer.id)} className="sevendays-btn">
@@ -107,7 +163,7 @@ export const SevenDaysToDieHub: React.FC = () => {
 
         {/* Tabs */}
         <div className="hub-nav w-full flex justify-end pr-2 border-b-2 border-transparent relative -bottom-2 z-10 sevendays-tabs-container">
-          {TABS.map(tab => (
+          {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabChange(tab.id)}
@@ -136,21 +192,24 @@ export const SevenDaysToDieHub: React.FC = () => {
               transition={{ duration: 0.15 }}
               className="flex flex-col min-h-0 w-full h-full relative"
             >
-              { activeTab === 'overview' && <SevenDaysToDieOverviewTab serverId={activeServer.id} />}
-              { activeTab === 'console' && <SevenDaysToDieConsoleTab />}
-              { activeTab === 'players' && <SevenDaysToDiePlayersTab serverId={activeServer.id} />}
-              { activeTab === 'spawn' && <SevenDaysToDieSpawnTab serverId={activeServer.id} />}
-              { activeTab === 'installed_mods' && <SevenDaysToDieInstalledModsTab serverId={activeServer.id} />}
-              { activeTab === 'nexus_mods' && <SevenDaysToDieNexusTab serverId={activeServer.id} />}
-              { activeTab === 'community_mods' && <SevenDaysToDieCommunityModsTab serverId={activeServer.id} />}
-              { activeTab === 'options' && <OptionsTab />}
-              { activeTab === 'files' && <FilesTab />}
-
+              {activeTab === 'overview' && <SevenDaysToDieOverviewTab serverId={activeServer.id} />}
+              {activeTab === 'console' && <SevenDaysToDieConsoleTab />}
+              {activeTab === 'players' && <SevenDaysToDiePlayersTab serverId={activeServer.id} />}
+              {activeTab === 'spawn' && <SevenDaysToDieSpawnTab serverId={activeServer.id} />}
+              {activeTab === 'installed_mods' && (
+                <SevenDaysToDieInstalledModsTab serverId={activeServer.id} />
+              )}
+              {activeTab === 'nexus_mods' && <SevenDaysToDieNexusTab serverId={activeServer.id} />}
+              {activeTab === 'community_mods' && (
+                <SevenDaysToDieCommunityModsTab serverId={activeServer.id} />
+              )}
+              {activeTab === 'options' && <OptionsTab />}
+              {activeTab === 'files' && <FilesTab />}
             </motion.div>
           </AnimatePresence>
         </div>
       </div>
       {isTunnelModalOpen && <TunnelModal onClose={() => setIsTunnelModalOpen(false)} />}
     </div>
-  );
-};
+  )
+}

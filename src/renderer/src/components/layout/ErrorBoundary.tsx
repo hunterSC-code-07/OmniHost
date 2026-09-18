@@ -1,47 +1,47 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
+import { Component, ErrorInfo, ReactNode } from 'react'
 
 interface Props {
-  children?: ReactNode;
-  fallback?: ReactNode;
-  onReset?: () => void;
+  children?: ReactNode
+  fallback?: ReactNode
+  onReset?: () => void
 }
 
 interface State {
-  hasError: boolean;
-  error: Error | null;
+  hasError: boolean
+  error: Error | null
 }
 
 export class ErrorBoundary extends Component<Props, State> {
   public state: State = {
     hasError: false,
     error: null
-  };
+  }
 
   public static getDerivedStateFromError(error: Error): State {
     // Update state so the next render will show the fallback UI.
-    return { hasError: true, error };
+    return { hasError: true, error }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     // Log the error to our centralized logging system
     if (window.api?.log?.error) {
-      window.api.log.error('React ErrorBoundary caught an error:', error, errorInfo.componentStack);
+      window.api.log.error('React ErrorBoundary caught an error:', error, errorInfo.componentStack)
     } else {
-      console.error('Uncaught error:', error, errorInfo);
+      console.error('Uncaught error:', error, errorInfo)
     }
   }
 
   private handleReset = () => {
-    this.setState({ hasError: false, error: null });
+    this.setState({ hasError: false, error: null })
     if (this.props.onReset) {
-      this.props.onReset();
+      this.props.onReset()
     }
-  };
+  }
 
   public render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        return this.props.fallback;
+        return this.props.fallback
       }
 
       return (
@@ -52,9 +52,10 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <h2 className="text-2xl font-bold mb-2">Something went wrong</h2>
             <p className="text-on-surface-variant mb-6">
-              A critical error occurred while rendering this component. The issue has been automatically logged.
+              A critical error occurred while rendering this component. The issue has been
+              automatically logged.
             </p>
-            
+
             <div className="w-full bg-surface-container-lowest/50 rounded-lg p-4 border border-outline-variant/30 text-left overflow-auto max-h-40 mb-8 custom-scrollbar">
               <code className="text-xs font-mono text-red-300 whitespace-pre-wrap break-words">
                 {this.state.error?.message || 'Unknown error'}
@@ -77,9 +78,9 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
           </div>
         </div>
-      );
+      )
     }
 
-    return this.props.children;
+    return this.props.children
   }
 }

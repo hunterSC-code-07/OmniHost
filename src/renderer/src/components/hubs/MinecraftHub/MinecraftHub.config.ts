@@ -1,10 +1,10 @@
-import React from 'react';
-import minecraftBg from '../../../assets/minecraft-bg.png';
+import React from 'react'
+import minecraftBg from '../../../assets/minecraft-bg.png'
 
 export const config = {
   gameName: 'Minecraft',
   // steamAppId not applicable
-  component: React.lazy(() => import('./MinecraftHub').then(m => ({ default: m.MinecraftHub }))),
+  component: React.lazy(() => import('./MinecraftHub').then((m) => ({ default: m.MinecraftHub }))),
   backgroundUrl: minecraftBg,
   theme: {
     ringColor: 'hover:ring-green-500',
@@ -12,4 +12,4 @@ export const config = {
     textColor: 'group-hover:text-green-400',
     bgGradient: 'from-green-900/40 via-green-800/10 to-transparent'
   }
-};
+}

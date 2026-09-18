@@ -15,7 +15,9 @@ export class DiscordBotSettingsService {
   readSettings(): DiscordBotSettings {
     const defaultSettings: DiscordBotSettings = { token: '', autoStart: false }
     try {
-      const rawSettings = JSON.parse(readFileSync(this.getSettingsPath(), 'utf8')) as Partial<DiscordBotSettings>
+      const rawSettings = JSON.parse(
+        readFileSync(this.getSettingsPath(), 'utf8')
+      ) as Partial<DiscordBotSettings>
       if (!rawSettings || typeof rawSettings !== 'object') {
         return defaultSettings
       }

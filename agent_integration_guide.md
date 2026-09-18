@@ -5,12 +5,12 @@
 
 ## Codebase Architecture Overview
 
-OmniHost is an Electron-based React application designed to host a wide variety of game servers. It uses a **Dynamic Registry Architecture** powered by Vite's `import.meta.glob`. 
+OmniHost is an Electron-based React application designed to host a wide variety of game servers. It uses a **Dynamic Registry Architecture** powered by Vite's `import.meta.glob`.
 
 - **Frontend (React)**: All game hubs are located in `src/renderer/src/components/hubs/`. The application automatically discovers supported games by scanning for `*.config.ts` files inside these hub folders.
 - **Backend (Node.js)**: Server lifecycle adapters are located in `src/main/adapters/`. The backend dynamically registers adapters using `*.config.ts` files.
 
-There is **NO central `SteamGames.ts` list**. You do not need to edit `DashboardHub.tsx`, `HubRouter.tsx`, or `ServerLifecycleController.ts` to register a new game. 
+There is **NO central `SteamGames.ts` list**. You do not need to edit `DashboardHub.tsx`, `HubRouter.tsx`, or `ServerLifecycleController.ts` to register a new game.
 
 ---
 
@@ -25,8 +25,9 @@ The backend is responsible for defining the server's lifecycle (start, stop) and
 1. **Create the Adapter Config**
    - Create a file: `src/main/adapters/[GameName].config.ts`
    - Example (`Ark.config.ts`):
+
    ```typescript
-   import { GameHubConfig } from './AdapterRegistry';
+   import { GameHubConfig } from './AdapterRegistry'
 
    export const config: GameHubConfig = {
      id: 'ark',
@@ -35,10 +36,10 @@ The backend is responsible for defining the server's lifecycle (start, stop) and
      executable: 'ShooterGame/Binaries/Win64/ShooterGameServer.exe',
      // Factory method to return the server adapter class
      factory: async (serverId) => {
-       const { ArkAdapter } = await import('../ark/ArkAdapter');
-       return new ArkAdapter(serverId);
+       const { ArkAdapter } = await import('../ark/ArkAdapter')
+       return new ArkAdapter(serverId)
      }
-   };
+   }
    ```
 
 2. **Create the Process Manager & Adapter**
@@ -57,6 +58,7 @@ The frontend is responsible for the Hub UI, which includes tabs for the console,
    - Create a file: `src/renderer/src/components/hubs/[GameName]Hub/[GameName]Hub.config.ts`
    - This file allows the Dashboard and Create Server modals to automatically display your game.
    - Example (`ArkHub.config.ts`):
+
    ```typescript
    export const config = {
      id: 'ark',
@@ -64,8 +66,8 @@ The frontend is responsible for the Hub UI, which includes tabs for the console,
      steamAppId: 376030,
      bgGradient: 'from-green-900/40 to-black', // Used for dynamic theming
      // Lazy load the React component
-     component: () => import('./ArkHub').then(m => m.ArkHub)
-   };
+     component: () => import('./ArkHub').then((m) => m.ArkHub)
+   }
    ```
 
 3. **Build the Hub Component (`[GameName]Hub.tsx`)**
@@ -88,9 +90,10 @@ The frontend is responsible for the Hub UI, which includes tabs for the console,
 ## FRP Tunneling Architecture
 
 FRP Tunneling relies on a decoupled registry pattern:
+
 1. **Base Adapter**: `BaseFrpAdapter.ts` provides the foundational logic for generating the `frpc.toml` config, managing the sub-process, and passing logs through IPC.
 2. **Game-Specific Adapters**: Individual games implement their own `FrpAdapter[GAME].ts` extending `BaseFrpAdapter`. They override `getProxyConfig(localIp: string): string` to return their specific game's `[[proxies]]` TOML string for TCP/UDP ports.
-3. **Registration**: These adapters are instantiated and registered dynamically in `NetworkIpc.ts` via the `tunnelProviders` map. 
+3. **Registration**: These adapters are instantiated and registered dynamically in `NetworkIpc.ts` via the `tunnelProviders` map.
 
 Do not bundle proxy configurations into a monolithic FRP adapter; always subclass `BaseFrpAdapter`.
 

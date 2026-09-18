@@ -35,7 +35,14 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [discordLoading, setDiscordLoading] = useState(false)
   const [isSelectingSound, setIsSelectingSound] = useState(false)
   const { showToast } = useToastStore()
-  const { playBootSound, setPlayBootSound, bootSoundVolume, setBootSoundVolume, useCustomBootSound, setUseCustomBootSound } = useUiStore()
+  const {
+    playBootSound,
+    setPlayBootSound,
+    bootSoundVolume,
+    setBootSoundVolume,
+    useCustomBootSound,
+    setUseCustomBootSound
+  } = useUiStore()
 
   const loadLogs = useCallback(async () => {
     try {
@@ -210,7 +217,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                   : 'border-transparent text-on-surface-variant hover:bg-surface-bright/50 hover:text-white'
               }`}
             >
-              <span className="material-symbols-outlined text-[20px]">integration_instructions</span>
+              <span className="material-symbols-outlined text-[20px]">
+                integration_instructions
+              </span>
               Integrations
             </button>
           </div>
@@ -232,7 +241,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                     <div className="flex items-center justify-between">
                       <div>
                         <h4 className="text-sm font-bold text-white">Play Boot Sound</h4>
-                        <p className="text-xs text-on-surface-variant">Play an audio greeting when OmniHost is launched.</p>
+                        <p className="text-xs text-on-surface-variant">
+                          Play an audio greeting when OmniHost is launched.
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -253,13 +264,15 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       <div className="mt-4 border-t border-outline-variant/20 pt-4">
                         <div className="flex items-center justify-between mb-2">
                           <label className="text-sm font-bold text-white">Volume</label>
-                          <span className="text-xs text-on-surface-variant font-mono">{Math.round(bootSoundVolume * 100)}%</span>
+                          <span className="text-xs text-on-surface-variant font-mono">
+                            {Math.round(bootSoundVolume * 100)}%
+                          </span>
                         </div>
-                        <input 
-                          type="range" 
-                          min="0" 
-                          max="1" 
-                          step="0.01" 
+                        <input
+                          type="range"
+                          min="0"
+                          max="1"
+                          step="0.01"
                           value={bootSoundVolume}
                           onChange={(e) => setBootSoundVolume(parseFloat(e.target.value))}
                           className="w-full accent-primary bg-surface-bright h-2 rounded-lg appearance-none cursor-pointer mb-6"
@@ -280,7 +293,10 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                                     showToast('Custom boot sound selected successfully.', 'success')
                                   }
                                 } catch (e) {
-                                  showToast(`Could not select audio file: ${getErrorMessage(e)}`, 'error')
+                                  showToast(
+                                    `Could not select audio file: ${getErrorMessage(e)}`,
+                                    'error'
+                                  )
                                 } finally {
                                   setIsSelectingSound(false)
                                 }
@@ -291,9 +307,11 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                               <span className="material-symbols-outlined text-[19px]">
                                 {isSelectingSound ? 'progress_activity' : 'audio_file'}
                               </span>
-                              {useCustomBootSound ? 'Change Custom Audio...' : 'Select Custom Audio...'}
+                              {useCustomBootSound
+                                ? 'Change Custom Audio...'
+                                : 'Select Custom Audio...'}
                             </button>
-                            
+
                             {useCustomBootSound && (
                               <button
                                 type="button"
@@ -304,12 +322,17 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                                     setUseCustomBootSound(false)
                                     showToast('Reset to default boot sound.', 'success')
                                   } catch (e) {
-                                    showToast(`Could not reset audio file: ${getErrorMessage(e)}`, 'error')
+                                    showToast(
+                                      `Could not reset audio file: ${getErrorMessage(e)}`,
+                                      'error'
+                                    )
                                   }
                                 }}
                                 className="flex items-center gap-2 rounded-lg border border-outline-variant/30 bg-surface-bright/30 px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-surface-bright/60"
                               >
-                                <span className="material-symbols-outlined text-[19px]">restart_alt</span>
+                                <span className="material-symbols-outlined text-[19px]">
+                                  restart_alt
+                                </span>
                                 Reset to Default
                               </button>
                             )}
@@ -463,7 +486,8 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 
                       {serverStorageInfo?.isCustom && (
                         <p className="mt-4 break-all text-xs text-on-surface-variant">
-                          Default: <span className="font-mono">{serverStorageInfo.defaultPath}</span>
+                          Default:{' '}
+                          <span className="font-mono">{serverStorageInfo.defaultPath}</span>
                         </p>
                       )}
                     </div>
@@ -490,17 +514,17 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                         Reset to Default
                       </button>
                     </div>
-                    
+
                     <div className="flex gap-3 mt-4 rounded-xl border border-red-400/20 bg-red-400/5 p-4 text-sm text-on-surface-variant">
                       <span className="material-symbols-outlined shrink-0 text-red-400">
                         warning
                       </span>
                       <p className="text-red-300">
-                        Important: Changing this folder does not automatically move your existing servers. 
-                        Your existing servers will disappear from the UI until you manually move the files to the new location.
+                        Important: Changing this folder does not automatically move your existing
+                        servers. Your existing servers will disappear from the UI until you manually
+                        move the files to the new location.
                       </p>
                     </div>
-
                   </div>
                 )}
               </div>
@@ -557,7 +581,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <div className={`h-2.5 w-2.5 rounded-full ${discordRunning ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500/50'}`} />
+                    <div
+                      className={`h-2.5 w-2.5 rounded-full ${discordRunning ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)]' : 'bg-red-500/50'}`}
+                    />
                     <span className="text-xs font-bold uppercase tracking-wider text-on-surface-variant">
                       {discordRunning ? 'Online' : 'Offline'}
                     </span>
@@ -566,9 +592,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
 
                 <div className="space-y-6">
                   <div className="rounded-xl border border-outline-variant/30 bg-surface-container/50 p-5">
-                    <label className="mb-2 block text-sm font-bold text-white">
-                      Bot Token
-                    </label>
+                    <label className="mb-2 block text-sm font-bold text-white">Bot Token</label>
                     <div className="flex gap-3">
                       <input
                         type="password"
@@ -582,13 +606,24 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       />
                     </div>
                     <p className="mt-2 text-xs text-on-surface-variant">
-                      Create a bot on the <a href="https://discord.com/developers/applications" target="_blank" rel="noreferrer" className="text-primary hover:underline">Discord Developer Portal</a> to get your token.
+                      Create a bot on the{' '}
+                      <a
+                        href="https://discord.com/developers/applications"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Discord Developer Portal
+                      </a>{' '}
+                      to get your token.
                     </p>
 
                     <div className="mt-6 flex items-center justify-between">
                       <div>
                         <h4 className="text-sm font-bold text-white">Auto-Start with OmniHost</h4>
-                        <p className="text-xs text-on-surface-variant">Automatically connect the bot when OmniHost launches.</p>
+                        <p className="text-xs text-on-surface-variant">
+                          Automatically connect the bot when OmniHost launches.
+                        </p>
                       </div>
                       <button
                         type="button"
@@ -622,7 +657,8 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                             try {
                               const isRunning = await window.api.discord.startBot(discordToken)
                               setDiscordRunning(isRunning)
-                              if (isRunning) showToast('Discord Bot started successfully!', 'success')
+                              if (isRunning)
+                                showToast('Discord Bot started successfully!', 'success')
                             } catch (e) {
                               showToast(`Failed to start bot: ${getErrorMessage(e)}`, 'error')
                             } finally {
@@ -670,10 +706,20 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       Available Slash Commands
                     </h4>
                     <ul className="list-inside list-disc space-y-1 text-sm text-on-surface-variant">
-                      <li><strong className="text-white">/list</strong> - View all your servers and their status</li>
-                      <li><strong className="text-white">/start &lt;id&gt;</strong> - Start a server</li>
-                      <li><strong className="text-white">/stop &lt;id&gt;</strong> - Stop a server</li>
-                      <li><strong className="text-white">/status &lt;id&gt;</strong> - View detailed live status of a server</li>
+                      <li>
+                        <strong className="text-white">/list</strong> - View all your servers and
+                        their status
+                      </li>
+                      <li>
+                        <strong className="text-white">/start &lt;id&gt;</strong> - Start a server
+                      </li>
+                      <li>
+                        <strong className="text-white">/stop &lt;id&gt;</strong> - Stop a server
+                      </li>
+                      <li>
+                        <strong className="text-white">/status &lt;id&gt;</strong> - View detailed
+                        live status of a server
+                      </li>
                     </ul>
                   </div>
                 </div>

@@ -1,205 +1,269 @@
-import { spawn, ChildProcess } from 'child_process';
-import { join } from 'path';
-import fs from 'fs';
-import axios from 'axios';
-import { SteamCMDSetup } from './SteamCMDSetup';
-import { SteamAuth } from './SteamAuth';
+import { spawn, ChildProcess } from 'child_process'
+import { join } from 'path'
+import fs from 'fs'
+import axios from 'axios'
+import { SteamCMDSetup } from './SteamCMDSetup'
+import { SteamAuth } from './SteamAuth'
 
 export class SteamWorkshopDownloader {
-  static activeProcess: ChildProcess | null = null;
+  static activeProcess: ChildProcess | null = null
 
   static sendInput(data: string) {
     if (this.activeProcess && this.activeProcess.stdin) {
-      this.activeProcess.stdin.write(data + '\n');
+      this.activeProcess.stdin.write(data + '\n')
     }
   }
 
-  static async downloadWorkshopItem(serverId: number, appId: number, modId: string, username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {
-    await SteamCMDSetup.ensureInstalled(serverId);
+  static async downloadWorkshopItem(
+    serverId: number,
+    appId: number,
+    modId: string,
+    username?: string,
+    password?: string,
+    steamGuardCode?: string
+  ): Promise<boolean> {
+    await SteamCMDSetup.ensureInstalled(serverId)
 
     // Fetch total size from Steam API for accurate progress calculation
-    let totalSize = 0;
+    let totalSize = 0
     try {
-      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`;
-      const res = await axios.post('https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/', paramsStr, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-      });
-      const fileDetails = res.data?.response?.publishedfiledetails?.[0];
+      let paramsStr = `itemcount=1&publishedfileids[0]=${modId}`
+      const res = await axios.post(
+        'https://api.steampowered.com/ISteamRemoteStorage/GetPublishedFileDetails/v1/',
+        paramsStr,
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }
+      )
+      const fileDetails = res.data?.response?.publishedfiledetails?.[0]
       if (fileDetails && fileDetails.file_size) {
-        totalSize = parseInt(fileDetails.file_size, 10);
+        totalSize = parseInt(fileDetails.file_size, 10)
       }
     } catch (e) {
-      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`);
+      console.warn(`[SteamCMD Workshop ${modId}] Could not fetch file size for progress bar.`)
     }
 
-    let retries = 0;
-    const maxRetries = 10;
-    let tryCached = !!(username && password && !steamGuardCode);
+    let retries = 0
+    const maxRetries = 10
+    let tryCached = !!(username && password && !steamGuardCode)
 
     while (retries < maxRetries) {
       if (this.activeProcess) {
         try {
-          this.activeProcess.kill();
-        } catch(e) {}
-        this.activeProcess = null;
+          this.activeProcess.kill()
+        } catch (e) {}
+        this.activeProcess = null
       }
       try {
         const result = await new Promise((resolve, reject) => {
-          SteamCMDSetup.sendLog(serverId, 0, `Starting Workshop download for Mod ${modId}...`);
+          SteamCMDSetup.sendLog(serverId, 0, `Starting Workshop download for Mod ${modId}...`)
 
-          const exePath = SteamCMDSetup.getExePath();
-          const loginArgs = SteamAuth.getLoginArgs(username, tryCached ? undefined : password, steamGuardCode);
+          const exePath = SteamCMDSetup.getExePath()
+          const loginArgs = SteamAuth.getLoginArgs(
+            username,
+            tryCached ? undefined : password,
+            steamGuardCode
+          )
 
           const args: string[] = [
             ...loginArgs,
-            '+workshop_download_item', appId.toString(), modId,
+            '+workshop_download_item',
+            appId.toString(),
+            modId,
             '+quit'
-          ];
+          ]
 
-          const proc = spawn(exePath, args, { cwd: SteamCMDSetup.getSteamCMDDir() });
-          proc.stdin?.end(); // Prevent hanging on interactive password prompts
-          this.activeProcess = proc;
+          const proc = spawn(exePath, args, { cwd: SteamCMDSetup.getSteamCMDDir() })
+          proc.stdin?.end() // Prevent hanging on interactive password prompts
+          this.activeProcess = proc
 
-          let steamGuardRequested = false;
-          let invalidCredentials = false;
-          let downloadFailed = false;
-          let downloadErrorMsg = '';
-          let fullOutput = '';
+          let steamGuardRequested = false
+          let invalidCredentials = false
+          let downloadFailed = false
+          let downloadErrorMsg = ''
+          let fullOutput = ''
 
-
-
-          let elapsedSeconds = 0;
+          let elapsedSeconds = 0
           const progressInterval = setInterval(() => {
-            elapsedSeconds++;
-            const sizeStr = totalSize > 0 ? ` (~${(totalSize / 1024 / 1024).toFixed(1)} MB)` : '';
-            SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Downloading${sizeStr}... (${elapsedSeconds}s)`);
-          }, 1000);
+            elapsedSeconds++
+            const sizeStr = totalSize > 0 ? ` (~${(totalSize / 1024 / 1024).toFixed(1)} MB)` : ''
+            SteamCMDSetup.sendLog(
+              serverId,
+              0,
+              `[MOD:${modId}] Downloading${sizeStr}... (${elapsedSeconds}s)`
+            )
+          }, 1000)
 
           proc.stdout?.on('data', (data) => {
-            const output = data.toString();
-            fullOutput += output;
+            const output = data.toString()
+            fullOutput += output
             if (output.trim()) {
-              console.log(`[SteamCMD Workshop ${modId}]:`, output.trim());
-              const lowerOutput = output.toLowerCase();
+              console.log(`[SteamCMD Workshop ${modId}]:`, output.trim())
+              const lowerOutput = output.toLowerCase()
 
-              if (lowerOutput.includes('failed (failure)') || lowerOutput.includes('access denied') || lowerOutput.includes('timeout') || lowerOutput.includes('no connection')) {
-                downloadFailed = true;
-                downloadErrorMsg = fullOutput.substring(Math.max(0, fullOutput.length - 1000));
+              if (
+                lowerOutput.includes('failed (failure)') ||
+                lowerOutput.includes('access denied') ||
+                lowerOutput.includes('timeout') ||
+                lowerOutput.includes('no connection')
+              ) {
+                downloadFailed = true
+                downloadErrorMsg = fullOutput.substring(Math.max(0, fullOutput.length - 1000))
               }
 
-              if (lowerOutput.includes('not enough disk space') || lowerOutput.includes('disk write failure') || lowerOutput.includes('enospc')) {
-                downloadFailed = true;
-                downloadErrorMsg = 'ENOSPC';
+              if (
+                lowerOutput.includes('not enough disk space') ||
+                lowerOutput.includes('disk write failure') ||
+                lowerOutput.includes('enospc')
+              ) {
+                downloadFailed = true
+                downloadErrorMsg = 'ENOSPC'
               }
 
               if (SteamAuth.isInvalidPassword(output) || SteamAuth.isAccountLogonDenied(output)) {
-                invalidCredentials = true;
+                invalidCredentials = true
               }
 
               if (tryCached && invalidCredentials) {
-                resolve('RETRY_FULL_LOGIN');
-                return;
+                resolve('RETRY_FULL_LOGIN')
+                return
               }
 
               // Detect Steam Guard / 2FA prompts
               if (SteamAuth.isSteamGuardPrompt(output)) {
-                steamGuardRequested = true;
+                steamGuardRequested = true
               }
 
               if (SteamAuth.isMobileAuthRequested(output)) {
-                SteamCMDSetup.sendLog(serverId, 50, `[MOD:${modId}] Approve the login on your Steam Mobile App...`);
+                SteamCMDSetup.sendLog(
+                  serverId,
+                  50,
+                  `[MOD:${modId}] Approve the login on your Steam Mobile App...`
+                )
               }
 
-              const progressMatch = output.match(/progress:\s*([0-9.]+)/i);
+              const progressMatch = output.match(/progress:\s*([0-9.]+)/i)
               if (progressMatch) {
-                const percent = parseFloat(progressMatch[1]);
-                SteamCMDSetup.sendLog(serverId, percent, `[MOD:${modId}] Downloading Mod Files (${percent.toFixed(1)}%)...`);
+                const percent = parseFloat(progressMatch[1])
+                SteamCMDSetup.sendLog(
+                  serverId,
+                  percent,
+                  `[MOD:${modId}] Downloading Mod Files (${percent.toFixed(1)}%)...`
+                )
               } else if (output.includes('Success. Downloaded item')) {
-                SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Download Complete!`);
+                SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Download Complete!`)
               }
             }
-          });
+          })
 
           proc.stderr?.on('data', (data) => {
-            console.error(`[SteamCMD Workshop ${modId} Error]:`, data.toString().trim());
-          });
+            console.error(`[SteamCMD Workshop ${modId} Error]:`, data.toString().trim())
+          })
 
           proc.on('exit', (code) => {
-            clearInterval(progressInterval);
-            this.activeProcess = null;
+            clearInterval(progressInterval)
+            this.activeProcess = null
             if (downloadFailed) {
-              const lowerMsg = downloadErrorMsg.toLowerCase();
+              const lowerMsg = downloadErrorMsg.toLowerCase()
               if (lowerMsg === 'enospc') {
-                reject(new Error('ENOSPC'));
-              } else if (lowerMsg.includes('timeout') || lowerMsg.includes('no connection') || lowerMsg.includes('failed (failure)')) {
-                reject(new Error('TIMEOUT'));
+                reject(new Error('ENOSPC'))
+              } else if (
+                lowerMsg.includes('timeout') ||
+                lowerMsg.includes('no connection') ||
+                lowerMsg.includes('failed (failure)')
+              ) {
+                reject(new Error('TIMEOUT'))
               } else {
-                reject(new Error(`LOGIN_REQUIRED: ${downloadErrorMsg}`));
+                reject(new Error(`LOGIN_REQUIRED: ${downloadErrorMsg}`))
               }
-            } else if (code === 0 || code === 7) { // 7 is also success in some SteamCMD contexts
-              SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Download Complete!`);
-              resolve('SUCCESS');
+            } else if (code === 0 || code === 7) {
+              // 7 is also success in some SteamCMD contexts
+              SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Download Complete!`)
+              resolve('SUCCESS')
             } else if (code === 5 && steamGuardRequested) {
-              reject(new Error('STEAM_GUARD_REQUIRED'));
+              reject(new Error('STEAM_GUARD_REQUIRED'))
             } else if (invalidCredentials) {
-              reject(new Error('INVALID_CREDENTIALS'));
+              reject(new Error('INVALID_CREDENTIALS'))
             } else {
-              reject(new Error(`SteamCMD exited with code ${code}`));
+              reject(new Error(`SteamCMD exited with code ${code}`))
             }
-          });
+          })
 
           proc.on('error', (err) => {
-            clearInterval(progressInterval);
-            reject(err);
-          });
-        });
+            clearInterval(progressInterval)
+            reject(err)
+          })
+        })
 
         if (result === 'RETRY_FULL_LOGIN') {
-          tryCached = false;
-          console.log(`[SteamCMD Workshop] Cached login failed, falling back to full authentication...`);
-          continue;
+          tryCached = false
+          console.log(
+            `[SteamCMD Workshop] Cached login failed, falling back to full authentication...`
+          )
+          continue
         }
 
         // Success!
-        return true;
-
+        return true
       } catch (e: any) {
         if (e.message === 'TIMEOUT') {
-          retries++;
-          SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Download paused by Steam. Resuming (${retries}/${maxRetries})...`);
-          console.log(`[SteamCMD] Download timed out. Retrying ${retries}/${maxRetries}...`);
+          retries++
+          SteamCMDSetup.sendLog(
+            serverId,
+            0,
+            `[MOD:${modId}] Download paused by Steam. Resuming (${retries}/${maxRetries})...`
+          )
+          console.log(`[SteamCMD] Download timed out. Retrying ${retries}/${maxRetries}...`)
         } else {
-          throw e; // Bubble up real errors (like invalid password)
+          throw e // Bubble up real errors (like invalid password)
         }
       }
     }
 
-    throw new Error(`Download failed after ${maxRetries} retries due to persistent Steam timeouts.`);
+    throw new Error(`Download failed after ${maxRetries} retries due to persistent Steam timeouts.`)
   }
 
-  static async downloadWorkshopItems(serverId: number, appId: number, modIds: string[], username?: string, password?: string, steamGuardCode?: string): Promise<boolean> {
-    await SteamCMDSetup.ensureInstalled(serverId);
+  static async downloadWorkshopItems(
+    serverId: number,
+    appId: number,
+    modIds: string[],
+    username?: string,
+    password?: string,
+    steamGuardCode?: string
+  ): Promise<boolean> {
+    await SteamCMDSetup.ensureInstalled(serverId)
 
     for (let i = 0; i < modIds.length; i++) {
-      const modId = modIds[i];
-      const targetDir = join(SteamCMDSetup.getSteamCMDDir(), 'steamapps', 'workshop', 'content', appId.toString(), modId);
-      
+      const modId = modIds[i]
+      const targetDir = join(
+        SteamCMDSetup.getSteamCMDDir(),
+        'steamapps',
+        'workshop',
+        'content',
+        appId.toString(),
+        modId
+      )
+
       if (fs.existsSync(targetDir) && fs.readdirSync(targetDir).length > 0) {
-        SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Mod already downloaded, skipping...`);
-        console.log(`[SteamCMD Batch] Mod ${modId} already exists in ${targetDir}, skipping.`);
-        continue;
+        SteamCMDSetup.sendLog(serverId, 100, `[MOD:${modId}] Mod already downloaded, skipping...`)
+        console.log(`[SteamCMD Batch] Mod ${modId} already exists in ${targetDir}, skipping.`)
+        continue
       }
 
-      SteamCMDSetup.sendLog(serverId, 0, `[MOD:${modId}] Downloading mod ${i + 1} of ${modIds.length}...`);
+      SteamCMDSetup.sendLog(
+        serverId,
+        0,
+        `[MOD:${modId}] Downloading mod ${i + 1} of ${modIds.length}...`
+      )
       try {
-        await this.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode);
+        await this.downloadWorkshopItem(serverId, appId, modId, username, password, steamGuardCode)
       } catch (e: any) {
-        console.error(`[SteamCMD Batch] Failed to download mod ${modId}:`, e);
-        throw e;
+        console.error(`[SteamCMD Batch] Failed to download mod ${modId}:`, e)
+        throw e
       }
     }
 
-    SteamCMDSetup.sendLog(serverId, 100, 'Batch Download Complete!');
-    return true;
+    SteamCMDSetup.sendLog(serverId, 100, 'Batch Download Complete!')
+    return true
   }
 }

@@ -2,26 +2,25 @@ name: CI
 
 on:
   push:
-    branches: [ "main", "wipdayz" ]
+    branches: ['main', 'wipdayz']
   pull_request:
-    branches: [ "main", "wipdayz" ]
+    branches: ['main', 'wipdayz']
 
 jobs:
   test:
     runs-on: windows-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run Typecheck
-      run: npm run typecheck
 
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Typecheck
+        run: npm run typecheck

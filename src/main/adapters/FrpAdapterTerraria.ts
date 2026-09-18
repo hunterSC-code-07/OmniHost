@@ -1,4 +1,4 @@
-import { BaseFrpAdapter } from './BaseFrpAdapter';
+import { BaseFrpAdapter } from './BaseFrpAdapter'
 
 export class FrpAdapterTerraria extends BaseFrpAdapter {
   getProxyConfig(_localIp: string): string {
@@ -9,6 +9,6 @@ type = "tcp"
 localIP = "127.0.0.1"
 localPort = 7777
 remotePort = 7777
-`;
+`
   }
 }

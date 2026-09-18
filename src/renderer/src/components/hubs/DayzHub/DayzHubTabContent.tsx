@@ -1,16 +1,16 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { useDayzHubStore } from '../../../store/useDayzHubStore';
-import { DayzConsoleTab } from './tabs/DayzConsoleTab';
-import { DayzOptionsTab } from './tabs/DayzOptionsTab';
-import { DayzEconomyTab } from './tabs/DayzEconomyTab';
-import { DayzModsTab } from './tabs/DayzModsTab';
-import { DayzInstalledModsTab } from './tabs/DayzInstalledModsTab';
-import { DayzFilesTab } from './tabs/DayzFilesTab';
-import { DayzVppAdminTab } from './tabs/DayzVppAdminTab';
+import React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { useDayzHubStore } from '../../../store/useDayzHubStore'
+import { DayzConsoleTab } from './tabs/DayzConsoleTab'
+import { DayzOptionsTab } from './tabs/DayzOptionsTab'
+import { DayzEconomyTab } from './tabs/DayzEconomyTab'
+import { DayzModsTab } from './tabs/DayzModsTab'
+import { DayzInstalledModsTab } from './tabs/DayzInstalledModsTab'
+import { DayzFilesTab } from './tabs/DayzFilesTab'
+import { DayzVppAdminTab } from './tabs/DayzVppAdminTab'
 
 export const DayzHubTabContent: React.FC = () => {
-  const { activeTab, tabDirection, handleTabChange } = useDayzHubStore();
+  const { activeTab, tabDirection, handleTabChange } = useDayzHubStore()
 
   return (
     <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
@@ -47,29 +47,17 @@ export const DayzHubTabContent: React.FC = () => {
           transition={{ duration: 0.3, ease: 'easeInOut' }}
           className="flex flex-col min-h-0 w-full h-full"
         >
-          {activeTab === 'console' && (
-            <DayzConsoleTab />
-          )}
-          {activeTab === 'options' && (
-            <DayzOptionsTab />
-          )}
-          {activeTab === 'economy' && (
-            <DayzEconomyTab />
-          )}
+          {activeTab === 'console' && <DayzConsoleTab />}
+          {activeTab === 'options' && <DayzOptionsTab />}
+          {activeTab === 'economy' && <DayzEconomyTab />}
           {activeTab === 'mods' && (
             <DayzModsTab onNavigateToInstalled={() => handleTabChange('installed')} />
           )}
-          {activeTab === 'installed' && (
-            <DayzInstalledModsTab />
-          )}
-          {activeTab === 'files' && (
-            <DayzFilesTab />
-          )}
-          {activeTab === 'vppadmin' && (
-            <DayzVppAdminTab />
-          )}
+          {activeTab === 'installed' && <DayzInstalledModsTab />}
+          {activeTab === 'files' && <DayzFilesTab />}
+          {activeTab === 'vppadmin' && <DayzVppAdminTab />}
         </motion.div>
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}

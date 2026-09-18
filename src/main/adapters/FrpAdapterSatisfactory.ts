@@ -1,4 +1,4 @@
-import { BaseFrpAdapter } from './BaseFrpAdapter';
+import { BaseFrpAdapter } from './BaseFrpAdapter'
 
 export class FrpAdapterSatisfactory extends BaseFrpAdapter {
   getProxyConfig(localIp: string): string {
@@ -23,6 +23,6 @@ type = "tcp"
 localIP = "${localIp}"
 localPort = 8888
 remotePort = 8888
-`;
+`
   }
 }

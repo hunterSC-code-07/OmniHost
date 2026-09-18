@@ -165,10 +165,7 @@ export class MinecraftModManager {
   }
 
   static async getInstalledMods(id: number, classId = 6): Promise<Array<{ name: string }>> {
-    const directory = getInstallDirectory(
-      join(serverStorage.getPath(), String(id)),
-      classId
-    )
+    const directory = getInstallDirectory(join(serverStorage.getPath(), String(id)), classId)
     try {
       const files = await fsPromises.readdir(directory, { withFileTypes: true })
       return files
@@ -182,19 +179,13 @@ export class MinecraftModManager {
 
   static async deleteMod(id: number, fileName: string, classId = 6): Promise<boolean> {
     assertSafeFilename(fileName)
-    const directory = getInstallDirectory(
-      join(serverStorage.getPath(), String(id)),
-      classId
-    )
+    const directory = getInstallDirectory(join(serverStorage.getPath(), String(id)), classId)
     await fsPromises.unlink(join(directory, fileName))
     return true
   }
 
   static async deleteAllMods(id: number, classId = 6): Promise<boolean> {
-    const directory = getInstallDirectory(
-      join(serverStorage.getPath(), String(id)),
-      classId
-    )
+    const directory = getInstallDirectory(join(serverStorage.getPath(), String(id)), classId)
     try {
       const entries = await fsPromises.readdir(directory, { withFileTypes: true })
       await Promise.all(

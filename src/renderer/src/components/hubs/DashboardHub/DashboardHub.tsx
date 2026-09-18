@@ -135,15 +135,31 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       Welcome back, <span className="text-primary">Admin</span>.
                     </h1>
                     <p className="font-body-md text-body-md text-on-surface-variant max-w-xl">
-                      Launch a hub to configure a server, or jump straight into an existing deployment.
+                      Launch a hub to configure a server, or jump straight into an existing
+                      deployment.
                     </p>
                   </div>
 
                   <div className="grid grid-cols-3 w-full xl:w-auto xl:min-w-[510px] rounded-2xl border border-outline-variant/30 bg-surface-container/45 backdrop-blur-md overflow-hidden shadow-lg shadow-black/10">
                     {[
-                      { label: 'Online', value: onlineServers, icon: 'bolt', tone: 'text-green-400' },
-                      { label: 'Offline', value: offlineServers, icon: 'pause_circle', tone: 'text-on-surface-variant' },
-                      { label: 'Games hosted', value: deployedGames, icon: 'sports_esports', tone: 'text-primary' }
+                      {
+                        label: 'Online',
+                        value: onlineServers,
+                        icon: 'bolt',
+                        tone: 'text-green-400'
+                      },
+                      {
+                        label: 'Offline',
+                        value: offlineServers,
+                        icon: 'pause_circle',
+                        tone: 'text-on-surface-variant'
+                      },
+                      {
+                        label: 'Games hosted',
+                        value: deployedGames,
+                        icon: 'sports_esports',
+                        tone: 'text-primary'
+                      }
                     ].map((stat, index) => (
                       <div
                         key={stat.label}
@@ -169,8 +185,12 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                 <div className="px-gutter py-stack-md relative z-10">
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {Object.values(HUB_REGISTRY).map((hub) => {
-                      const hubServers = servers.filter((server) => server.game.includes(hub.gameName))
-                      const hubOnlineServers = hubServers.filter((server) => server.status === 'Online').length
+                      const hubServers = servers.filter((server) =>
+                        server.game.includes(hub.gameName)
+                      )
+                      const hubOnlineServers = hubServers.filter(
+                        (server) => server.status === 'Online'
+                      ).length
 
                       return (
                         <button
@@ -213,7 +233,10 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                     : 'Create server'}
                               </span>
                               <span className="flex items-center gap-1 font-label-sm text-label-sm uppercase tracking-wider text-on-surface transition-[gap,color] duration-300 group-hover:gap-2 group-hover:text-primary">
-                                Open <span className="material-symbols-outlined text-base">arrow_forward</span>
+                                Open{' '}
+                                <span className="material-symbols-outlined text-base">
+                                  arrow_forward
+                                </span>
                               </span>
                             </div>
                           </div>

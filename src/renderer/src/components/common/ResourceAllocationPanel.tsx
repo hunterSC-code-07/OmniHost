@@ -1,11 +1,12 @@
-import React from 'react';
+import React from 'react'
 
 interface ResourceAllocationPanelProps {
-  ramLimit: number;
-  setRamLimit: (val: number) => void;
-  cpuLimit: number;
-  setCpuLimit: (val: number) => void;
-  sysInfo: { totalMem: number, cpus: number };
+  ramLimit: number
+  setRamLimit: (val: number) => void
+  cpuLimit: number
+  setCpuLimit: (val: number) => void
+  sysInfo: { totalMem: number; cpus: number }
+  themeColor?: string
 }
 
 export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = ({
@@ -13,23 +14,29 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
   setRamLimit,
   cpuLimit,
   setCpuLimit,
-  sysInfo
+  sysInfo,
+  themeColor = '#ff4f4f'
 }) => {
   return (
-    <div className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex flex-col items-center w-full">
+    <div
+      className="glass-panel bg-black/40 border border-white/10 rounded-xl p-6 flex flex-col items-center w-full"
+      style={{ '--slider-color': themeColor } as React.CSSProperties}
+    >
       <div className="text-center mb-6">
         <h3 className="text-2xl font-bold text-white mb-1">{ramLimit} GB RAM</h3>
-        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">{cpuLimit} CPU Cores</p>
+        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest">
+          {cpuLimit} CPU Cores
+        </p>
       </div>
-      
+
       {/* RAM Slider */}
       <div className="w-full max-w-2xl relative mb-10 group">
-        <input 
-          type="range" 
-          min="1" 
-          max={sysInfo.totalMem} 
+        <input
+          type="range"
+          min="1"
+          max={sysInfo.totalMem}
           step="1"
-          value={ramLimit} 
+          value={ramLimit}
           onChange={(e) => setRamLimit(parseInt(e.target.value, 10))}
           className="w-full h-4 bg-white/5 rounded-full appearance-none cursor-pointer border border-white/10 overflow-hidden
             [&::-webkit-slider-thumb]:appearance-none 
@@ -37,7 +44,7 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
             [&::-webkit-slider-thumb]:h-4
             [&::-webkit-slider-thumb]:rounded-full 
             [&::-webkit-slider-thumb]:bg-white 
-            [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#ff4f4f]
+            [&::-webkit-slider-thumb]:[box-shadow:-2008px_0_0_2000px_var(--slider-color)]
             hover:[&::-webkit-slider-thumb]:bg-gray-200
             transition-all"
         />
@@ -50,14 +57,16 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
       {/* CPU Slider */}
       <div className="w-full max-w-2xl relative group">
         <div className="text-center mb-3">
-          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">CPU Allocation</span>
+          <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+            CPU Allocation
+          </span>
         </div>
-        <input 
-          type="range" 
-          min="1" 
-          max={sysInfo.cpus} 
+        <input
+          type="range"
+          min="1"
+          max={sysInfo.cpus}
           step="1"
-          value={cpuLimit} 
+          value={cpuLimit}
           onChange={(e) => setCpuLimit(parseInt(e.target.value, 10))}
           className="w-full h-4 bg-white/5 rounded-full appearance-none cursor-pointer border border-white/10 overflow-hidden
             [&::-webkit-slider-thumb]:appearance-none 
@@ -65,7 +74,7 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
             [&::-webkit-slider-thumb]:h-4
             [&::-webkit-slider-thumb]:rounded-full 
             [&::-webkit-slider-thumb]:bg-white 
-            [&::-webkit-slider-thumb]:shadow-[-2004px_0_0_2000px_#ff4f4f]
+            [&::-webkit-slider-thumb]:[box-shadow:-2008px_0_0_2000px_var(--slider-color)]
             hover:[&::-webkit-slider-thumb]:bg-gray-200
             transition-all"
         />
@@ -75,5 +84,5 @@ export const ResourceAllocationPanel: React.FC<ResourceAllocationPanelProps> = (
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

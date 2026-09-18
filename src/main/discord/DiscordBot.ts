@@ -1,4 +1,11 @@
-import { Client, GatewayIntentBits, REST, Routes, ChatInputCommandInteraction, EmbedBuilder } from 'discord.js'
+import {
+  Client,
+  GatewayIntentBits,
+  REST,
+  Routes,
+  ChatInputCommandInteraction,
+  EmbedBuilder
+} from 'discord.js'
 import { discordBotSettings } from './DiscordBotSettings'
 import type { ServerLifecycleMethods } from '../ipc/ServerLifecycleController'
 
@@ -56,7 +63,7 @@ export class DiscordBot {
     const commands = [
       {
         name: 'list',
-        description: 'List all OmniHost servers and their status',
+        description: 'List all OmniHost servers and their status'
       },
       {
         name: 'start',
@@ -66,7 +73,7 @@ export class DiscordBot {
             name: 'id',
             type: 4, // INTEGER
             description: 'The ID of the server to start',
-            required: true,
+            required: true
           }
         ]
       },
@@ -78,7 +85,7 @@ export class DiscordBot {
             name: 'id',
             type: 4, // INTEGER
             description: 'The ID of the server to stop',
-            required: true,
+            required: true
           }
         ]
       },
@@ -90,7 +97,7 @@ export class DiscordBot {
             name: 'id',
             type: 4, // INTEGER
             description: 'The ID of the server to check',
-            required: true,
+            required: true
           }
         ]
       }
@@ -99,10 +106,7 @@ export class DiscordBot {
     const rest = new REST({ version: '10' }).setToken(token)
 
     try {
-      await rest.put(
-        Routes.applicationCommands(this.client.user.id),
-        { body: commands }
-      )
+      await rest.put(Routes.applicationCommands(this.client.user.id), { body: commands })
       console.log('[DiscordBot] Successfully registered slash commands.')
     } catch (error) {
       console.error('[DiscordBot] Failed to register slash commands:', error)
@@ -111,7 +115,10 @@ export class DiscordBot {
 
   private async handleInteraction(interaction: ChatInputCommandInteraction) {
     if (!this.lifecycleMethods) {
-      await interaction.reply({ content: 'Server lifecycle methods not initialized.', ephemeral: true })
+      await interaction.reply({
+        content: 'Server lifecycle methods not initialized.',
+        ephemeral: true
+      })
       return
     }
 
@@ -120,18 +127,20 @@ export class DiscordBot {
     try {
       if (commandName === 'list') {
         const servers = this.lifecycleMethods.getServerList()
-        
+
         if (servers.length === 0) {
-          await interaction.reply({ content: 'There are no servers currently configured.', ephemeral: true })
+          await interaction.reply({
+            content: 'There are no servers currently configured.',
+            ephemeral: true
+          })
           return
         }
 
-        const embed = new EmbedBuilder()
-          .setTitle('OmniHost Servers')
-          .setColor('#0099ff')
+        const embed = new EmbedBuilder().setTitle('OmniHost Servers').setColor('#0099ff')
 
-        servers.forEach(server => {
-          const statusIcon = server.status === 'Online' ? '🟢' : (server.status === 'Offline' ? '🔴' : '🟡')
+        servers.forEach((server) => {
+          const statusIcon =
+            server.status === 'Online' ? '🟢' : server.status === 'Offline' ? '🔴' : '🟡'
           embed.addFields({
             name: `ID: ${server.id} - ${server.name}`,
             value: `${statusIcon} ${server.status}\nGame: ${server.game}\nPort: ${server.port}`,
@@ -140,54 +149,58 @@ export class DiscordBot {
         })
 
         await interaction.reply({ embeds: [embed] })
-      } 
-      else if (commandName === 'start') {
+      } else if (commandName === 'start') {
         const id = interaction.options.getInteger('id', true)
-        const server = this.lifecycleMethods.getServerList().find(s => s.id === id)
-        
+        const server = this.lifecycleMethods.getServerList().find((s) => s.id === id)
+
         if (!server) {
           await interaction.reply({ content: `Server with ID ${id} not found.`, ephemeral: true })
           return
         }
 
         if (server.status === 'Online' || server.status === 'Starting') {
-          await interaction.reply({ content: `Server **${server.name}** is already ${server.status}.`, ephemeral: true })
+          await interaction.reply({
+            content: `Server **${server.name}** is already ${server.status}.`,
+            ephemeral: true
+          })
           return
         }
 
         await interaction.deferReply()
         await this.lifecycleMethods.startServer(id)
         await interaction.editReply(`🟢 Started server **${server.name}**!`)
-      }
-      else if (commandName === 'stop') {
+      } else if (commandName === 'stop') {
         const id = interaction.options.getInteger('id', true)
-        const server = this.lifecycleMethods.getServerList().find(s => s.id === id)
-        
+        const server = this.lifecycleMethods.getServerList().find((s) => s.id === id)
+
         if (!server) {
           await interaction.reply({ content: `Server with ID ${id} not found.`, ephemeral: true })
           return
         }
 
         if (server.status === 'Offline' || server.status === 'Stopping') {
-          await interaction.reply({ content: `Server **${server.name}** is already ${server.status}.`, ephemeral: true })
+          await interaction.reply({
+            content: `Server **${server.name}** is already ${server.status}.`,
+            ephemeral: true
+          })
           return
         }
 
         await interaction.deferReply()
         await this.lifecycleMethods.stopServer(id)
         await interaction.editReply(`🔴 Stopped server **${server.name}**!`)
-      }
-      else if (commandName === 'status') {
+      } else if (commandName === 'status') {
         const id = interaction.options.getInteger('id', true)
-        const server = this.lifecycleMethods.getServerList().find(s => s.id === id)
-        
+        const server = this.lifecycleMethods.getServerList().find((s) => s.id === id)
+
         if (!server) {
           await interaction.reply({ content: `Server with ID ${id} not found.`, ephemeral: true })
           return
         }
 
-        const statusIcon = server.status === 'Online' ? '🟢' : (server.status === 'Offline' ? '🔴' : '🟡')
-        
+        const statusIcon =
+          server.status === 'Online' ? '🟢' : server.status === 'Offline' ? '🔴' : '🟡'
+
         const embed = new EmbedBuilder()
           .setTitle(`${server.name} Status`)
           .setColor(server.status === 'Online' ? '#00ff00' : '#ff0000')

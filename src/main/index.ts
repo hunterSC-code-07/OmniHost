@@ -31,7 +31,7 @@ if (!gotTheLock) {
       const mainWindow = windows[0]
       if (mainWindow.isMinimized()) mainWindow.restore()
       mainWindow.focus()
-      
+
       const deepLinkUrl = commandLine.find((arg) => arg.startsWith('omnihost://'))
       if (deepLinkUrl) {
         mainWindow.webContents.send('handle-deep-link', deepLinkUrl)

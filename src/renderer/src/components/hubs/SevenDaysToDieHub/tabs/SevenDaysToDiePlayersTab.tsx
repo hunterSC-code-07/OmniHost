@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { usePlayerStore } from '../../../../store/usePlayerStore';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import 'overlayscrollbars/overlayscrollbars.css';
+import React, { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { usePlayerStore } from '../../../../store/usePlayerStore'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
+import 'overlayscrollbars/overlayscrollbars.css'
 
 interface SevenDaysToDiePlayersTabProps {
-  serverId: number;
+  serverId: number
 }
 
 export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> = ({ serverId }) => {
-  const { onlinePlayers } = usePlayerStore();
-  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
+  const { onlinePlayers } = usePlayerStore()
+  const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null)
 
-  const players = onlinePlayers[serverId] || [];
+  const players = onlinePlayers[serverId] || []
 
   const handleCommand = (cmd: string) => {
     // @ts-ignore
-    window.api.server.sendCommand(serverId, cmd);
-  };
+    window.api.server.sendCommand(serverId, cmd)
+  }
 
   const actionButtons = [
     {
@@ -41,17 +41,47 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       color: 'text-teal-400 hover:bg-teal-400/20 hover:border-teal-400/50',
       action: (player: string) => {
         const ailments = [
-          'buffInfectionCatch', 'buffInfectionMain', 'buffInfection01Untreated', 'buffInfection02Untreated', 'buffInfection03Untreated', 'buffInfection04',
-          'buffLegSprained', 'buffLegBroken', 'buffArmSprained', 'buffArmBroken', 
-          'buffLaceration', 'buffAbrasion', 'buffAbrasionCatch', 'buffInjuryAbrasion', 'buffInjuryAbrasionTreated', 
-          'buffDysentery', 'buffDysenteryCatchFood', 'buffDysenteryCatchDrink',
-          'buffFatigued', 'buffFatiguedTrigger', 'buffConcussion', 
-          'buffBleeding', 'buffInjuryBleeding', 'buffInjuryBleedingTwo', 'buffInjuryBleedingBarbedWire',
-          'buffInjuryStunned00', 'buffInjuryStunned01', 'buffInjuryStunned01Shotgun', 'buffInjuryStunned01CHTrigger', 
-          'buffInjuryStunned02', 'buffInjuryStunned02Shotgun', 'buffInjuryStunned03', 'buffInjuryStunned03Shotgun',
-          'buffArmSprainedCHTrigger', 'buffLegSprainedCHTrigger', 'buffLegSplinted', 'buffLegCast', 'buffArmSplinted', 'buffArmCast'
-        ];
-        ailments.forEach(buff => handleCommand(`debuffplayer ${player} ${buff}`));
+          'buffInfectionCatch',
+          'buffInfectionMain',
+          'buffInfection01Untreated',
+          'buffInfection02Untreated',
+          'buffInfection03Untreated',
+          'buffInfection04',
+          'buffLegSprained',
+          'buffLegBroken',
+          'buffArmSprained',
+          'buffArmBroken',
+          'buffLaceration',
+          'buffAbrasion',
+          'buffAbrasionCatch',
+          'buffInjuryAbrasion',
+          'buffInjuryAbrasionTreated',
+          'buffDysentery',
+          'buffDysenteryCatchFood',
+          'buffDysenteryCatchDrink',
+          'buffFatigued',
+          'buffFatiguedTrigger',
+          'buffConcussion',
+          'buffBleeding',
+          'buffInjuryBleeding',
+          'buffInjuryBleedingTwo',
+          'buffInjuryBleedingBarbedWire',
+          'buffInjuryStunned00',
+          'buffInjuryStunned01',
+          'buffInjuryStunned01Shotgun',
+          'buffInjuryStunned01CHTrigger',
+          'buffInjuryStunned02',
+          'buffInjuryStunned02Shotgun',
+          'buffInjuryStunned03',
+          'buffInjuryStunned03Shotgun',
+          'buffArmSprainedCHTrigger',
+          'buffLegSprainedCHTrigger',
+          'buffLegSplinted',
+          'buffLegCast',
+          'buffArmSplinted',
+          'buffArmCast'
+        ]
+        ailments.forEach((buff) => handleCommand(`debuffplayer ${player} ${buff}`))
       }
     },
     {
@@ -74,15 +104,15 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       icon: 'water_drop',
       color: 'text-blue-400 hover:bg-blue-400/20 hover:border-blue-400/50',
       action: (player: string) => {
-        handleCommand(`cvar set $waterAmount 0 -p ${player}`);
-        handleCommand(`cvar set waterAmount 0 -p ${player}`);
-        handleCommand(`buffplayer ${player} buffStatusThirsty03`);
+        handleCommand(`cvar set $waterAmount 0 -p ${player}`)
+        handleCommand(`cvar set waterAmount 0 -p ${player}`)
+        handleCommand(`buffplayer ${player} buffStatusThirsty03`)
         // We use buffPuking01 to instantly subtract 50 water on application
         for (let i = 0; i < 4; i++) {
           setTimeout(() => {
-            handleCommand(`buffplayer ${player} buffPuking01`);
-            handleCommand(`debuffplayer ${player} buffPuking01`);
-          }, i * 200);
+            handleCommand(`buffplayer ${player} buffPuking01`)
+            handleCommand(`debuffplayer ${player} buffPuking01`)
+          }, i * 200)
         }
       }
     },
@@ -106,8 +136,8 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       icon: 'bolt',
       color: 'text-yellow-400 hover:bg-yellow-400/20 hover:border-yellow-400/50',
       action: (player: string) => {
-        handleCommand(`cvar set $buffMegaCrushDuration 360 -p ${player}`);
-        handleCommand(`buffplayer ${player} buffMegaCrush`);
+        handleCommand(`cvar set $buffMegaCrushDuration 360 -p ${player}`)
+        handleCommand(`buffplayer ${player} buffMegaCrush`)
       }
     },
     {
@@ -116,8 +146,8 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       icon: 'battery_charging_full',
       color: 'text-green-400 hover:bg-green-400/20 hover:border-green-400/50',
       action: (player: string) => {
-        handleCommand(`cvar set $buffMegaCrushDuration 99999 -p ${player}`);
-        handleCommand(`buffplayer ${player} buffMegaCrush`);
+        handleCommand(`cvar set $buffMegaCrushDuration 99999 -p ${player}`)
+        handleCommand(`buffplayer ${player} buffMegaCrush`)
       }
     },
     {
@@ -133,7 +163,7 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       icon: 'battery_charging_full',
       color: 'text-green-400 hover:bg-green-400/20 hover:border-green-400/50',
       action: (player: string) => {
-        handleCommand(`buffplayer ${player} buffRefillStatsTesting`);
+        handleCommand(`buffplayer ${player} buffRefillStatsTesting`)
       }
     },
     {
@@ -150,23 +180,29 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
       color: 'text-gray-400 hover:bg-gray-400/20 hover:border-gray-400/50',
       action: (player: string) => handleCommand(`kick ${player} "Kicked by admin"`)
     }
-  ];
+  ]
 
   if (players.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center sevendays-ui">
         <div className="text-center p-8 sevendays-panel max-w-sm w-full mx-4 border border-[var(--7dtd-border)]">
-          <span className="material-symbols-outlined text-[48px] text-[var(--7dtd-text-dim)] mb-4">group_off</span>
+          <span className="material-symbols-outlined text-[48px] text-[var(--7dtd-text-dim)] mb-4">
+            group_off
+          </span>
           <h3 className="sevendays-title text-xl mb-2">NO PLAYERS ONLINE</h3>
           <p className="text-[var(--7dtd-text-dim)]">Wait for survivors to join the server.</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="flex-1 min-h-0 sevendays-ui">
-      <OverlayScrollbarsComponent options={{ scrollbars: { theme: 'os-theme-dark' } }} defer className="flex-1 h-full">
+      <OverlayScrollbarsComponent
+        options={{ scrollbars: { theme: 'os-theme-dark' } }}
+        defer
+        className="flex-1 h-full"
+      >
         <div className="p-8">
           <div className="flex justify-between items-center mb-6">
             <h3 className="sevendays-title text-2xl flex items-center gap-2">
@@ -187,10 +223,12 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
                   className={`sevendays-panel flex flex-col transition-all duration-100 ${
-                    selectedPlayer === player ? 'border-white/50 bg-[var(--7dtd-bg-panel-light)]' : 'border-[var(--7dtd-border)] hover:border-white/30'
+                    selectedPlayer === player
+                      ? 'border-white/50 bg-[var(--7dtd-bg-panel-light)]'
+                      : 'border-[var(--7dtd-border)] hover:border-white/30'
                   }`}
                 >
-                  <div 
+                  <div
                     className="p-4 cursor-pointer flex items-center gap-4 transition-colors"
                     onClick={() => setSelectedPlayer(selectedPlayer === player ? null : player)}
                   >
@@ -204,7 +242,9 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
                         CONNECTED
                       </p>
                     </div>
-                    <span className={`material-symbols-outlined text-[var(--7dtd-text-dim)] transition-transform duration-100 ${selectedPlayer === player ? 'rotate-180 text-white' : ''}`}>
+                    <span
+                      className={`material-symbols-outlined text-[var(--7dtd-text-dim)] transition-transform duration-100 ${selectedPlayer === player ? 'rotate-180 text-white' : ''}`}
+                    >
                       expand_more
                     </span>
                   </div>
@@ -222,8 +262,8 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
                             <button
                               key={btn.id}
                               onClick={(e) => {
-                                e.stopPropagation();
-                                btn.action(player);
+                                e.stopPropagation()
+                                btn.action(player)
                               }}
                               className="sevendays-btn !text-sm !px-2 flex items-center gap-2 justify-center"
                             >
@@ -244,5 +284,5 @@ export const SevenDaysToDiePlayersTab: React.FC<SevenDaysToDiePlayersTabProps> =
         </div>
       </OverlayScrollbarsComponent>
     </div>
-  );
-};
+  )
+}

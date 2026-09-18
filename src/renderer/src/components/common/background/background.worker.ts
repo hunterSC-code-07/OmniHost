@@ -1,10 +1,10 @@
-let animationFrameId: number;
-let gl: WebGLRenderingContext | null = null;
-let program: WebGLProgram | null = null;
-let timeLocation: WebGLUniformLocation | null = null;
-let resolutionLocation: WebGLUniformLocation | null = null;
-let canvasWidth = 0;
-let canvasHeight = 0;
+let animationFrameId: number
+let gl: WebGLRenderingContext | null = null
+let program: WebGLProgram | null = null
+let timeLocation: WebGLUniformLocation | null = null
+let resolutionLocation: WebGLUniformLocation | null = null
+let canvasWidth = 0
+let canvasHeight = 0
 
 const shaders = {
   minecraft: {
@@ -181,86 +181,78 @@ const shaders = {
       }
     `
   }
-};
+}
 
 const compileShader = (gl: WebGLRenderingContext, type: number, source: string) => {
-  const shader = gl.createShader(type)!;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  return shader;
-};
+  const shader = gl.createShader(type)!
+  gl.shaderSource(shader, source)
+  gl.compileShader(shader)
+  return shader
+}
 
 self.onmessage = (e) => {
   if (e.data.type === 'init') {
-    const canvas: OffscreenCanvas = e.data.canvas;
-    const theme: 'minecraft' | 'dayz' | 'palworld' = e.data.theme;
-    
-    gl = (canvas.getContext('webgl') || canvas.getContext('experimental-webgl' as any)) as WebGLRenderingContext | null;
-    if (!gl) return;
+    const canvas: OffscreenCanvas = e.data.canvas
+    const theme: 'minecraft' | 'dayz' | 'palworld' = e.data.theme
 
-    const vsSource = shaders[theme].vs;
-    const fsSource = shaders[theme].fs;
+    gl = (canvas.getContext('webgl') ||
+      canvas.getContext('experimental-webgl' as any)) as WebGLRenderingContext | null
+    if (!gl) return
 
-    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource);
-    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource);
+    const vsSource = shaders[theme].vs
+    const fsSource = shaders[theme].fs
 
-    program = gl.createProgram()!;
-    gl.attachShader(program, vertexShader);
-    gl.attachShader(program, fragmentShader);
-    gl.linkProgram(program);
-    gl.useProgram(program);
+    const vertexShader = compileShader(gl, gl.VERTEX_SHADER, vsSource)
+    const fragmentShader = compileShader(gl, gl.FRAGMENT_SHADER, fsSource)
 
-    const positionBuffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
-    
-    const positions = theme === 'minecraft' ? [
-      -1.0, -1.0,
-       1.0, -1.0,
-      -1.0,  1.0,
-      -1.0,  1.0,
-       1.0, -1.0,
-       1.0,  1.0,
-    ] : [
-      -1.0, -1.0,
-       1.0, -1.0,
-      -1.0,  1.0,
-       1.0,  1.0,
-    ];
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+    program = gl.createProgram()!
+    gl.attachShader(program, vertexShader)
+    gl.attachShader(program, fragmentShader)
+    gl.linkProgram(program)
+    gl.useProgram(program)
 
-    const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
-    gl.enableVertexAttribArray(positionAttributeLocation);
-    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+    const positionBuffer = gl.createBuffer()
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer)
 
-    timeLocation = gl.getUniformLocation(program, "u_time");
-    resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+    const positions =
+      theme === 'minecraft'
+        ? [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0]
+        : [-1.0, -1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0]
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW)
 
-    canvasWidth = canvas.width;
-    canvasHeight = canvas.height;
-    gl.viewport(0, 0, canvasWidth, canvasHeight);
+    const positionAttributeLocation = gl.getAttribLocation(program, 'a_position')
+    gl.enableVertexAttribArray(positionAttributeLocation)
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0)
 
-    const drawMode = theme === 'minecraft' ? gl.TRIANGLES : gl.TRIANGLE_STRIP;
-    const vertexCount = theme === 'minecraft' ? 6 : 4;
+    timeLocation = gl.getUniformLocation(program, 'u_time')
+    resolutionLocation = gl.getUniformLocation(program, 'u_resolution')
+
+    canvasWidth = canvas.width
+    canvasHeight = canvas.height
+    gl.viewport(0, 0, canvasWidth, canvasHeight)
+
+    const drawMode = theme === 'minecraft' ? gl.TRIANGLES : gl.TRIANGLE_STRIP
+    const vertexCount = theme === 'minecraft' ? 6 : 4
 
     const render = (time: number) => {
-      time *= 0.001;
-      
-      gl!.uniform1f(timeLocation, time);
-      gl!.uniform2f(resolutionLocation, canvasWidth, canvasHeight);
-      
-      gl!.drawArrays(drawMode, 0, vertexCount);
-      animationFrameId = requestAnimationFrame(render);
-    };
+      time *= 0.001
 
-    animationFrameId = requestAnimationFrame(render);
+      gl!.uniform1f(timeLocation, time)
+      gl!.uniform2f(resolutionLocation, canvasWidth, canvasHeight)
+
+      gl!.drawArrays(drawMode, 0, vertexCount)
+      animationFrameId = requestAnimationFrame(render)
+    }
+
+    animationFrameId = requestAnimationFrame(render)
   } else if (e.data.type === 'resize') {
-    canvasWidth = e.data.width;
-    canvasHeight = e.data.height;
-    if (gl) gl.viewport(0, 0, canvasWidth, canvasHeight);
+    canvasWidth = e.data.width
+    canvasHeight = e.data.height
+    if (gl) gl.viewport(0, 0, canvasWidth, canvasHeight)
   } else if (e.data.type === 'destroy') {
-    cancelAnimationFrame(animationFrameId);
+    cancelAnimationFrame(animationFrameId)
     if (gl && program) {
-      gl.deleteProgram(program);
+      gl.deleteProgram(program)
     }
   }
-};
+}

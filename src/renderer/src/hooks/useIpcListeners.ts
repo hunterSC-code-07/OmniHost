@@ -1,57 +1,57 @@
-import { useEffect } from 'react';
-import { useServerStore } from '../store/useServerStore';
-import { useLogStore } from '../store/useLogStore';
-import { usePlayerStore } from '../store/usePlayerStore';
-import { useStatsStore } from '../store/useStatsStore';
-import { useUiStore } from '../store/useUiStore';
+import { useEffect } from 'react'
+import { useServerStore } from '../store/useServerStore'
+import { useLogStore } from '../store/useLogStore'
+import { usePlayerStore } from '../store/usePlayerStore'
+import { useStatsStore } from '../store/useStatsStore'
+import { useUiStore } from '../store/useUiStore'
 
 export function useIpcListeners() {
   useEffect(() => {
     const fetchServers = async () => {
       // @ts-ignore
-      const data = await window.api.server.getServers();
-      useServerStore.getState().setServers(data);
-    };
-    fetchServers();
-    const serverInterval = setInterval(fetchServers, 3000);
+      const data = await window.api.server.getServers()
+      useServerStore.getState().setServers(data)
+    }
+    fetchServers()
+    const serverInterval = setInterval(fetchServers, 3000)
 
     // @ts-ignore
     window.api.server.onServersUpdate((data: any[]) => {
-      useServerStore.getState().setServers(data);
-    });
+      useServerStore.getState().setServers(data)
+    })
 
     // @ts-ignore
     window.api.server.onConsoleLog((data: any) => {
-      const msgs = data.msg ? data.msg.split('\n').filter((l: string) => l.trim() !== '') : [];
-      useLogStore.getState().addLogs(data.id.toString(), msgs);
-    });
+      const msgs = data.msg ? data.msg.split('\n').filter((l: string) => l.trim() !== '') : []
+      useLogStore.getState().addLogs(data.id.toString(), msgs)
+    })
 
     // @ts-ignore
     window.api.server.onOnlinePlayers((data: any) => {
-      usePlayerStore.getState().setOnlinePlayers(data.id.toString(), data.players);
-    });
+      usePlayerStore.getState().setOnlinePlayers(data.id.toString(), data.players)
+    })
 
     // @ts-ignore
     window.api.server.onServerStats((data: any) => {
-      useStatsStore.getState().addStat(data.id.toString(), { cpu: data.cpu, ram: data.ram });
-    });
+      useStatsStore.getState().addStat(data.id.toString(), { cpu: data.cpu, ram: data.ram })
+    })
 
     const tunnelInterval = setInterval(async () => {
       // @ts-ignore
-      const status = await window.api.system.getTunnelStatus();
-      useUiStore.getState().setTunnelStatus(status);
-    }, 2000);
+      const status = await window.api.system.getTunnelStatus()
+      useUiStore.getState().setTunnelStatus(status)
+    }, 2000)
 
     // @ts-ignore
     window.api.server.onDeepLink((url: string) => {
       import('../store/useModalStore').then(({ useModalStore }) => {
-        useModalStore.getState().openModSyncModal(url);
-      });
-    });
+        useModalStore.getState().openModSyncModal(url)
+      })
+    })
 
     return () => {
-      clearInterval(tunnelInterval);
-      clearInterval(serverInterval);
-    };
-  }, []);
+      clearInterval(tunnelInterval)
+      clearInterval(serverInterval)
+    }
+  }, [])
 }

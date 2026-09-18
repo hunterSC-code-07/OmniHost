@@ -6,7 +6,7 @@ import App from './App'
 import { setupRendererLogger } from './utils/rendererLogger'
 import { ErrorBoundary } from './components/layout/ErrorBoundary'
 
-setupRendererLogger();
+setupRendererLogger()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

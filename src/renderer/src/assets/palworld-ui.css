@@ -6,10 +6,10 @@
   --pw-panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --pw-text: #f8fafc;
   --pw-text-muted: #94a3b8;
-  
-  --pw-accent-blue: #00A3FF;
-  --pw-accent-orange: #FF8A00;
-  
+
+  --pw-accent-blue: #00a3ff;
+  --pw-accent-orange: #ff8a00;
+
   font-family: 'Outfit', sans-serif !important;
 }
 
@@ -33,7 +33,10 @@
 .pal-panel::before {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   border-radius: inherit;
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
   pointer-events: none;
@@ -45,7 +48,7 @@
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 1rem !important;
   color: var(--pw-text);
-  box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
 }
 
 /* Buttons */
@@ -58,7 +61,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -68,51 +71,53 @@
   background-color: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.3);
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
 .pal-btn:active {
   transform: translateY(1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .pal-btn-active {
-  background: linear-gradient(135deg, #00A3FF, #0077FF);
+  background: linear-gradient(135deg, #00a3ff, #0077ff);
   border: 1px solid rgba(255, 255, 255, 0.4);
   color: white;
   box-shadow: 0 4px 20px rgba(0, 163, 255, 0.4);
 }
 .pal-btn-active:hover {
-  background: linear-gradient(135deg, #33B5FF, #0088FF);
+  background: linear-gradient(135deg, #33b5ff, #0088ff);
   border-color: rgba(255, 255, 255, 0.6);
   box-shadow: 0 6px 24px rgba(0, 163, 255, 0.5);
 }
 
 /* Primary / Action Buttons */
 .pal-btn-blue {
-  background: linear-gradient(135deg, #00A3FF, #0077FF);
+  background: linear-gradient(135deg, #00a3ff, #0077ff);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
 }
 .pal-btn-blue:hover {
-  background: linear-gradient(135deg, #33B5FF, #0088FF);
+  background: linear-gradient(135deg, #33b5ff, #0088ff);
   box-shadow: 0 6px 20px rgba(0, 163, 255, 0.4);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
 .pal-btn-orange {
-  background: linear-gradient(135deg, #FF8A00, #FF6A00);
+  background: linear-gradient(135deg, #ff8a00, #ff6a00);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: white;
 }
 .pal-btn-orange:hover {
-  background: linear-gradient(135deg, #FF9B33, #FF7B1A);
+  background: linear-gradient(135deg, #ff9b33, #ff7b1a);
   box-shadow: 0 6px 20px rgba(255, 138, 0, 0.4);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
 /* Typography Overrides */
-.palworld-ui h1, .palworld-ui h2, .palworld-ui h3 {
+.palworld-ui h1,
+.palworld-ui h2,
+.palworld-ui h3 {
   font-weight: 800 !important;
   letter-spacing: -0.02em;
 }
@@ -121,14 +126,14 @@
   color: white;
   font-weight: 800;
   font-size: 2.5rem;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
   background: linear-gradient(180deg, #ffffff 0%, #a5b4fc 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 /* Sliders */
-.palworld-ui input[type="range"] {
+.palworld-ui input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   background: transparent !important;
@@ -136,15 +141,19 @@
   box-shadow: none !important;
 }
 
-.palworld-ui input[type="range"]::-webkit-slider-runnable-track {
+.palworld-ui input[type='range']::-webkit-slider-runnable-track {
   width: 100%;
   height: 4px !important;
-  background: linear-gradient(to right, #ffffff var(--val, 50%), rgba(255, 255, 255, 0.2) var(--val, 50%)) !important;
+  background: linear-gradient(
+    to right,
+    #ffffff var(--val, 50%),
+    rgba(255, 255, 255, 0.2) var(--val, 50%)
+  ) !important;
   border-radius: 9999px;
   box-shadow: none !important;
 }
 
-.palworld-ui input[type="range"]::-webkit-slider-thumb {
+.palworld-ui input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px !important;
@@ -152,14 +161,16 @@
   border-radius: 0 !important;
   background: #cbd5e1 !important;
   border: 4px solid #ffffff !important;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5) !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5) !important;
   cursor: pointer;
   margin-top: -6px !important;
   transform: rotate(45deg);
-  transition: transform 0.1s, border-color 0.1s;
+  transition:
+    transform 0.1s,
+    border-color 0.1s;
 }
 
-.palworld-ui input[type="range"]::-webkit-slider-thumb:hover {
+.palworld-ui input[type='range']::-webkit-slider-thumb:hover {
   transform: rotate(45deg) scale(1.15);
   border-color: #f8fafc !important;
 }

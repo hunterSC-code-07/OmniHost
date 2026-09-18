@@ -50,7 +50,7 @@ export class TerrariaProcessManager {
     this.logHistory = []
     this.onlinePlayers = []
     this.sendPlayerUpdate()
-    
+
     this.sendLog('[System] Starting Terraria Server...')
 
     const exePath = join(this.serverDir, 'TerrariaServer.exe')
@@ -60,9 +60,9 @@ export class TerrariaProcessManager {
     }
 
     const configPath = join(this.serverDir, 'serverconfig.txt')
-    const worldsDir = join(this.serverDir, 'worlds');
-    if (!fs.existsSync(worldsDir)) fs.mkdirSync(worldsDir, { recursive: true });
-    const worldFile = join(worldsDir, 'World1.wld');
+    const worldsDir = join(this.serverDir, 'worlds')
+    if (!fs.existsSync(worldsDir)) fs.mkdirSync(worldsDir, { recursive: true })
+    const worldFile = join(worldsDir, 'World1.wld')
 
     let needsConfig = !fs.existsSync(configPath)
     let content = ''
@@ -105,7 +105,7 @@ banlist=banlist.txt`
         fs.writeFileSync(configPath, content)
       }
     }
-    
+
     const args = ['-config', configPath]
 
     this.process = spawn(exePath, args, { cwd: this.serverDir })
@@ -128,10 +128,14 @@ banlist=banlist.txt`
       this.process.stderr.on('data', (data: Buffer) => {
         const errorText = data.toString().trim()
         this.sendLog(`[Terraria Error] ${errorText}`)
-        
+
         if (errorText.includes('Microsoft.Xna.Framework')) {
-          this.sendLog('[System Error] Microsoft XNA Framework 4.0 is required to run the Terraria server.')
-          this.sendLog('[System Error] Please download and install it from: https://www.microsoft.com/en-us/download/details.aspx?id=20914')
+          this.sendLog(
+            '[System Error] Microsoft XNA Framework 4.0 is required to run the Terraria server.'
+          )
+          this.sendLog(
+            '[System Error] Please download and install it from: https://www.microsoft.com/en-us/download/details.aspx?id=20914'
+          )
         }
       })
     }
@@ -170,7 +174,7 @@ banlist=banlist.txt`
     const leaveMatch = line.match(/^(.+) has left\.$/)
     if (leaveMatch) {
       const name = leaveMatch[1].trim()
-      this.onlinePlayers = this.onlinePlayers.filter(p => p !== name)
+      this.onlinePlayers = this.onlinePlayers.filter((p) => p !== name)
       this.sendPlayerUpdate()
     }
   }

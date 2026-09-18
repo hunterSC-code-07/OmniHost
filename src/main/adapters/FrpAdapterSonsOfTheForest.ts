@@ -1,4 +1,4 @@
-import { BaseFrpAdapter } from './BaseFrpAdapter';
+import { BaseFrpAdapter } from './BaseFrpAdapter'
 
 export class FrpAdapterSonsOfTheForest extends BaseFrpAdapter {
   getProxyConfig(localIp: string): string {
@@ -44,6 +44,6 @@ type = "udp"
 localIP = "${localIp}"
 localPort = 9700
 remotePort = 9700
-`;
+`
   }
 }

@@ -5,7 +5,7 @@ import { spawn } from 'child_process'
 import { CacheManager } from '../storage/CacheManager'
 import { JavaManager } from '../adapters/JavaManager'
 import { join } from 'path'
-import {  } from 'electron'
+import {} from 'electron'
 
 import { IServerDownloaderStrategy } from './downloaders/IServerDownloaderStrategy'
 import { VanillaStrategy } from './downloaders/VanillaStrategy'
@@ -25,46 +25,62 @@ async function exists(path: string) {
 
 export class MinecraftDownloader {
   private static strategies: Record<string, IServerDownloaderStrategy> = {
-    'Vanilla': new VanillaStrategy(),
-    'Paper': new PaperStrategy(),
-    'Fabric': new FabricStrategy(),
-    'Forge': new ForgeStrategy(),
-    'NeoForge': new NeoForgeStrategy()
-  };
+    Vanilla: new VanillaStrategy(),
+    Paper: new PaperStrategy(),
+    Fabric: new FabricStrategy(),
+    Forge: new ForgeStrategy(),
+    NeoForge: new NeoForgeStrategy()
+  }
 
   static getStrategy(type: string): IServerDownloaderStrategy {
-    const strategy = this.strategies[type];
-    if (!strategy) throw new Error(`Strategy not found for server type: ${type}`);
-    return strategy;
+    const strategy = this.strategies[type]
+    if (!strategy) throw new Error(`Strategy not found for server type: ${type}`)
+    return strategy
   }
 
-  static async getVanillaVersions() { return this.getStrategy('Vanilla').getVersions(); }
-  static async getPaperVersions() { return this.getStrategy('Paper').getVersions(); }
-  static async getFabricVersions() { return this.getStrategy('Fabric').getVersions(); }
-  static async getForgeVersions() { return this.getStrategy('Forge').getVersions(); }
-  static async getNeoForgeVersions() { return this.getStrategy('NeoForge').getVersions(); }
+  static async getVanillaVersions() {
+    return this.getStrategy('Vanilla').getVersions()
+  }
+  static async getPaperVersions() {
+    return this.getStrategy('Paper').getVersions()
+  }
+  static async getFabricVersions() {
+    return this.getStrategy('Fabric').getVersions()
+  }
+  static async getForgeVersions() {
+    return this.getStrategy('Forge').getVersions()
+  }
+  static async getNeoForgeVersions() {
+    return this.getStrategy('NeoForge').getVersions()
+  }
 
   static async getLoaderVersions(type: string, mcVersion: string) {
-    const strategy = this.getStrategy(type);
+    const strategy = this.getStrategy(type)
     if (strategy.getLoaderVersions) {
-      return strategy.getLoaderVersions(mcVersion);
+      return strategy.getLoaderVersions(mcVersion)
     }
-    return [];
+    return []
   }
 
-  static async downloadServerJar(event: any, id: number, type: string, version: string, loaderVersion: string) {
+  static async downloadServerJar(
+    event: any,
+    id: number,
+    type: string,
+    version: string,
+    loaderVersion: string
+  ) {
     const serverDir = join(serverStorage.getPath(), id.toString())
     const jarPath = join(serverDir, 'server.jar')
     const installerPath = join(serverDir, 'installer.jar')
 
     try {
-      const strategy = this.getStrategy(type);
-      const config = await strategy.getDownloadConfig(version, loaderVersion);
+      const strategy = this.getStrategy(type)
+      const config = await strategy.getDownloadConfig(version, loaderVersion)
 
-      if (!config.downloadUrl) throw new Error('Could not resolve download URL');
+      if (!config.downloadUrl) throw new Error('Could not resolve download URL')
 
-      const targetPath = config.isInstaller ? installerPath : jarPath;
-      const fileName = `${type}-${version}${config.buildNumberStr}${config.isInstaller ? '-installer' : ''}.jar`;
+      const targetPath = config.isInstaller ? installerPath : jarPath
+      const fileName = `${type}-${version}${config.buildNumberStr}${config.isInstaller ? '-installer' : ''}.jar`
 
       const cachedFile = await CacheManager.getOrDownload(
         'jars',
@@ -83,9 +99,9 @@ export class MinecraftDownloader {
                 : text
           )
         }
-      );
+      )
 
-      await fsPromises.copyFile(cachedFile, targetPath);
+      await fsPromises.copyFile(cachedFile, targetPath)
 
       if (config.isInstaller) {
         event.sender.send(`download-progress-${id}`, 100, 'Installing Modloader...')

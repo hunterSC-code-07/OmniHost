@@ -29,11 +29,11 @@
   letter-spacing: 1px;
 }
 
-.theforest-ui h1, 
-.theforest-ui h2, 
-.theforest-ui h3, 
-.theforest-ui h4, 
-.theforest-ui h5, 
+.theforest-ui h1,
+.theforest-ui h2,
+.theforest-ui h3,
+.theforest-ui h4,
+.theforest-ui h5,
 .theforest-ui h6 {
   font-family: var(--font-forest-main);
   text-transform: uppercase;

@@ -35,7 +35,13 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
     const isMinecraft = currentServer?.game?.toLowerCase().includes('minecraft')
     const isPalworld = currentServer?.game?.toLowerCase() === 'palworld'
     const isTheForest = currentServer?.game?.toLowerCase() === 'theforest'
-    const panelClass = isTheForest ? 'forest-panel' : isMinecraft ? 'bg-black/5 backdrop-blur-sm border-[2px] border-white/10 text-white' : isPalworld ? 'pal-panel' : 'bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl hover:bg-surface-container-high/80 transition-colors'
+    const panelClass = isTheForest
+      ? 'forest-panel'
+      : isMinecraft
+        ? 'bg-black/5 backdrop-blur-sm border-[2px] border-white/10 text-white'
+        : isPalworld
+          ? 'pal-panel'
+          : 'bg-surface/80 backdrop-blur-md border border-outline-variant/30 rounded-xl hover:bg-surface-container-high/80 transition-colors'
 
     const statsHistory = activeServerId ? allStatsHistory[activeServerId.toString()] || [] : []
     const onlinePlayers = activeServerId ? allOnlinePlayers[activeServerId.toString()] || [] : []
@@ -97,10 +103,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
             {/* Header Section */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-outline-variant/20 pb-6">
               <div>
-                <h1 className={`font-headline-lg text-headline-lg mb-1 ${isTheForest ? 'forest-title text-4xl' : 'text-on-surface'}`}>
+                <h1
+                  className={`font-headline-lg text-headline-lg mb-1 ${isTheForest ? 'forest-title text-4xl' : 'text-on-surface'}`}
+                >
                   Server Overview
                 </h1>
-                <p className={`font-body-md text-body-md ${isTheForest ? 'text-white/80' : 'text-on-surface-variant'}`}>
+                <p
+                  className={`font-body-md text-body-md ${isTheForest ? 'text-white/80' : 'text-on-surface-variant'}`}
+                >
                   Real-time performance and status
                 </p>
               </div>
@@ -146,8 +156,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
               {/* CPU Card */}
               <div className={`${panelClass} p-6 flex flex-col h-[220px]`}>
                 <div className="flex justify-between items-center h-8">
-                  <h3 className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}>CPU Usage</h3>
-                  <span className={`font-headline-md text-headline-md font-bold ${isTheForest ? 'text-[var(--forest-yellow)]' : 'text-primary'}`}>
+                  <h3
+                    className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}
+                  >
+                    CPU Usage
+                  </h3>
+                  <span
+                    className={`font-headline-md text-headline-md font-bold ${isTheForest ? 'text-[var(--forest-yellow)]' : 'text-primary'}`}
+                  >
                     {currentCpu.toFixed(0)}%
                   </span>
                 </div>
@@ -180,8 +196,14 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
               {/* RAM Card */}
               <div className={`${panelClass} p-6 flex flex-col h-[220px]`}>
                 <div className="flex justify-between items-center h-8">
-                  <h3 className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}>RAM Usage</h3>
-                  <span className={`font-headline-md text-headline-md font-bold ${isTheForest ? 'text-[var(--forest-yellow)]' : 'text-primary'}`}>
+                  <h3
+                    className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}
+                  >
+                    RAM Usage
+                  </h3>
+                  <span
+                    className={`font-headline-md text-headline-md font-bold ${isTheForest ? 'text-[var(--forest-yellow)]' : 'text-primary'}`}
+                  >
                     {currentRam.toFixed(1)} GB / {maxRam.toFixed(1)} GB
                   </span>
                 </div>
@@ -219,9 +241,11 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
                 <div className="font-label-md text-label-md text-on-surface-variant">Status</div>
                 <div className="flex items-center gap-2">
                   <div
-                    className={`w-3 h-3 rounded-full ${serverStatus === 'Online' ? (isTheForest ? 'bg-[var(--forest-green)]' : 'bg-secondary shadow-[0_0_10px_theme(colors.secondary)] animate-pulse') : (isTheForest ? 'bg-[var(--forest-red)]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]')}`}
+                    className={`w-3 h-3 rounded-full ${serverStatus === 'Online' ? (isTheForest ? 'bg-[var(--forest-green)]' : 'bg-secondary shadow-[0_0_10px_theme(colors.secondary)] animate-pulse') : isTheForest ? 'bg-[var(--forest-red)]' : 'bg-red-500 shadow-[0_0_10px_#ef4444]'}`}
                   ></div>
-                  <span className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}>
+                  <span
+                    className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}
+                  >
                     {serverStatus}
                   </span>
                 </div>
@@ -232,7 +256,9 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
                 <div className="font-label-md text-label-md text-on-surface-variant">
                   Server Version
                 </div>
-                <div className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}>
+                <div
+                  className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}
+                >
                   {serverVersion}
                 </div>
               </div>
@@ -244,7 +270,9 @@ export const OverviewTab: React.FC<OverviewTabProps> = React.memo(
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="material-symbols-outlined text-secondary">group</span>
-                  <span className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}>
+                  <span
+                    className={`font-headline-md text-headline-md ${isTheForest ? 'forest-title' : 'text-on-surface'}`}
+                  >
                     {onlinePlayers.length} / {maxPlayers}
                   </span>
                 </div>

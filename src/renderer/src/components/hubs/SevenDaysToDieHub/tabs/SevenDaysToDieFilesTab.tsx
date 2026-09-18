@@ -1,7 +1,7 @@
-import React from 'react';
-import { SevenDaysToDieFileEditorModal } from './components/SevenDaysToDieFileEditorModal';
-import { SevenDaysToDieFileBrowserHeader } from './components/SevenDaysToDieFileBrowserHeader';
-import { SevenDaysToDieFileGrid } from './components/SevenDaysToDieFileGrid';
+import React from 'react'
+import { SevenDaysToDieFileEditorModal } from './components/SevenDaysToDieFileEditorModal'
+import { SevenDaysToDieFileBrowserHeader } from './components/SevenDaysToDieFileBrowserHeader'
+import { SevenDaysToDieFileGrid } from './components/SevenDaysToDieFileGrid'
 
 export const SevenDaysToDieFilesTab: React.FC = () => {
   return (
@@ -10,5 +10,5 @@ export const SevenDaysToDieFilesTab: React.FC = () => {
       <SevenDaysToDieFileBrowserHeader />
       <SevenDaysToDieFileGrid />
     </div>
-  );
-};
+  )
+}

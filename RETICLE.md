@@ -36,7 +36,7 @@ Finish that file when you see it. It is what lets you check what the app BELIEVE
 - **When the tools are not reachable yet**, file the same report from the shell: `npx @reticlehq/server feedback --agent --kind <bug|gap|ambiguity|feature_request|improvement> "what happened"`. It needs no daemon and no working install, so a Reticle that broke before it started can still be reported.
 - **Write it so it can be acted on.** For a failure: what you called, what you expected, what you got, and the call trail in `trace`. For a request: the GOAL in `need` (not your guess at the solution), what improves in `impact`, and how you work around it today in `currentApproach`. That workaround is usually the most useful line in the report. Set `model` to the model you are running.
 - **Working around a Reticle defect in silence is the one thing not to do.** A silent workaround is how the same defect survives to the next user.
-- **Report defects in *Reticle*, not in the app under test.** A bug you find in this app is Reticle working as intended; that one belongs in your report to the user.
+- **Report defects in _Reticle_, not in the app under test.** A bug you find in this app is Reticle working as intended; that one belongs in your report to the user.
 - **Never include app source, secrets, user data, or customer records** in a report.
 
 ## More

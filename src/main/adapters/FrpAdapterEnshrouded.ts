@@ -1,4 +1,4 @@
-import { BaseFrpAdapter } from './BaseFrpAdapter';
+import { BaseFrpAdapter } from './BaseFrpAdapter'
 
 export class FrpAdapterEnshrouded extends BaseFrpAdapter {
   getProxyConfig(localIp: string): string {
@@ -30,6 +30,6 @@ type = "tcp"
 localIP = "${localIp}"
 localPort = 15637
 remotePort = 15637
-`;
+`
   }
 }

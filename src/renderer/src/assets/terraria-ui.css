@@ -23,7 +23,9 @@
   border: 3px solid var(--tr-panel-border);
   border-radius: 12px;
   color: var(--tr-text-default);
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.2), 0 4px 12px rgba(0, 0, 0, 0.5);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.5);
   position: relative;
 }
 
@@ -47,7 +49,9 @@
   text-shadow: var(--tr-shadow);
   cursor: pointer;
   transition: all 0.1s;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15), 0 4px 6px rgba(0,0,0,0.3);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.15),
+    0 4px 6px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -85,7 +89,9 @@
 }
 
 /* Typography Overrides */
-.terraria-ui h1, .terraria-ui h2, .terraria-ui h3 {
+.terraria-ui h1,
+.terraria-ui h2,
+.terraria-ui h3 {
   color: var(--tr-text-title);
   text-shadow: var(--tr-shadow);
   font-weight: normal;
@@ -98,7 +104,7 @@
 }
 
 /* Sliders */
-.terraria-ui input[type="range"] {
+.terraria-ui input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   background: transparent !important;
@@ -106,16 +112,16 @@
   box-shadow: none !important;
 }
 
-.terraria-ui input[type="range"]::-webkit-slider-runnable-track {
+.terraria-ui input[type='range']::-webkit-slider-runnable-track {
   width: 100%;
   height: 12px;
-  background-color: #000000; 
+  background-color: #000000;
   border: 2px solid #5c647b;
   border-radius: 6px;
   box-shadow: 0 0 0 2px #000000;
 }
 
-.terraria-ui input[type="range"]::-webkit-slider-thumb {
+.terraria-ui input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
   width: 16px !important;
@@ -124,13 +130,12 @@
   background: #ffffff !important;
   border: 2px solid #000000 !important;
   cursor: pointer;
-  margin-top: -8px !important; 
+  margin-top: -8px !important;
 }
 
-.terraria-ui input[type="range"]::-webkit-slider-thumb:hover {
+.terraria-ui input[type='range']::-webkit-slider-thumb:hover {
   background: #ffeb04 !important;
 }
-
 
 /* Custom Scrollbar */
 .terraria-ui ::-webkit-scrollbar {

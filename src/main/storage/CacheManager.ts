@@ -10,7 +10,7 @@ export class CacheManager {
   }
 
   static getCategoryDir(category: string) {
-    const dir = path.join(this.getCacheDir(), category);
+    const dir = path.join(this.getCacheDir(), category)
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true })
     }
@@ -23,35 +23,35 @@ export class CacheManager {
   }
 
   static getFolderSize(dir: string): number {
-    if (!fs.existsSync(dir)) return 0;
+    if (!fs.existsSync(dir)) return 0
 
     let totalSize = 0
     const calculateSize = (folderPath: string) => {
       try {
-        const files = fs.readdirSync(folderPath);
+        const files = fs.readdirSync(folderPath)
         for (const file of files) {
           try {
-            const fullPath = path.join(folderPath, file);
-            const stats = fs.statSync(fullPath);
+            const fullPath = path.join(folderPath, file)
+            const stats = fs.statSync(fullPath)
             if (stats.isDirectory()) {
-              calculateSize(fullPath);
+              calculateSize(fullPath)
             } else {
-              totalSize += stats.size;
+              totalSize += stats.size
             }
           } catch (e) {
-            console.error(`Failed to stat ${file}:`, e);
+            console.error(`Failed to stat ${file}:`, e)
           }
         }
       } catch (e) {
-        console.error(`Failed to read dir ${folderPath}:`, e);
+        console.error(`Failed to read dir ${folderPath}:`, e)
       }
-    };
-    calculateSize(dir);
-    return totalSize;
+    }
+    calculateSize(dir)
+    return totalSize
   }
 
   static getCacheSize(): number {
-    return this.getFolderSize(this.getCacheDir());
+    return this.getFolderSize(this.getCacheDir())
   }
 
   static clearCache() {

@@ -65,7 +65,8 @@ export const EnshroudedHub: React.FC = () => {
 
   return (
     <div
-      className="gamehub-theme enshrouded-ui enshrouded-scrollbars flex flex-1 flex-col overflow-hidden relative" data-game="enshrouded"
+      className="gamehub-theme enshrouded-ui enshrouded-scrollbars flex flex-1 flex-col overflow-hidden relative"
+      data-game="enshrouded"
       data-testid="enshrouded-hub"
     >
       {/* Animated Background Video */}

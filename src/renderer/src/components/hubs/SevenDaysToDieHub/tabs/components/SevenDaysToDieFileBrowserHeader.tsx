@@ -1,21 +1,21 @@
-import React from 'react';
-import { useDayzFileStore } from '../../../../../store/useDayzFileStore';
-import { useDayzFileNavigation } from '../../../../../hooks/useDayzFileNavigation';
-import { useDayzFileOperations } from '../../../../../hooks/useDayzFileOperations';
+import React from 'react'
+import { useDayzFileStore } from '../../../../../store/useDayzFileStore'
+import { useDayzFileNavigation } from '../../../../../hooks/useDayzFileNavigation'
+import { useDayzFileOperations } from '../../../../../hooks/useDayzFileOperations'
 
 export const SevenDaysToDieFileBrowserHeader: React.FC = () => {
-  const { currentPath, newFolderName, setNewFolderName } = useDayzFileStore();
-  const { fetchDir, handleNavigateUp } = useDayzFileNavigation();
-  const { handleCreateFolder } = useDayzFileOperations(fetchDir);
+  const { currentPath, newFolderName, setNewFolderName } = useDayzFileStore()
+  const { fetchDir, handleNavigateUp } = useDayzFileNavigation()
+  const { handleCreateFolder } = useDayzFileOperations(fetchDir)
 
   return (
     <div className="flex justify-between items-end pb-2 border-b border-[var(--7dtd-border)] mb-4">
       <h3 className="sevendays-title text-3xl">FILE MANAGER</h3>
-      
+
       <div className="flex gap-6 items-center">
         {/* Navigation Breadcrumbs */}
         <div className="flex items-center gap-2">
-          <button 
+          <button
             onClick={handleNavigateUp}
             disabled={!currentPath}
             className="p-1 border border-transparent hover:border-white disabled:opacity-50 transition text-[var(--7dtd-text-dim)] hover:text-white flex items-center justify-center"
@@ -24,7 +24,8 @@ export const SevenDaysToDieFileBrowserHeader: React.FC = () => {
             <span className="material-symbols-outlined text-[20px]">arrow_upward</span>
           </button>
           <span className="sevendays-title text-lg text-white flex items-center">
-            <span className="text-[var(--7dtd-text-dim)] mr-2">ROOT</span> {currentPath ? `/ ${currentPath}` : ''}
+            <span className="text-[var(--7dtd-text-dim)] mr-2">ROOT</span>{' '}
+            {currentPath ? `/ ${currentPath}` : ''}
           </span>
         </div>
 
@@ -38,15 +39,23 @@ export const SevenDaysToDieFileBrowserHeader: React.FC = () => {
                   type="text"
                   placeholder="FOLDER NAME"
                   value={newFolderName}
-                  onChange={e => setNewFolderName(e.target.value)}
+                  onChange={(e) => setNewFolderName(e.target.value)}
                   className="sevendays-input px-4 py-2 uppercase min-w-[200px]"
                 />
               </div>
-              <button type="submit" className="sevendays-btn sevendays-btn-danger">CREATE</button>
-              <button type="button" onClick={() => setNewFolderName(null)} className="sevendays-btn">CANCEL</button>
+              <button type="submit" className="sevendays-btn sevendays-btn-danger">
+                CREATE
+              </button>
+              <button
+                type="button"
+                onClick={() => setNewFolderName(null)}
+                className="sevendays-btn"
+              >
+                CANCEL
+              </button>
             </form>
           ) : (
-            <button 
+            <button
               onClick={() => setNewFolderName('')}
               className="sevendays-btn flex items-center justify-center gap-2 py-2"
             >
@@ -57,5 +66,5 @@ export const SevenDaysToDieFileBrowserHeader: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

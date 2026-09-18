@@ -68,7 +68,7 @@ export class ModSyncClient {
 
       this.sendProgress(5, 'Fetching server mod manifest...')
       const manifestUrl = `http://${hostIp}:${port}/api/manifest?gameId=${gameId}&serverId=${serverId}`
-      
+
       let response
       try {
         response = await axios.get<{ files: ModManifestEntry[] }>(manifestUrl, { timeout: 10000 })
@@ -92,9 +92,9 @@ export class ModSyncClient {
             filesToDownload.push(remoteFile)
           }
         }
-        
+
         // Update progress slightly during hash comparison
-        this.sendProgress(10 + (10 * (i / remoteFiles.length)), 'Comparing local files...')
+        this.sendProgress(10 + 10 * (i / remoteFiles.length), 'Comparing local files...')
       }
 
       let downloadedCount = 0
@@ -102,7 +102,7 @@ export class ModSyncClient {
 
       for (const file of filesToDownload) {
         this.sendProgress(
-          20 + (80 * (downloadedCount / totalToDownload)),
+          20 + 80 * (downloadedCount / totalToDownload),
           `Downloading ${file.relativePath} (${downloadedCount + 1}/${totalToDownload})...`
         )
 

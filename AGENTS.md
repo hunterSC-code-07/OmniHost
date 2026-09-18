@@ -1,4 +1,5 @@
 <!-- reticle:begin (managed by `reticle init` — edit outside these markers) -->
+
 ## Verifying with Reticle
 
 This app is instrumented by **Reticle**, an in-app verification layer exposed as `reticle_*` MCP tools and the `npx @reticlehq/server` CLI (always through npx: Reticle's server is not installed into this project). Verifying is part of "done", not an optional extra.

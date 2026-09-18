@@ -2,10 +2,7 @@
   "servers": {
     "reticle": {
       "command": "npx",
-      "args": [
-        "@reticlehq/server",
-        "mcp"
-      ]
+      "args": ["@reticlehq/server", "mcp"]
     }
   }
 }

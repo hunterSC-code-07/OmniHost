@@ -31,7 +31,10 @@
     radial-gradient(circle at 82% 0%, var(--hub-accent-soft), transparent 33%),
     linear-gradient(135deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(45deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
-  background-size: auto, 34px 34px, 34px 34px;
+  background-size:
+    auto,
+    34px 34px,
+    34px 34px;
   opacity: 0.95;
 }
 
@@ -47,7 +50,9 @@
   border-bottom-color: color-mix(in srgb, var(--hub-accent) 28%, transparent);
   border-radius: var(--hub-radius) var(--hub-radius) 0 0;
   background: linear-gradient(135deg, rgba(12, 22, 29, 0.92), rgba(5, 10, 14, 0.76));
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(18px);
 }
 
@@ -148,8 +153,13 @@
   transition: 160ms ease;
 }
 
-.gamehub-theme .hub-action { padding: 0 15px; }
-.gamehub-theme .hub-back { width: 40px; padding: 0; }
+.gamehub-theme .hub-action {
+  padding: 0 15px;
+}
+.gamehub-theme .hub-back {
+  width: 40px;
+  padding: 0;
+}
 
 .gamehub-theme .hub-action:hover:not(:disabled),
 .gamehub-theme .hub-back:hover:not(:disabled),
@@ -202,7 +212,9 @@
   scrollbar-width: none;
 }
 
-.gamehub-theme .hub-nav::-webkit-scrollbar { display: none; }
+.gamehub-theme .hub-nav::-webkit-scrollbar {
+  display: none;
+}
 
 .gamehub-theme .hub-tab {
   display: inline-flex;
@@ -223,7 +235,9 @@
   transition: 160ms ease;
 }
 
-.gamehub-theme .hub-tab:hover:not(:disabled) { color: var(--hub-text); }
+.gamehub-theme .hub-tab:hover:not(:disabled) {
+  color: var(--hub-text);
+}
 
 .gamehub-theme .hub-tab.is-active {
   border-color: color-mix(in srgb, var(--hub-accent) 42%, transparent);
@@ -253,45 +267,157 @@
 }
 
 /* Game-specific identity: distinct palettes and material cues. */
-.gamehub-theme[data-game='enshrouded'] { --hub-accent: #f3c878; --hub-accent-strong: #c58a37; --hub-accent-soft: rgba(243, 200, 120, 0.13); --hub-bg: #0b1114; }
-.gamehub-theme[data-game='palworld'] { --hub-accent: #60d8ff; --hub-accent-strong: #2a8cff; --hub-accent-soft: rgba(96, 216, 255, 0.13); --hub-bg: #08111d; --hub-radius: 22px; }
-.gamehub-theme[data-game='satisfactory'] { --hub-accent: #f5a24c; --hub-accent-strong: #da5c25; --hub-accent-soft: rgba(245, 162, 76, 0.13); --hub-bg: #15120e; --hub-radius: 6px; }
-.gamehub-theme[data-game='7-days'] { --hub-accent: #f87171; --hub-accent-strong: #b91c1c; --hub-accent-soft: rgba(248, 113, 113, 0.13); --hub-bg: #141314; --hub-radius: 3px; }
-.gamehub-theme[data-game='sons-of-the-forest'] { --hub-accent: #9af5bd; --hub-accent-strong: #25a66a; --hub-accent-soft: rgba(154, 245, 189, 0.11); --hub-bg: #07100e; --hub-radius: 4px; }
-.gamehub-theme[data-game='terraria'] { --hub-accent: #ffe36d; --hub-accent-strong: #4db7ff; --hub-accent-soft: rgba(255, 227, 109, 0.13); --hub-bg: #081426; --hub-radius: 12px; }
-.gamehub-theme[data-game='the-forest'] { --hub-accent: #f2c14e; --hub-accent-strong: #bb741c; --hub-accent-soft: rgba(242, 193, 78, 0.12); --hub-bg: #100f0b; --hub-radius: 2px; }
+.gamehub-theme[data-game='enshrouded'] {
+  --hub-accent: #f3c878;
+  --hub-accent-strong: #c58a37;
+  --hub-accent-soft: rgba(243, 200, 120, 0.13);
+  --hub-bg: #0b1114;
+}
+.gamehub-theme[data-game='palworld'] {
+  --hub-accent: #60d8ff;
+  --hub-accent-strong: #2a8cff;
+  --hub-accent-soft: rgba(96, 216, 255, 0.13);
+  --hub-bg: #08111d;
+  --hub-radius: 22px;
+}
+.gamehub-theme[data-game='satisfactory'] {
+  --hub-accent: #f5a24c;
+  --hub-accent-strong: #da5c25;
+  --hub-accent-soft: rgba(245, 162, 76, 0.13);
+  --hub-bg: #15120e;
+  --hub-radius: 6px;
+}
+.gamehub-theme[data-game='7-days'] {
+  --hub-accent: #f87171;
+  --hub-accent-strong: #b91c1c;
+  --hub-accent-soft: rgba(248, 113, 113, 0.13);
+  --hub-bg: #141314;
+  --hub-radius: 3px;
+}
+.gamehub-theme[data-game='sons-of-the-forest'] {
+  --hub-accent: #9af5bd;
+  --hub-accent-strong: #25a66a;
+  --hub-accent-soft: rgba(154, 245, 189, 0.11);
+  --hub-bg: #07100e;
+  --hub-radius: 4px;
+}
+.gamehub-theme[data-game='terraria'] {
+  --hub-accent: #ffe36d;
+  --hub-accent-strong: #4db7ff;
+  --hub-accent-soft: rgba(255, 227, 109, 0.13);
+  --hub-bg: #081426;
+  --hub-radius: 12px;
+}
+.gamehub-theme[data-game='the-forest'] {
+  --hub-accent: #f2c14e;
+  --hub-accent-strong: #bb741c;
+  --hub-accent-soft: rgba(242, 193, 78, 0.12);
+  --hub-bg: #100f0b;
+  --hub-radius: 2px;
+}
 
-.gamehub-theme[data-game='satisfactory'] .hub-frame-header { background-image: linear-gradient(135deg, rgba(36, 23, 13, 0.94), rgba(11, 11, 10, 0.82)); }
+.gamehub-theme[data-game='satisfactory'] .hub-frame-header {
+  background-image: linear-gradient(135deg, rgba(36, 23, 13, 0.94), rgba(11, 11, 10, 0.82));
+}
 .gamehub-theme[data-game='7-days'] .hub-frame-header,
-.gamehub-theme[data-game='the-forest'] .hub-frame-header { background-image: repeating-linear-gradient(135deg, rgba(255,255,255,.025) 0 2px, transparent 2px 10px), linear-gradient(135deg, rgba(29,27,24,.96), rgba(10,10,9,.9)); }
-.gamehub-theme[data-game='sons-of-the-forest']::before { background-image: radial-gradient(circle at 18% 4%, rgba(154,245,189,.16), transparent 26%), linear-gradient(115deg, rgba(255,255,255,.025) 1px, transparent 1px); background-size: auto, 52px 18px; }
+.gamehub-theme[data-game='the-forest'] .hub-frame-header {
+  background-image:
+    repeating-linear-gradient(135deg, rgba(255, 255, 255, 0.025) 0 2px, transparent 2px 10px),
+    linear-gradient(135deg, rgba(29, 27, 24, 0.96), rgba(10, 10, 9, 0.9));
+}
+.gamehub-theme[data-game='sons-of-the-forest']::before {
+  background-image:
+    radial-gradient(circle at 18% 4%, rgba(154, 245, 189, 0.16), transparent 26%),
+    linear-gradient(115deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size:
+    auto,
+    52px 18px;
+}
 
 @media (max-width: 900px) {
-  .gamehub-theme .hub-frame-header { margin: 10px 10px 0; padding: 16px; }
-  .gamehub-theme .hub-frame-content { margin: 0 10px 10px; }
-  .gamehub-theme .hub-header-row { flex-wrap: wrap; gap: 14px; }
-  .gamehub-theme .hub-header-actions { width: 100%; justify-content: flex-start; overflow-x: auto; padding-bottom: 2px; }
+  .gamehub-theme .hub-frame-header {
+    margin: 10px 10px 0;
+    padding: 16px;
+  }
+  .gamehub-theme .hub-frame-content {
+    margin: 0 10px 10px;
+  }
+  .gamehub-theme .hub-header-row {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .gamehub-theme .hub-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    padding-bottom: 2px;
+  }
 }
 
 @media (max-width: 560px) {
-  .gamehub-theme .hub-frame-header { border-radius: 12px 12px 0 0; }
-  .gamehub-theme .hub-frame-content { border-radius: 0 0 12px 12px; }
-  .gamehub-theme .hub-title { font-size: 1.45rem; }
-  .gamehub-theme .hub-action { min-height: 38px; padding: 0 11px; }
-  .gamehub-theme .hub-action-label { display: none; }
-  .gamehub-theme .hub-nav { margin-right: -4px; }
+  .gamehub-theme .hub-frame-header {
+    border-radius: 12px 12px 0 0;
+  }
+  .gamehub-theme .hub-frame-content {
+    border-radius: 0 0 12px 12px;
+  }
+  .gamehub-theme .hub-title {
+    font-size: 1.45rem;
+  }
+  .gamehub-theme .hub-action {
+    min-height: 38px;
+    padding: 0 11px;
+  }
+  .gamehub-theme .hub-action-label {
+    display: none;
+  }
+  .gamehub-theme .hub-nav {
+    margin-right: -4px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gamehub-theme *, .gamehub-theme *::before, .gamehub-theme *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .gamehub-theme *,
+  .gamehub-theme *::before,
+  .gamehub-theme *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* Asset-led atmospheres keep every hub immediately recognizable at a glance. */
-.gamehub-theme[data-game='palworld']::after { background: linear-gradient(180deg, rgba(4, 12, 24, .35), #08111d 88%), url('./palworld-bg.jpg') center/cover; opacity: .62; }
-.gamehub-theme[data-game='7-days']::after { background: linear-gradient(180deg, rgba(11, 9, 10, .38), #141314 88%), url('./7dtd-bg.jpg') center/cover; opacity: .58; }
-.gamehub-theme[data-game='terraria']::after { background: linear-gradient(180deg, rgba(4, 16, 38, .28), #081426 88%), url('./terraria/terraria-bg.jpg') center/cover; opacity: .52; }
-.gamehub-theme[data-game='the-forest']::after { background: linear-gradient(180deg, rgba(12, 12, 8, .34), #100f0b 88%), url('./theforest-bg.jpg') center/cover; opacity: .55; }
-.gamehub-theme[data-game='satisfactory']::after { background: linear-gradient(180deg, rgba(21, 13, 5, .24), #15120e 88%), url('./satisfactory-bg.jpg') center/cover; opacity: .5; }
+.gamehub-theme[data-game='palworld']::after {
+  background:
+    linear-gradient(180deg, rgba(4, 12, 24, 0.35), #08111d 88%),
+    url('./palworld-bg.jpg') center/cover;
+  opacity: 0.62;
+}
+.gamehub-theme[data-game='7-days']::after {
+  background:
+    linear-gradient(180deg, rgba(11, 9, 10, 0.38), #141314 88%),
+    url('./7dtd-bg.jpg') center/cover;
+  opacity: 0.58;
+}
+.gamehub-theme[data-game='terraria']::after {
+  background:
+    linear-gradient(180deg, rgba(4, 16, 38, 0.28), #081426 88%),
+    url('./terraria/terraria-bg.jpg') center/cover;
+  opacity: 0.52;
+}
+.gamehub-theme[data-game='the-forest']::after {
+  background:
+    linear-gradient(180deg, rgba(12, 12, 8, 0.34), #100f0b 88%),
+    url('./theforest-bg.jpg') center/cover;
+  opacity: 0.55;
+}
+.gamehub-theme[data-game='satisfactory']::after {
+  background:
+    linear-gradient(180deg, rgba(21, 13, 5, 0.24), #15120e 88%),
+    url('./satisfactory-bg.jpg') center/cover;
+  opacity: 0.5;
+}
 
 .gamehub-theme .hub-frame-content > div,
-.gamehub-theme .hub-frame-content [class*='overflow-y-auto'] { scrollbar-color: var(--hub-accent) transparent; }
+.gamehub-theme .hub-frame-content [class*='overflow-y-auto'] {
+  scrollbar-color: var(--hub-accent) transparent;
+}

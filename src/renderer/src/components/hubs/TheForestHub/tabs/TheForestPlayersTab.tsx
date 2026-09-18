@@ -1,19 +1,19 @@
-import React from 'react';
-import { OverlayScrollbarsComponent } from 'overlayscrollbars-react';
-import 'overlayscrollbars/overlayscrollbars.css';
-import { useServerStore } from '../../../../store/useServerStore';
-import { usePlayerStore } from '../../../../store/usePlayerStore';
+import React from 'react'
+import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
+import 'overlayscrollbars/overlayscrollbars.css'
+import { useServerStore } from '../../../../store/useServerStore'
+import { usePlayerStore } from '../../../../store/usePlayerStore'
 
 interface Props {
-  serverId: number;
+  serverId: number
 }
 
 export const TheForestPlayersTab: React.FC<Props> = ({ serverId }) => {
-  const { servers } = useServerStore();
-  const { onlinePlayers: allPlayers } = usePlayerStore();
+  const { servers } = useServerStore()
+  const { onlinePlayers: allPlayers } = usePlayerStore()
 
-  const server = servers.find(s => s.id === serverId);
-  const onlinePlayers = server ? (allPlayers[serverId] || []) : [];
+  const server = servers.find((s) => s.id === serverId)
+  const onlinePlayers = server ? allPlayers[serverId] || [] : []
 
   return (
     <div className="absolute inset-0 flex flex-col p-8 min-h-0 bg-transparent">
@@ -28,21 +28,28 @@ export const TheForestPlayersTab: React.FC<Props> = ({ serverId }) => {
       </div>
 
       <div className="flex-1 overflow-hidden forest-panel flex flex-col">
-        <OverlayScrollbarsComponent 
-          className="flex-1 min-h-0" 
-          options={{ scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 } }} 
+        <OverlayScrollbarsComponent
+          className="flex-1 min-h-0"
+          options={{
+            scrollbars: { theme: 'os-theme-dark', autoHide: 'leave', autoHideDelay: 200 }
+          }}
           defer
         >
           <div className="p-6">
             {onlinePlayers.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-20 text-white/30">
-                <span className="material-symbols-outlined text-[64px] mb-4 opacity-50">group_off</span>
+                <span className="material-symbols-outlined text-[64px] mb-4 opacity-50">
+                  group_off
+                </span>
                 <p className="font-bold text-xl uppercase">No players are currently online</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {onlinePlayers.map((playerName, idx) => (
-                  <div key={idx} className="flex items-center gap-4 bg-[var(--forest-gray)] p-4 hover:bg-[var(--forest-gray-light)] transition-colors group">
+                  <div
+                    key={idx}
+                    className="flex items-center gap-4 bg-[var(--forest-gray)] p-4 hover:bg-[var(--forest-gray-light)] transition-colors group"
+                  >
                     <div className="w-12 h-12 flex items-center justify-center text-white">
                       <span className="material-symbols-outlined text-[28px]">person</span>
                     </div>
@@ -58,5 +65,5 @@ export const TheForestPlayersTab: React.FC<Props> = ({ serverId }) => {
         </OverlayScrollbarsComponent>
       </div>
     </div>
-  );
-};
+  )
+}

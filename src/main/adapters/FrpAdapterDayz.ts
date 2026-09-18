@@ -1,4 +1,4 @@
-import { BaseFrpAdapter } from './BaseFrpAdapter';
+import { BaseFrpAdapter } from './BaseFrpAdapter'
 
 export class FrpAdapterDayz extends BaseFrpAdapter {
   getProxyConfig(localIp: string): string {
@@ -51,6 +51,6 @@ type = "udp"
 localIP = "${localIp}"
 localPort = 27016
 remotePort = 27016
-`;
+`
   }
 }

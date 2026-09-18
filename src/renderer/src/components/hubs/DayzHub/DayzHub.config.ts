@@ -1,10 +1,10 @@
-import React from 'react';
-import dayzBg from '../../../assets/dayz-bg.jpg';
+import React from 'react'
+import dayzBg from '../../../assets/dayz-bg.jpg'
 
 export const config = {
   gameName: 'DayZ',
   steamAppId: 223350,
-  component: React.lazy(() => import('./DayzHub').then(m => ({ default: m.DayzHub }))),
+  component: React.lazy(() => import('./DayzHub').then((m) => ({ default: m.DayzHub }))),
   backgroundUrl: dayzBg,
   theme: {
     ringColor: 'hover:ring-red-500',
@@ -12,4 +12,4 @@ export const config = {
     textColor: 'group-hover:text-red-400',
     bgGradient: 'from-[#8b0000]/30 via-[#3a0000]/20 to-[#050505]'
   }
-};
+}

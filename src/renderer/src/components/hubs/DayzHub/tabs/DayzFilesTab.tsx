@@ -1,7 +1,7 @@
-import React from 'react';
-import { DayzFileEditorModal } from './components/DayzFileEditorModal';
-import { DayzFileBrowserHeader } from './components/DayzFileBrowserHeader';
-import { DayzFileGrid } from './components/DayzFileGrid';
+import React from 'react'
+import { DayzFileEditorModal } from './components/DayzFileEditorModal'
+import { DayzFileBrowserHeader } from './components/DayzFileBrowserHeader'
+import { DayzFileGrid } from './components/DayzFileGrid'
 
 export const DayzFilesTab: React.FC = () => {
   return (
@@ -10,5 +10,5 @@ export const DayzFilesTab: React.FC = () => {
       <DayzFileBrowserHeader />
       <DayzFileGrid />
     </div>
-  );
-};
+  )
+}

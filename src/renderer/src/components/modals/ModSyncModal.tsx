@@ -1,61 +1,61 @@
-import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Download, CheckCircle, XCircle } from 'lucide-react';
-import { useModalStore } from '../../store/useModalStore';
+import React, { useEffect, useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { Download, CheckCircle, XCircle } from 'lucide-react'
+import { useModalStore } from '../../store/useModalStore'
 
 export const ModSyncModal: React.FC = () => {
-  const { modSyncModalConfig, closeModSyncModal } = useModalStore();
-  const [progress, setProgress] = useState(0);
-  const [statusText, setStatusText] = useState('Initializing sync...');
-  const [error, setError] = useState<string | null>(null);
-  const [isComplete, setIsComplete] = useState(false);
+  const { modSyncModalConfig, closeModSyncModal } = useModalStore()
+  const [progress, setProgress] = useState(0)
+  const [statusText, setStatusText] = useState('Initializing sync...')
+  const [error, setError] = useState<string | null>(null)
+  const [isComplete, setIsComplete] = useState(false)
 
   useEffect(() => {
-    if (!modSyncModalConfig.isOpen || !modSyncModalConfig.url) return;
+    if (!modSyncModalConfig.isOpen || !modSyncModalConfig.url) return
 
     // url format: omnihost://join/<hostIp>/<port>/<gameId>/<serverId>
-    const urlStr = modSyncModalConfig.url.replace('omnihost://join/', '');
-    const parts = urlStr.split('/');
+    const urlStr = modSyncModalConfig.url.replace('omnihost://join/', '')
+    const parts = urlStr.split('/')
     if (parts.length < 4) {
-      setError('Invalid join link format.');
-      return;
+      setError('Invalid join link format.')
+      return
     }
 
-    const [hostIp, portStr, gameId, serverIdStr] = parts;
-    const port = parseInt(portStr, 10);
-    const serverId = parseInt(serverIdStr, 10);
-    
+    const [hostIp, portStr, gameId, serverIdStr] = parts
+    const port = parseInt(portStr, 10)
+    const serverId = parseInt(serverIdStr, 10)
+
     // For now, we assume 7 Days to Die as per our default example.
-    const appId = 251570;
-    const gameFolderName = '7 Days To Die';
+    const appId = 251570
+    const gameFolderName = '7 Days To Die'
 
     // @ts-ignore
     window.api.server.onModSyncProgress((newProgress: number, text: string) => {
-      setProgress(newProgress);
-      setStatusText(text);
-    });
+      setProgress(newProgress)
+      setStatusText(text)
+    })
 
     // @ts-ignore
-    window.api.system.startModSync(hostIp, port, gameId, serverId, appId, gameFolderName)
-      .then((res: { success: boolean, message?: string }) => {
+    window.api.system
+      .startModSync(hostIp, port, gameId, serverId, appId, gameFolderName)
+      .then((res: { success: boolean; message?: string }) => {
         if (res.success) {
-          setIsComplete(true);
+          setIsComplete(true)
           setTimeout(() => {
-            closeModSyncModal();
+            closeModSyncModal()
             // Actually launching the game is done by the client or can be triggered here.
             // But we already assume client side handles it or we just close.
-          }, 2000);
+          }, 2000)
         } else {
-          setError(res.message || 'An error occurred during sync.');
+          setError(res.message || 'An error occurred during sync.')
         }
       })
       .catch((err: any) => {
-        setError(err.message || 'Unknown error.');
-      });
+        setError(err.message || 'Unknown error.')
+      })
+  }, [modSyncModalConfig])
 
-  }, [modSyncModalConfig]);
-
-  if (!modSyncModalConfig.isOpen) return null;
+  if (!modSyncModalConfig.isOpen) return null
 
   return (
     <AnimatePresence>
@@ -67,7 +67,6 @@ export const ModSyncModal: React.FC = () => {
           className="relative w-full max-w-md p-6 overflow-hidden border shadow-2xl bg-zinc-900 border-zinc-800 rounded-2xl"
         >
           <div className="flex flex-col items-center justify-center space-y-6 text-center">
-            
             {!error && !isComplete && (
               <div className="p-4 rounded-full bg-blue-500/10 text-blue-400">
                 <Download size={48} className="animate-pulse" />
@@ -90,9 +89,7 @@ export const ModSyncModal: React.FC = () => {
               <h2 className="text-xl font-bold text-zinc-100">
                 {isComplete ? 'Sync Complete!' : error ? 'Sync Failed' : 'Syncing Mods...'}
               </h2>
-              <p className="mt-2 text-sm text-zinc-400">
-                {error || statusText}
-              </p>
+              <p className="mt-2 text-sm text-zinc-400">{error || statusText}</p>
             </div>
 
             {!error && !isComplete && (
@@ -120,10 +117,9 @@ export const ModSyncModal: React.FC = () => {
                 Close
               </button>
             )}
-
           </div>
         </motion.div>
       </div>
     </AnimatePresence>
-  );
-};
+  )
+}

@@ -16,7 +16,8 @@ const api = {
       loaderVersion?: string,
       extraArgs?: any
     ) => ipcRenderer.invoke('create-server', name, game, type, version, loaderVersion, extraArgs),
-    finalizeServerCreation: (id: number, skipAssertion?: boolean) => ipcRenderer.invoke('finalize-server-creation', id, skipAssertion),
+    finalizeServerCreation: (id: number, skipAssertion?: boolean) =>
+      ipcRenderer.invoke('finalize-server-creation', id, skipAssertion),
     cancelServerCreation: (id: number) => ipcRenderer.invoke('cancel-server-creation', id),
     deleteServer: (id: number) => ipcRenderer.invoke('delete-server', id),
     startServer: (id: number) => ipcRenderer.invoke('start-server', id),
@@ -130,7 +131,6 @@ const api = {
       ipcRenderer.on('discord-status-changed', (_, isRunning) => callback(isRunning))
     }
   },
-
 
   fs: {
     listDir: (id: number, relPath: string) => ipcRenderer.invoke('fs-list-dir', id, relPath),

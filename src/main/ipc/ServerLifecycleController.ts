@@ -145,11 +145,7 @@ export class ServerLifecycleController {
         throw new Error('Wake-on-connect is currently supported only for Minecraft servers')
       }
       const manager = getOrCreateManager(id)
-      const propertiesPath = join(
-        serverStorage.getPath(),
-        String(id),
-        'server.properties'
-      )
+      const propertiesPath = join(serverStorage.getPath(), String(id), 'server.properties')
       let port = 25565
       if (await exists(propertiesPath)) {
         const match = (await fsPromises.readFile(propertiesPath, 'utf8')).match(/server-port=(\d+)/)
@@ -173,8 +169,7 @@ export class ServerLifecycleController {
         const hasLaunchJar =
           entries.includes('server.jar') ||
           entries.some(
-            (entry) =>
-              /^(forge|neoforge)-.+\.jar$/i.test(entry) && !entry.includes('installer')
+            (entry) => /^(forge|neoforge)-.+\.jar$/i.test(entry) && !entry.includes('installer')
           )
         if (!hasLaunchJar) throw new Error('Minecraft server files are incomplete')
         return
@@ -280,11 +275,11 @@ export class ServerLifecycleController {
         readServerGame(id)
         const metadataPath = join(serverStorage.getPath(), String(id), 'omnihost.json')
         const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'))
-        
+
         if (!skipAssertion) {
           await assertInstallationReady(id, metadata)
         }
-        
+
         await fsPromises.writeFile(
           metadataPath,
           JSON.stringify({ ...metadata, creationState: 'ready' }, null, 2),
@@ -330,11 +325,7 @@ export class ServerLifecycleController {
     })
 
     for (const server of getServers() as Array<{ id: number }>) {
-      const metadataPath = join(
-        serverStorage.getPath(),
-        String(server.id),
-        'omnihost.json'
-      )
+      const metadataPath = join(serverStorage.getPath(), String(server.id), 'omnihost.json')
       try {
         const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'))
         if (metadata.autoStart === true && metadata.creationState !== 'installing') {
@@ -353,15 +344,17 @@ export class ServerLifecycleController {
       await Promise.allSettled(ids.map((id) => runExclusive(id, () => stopServer(id))))
     }
 
-    const startServerPublic = (id: number) => runExclusive(id, async () => {
-      await startManager(id)
-      return true
-    })
-    
-    const stopServerPublic = (id: number) => runExclusive(id, async () => {
-      await stopServer(id)
-      return true
-    })
+    const startServerPublic = (id: number) =>
+      runExclusive(id, async () => {
+        await startManager(id)
+        return true
+      })
+
+    const stopServerPublic = (id: number) =>
+      runExclusive(id, async () => {
+        await stopServer(id)
+        return true
+      })
 
     return {
       shutdownServers,

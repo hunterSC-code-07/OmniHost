@@ -1,6 +1,5 @@
-import { useState } from 'react';
-import { useDayzModStore } from '../store/useDayzModStore';
-
+import { useState } from 'react'
+import { useDayzModStore } from '../store/useDayzModStore'
 
 export const useDayzModInstallation = (
   activeServerId: number | null,
@@ -8,70 +7,79 @@ export const useDayzModInstallation = (
   onNavigateToInstalled: () => void,
   loadInstalledMods: () => Promise<void>
 ) => {
-  const { addPendingDownload, removePendingDownload } = useDayzModStore();
+  const { addPendingDownload, removePendingDownload } = useDayzModStore()
 
-  const [downloadProgress, setDownloadProgress] = useState<{ [id: string]: { percent: number, msg: string } }>({});
-  const [installingMod, setInstallingMod] = useState<string | null>(null);
+  const [downloadProgress, setDownloadProgress] = useState<{
+    [id: string]: { percent: number; msg: string }
+  }>({})
+  const [installingMod, setInstallingMod] = useState<string | null>(null)
 
-  const handleInstall = async (mod: any, steamCreds: any, requestLogin: () => void, onSteamGuardRequired: () => void) => {
-    setInstallingMod(mod.id);
+  const handleInstall = async (
+    mod: any,
+    steamCreds: any,
+    requestLogin: () => void,
+    onSteamGuardRequired: () => void
+  ) => {
+    setInstallingMod(mod.id)
 
     if (!steamCreds.username) {
-      requestLogin();
-      return;
+      requestLogin()
+      return
     }
 
-    setDownloadProgress(prev => ({
+    setDownloadProgress((prev) => ({
       ...prev,
       [mod.id]: { percent: 0, msg: 'Starting download...' }
-    }));
+    }))
 
-    let modsToInstall = [mod];
+    let modsToInstall = [mod]
 
     try {
-      const dependencies = await window.api.steam.getModDependencies(mod.id);
+      const dependencies = await window.api.steam.getModDependencies(mod.id)
 
       if (dependencies && dependencies.length > 0) {
-        const missingDeps = dependencies.filter(depId => !installedMods.find(m => m.id === depId));
+        const missingDeps = dependencies.filter(
+          (depId) => !installedMods.find((m) => m.id === depId)
+        )
 
         if (missingDeps.length > 0) {
-          const depDetails = await window.api.steam.getWorkshopItemDetails(missingDeps);
+          const depDetails = await window.api.steam.getWorkshopItemDetails(missingDeps)
           if (depDetails && depDetails.length > 0) {
-            const { useModalStore } = await import('../store/useModalStore');
+            const { useModalStore } = await import('../store/useModalStore')
             const confirmInstall = await new Promise<boolean>((resolve) => {
               useModalStore.getState().openDayzMissingDepsModal(
-                depDetails, 
+                depDetails,
                 () => {
-                  resolve(true);
-                }, 
+                  resolve(true)
+                },
                 () => {
-                  resolve(false);
+                  resolve(false)
                 }
-              );
-            });
+              )
+            })
             if (confirmInstall) {
-              modsToInstall = [...depDetails, mod];
+              modsToInstall = [...depDetails, mod]
             }
           }
         }
       }
 
-      setInstallingMod(mod.id);
-      const startMsg = `Starting batch download for ${modsToInstall.length} mods...`;
-      setDownloadProgress(prev => ({
+      setInstallingMod(mod.id)
+      const startMsg = `Starting batch download for ${modsToInstall.length} mods...`
+      setDownloadProgress((prev) => ({
         ...prev,
         [mod.id]: { percent: 0, msg: startMsg }
-      }));
-      
+      }))
+
       if (addPendingDownload && activeServerId) {
-        modsToInstall.forEach((m: any) => addPendingDownload(activeServerId, m));
-        onNavigateToInstalled();
+        modsToInstall.forEach((m: any) => addPendingDownload(activeServerId, m))
+        onNavigateToInstalled()
       }
 
       const batchMods = modsToInstall.map((m: any) => ({
         modId: m.id || m.publishedfileid,
         modTitle: m.title
-      }));
+      }))
 
       await window.api.dayz.installMods(
         activeServerId!,
@@ -79,58 +87,66 @@ export const useDayzModInstallation = (
         steamCreds.username,
         steamCreds.password || undefined,
         steamCreds.steamGuard || undefined
-      );
+      )
 
-      setDownloadProgress(prev => {
-        const next = { ...prev };
-        delete next[mod.id];
-        return next;
-      });
+      setDownloadProgress((prev) => {
+        const next = { ...prev }
+        delete next[mod.id]
+        return next
+      })
 
-      await loadInstalledMods();
-      
+      await loadInstalledMods()
+
       if (removePendingDownload && activeServerId) {
-        modsToInstall.forEach((m: any) => removePendingDownload(activeServerId, m.id || m.publishedfileid));
+        modsToInstall.forEach((m: any) =>
+          removePendingDownload(activeServerId, m.id || m.publishedfileid)
+        )
       }
     } catch (e: any) {
       if (e.message && e.message.includes('STEAM_GUARD_REQUIRED')) {
-        alert('Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.');
-        onSteamGuardRequired();
+        alert(
+          'Steam Guard code is required. Please check your email or Steam app for the code and enter it in the credentials box.'
+        )
+        onSteamGuardRequired()
       } else if (e.message && e.message.includes('INVALID_CREDENTIALS')) {
-        alert('Invalid Steam Username or Password. Please update your credentials.');
-        requestLogin();
-        return;
+        alert('Invalid Steam Username or Password. Please update your credentials.')
+        requestLogin()
+        return
       } else if (e.message?.includes('LOGIN_REQUIRED')) {
-        setInstallingMod(null);
-        requestLogin();
-        return;
+        setInstallingMod(null)
+        requestLogin()
+        return
       } else if (e.message?.includes('ENOSPC')) {
-        alert("Installation failed: Your hard drive has run out of space.\n\nDayZ mods require significant storage. Please free up some space on your disk and try again. The installation will instantly resume where it left off!");
-        return;
+        alert(
+          'Installation failed: Your hard drive has run out of space.\n\nDayZ mods require significant storage. Please free up some space on your disk and try again. The installation will instantly resume where it left off!'
+        )
+        return
       } else {
-        alert(`Failed to install mods: ${e.message}`);
+        alert(`Failed to install mods: ${e.message}`)
       }
-      
+
       if (removePendingDownload && activeServerId) {
-        modsToInstall.forEach((m: any) => removePendingDownload(activeServerId, m.id || m.publishedfileid));
+        modsToInstall.forEach((m: any) =>
+          removePendingDownload(activeServerId, m.id || m.publishedfileid)
+        )
       }
     } finally {
-      setInstallingMod(null);
-      setDownloadProgress(prev => {
-        const next = { ...prev };
-        delete next[mod.id];
-        return next;
-      });
+      setInstallingMod(null)
+      setDownloadProgress((prev) => {
+        const next = { ...prev }
+        delete next[mod.id]
+        return next
+      })
     }
-  };
+  }
 
   const handleUninstall = async (modId: string) => {
-    if (!activeServerId) return;
+    if (!activeServerId) return
     if (confirm('Are you sure you want to uninstall this mod?')) {
-      await window.api.dayz.uninstallMod(activeServerId, modId);
-      await loadInstalledMods();
+      await window.api.dayz.uninstallMod(activeServerId, modId)
+      await loadInstalledMods()
     }
-  };
+  }
 
   return {
     downloadProgress,
@@ -139,5 +155,5 @@ export const useDayzModInstallation = (
     setInstallingMod,
     handleInstall,
     handleUninstall
-  };
-};
+  }
+}

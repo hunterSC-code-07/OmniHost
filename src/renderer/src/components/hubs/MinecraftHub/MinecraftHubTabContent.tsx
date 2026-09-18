@@ -1,20 +1,21 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore';
-import { useServerStore } from '../../../store/useServerStore';
-import { OverviewTab } from '../../tabs/OverviewTab';
-import { ConsoleTab } from '../../tabs/ConsoleTab';
-import { OptionsTab } from '../../tabs/OptionsTab';
-import { PlayersTab } from '../../tabs/PlayersTab';
-import { FilesTab } from '../../tabs/FilesTab';
-import { BackupsTab } from '../../tabs/BackupsTab';
-import { ModsTab } from '../../tabs/ModsTab';
-import { SoftwareTab } from '../../tabs/SoftwareTab';
+import React from 'react'
+import { motion, AnimatePresence } from 'motion/react'
+import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore'
+import { useServerStore } from '../../../store/useServerStore'
+import { OverviewTab } from '../../tabs/OverviewTab'
+import { ConsoleTab } from '../../tabs/ConsoleTab'
+import { OptionsTab } from '../../tabs/OptionsTab'
+import { PlayersTab } from '../../tabs/PlayersTab'
+import { FilesTab } from '../../tabs/FilesTab'
+import { BackupsTab } from '../../tabs/BackupsTab'
+import { ModsTab } from '../../tabs/ModsTab'
+import { SoftwareTab } from '../../tabs/SoftwareTab'
 
 export const MinecraftHubTabContent: React.FC = () => {
-  const { activeTab, tabDirection, handleTabChange, serverMeta, fetchServerMeta } = useMinecraftHubStore();
-  const { activeServerId, servers } = useServerStore();
-  const activeServer = servers.find(s => s.id === activeServerId) || {} as any;
+  const { activeTab, tabDirection, handleTabChange, serverMeta, fetchServerMeta } =
+    useMinecraftHubStore()
+  const { activeServerId, servers } = useServerStore()
+  const activeServer = servers.find((s) => s.id === activeServerId) || ({} as any)
 
   return (
     <div className="flex-1 relative w-full h-full min-h-0 overflow-hidden">
@@ -52,7 +53,7 @@ export const MinecraftHubTabContent: React.FC = () => {
           className="flex flex-col min-h-0 w-full h-full"
         >
           {activeTab === 'overview' && (
-            <OverviewTab 
+            <OverviewTab
               serverVersion={serverMeta ? `${serverMeta.type} ${serverMeta.version}` : 'Loading...'}
               maxPlayers={activeServer.maxPlayers || 20}
               maxRam={serverMeta?.ram ? Number(serverMeta.ram) : 4}
@@ -61,42 +62,32 @@ export const MinecraftHubTabContent: React.FC = () => {
           )}
 
           {activeTab === 'console' && (
-            <ConsoleTab 
+            <ConsoleTab
               isActive={activeTab === 'console'}
               onPlayerClick={() => {
-                handleTabChange('players');
+                handleTabChange('players')
               }}
             />
           )}
 
           {activeTab === 'options' && (
-            <OptionsTab 
+            <OptionsTab
               serverId={activeServer.id}
               onConfigSaved={() => fetchServerMeta(activeServer.id)}
             />
           )}
 
-          {activeTab === 'players' && (
-            <PlayersTab />
-          )}
-          
-          {activeTab === 'files' && (
-            <FilesTab />
-          )}
-          
-          {activeTab === 'backups' && (
-            <BackupsTab />
-          )}
+          {activeTab === 'players' && <PlayersTab />}
 
-          {activeTab === 'mods' && (
-            <ModsTab serverMeta={serverMeta} />
-          )}
+          {activeTab === 'files' && <FilesTab />}
 
-          {activeTab === 'software' && (
-            <SoftwareTab />
-          )}
+          {activeTab === 'backups' && <BackupsTab />}
+
+          {activeTab === 'mods' && <ModsTab serverMeta={serverMeta} />}
+
+          {activeTab === 'software' && <SoftwareTab />}
         </motion.div>
       </AnimatePresence>
     </div>
-  );
-};
+  )
+}

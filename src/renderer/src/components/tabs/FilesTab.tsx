@@ -40,8 +40,10 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
 
   const textClass = isPalworld ? 'text-blue-400' : 'text-[#00ff40]'
   const hoverTextClass = isPalworld ? 'hover:text-blue-400' : 'hover:text-[#00ff40]'
-  const groupHoverTextClass = isPalworld ? 'group-hover:text-blue-400' : 'group-hover:text-[#00ff40]'
-  const actionBtnClass = isPalworld 
+  const groupHoverTextClass = isPalworld
+    ? 'group-hover:text-blue-400'
+    : 'group-hover:text-[#00ff40]'
+  const actionBtnClass = isPalworld
     ? 'bg-blue-500 text-white hover:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
     : 'bg-brand text-black hover:brightness-110 shadow-[0_0_10px_rgba(76,175,80,0.3)]'
   const saveBtnClass = isPalworld
@@ -283,7 +285,9 @@ export const FilesTab: React.FC<FilesTabProps> = React.memo(() => {
                         ) : (
                           <File className="w-5 h-5 text-gray-400 group-hover:text-gray-200" />
                         )}
-                        <span className={`text-gray-200 font-medium truncate transition-colors max-w-sm ${groupHoverTextClass}`}>
+                        <span
+                          className={`text-gray-200 font-medium truncate transition-colors max-w-sm ${groupHoverTextClass}`}
+                        >
                           {f.name}
                         </span>
                       </td>

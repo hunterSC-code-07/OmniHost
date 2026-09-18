@@ -1,10 +1,10 @@
-import React from 'react';
-import palworldBg from '../../../assets/palworld-bg.jpg';
+import React from 'react'
+import palworldBg from '../../../assets/palworld-bg.jpg'
 
 export const config = {
   gameName: 'Palworld',
   steamAppId: 2394010,
-  component: React.lazy(() => import('./PalworldHub').then(m => ({ default: m.PalworldHub }))),
+  component: React.lazy(() => import('./PalworldHub').then((m) => ({ default: m.PalworldHub }))),
   backgroundUrl: palworldBg,
   theme: {
     ringColor: 'hover:ring-[#42c0ff]',
@@ -12,4 +12,4 @@ export const config = {
     textColor: 'group-hover:text-[#42c0ff]',
     bgGradient: 'from-[#42c0ff]/40 via-[#fcb746]/20 to-[#050505]'
   }
-};
+}

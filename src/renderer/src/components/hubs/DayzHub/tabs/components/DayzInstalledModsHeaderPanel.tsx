@@ -1,13 +1,13 @@
-import React from 'react';
+import React from 'react'
 
-import { useDayzModRebuild } from '../../../../../hooks/useDayzModRebuild';
-import { useDayzModUninstall } from '../../../../../hooks/useDayzModUninstall';
+import { useDayzModRebuild } from '../../../../../hooks/useDayzModRebuild'
+import { useDayzModUninstall } from '../../../../../hooks/useDayzModUninstall'
 
 interface DayzInstalledModsHeaderPanelProps {
-  mods: any[];
-  activeServerId: number | null;
-  loadInstalledMods: () => Promise<void>;
-  setLoading: (loading: boolean) => void;
+  mods: any[]
+  activeServerId: number | null
+  loadInstalledMods: () => Promise<void>
+  setLoading: (loading: boolean) => void
 }
 
 export const DayzInstalledModsHeaderPanel: React.FC<DayzInstalledModsHeaderPanelProps> = ({
@@ -16,8 +16,13 @@ export const DayzInstalledModsHeaderPanel: React.FC<DayzInstalledModsHeaderPanel
   loadInstalledMods,
   setLoading
 }) => {
-  const { isRebuilding, handleRebuildLoadOrder } = useDayzModRebuild(activeServerId);
-  const { handleUninstallAll } = useDayzModUninstall(activeServerId, mods, loadInstalledMods, setLoading);
+  const { isRebuilding, handleRebuildLoadOrder } = useDayzModRebuild(activeServerId)
+  const { handleUninstallAll } = useDayzModUninstall(
+    activeServerId,
+    mods,
+    loadInstalledMods,
+    setLoading
+  )
 
   return (
     <div className="p-4 border-b border-white/5 bg-black/20 backdrop-blur-md flex items-center justify-between shadow-sm">
@@ -39,8 +44,12 @@ export const DayzInstalledModsHeaderPanel: React.FC<DayzInstalledModsHeaderPanel
           className={`p-2 rounded-lg bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 border border-blue-500/20 hover:border-blue-500/40 transition-colors flex items-center gap-2 text-sm font-bold shadow ${isRebuilding ? 'opacity-50 cursor-not-allowed' : ''}`}
           title="Fix Load Order (Rebuild Cache)"
         >
-          <span className="material-symbols-outlined text-[20px]">{isRebuilding ? 'sync' : 'account_tree'}</span>
-          <span className="hidden sm:inline">{isRebuilding ? 'Rebuilding...' : 'Fix Load Order'}</span>
+          <span className="material-symbols-outlined text-[20px]">
+            {isRebuilding ? 'sync' : 'account_tree'}
+          </span>
+          <span className="hidden sm:inline">
+            {isRebuilding ? 'Rebuilding...' : 'Fix Load Order'}
+          </span>
         </button>
         <button
           onClick={loadInstalledMods}
@@ -51,5 +60,5 @@ export const DayzInstalledModsHeaderPanel: React.FC<DayzInstalledModsHeaderPanel
         </button>
       </div>
     </div>
-  );
-};
+  )
+}

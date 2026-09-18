@@ -38,16 +38,25 @@ body {
 }
 
 .os-theme-dark .os-scrollbar-handle {
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.45), inset 0 0 4px rgba(255, 255, 255, 0.25);
-  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.45),
+    inset 0 0 4px rgba(255, 255, 255, 0.25);
+  transition:
+    background-color 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .os-theme-dark .os-scrollbar-handle:hover {
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 0.85),
+    inset 0 0 6px rgba(255, 255, 255, 0.45);
 }
 
 .os-theme-dark .os-scrollbar-handle:active {
-  box-shadow: 0 0 24px rgba(255, 255, 255, 1), inset 0 0 8px rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 0 24px rgba(255, 255, 255, 1),
+    inset 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 /* DayZ specific scrollbar overrides */
@@ -58,7 +67,9 @@ body {
 }
 
 .dayz-scrollbars .os-theme-dark .os-scrollbar-handle:hover {
-  box-shadow: 0 0 18px rgba(239, 68, 68, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 18px rgba(239, 68, 68, 0.85),
+    inset 0 0 6px rgba(255, 255, 255, 0.45);
 }
 
 /* Custom Global Native Scrollbars matching OmniHost Dark Theme */
@@ -76,18 +87,26 @@ body {
   background: rgba(255, 255, 255, 0.55);
   border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.45), inset 0 0 4px rgba(255, 255, 255, 0.25);
-  transition: background 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 0 10px rgba(255, 255, 255, 0.45),
+    inset 0 0 4px rgba(255, 255, 255, 0.25);
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 18px rgba(255, 255, 255, 0.85),
+    inset 0 0 6px rgba(255, 255, 255, 0.45);
 }
 
 ::-webkit-scrollbar-thumb:active {
   background: #ffffff;
-  box-shadow: 0 0 24px rgba(255, 255, 255, 1), inset 0 0 8px rgba(255, 255, 255, 0.6);
+  box-shadow:
+    0 0 24px rgba(255, 255, 255, 1),
+    inset 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 ::-webkit-scrollbar-corner {

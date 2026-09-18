@@ -22,9 +22,11 @@ function getDatabase(): Database.Database {
     )
   `)
 
-  const rows = database
-    .prepare('SELECT id, name, game FROM servers ORDER BY id')
-    .all() as Array<{ id: number; name: string; game: string }>
+  const rows = database.prepare('SELECT id, name, game FROM servers ORDER BY id').all() as Array<{
+    id: number
+    name: string
+    game: string
+  }>
   const isUntouchedLegacyDemoDatabase =
     rows.length === 2 &&
     rows[0]?.id === 1 &&
@@ -33,9 +35,7 @@ function getDatabase(): Database.Database {
     rows[1]?.id === 2 &&
     rows[1]?.name === 'My Palworld Base' &&
     rows[1]?.game === 'Palworld' &&
-    rows.every((row) =>
-      !existsSync(join(serverStorage.getPath(), String(row.id), 'omnihost.json'))
-    )
+    rows.every((row) => !existsSync(join(serverStorage.getPath(), String(row.id), 'omnihost.json')))
 
   if (isUntouchedLegacyDemoDatabase) {
     database.prepare('DELETE FROM servers WHERE id IN (1, 2)').run()

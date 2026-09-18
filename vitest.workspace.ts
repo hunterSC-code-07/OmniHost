@@ -10,7 +10,7 @@ export default defineWorkspace([
       alias: {
         '@main': resolve('src/main')
       }
-    },
+    }
   },
   {
     test: {
@@ -22,6 +22,6 @@ export default defineWorkspace([
         '@renderer': resolve('src/renderer/src'),
         '@': resolve('src/renderer/src')
       }
-    },
-  },
+    }
+  }
 ])
