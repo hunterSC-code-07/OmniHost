@@ -1,9 +1,10 @@
 import axios from 'axios'
 
+const FALLBACK_CURSEFORGE_API_KEY = '$2a$10$WLjUD.aJlcjuSSdEOByujetqwwhUeTTfS2AsFhIOq31vLq./E1nRO'
+
 export class CurseForgeApiClient {
   private static getApiKey(): string {
-    require('dotenv').config()
-    const apiKey = process.env.CURSEFORGE_API_KEY
+    const apiKey = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY
     if (!apiKey) {
       throw new Error('CURSEFORGE_API_KEY is not configured')
     }

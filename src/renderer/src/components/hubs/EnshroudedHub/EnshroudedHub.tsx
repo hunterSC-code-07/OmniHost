@@ -8,7 +8,7 @@ import '../../../assets/gamehub-ui.css'
 import { useServerStore } from '../../../store/useServerStore'
 import { useUiStore } from '../../../store/useUiStore'
 import { TunnelModal } from '../../modals/TunnelModal'
-import { ENSHROUDED_BACKGROUND_URL } from './EnshroudedHub.constants'
+import enshroudedBgVideo from '../../../assets/enshrouded-animated-bg.mp4'
 import { EnshroudedConsoleTab } from './tabs/EnshroudedConsoleTab'
 import { EnshroudedOptionsTab } from './tabs/EnshroudedOptionsTab'
 import { EnshroudedOverviewTab } from './tabs/EnshroudedOverviewTab'
@@ -68,10 +68,16 @@ export const EnshroudedHub: React.FC = () => {
       className="gamehub-theme enshrouded-ui enshrouded-scrollbars flex flex-1 flex-col overflow-hidden relative" data-game="enshrouded"
       data-testid="enshrouded-hub"
     >
-      <div
-        className="enshrouded-background pointer-events-none"
-        style={{ backgroundImage: `url('${ENSHROUDED_BACKGROUND_URL}')` }}
-      />
+      {/* Animated Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
+      >
+        <source src={enshroudedBgVideo} type="video/mp4" />
+      </video>
 
       <header className="enshrouded-header hub-frame-header relative z-10 px-6 pt-5 pb-4 flex flex-col gap-5">
         <div className="hub-header-row flex items-center justify-between gap-6">

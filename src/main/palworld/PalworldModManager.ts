@@ -7,7 +7,8 @@ import https from 'https'
 
 export class PalworldModManager {
   private static getApiKey(): string {
-    const key = process.env.CURSEFORGE_API_KEY
+    const FALLBACK_CURSEFORGE_API_KEY = '$2a$10$WLjUD.aJlcjuSSdEOByujetqwwhUeTTfS2AsFhIOq31vLq./E1nRO'
+    const key = process.env.CURSEFORGE_API_KEY || FALLBACK_CURSEFORGE_API_KEY
     if (!key) throw new Error('CURSEFORGE_API_KEY is not set in .env')
     return key
   }

@@ -12,7 +12,7 @@ import { PalworldModsTab } from './PalworldModsTab'
 import { FilesTab } from '../../tabs/FilesTab'
 import { BackupsTab } from '../../tabs/BackupsTab'
 import { OverviewTab } from '../../tabs/OverviewTab'
-import { PalworldAnimatedBackground } from './PalworldAnimatedBackground'
+import palworldBgVideo from '../../../assets/palworld-animated-bg.mp4'
 import { TunnelModal } from '../../modals/TunnelModal'
 
 import { useServerStore } from '../../../store/useServerStore'
@@ -89,7 +89,16 @@ export const PalworldHub: React.FC = () => {
 
   return (
     <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden palworld-ui" data-game="palworld">
-      <PalworldAnimatedBackground />
+      {/* Animated Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
+      >
+        <source src={palworldBgVideo} type="video/mp4" />
+      </video>
 
       <div className="pal-panel hub-frame-header p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <div className="hub-header-row flex justify-between items-center relative z-20">

@@ -20,28 +20,103 @@ body {
 /* OverlayScrollbars OmniHost Theme */
 .os-theme-dark {
   --os-size: 8px;
-  --os-padding-perpendicular: 0;
-  --os-padding-axis: 0;
-  --os-track-border-radius: 4px;
-  --os-track-bg: transparent;
-  --os-track-bg-hover: transparent;
-  --os-track-bg-active: transparent;
+  --os-padding-perpendicular: 1px;
+  --os-padding-axis: 2px;
+  --os-track-border-radius: 9999px;
+  --os-track-bg: rgba(255, 255, 255, 0.04);
+  --os-track-bg-hover: rgba(255, 255, 255, 0.08);
+  --os-track-bg-active: rgba(255, 255, 255, 0.12);
 
-  --os-handle-border-radius: 4px;
-  --os-handle-bg: rgba(76, 175, 80, 0.3);
-  --os-handle-bg-hover: rgba(76, 175, 80, 0.7);
-  --os-handle-bg-active: rgba(76, 175, 80, 0.8);
+  --os-handle-border-radius: 9999px;
+  --os-handle-bg: rgba(255, 255, 255, 0.55);
+  --os-handle-bg-hover: rgba(255, 255, 255, 0.9);
+  --os-handle-bg-active: #ffffff;
 
-  --os-handle-border: 1px solid rgba(255, 255, 255, 0.1);
-  --os-handle-border-hover: 1px solid rgba(255, 255, 255, 0.2);
-  --os-handle-border-active: 1px solid rgba(255, 255, 255, 0.3);
+  --os-handle-border: 1px solid rgba(255, 255, 255, 0.4);
+  --os-handle-border-hover: 1px solid rgba(255, 255, 255, 0.8);
+  --os-handle-border-active: 1px solid rgba(255, 255, 255, 1);
+}
+
+.os-theme-dark .os-scrollbar-handle {
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.45), inset 0 0 4px rgba(255, 255, 255, 0.25);
+  transition: background-color 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.os-theme-dark .os-scrollbar-handle:hover {
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.45);
+}
+
+.os-theme-dark .os-scrollbar-handle:active {
+  box-shadow: 0 0 24px rgba(255, 255, 255, 1), inset 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
 /* DayZ specific scrollbar overrides */
 .dayz-scrollbars .os-theme-dark {
-  --os-handle-bg: rgba(239, 68, 68, 0.3);
-  --os-handle-bg-hover: rgba(239, 68, 68, 0.7);
-  --os-handle-bg-active: rgba(239, 68, 68, 0.9);
+  --os-handle-bg: rgba(255, 255, 255, 0.55);
+  --os-handle-bg-hover: rgba(239, 68, 68, 0.85);
+  --os-handle-bg-active: rgba(239, 68, 68, 1);
+}
+
+.dayz-scrollbars .os-theme-dark .os-scrollbar-handle:hover {
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.45);
+}
+
+/* Custom Global Native Scrollbars matching OmniHost Dark Theme */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.45), inset 0 0 4px rgba(255, 255, 255, 0.25);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.85), inset 0 0 6px rgba(255, 255, 255, 0.45);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: #ffffff;
+  box-shadow: 0 0 24px rgba(255, 255, 255, 1), inset 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.55) rgba(255, 255, 255, 0.04);
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 9999px;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 16px rgba(255, 255, 255, 0.8);
 }
 
 .glass-panel {

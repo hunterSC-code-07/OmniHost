@@ -4,6 +4,9 @@ import minecraftDarkBgVideo from '../../../assets/minecraft-dark-animated-bg.mp4
 import dayzBgVideo from '../../../assets/dayz-animated-bg.mp4'
 import satisfactoryBgVideo from '../../../assets/satisfactory-animated-bg.mp4'
 import terrariaBgVideo from '../../../assets/terraria-animated-bg.mp4'
+import palworldBgVideo from '../../../assets/palworld-animated-bg.mp4'
+import enshroudedBgVideo from '../../../assets/enshrouded-animated-bg.mp4'
+import theForestBgVideo from '../../../assets/theforest-animated-bg.mp4'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import { motion, AnimatePresence } from 'motion/react'
 
@@ -245,8 +248,18 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                         </p>
                       </div>
                     ) : (
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                      <OverlayScrollbarsComponent
+                        className="w-full block"
+                        options={{
+                          scrollbars: {
+                            theme: 'os-theme-dark',
+                            autoHide: 'leave',
+                            autoHideDelay: 200
+                          }
+                        }}
+                        defer
+                      >
+                        <table className="w-full text-left border-collapse min-w-[780px]">
                           <thead>
                             <tr className="border-b border-outline-variant/30 bg-surface-container-low/50">
                               <th className="px-6 py-4 font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">
@@ -377,7 +390,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                             ))}
                           </tbody>
                         </table>
-                      </div>
+                      </OverlayScrollbarsComponent>
                     )}
                   </div>
                 </div>
@@ -482,6 +495,60 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       <source src={terrariaBgVideo} type="video/mp4" />
                     </video>
                   </motion.div>
+                ) : activeGameHub === 'Palworld' ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.75 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 pointer-events-none z-0"
+                  >
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
+                    >
+                      <source src={palworldBgVideo} type="video/mp4" />
+                    </video>
+                  </motion.div>
+                ) : activeGameHub === 'Enshrouded' ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.75 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 pointer-events-none z-0"
+                  >
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
+                    >
+                      <source src={enshroudedBgVideo} type="video/mp4" />
+                    </video>
+                  </motion.div>
+                ) : activeGameHub === 'The Forest' ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.75 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 pointer-events-none z-0"
+                  >
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
+                    >
+                      <source src={theForestBgVideo} type="video/mp4" />
+                    </video>
+                  </motion.div>
                 ) : (
                   <motion.div
                     layoutId={`game-bg-${activeGameHub}`}
@@ -492,9 +559,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                     style={{ backgroundImage: `url('${getGameImageUrl(activeGameHub)}')` }}
                   ></motion.div>
                 )}
-                {activeGameHub !== 'Minecraft' && activeGameHub !== 'DayZ' && activeGameHub !== 'Satisfactory' && activeGameHub !== 'Terraria' && (
-                  <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40 z-0 pointer-events-none"></div>
-                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/30 z-0 pointer-events-none"></div>
                 <div className="relative z-10 px-gutter pt-stack-lg pb-stack-lg flex flex-col gap-6">
                   <button
                     onClick={() => setActiveGameHub(null)}
@@ -508,10 +573,10 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                     <>
                       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 border-b border-surface-container-high pb-6">
                         <div>
-                          <h1 className="font-headline-xl text-headline-xl text-on-background">
+                          <h1 className="font-headline-xl text-headline-xl text-on-background drop-shadow-md">
                             {activeGameHub} Hub
                           </h1>
-                          <p className="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mt-2">
+                          <p className="font-body-lg text-body-lg text-gray-200 max-w-2xl mt-2 drop-shadow-sm">
                             Manage your available {activeGameHub} servers or create a new one.
                           </p>
                         </div>
@@ -538,12 +603,12 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       </div>
 
                       {activeGameHub && HUB_REGISTRY[activeGameHub]?.steamAppId && (
-                        <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-black/10 backdrop-blur-md p-6 rounded-xl border border-surface-container-high shadow-lg shadow-black/10">
+                        <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-surface-container/80 backdrop-blur-xl p-6 rounded-xl border border-white/10 shadow-2xl shadow-black/30">
                           <div className="flex-1">
-                            <h3 className="font-bold text-white text-lg">
+                            <h3 className="font-bold text-white text-lg tracking-wide drop-shadow-sm">
                               {activeGameHub} Base Installation Cache
                             </h3>
-                            <p className="text-sm text-gray-400 mt-1">
+                            <p className="text-sm text-gray-200 mt-1 drop-shadow-sm font-medium">
                               Download and manage the base server files here. Future servers will
                               copy these files to avoid re-downloading.
                             </p>
@@ -641,7 +706,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                                 <div
                                   key={server.id}
                                   onClick={() => setActiveServerId(server.id)}
-                                  className="group relative rounded-xl overflow-hidden bg-black/10 backdrop-blur-md p-6 flex flex-col gap-4 border border-surface-container-high hover:border-primary transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
+                                  className="group relative rounded-xl overflow-hidden bg-surface-container/80 backdrop-blur-xl p-6 flex flex-col gap-4 border border-white/10 hover:border-primary transition-[transform,box-shadow,border-color,background-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1.5 cursor-pointer hover:shadow-[0_15px_30px_rgba(0,0,0,0.4)]"
                                 >
                                   <div className="flex justify-between items-start">
                                     <h3 className="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
@@ -764,7 +829,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                         </div>
                       </div>
 
-                      <div className="bg-black/10 backdrop-blur-md p-8 md:p-12 rounded-2xl border border-surface-container-high flex flex-col items-center text-center max-w-3xl mx-auto my-6 relative overflow-hidden">
+                      <div className="bg-surface-container/80 backdrop-blur-xl p-8 md:p-12 rounded-2xl border border-white/10 flex flex-col items-center text-center max-w-3xl mx-auto my-6 relative overflow-hidden shadow-2xl">
                         <div className="w-20 h-20 rounded-2xl bg-surface-container-high flex items-center justify-center mb-6 ring-1 ring-outline-variant/40 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
                           <span className="material-symbols-outlined text-4xl text-primary animate-pulse">
                             engineering

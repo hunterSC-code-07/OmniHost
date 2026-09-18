@@ -9,6 +9,7 @@ import { useUiStore } from '../../../store/useUiStore';
 import { TunnelModal } from '../../modals/TunnelModal';
 
 import { DayzFilesTab as FilesTab } from '../DayzHub/tabs/DayzFilesTab';
+import theForestBgVideo from '../../../assets/theforest-animated-bg.mp4';
 import { TheForestOverviewTab } from './tabs/TheForestOverviewTab';
 import { TheForestConsoleTab } from './tabs/TheForestConsoleTab';
 import { TheForestPlayersTab } from './tabs/TheForestPlayersTab';
@@ -37,7 +38,17 @@ export const TheForestHub: React.FC = () => {
 
   return (
     <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden dayz-scrollbars bg-black theforest-ui" data-game="the-forest">
-      
+      {/* Animated Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
+      >
+        <source src={theForestBgVideo} type="video/mp4" />
+      </video>
+
       <div className="hub-frame-header p-10 flex flex-col gap-6 z-10">
         <div className="hub-header-row flex justify-between items-center relative z-20">
           <div className="flex items-center gap-4">
