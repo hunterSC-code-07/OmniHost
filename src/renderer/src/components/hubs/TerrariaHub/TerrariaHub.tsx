@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
+import terrariaBgVideo from '../../../assets/terraria-animated-bg.mp4';
 import '../../../assets/terraria-ui.css';
 import '../../../assets/gamehub-ui.css';
 import { useServerStore } from '../../../store/useServerStore';
@@ -20,7 +21,17 @@ export const TerrariaHub: React.FC = () => {
   if (!currentServer) return null;
 
   return (
-    <div className="gamehub-theme terraria-ui flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-blue-950/20 to-black" data-game="terraria">
+    <div className="gamehub-theme terraria-ui flex-1 flex flex-col relative overflow-hidden" data-game="terraria">
+      {/* Animated Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
+      >
+        <source src={terrariaBgVideo} type="video/mp4" />
+      </video>
       <div className="hub-frame-header terraria-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none shadow-none">
         <TerrariaHubHeader />
         <TerrariaHubNavigation activeTab={activeTab} onTabChange={setActiveTab} />

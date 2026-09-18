@@ -30,3 +30,7 @@ temp_*.txt
 
 # Steamworks local files
 steam_appid.txt
+
+# Python cache
+__pycache__/
+*.pyc

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { motion, AnimatePresence } from 'motion/react';
-import { SatisfactoryAnimatedBackground } from './SatisfactoryAnimatedBackground';
+import satisfactoryBgVideo from '../../../assets/satisfactory-animated-bg.mp4';
 import './satisfactory-ui.css';
 import '../../../assets/gamehub-ui.css';
 
@@ -45,12 +45,21 @@ export const SatisfactoryHub: React.FC = () => {
 
   return (
     <div className="gamehub-theme flex-1 flex flex-col relative overflow-hidden satisfactory-ui satisfactory-scrollbars" data-game="satisfactory">
-      <SatisfactoryAnimatedBackground />
+      {/* Animated Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
+      >
+        <source src={satisfactoryBgVideo} type="video/mp4" />
+      </video>
 
       <div className="flex flex-col z-10 w-full h-full pointer-events-none">
         
         {/* Main UI Window */}
-        <div className="bg-[rgba(20,20,20,0.85)] flex-1 flex flex-col relative pointer-events-auto backdrop-blur-md w-full">
+        <div className="bg-[rgba(20,20,20,0.7)] flex-1 flex flex-col relative pointer-events-auto backdrop-blur-md w-full">
           
           {/* Top Header Tabs */}
           <div className="hub-frame-header flex bg-[rgba(10,10,10,0.9)] border-b-2 border-black">

@@ -1,6 +1,6 @@
 import React from 'react';
 import 'overlayscrollbars/overlayscrollbars.css';
-import { DayzAnimatedBackground } from './DayzAnimatedBackground';
+import dayzBgVideo from '../../../assets/dayz-animated-bg.mp4';
 import { useServerStore } from '../../../store/useServerStore';
 import { useDayzModDownloader } from '../../../hooks/useDayzModDownloader';
 import { DayzHubHeader } from './DayzHubHeader';
@@ -19,7 +19,16 @@ const DayzHubContent: React.FC = () => {
 
   return (
     <div className="flex-1 flex flex-col relative overflow-hidden dayz-scrollbars">
-      <DayzAnimatedBackground />
+      {/* Animated Background Video */}
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 transition-opacity duration-1000"
+      >
+        <source src={dayzBgVideo} type="video/mp4" />
+      </video>
 
       <div className="glass-panel p-6 flex flex-col gap-6 z-10 border-b-0 rounded-b-none">
         <DayzHubHeader />

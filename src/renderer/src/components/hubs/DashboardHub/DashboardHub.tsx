@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import minecraftBgVideo from '../../../assets/minecraft-animated-bg.mp4'
 import minecraftDarkBgVideo from '../../../assets/minecraft-dark-animated-bg.mp4'
+import dayzBgVideo from '../../../assets/dayz-animated-bg.mp4'
+import satisfactoryBgVideo from '../../../assets/satisfactory-animated-bg.mp4'
+import terrariaBgVideo from '../../../assets/terraria-animated-bg.mp4'
 import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import { motion, AnimatePresence } from 'motion/react'
 
@@ -425,6 +428,60 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       <source src={minecraftDarkBgVideo} type="video/mp4" />
                     </video>
                   </motion.div>
+                ) : activeGameHub === 'DayZ' ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.75 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 pointer-events-none z-0"
+                  >
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
+                    >
+                      <source src={dayzBgVideo} type="video/mp4" />
+                    </video>
+                  </motion.div>
+                ) : activeGameHub === 'Satisfactory' ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.75 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 pointer-events-none z-0"
+                  >
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
+                    >
+                      <source src={satisfactoryBgVideo} type="video/mp4" />
+                    </video>
+                  </motion.div>
+                ) : activeGameHub === 'Terraria' ? (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.75 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="absolute inset-0 pointer-events-none z-0"
+                  >
+                    <video
+                      autoPlay
+                      loop
+                      muted
+                      playsInline
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
+                    >
+                      <source src={terrariaBgVideo} type="video/mp4" />
+                    </video>
+                  </motion.div>
                 ) : (
                   <motion.div
                     layoutId={`game-bg-${activeGameHub}`}
@@ -435,7 +492,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                     style={{ backgroundImage: `url('${getGameImageUrl(activeGameHub)}')` }}
                   ></motion.div>
                 )}
-                {activeGameHub !== 'Minecraft' && (
+                {activeGameHub !== 'Minecraft' && activeGameHub !== 'DayZ' && activeGameHub !== 'Satisfactory' && activeGameHub !== 'Terraria' && (
                   <div className="absolute inset-0 bg-gradient-to-t from-background via-background/90 to-background/40 z-0 pointer-events-none"></div>
                 )}
                 <div className="relative z-10 px-gutter pt-stack-lg pb-stack-lg flex flex-col gap-6">
@@ -481,7 +538,7 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       </div>
 
                       {activeGameHub && HUB_REGISTRY[activeGameHub]?.steamAppId && (
-                        <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-surface-container p-6 rounded-xl border border-outline-variant/30">
+                        <div className="flex flex-col md:flex-row items-center gap-4 mt-4 bg-black/10 backdrop-blur-md p-6 rounded-xl border border-surface-container-high shadow-lg shadow-black/10">
                           <div className="flex-1">
                             <h3 className="font-bold text-white text-lg">
                               {activeGameHub} Base Installation Cache
