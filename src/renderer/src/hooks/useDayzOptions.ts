@@ -28,6 +28,13 @@ export function useDayzOptions() {
     if (!activeServerId) return
     setIsLoading(true)
     try {
+      // Ensure any installed map mods have their mission templates ready in mpmissions
+      try {
+        await (window.api as any).dayz.ensureMapMissions(activeServerId)
+      } catch (e) {
+        console.warn('Failed to ensure installed map missions', e)
+      }
+
       const config = await (window.api as any).dayz.readConfig(activeServerId)
       if (config) {
         setConfigText(config)
@@ -139,6 +146,8 @@ export function useDayzOptions() {
     template,
     setTemplate,
     availableMissions,
-    handleSave
+    handleSave,
+    loadConfig,
+    refreshMissions: loadConfig
   }
 }

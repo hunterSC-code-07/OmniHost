@@ -62,6 +62,13 @@ export class SteamWebAPI {
         return []
       }
 
+      // Companion mods that are functionally required but not listed in Steam's requiredItemsContainer
+      const COMPANION_MOD_DEPENDENCIES: Record<string, string[]> = {
+        '2289456201': ['2289461232'], // Namalsk Island -> Namalsk Survival
+        '2289461232': ['2289456201'] // Namalsk Survival -> Namalsk Island
+      }
+
+      let ids: string[] = []
       const parts = html.split('class="requiredItemsContainer"')
       if (parts.length > 1) {
         let block = parts[1]
@@ -72,15 +79,21 @@ export class SteamWebAPI {
         }
 
         const idRegex = /filedetails\/\?id=(\d+)/g
-        const ids = [...new Set([...block.matchAll(idRegex)].map((m) => m[1]))]
+        ids = [...new Set([...block.matchAll(idRegex)].map((m) => m[1]))]
         console.log(`[getModDependencies] Found direct deps for ${modId}:`, ids)
-
-        // Return only direct dependencies! Recursive fetching causes 429 Rate Limits and is unnecessary
-        // since Topological sort will work as long as every mod knows its immediate dependencies.
-        return ids
+      } else {
+        console.log(`[getModDependencies] No requiredItemsContainer for ${modId}`)
       }
-      console.log(`[getModDependencies] No requiredItemsContainer for ${modId}`)
-      return []
+
+      if (COMPANION_MOD_DEPENDENCIES[modId]) {
+        for (const companionId of COMPANION_MOD_DEPENDENCIES[modId]) {
+          if (!ids.includes(companionId)) {
+            ids.push(companionId)
+          }
+        }
+      }
+
+      return ids
     } catch (e: any) {
       console.error(`SteamWebAPI getModDependencies error for ${modId}:`, e)
       if (e.response && e.response.status === 429) {

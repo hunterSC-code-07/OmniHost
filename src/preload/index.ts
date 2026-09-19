@@ -230,7 +230,9 @@ const api = {
     rebuildModDependencies: (id: number | string) =>
       ipcRenderer.invoke('rebuild-mod-dependencies', id),
     importLocalWorkshop: (id: number, workshopPath: string) =>
-      ipcRenderer.invoke('import-local-workshop', id, workshopPath)
+      ipcRenderer.invoke('import-local-workshop', id, workshopPath),
+    ensureMapMissions: (id: number) =>
+      ipcRenderer.invoke('ensure-dayz-map-missions', id)
   },
 
   sevenDaysToDie: {
