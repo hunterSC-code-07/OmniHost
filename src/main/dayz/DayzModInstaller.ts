@@ -181,6 +181,35 @@ export class DayzModInstaller {
             await fsPromises.copyFile(join(targetModDir, file), join(keysDir, file))
           }
         }
+
+        // 4. Auto-detect map mod and download/extract mission files
+        const repoInfo =
+          DAYZ_MAP_REPOS[m.modId] ||
+          DayzMissionManager.findMapRepo(m.modId) ||
+          DayzMissionManager.findMapRepo(m.modTitle) ||
+          DayzMissionManager.findMapRepo(folderName);
+
+        const mp1 = join(targetModDir, 'mpmissions');
+        const mp2 = join(targetModDir, 'ServerFiles', 'mpmissions');
+        const hasLocalMissions = (await exists(mp1)) || (await exists(mp2));
+
+        if (repoInfo || hasLocalMissions) {
+          await fsPromises.writeFile(join(targetModDir, 'is_map.txt'), 'true', 'utf-8');
+          try {
+            if (hasLocalMissions) {
+              const localPath = (await exists(mp1)) ? mp1 : mp2;
+              SteamCMDSetup.sendLog(serverId, 100, `Extracting mission files for ${m.modTitle}...`);
+              await DayzMissionManager.extractLocalMission(serverId, localPath);
+              SteamCMDSetup.sendLog(serverId, 100, `Local mission files extracted!`);
+            } else if (repoInfo) {
+              SteamCMDSetup.sendLog(serverId, 100, `Fetching mission files for ${m.modTitle}...`);
+              await DayzMissionManager.fetchDayzMission(serverId, m.modId || repoInfo.name);
+              SteamCMDSetup.sendLog(serverId, 100, `Mission files downloaded and server configured!`);
+            }
+          } catch (e) {
+            console.warn(`Could not setup mission files for ${m.modTitle}`, e);
+          }
+        }
       }
 
       // Append new mods to mod_dependencies.json
@@ -289,14 +318,32 @@ export class DayzModInstaller {
         }
       }
 
-      // 4. Auto-download mission files if this is a known map repo
-      if (DAYZ_MAP_REPOS[modId]) {
+      // 4. Auto-download mission files if this is a known map repo or has local missions
+      const repoInfo =
+        DAYZ_MAP_REPOS[modId] ||
+        DayzMissionManager.findMapRepo(modId) ||
+        DayzMissionManager.findMapRepo(modTitle) ||
+        DayzMissionManager.findMapRepo(folderName);
+
+      const mp1 = join(targetModDir, 'mpmissions');
+      const mp2 = join(targetModDir, 'ServerFiles', 'mpmissions');
+      const hasLocalMissions = (await exists(mp1)) || (await exists(mp2));
+
+      if (repoInfo || hasLocalMissions) {
+        await fsPromises.writeFile(join(targetModDir, 'is_map.txt'), 'true', 'utf-8')
         try {
-          SteamCMDSetup.sendLog(serverId, 100, `Fetching mission files for ${modTitle}...`)
-          await DayzMissionManager.fetchDayzMission(serverId, modId)
-          SteamCMDSetup.sendLog(serverId, 100, `Mission files downloaded and server configured!`)
+          if (hasLocalMissions) {
+            const localPath = (await exists(mp1)) ? mp1 : mp2
+            SteamCMDSetup.sendLog(serverId, 100, `Extracting mission files for ${modTitle}...`)
+            await DayzMissionManager.extractLocalMission(serverId, localPath)
+            SteamCMDSetup.sendLog(serverId, 100, `Local mission files extracted!`)
+          } else if (repoInfo) {
+            SteamCMDSetup.sendLog(serverId, 100, `Fetching mission files for ${modTitle}...`)
+            await DayzMissionManager.fetchDayzMission(serverId, modId || repoInfo.name)
+            SteamCMDSetup.sendLog(serverId, 100, `Mission files downloaded and server configured!`)
+          }
         } catch (e) {
-          console.warn(`Could not fetch auto mission files for ${modId}`, e)
+          console.warn(`Could not setup mission files for ${modTitle}`, e)
         }
       }
 

@@ -29,7 +29,7 @@ export const DayzInstalledModsGridPanel: React.FC<DayzInstalledModsGridPanelProp
     useDayzMissions(activeServerId)
   const { checkingDeps, handleCheckDependencies, executeMissingDepsInstall } =
     useDayzModDependencies(activeServerId, loadInstalledMods, mods)
-  const { handleToggleMap, handleToggleModStatus } = useDayzModStatus(
+  const { handleToggleMap, handleToggleModStatus, togglingMap } = useDayzModStatus(
     activeServerId,
     mods,
     loadInstalledMods,
@@ -91,6 +91,7 @@ export const DayzInstalledModsGridPanel: React.FC<DayzInstalledModsGridPanelProp
               mod={mod}
               handleToggleModStatus={handleToggleModStatus}
               handleToggleMap={handleToggleMap}
+              togglingMap={togglingMap}
               handleDownloadMission={handleDownloadMission}
               downloadingMission={downloadingMission}
               handleExtractLocalMission={handleExtractLocalMission}

@@ -4,6 +4,7 @@ interface DayzInstalledModCardProps {
   mod: any
   handleToggleModStatus: (mod: any) => void
   handleToggleMap: (folderName: string, isMap: boolean) => void
+  togglingMap?: string | null
   handleDownloadMission: (modId: string) => void
   downloadingMission: string | null
   handleExtractLocalMission: (modId: string, localMissionsPath: string) => void
@@ -17,6 +18,7 @@ export const DayzInstalledModCard: React.FC<DayzInstalledModCardProps> = ({
   mod,
   handleToggleModStatus,
   handleToggleMap,
+  togglingMap,
   handleDownloadMission,
   downloadingMission,
   handleExtractLocalMission,
@@ -102,24 +104,43 @@ export const DayzInstalledModCard: React.FC<DayzInstalledModCardProps> = ({
         <div className="flex flex-col gap-2 mt-auto mb-3">
           <button
             onClick={() => handleToggleMap(mod.folderName, mod.isMap)}
-            className={`text-xs py-1.5 px-3 rounded-lg border transition-colors ${mod.isMap ? 'border-primary text-primary bg-primary/10 hover:bg-primary/20' : 'border-white/10 text-on-surface-variant hover:bg-white/5'}`}
+            disabled={togglingMap === mod.folderName}
+            className={`text-xs py-1.5 px-3 rounded-lg border transition-colors flex items-center justify-center gap-2 ${mod.isMap ? 'border-primary text-primary bg-primary/10 hover:bg-primary/20' : 'border-white/10 text-on-surface-variant hover:bg-white/5'} disabled:opacity-50`}
           >
-            {mod.isMap ? 'Unmark as Map' : 'Mark as Map'}
+            {togglingMap === mod.folderName ? (
+              <>
+                <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-primary"></div>
+                <span>Configuring Map...</span>
+              </>
+            ) : mod.isMap ? (
+              'Unmark as Map'
+            ) : (
+              'Mark as Map'
+            )}
           </button>
 
           {mod.isMap &&
-            ['2289456201', '1602372402', '2699824632', '2938009193'].includes(mod.id) && (
+            (['2289456201', '2289461232', '1602372402', '2699824632', '2415195639', '2938009193'].includes(
+              String(mod.id)
+            ) ||
+              mod.folderName?.toLowerCase().includes('namalsk') ||
+              mod.title?.toLowerCase().includes('namalsk') ||
+              mod.folderName?.toLowerCase().includes('deerisle') ||
+              mod.folderName?.toLowerCase().includes('banov') ||
+              mod.folderName?.toLowerCase().includes('pripyat')) && (
               <button
-                onClick={() => handleDownloadMission(mod.id)}
-                disabled={downloadingMission === mod.id}
+                onClick={() => handleDownloadMission(mod.id || mod.folderName)}
+                disabled={
+                  downloadingMission === (mod.id || mod.folderName) || togglingMap === mod.folderName
+                }
                 className="text-xs py-1.5 px-3 rounded-lg bg-surface-container-highest hover:bg-surface-container-high text-on-surface transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {downloadingMission === mod.id ? (
+                {downloadingMission === (mod.id || mod.folderName) ? (
                   <div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-primary"></div>
                 ) : (
                   <span className="material-symbols-outlined text-[14px]">download</span>
                 )}
-                Download Mission
+                Re-download Mission
               </button>
             )}
 

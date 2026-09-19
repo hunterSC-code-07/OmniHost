@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import minecraftBgVideo from '../../../assets/minecraft-animated-bg.mp4'
-import minecraftDarkBgVideo from '../../../assets/minecraft-dark-animated-bg.mp4'
 import dayzBgVideo from '../../../assets/dayz-animated-bg.mp4'
 import satisfactoryBgVideo from '../../../assets/satisfactory-animated-bg.mp4'
 import terrariaBgVideo from '../../../assets/terraria-animated-bg.mp4'
@@ -53,7 +52,6 @@ import { useUiStore } from '../../../store/useUiStore'
 import { useToastStore } from '../../../store/useToastStore'
 
 import { useModalStore } from '../../../store/useModalStore'
-import { useMinecraftHubStore } from '../../../store/useMinecraftHubStore'
 import { HUB_REGISTRY } from '../../layout/HubRegistry'
 import { getDisplayErrorMessage } from '../../../utils/errors'
 
@@ -70,7 +68,6 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
   const { showToast } = useToastStore()
 
   const { openCreateServerModal, openDeleteModal, openSteamLoginModal } = useModalStore()
-  const { isDarkMode, toggleDarkMode } = useMinecraftHubStore()
   const [updatingSteamCacheGame, setUpdatingSteamCacheGame] = useState<string | null>(null)
   const onlineServers = servers.filter((server) => server.status === 'Online').length
   const offlineServers = servers.length - onlineServers
@@ -450,18 +447,9 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                       loop
                       muted
                       playsInline
-                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isDarkMode ? 'opacity-0' : 'opacity-100'}`}
+                      className="absolute inset-0 w-full h-full object-cover opacity-100"
                     >
                       <source src={minecraftBgVideo} type="video/mp4" />
-                    </video>
-                    <video
-                      autoPlay
-                      loop
-                      muted
-                      playsInline
-                      className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${isDarkMode ? 'opacity-100' : 'opacity-0'}`}
-                    >
-                      <source src={minecraftDarkBgVideo} type="video/mp4" />
                     </video>
                   </motion.div>
                 ) : activeGameHub === 'DayZ' ? (
@@ -604,17 +592,6 @@ export function DashboardHub({ getGameImageUrl, isGameSupported }: any) {
                           </p>
                         </div>
                         <div className="flex items-center gap-4">
-                          {activeGameHub === 'Minecraft' && (
-                            <button
-                              onClick={toggleDarkMode}
-                              className="bg-surface-container hover:bg-surface-container-high text-on-surface border border-outline-variant/40 transition-all w-12 h-12 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(0,0,0,0.3)] hover:scale-105 active:scale-95"
-                              title={isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-                            >
-                              <span className="material-symbols-outlined text-xl">
-                                {isDarkMode ? 'light_mode' : 'dark_mode'}
-                              </span>
-                            </button>
-                          )}
                           <button
                             onClick={() => openCreateServerModal()}
                             className="bg-primary text-on-primary hover:bg-primary/90 transition-all px-8 py-3 rounded-xl font-label-lg text-label-lg flex items-center gap-2 shadow-[0_0_20px_rgba(76,175,80,0.3)] hover:scale-105 active:scale-95"

@@ -262,6 +262,10 @@ export class DayzController {
       return await DayzMissionManager.extractLocalMission(id, localMissionsPath)
     })
 
+    ipcMain.handle('ensure-dayz-map-missions', async (_, id) => {
+      return await DayzMissionManager.ensureInstalledMapMissions(id)
+    })
+
     ipcMain.handle('select-workshop-folder', async () => {
       return await DayzModInstaller.selectWorkshopFolder()
     })

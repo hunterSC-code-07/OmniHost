@@ -124,8 +124,23 @@ export const DayzOptionsTab: React.FC = () => {
     template,
     setTemplate,
     availableMissions,
+    refreshMissions,
     handleSave
   } = useDayzOptions()
+
+  const getFriendlyMapLabel = (missionFolder: string) => {
+    const lower = missionFolder.toLowerCase()
+    if (lower === 'dayzoffline.chernarusplus') return 'Chernarus (dayzOffline.chernarusplus)'
+    if (lower === 'dayzoffline.enoch') return 'Livonia (dayzOffline.enoch)'
+    if (lower === 'dayzoffline.sakhal') return 'Sakhal (dayzOffline.sakhal)'
+    if (lower === 'regular.namalsk') return 'Namalsk - Regular (regular.namalsk)'
+    if (lower === 'hardcore.namalsk') return 'Namalsk - Hardcore (hardcore.namalsk)'
+    if (lower.includes('namalsk')) return `Namalsk (${missionFolder})`
+    if (lower === 'empty.deerisle' || lower.includes('deerisle')) return `Deer Isle (${missionFolder})`
+    if (lower === 'empty.banov' || lower.includes('banov')) return `Banov (${missionFolder})`
+    if (lower === 'servermission.pripyat' || lower.includes('pripyat')) return `Pripyat (${missionFolder})`
+    return missionFolder
+  }
 
   if (isLoading) {
     return (
@@ -137,10 +152,10 @@ export const DayzOptionsTab: React.FC = () => {
 
   // Ensure current template is always an option even if not found in mpmissions yet
   const templateOptions = availableMissions.includes(template)
-    ? availableMissions.map((m) => ({ label: m, value: m }))
+    ? availableMissions.map((m) => ({ label: getFriendlyMapLabel(m), value: m }))
     : [
-        { label: `${template} (Current)`, value: template },
-        ...availableMissions.map((m) => ({ label: m, value: m }))
+        { label: `${getFriendlyMapLabel(template)} (Current)`, value: template },
+        ...availableMissions.map((m) => ({ label: getFriendlyMapLabel(m), value: m }))
       ]
 
   return (
@@ -224,11 +239,22 @@ export const DayzOptionsTab: React.FC = () => {
 
               {/* Map Template */}
               <div>
-                <label className="block text-sm font-bold text-gray-300 mb-2">Map (Template)</label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-bold text-gray-300">Map (Template)</label>
+                  <button
+                    type="button"
+                    onClick={() => refreshMissions()}
+                    className="text-xs text-primary hover:text-red-400 flex items-center gap-1 transition-colors"
+                    title="Rescan mpmissions folder and ensure map missions"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">refresh</span>
+                    Scan Maps
+                  </button>
+                </div>
                 <CustomSelect value={template} onChange={setTemplate} options={templateOptions} />
                 <p className="text-xs text-gray-500 mt-1">
-                  If using a custom map, enter its mission folder name here (e.g. regular.namalsk).
-                  Ensure the mission folder is copied into your server's mpmissions folder.
+                  Select your active map mission template (e.g. Namalsk Regular, Chernarus, etc.).
+                  Installed map mods will automatically be configured and appear here.
                 </p>
               </div>
 

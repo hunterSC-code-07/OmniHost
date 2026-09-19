@@ -6,6 +6,7 @@ import fs from 'fs'
 import { DayzModGraph } from '../adapters/DayzModGraph'
 import { DayzLogParser } from '../adapters/DayzLogParser'
 import { DayzConfigManager } from './DayzConfigManager'
+import { DayzMissionManager } from './DayzMissionManager'
 
 export class DayzProcessManager {
   serverId: number
@@ -61,6 +62,7 @@ export class DayzProcessManager {
 
   async start() {
     await DayzConfigManager.ensureDefaultConfig(this.serverDir)
+    await DayzMissionManager.patchNamalskInitScript(this.serverDir)
 
     const exePath = join(this.serverDir, 'DayZServer_x64.exe')
     if (!fs.existsSync(exePath)) {

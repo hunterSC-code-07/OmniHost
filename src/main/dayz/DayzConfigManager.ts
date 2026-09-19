@@ -41,6 +41,7 @@ loginQueueMaxPlayers=500;   // The maximum number of players that can wait in lo
 instanceId = 1;             // DayZ server instance id, to identify the number of instances per box and their storage folders with persistence files
 storeHouseStateDisabled = false;// Disable houses/doors persistence (value true/false), usable in case of problems with persistence
 storageAutoFix = 1;         // Checks if the persistence files are corrupted and replaces corrupted ones with empty ones (value 0-1)
+enableCfgGameplayFile = 1;  // Enables cfggameplay.json in mission folder for gameplay/stamina settings
 
 class Missions
 {

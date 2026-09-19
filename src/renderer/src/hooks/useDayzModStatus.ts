@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useModalStore } from '../store/useModalStore'
 
 export const useDayzModStatus = (
@@ -7,11 +8,32 @@ export const useDayzModStatus = (
   executeMissingDepsInstall: (deps: any[]) => void
 ) => {
   const { openDayzMissingDepsModal, openDayzInfoModal } = useModalStore.getState()
+  const [togglingMap, setTogglingMap] = useState<string | null>(null)
 
   const handleToggleMap = async (folderName: string, currentIsMap: boolean) => {
-    if (!activeServerId) return
-    await window.api.dayz.toggleMapMod(activeServerId, folderName, !currentIsMap)
-    loadInstalledMods()
+    if (!activeServerId || togglingMap) return
+    setTogglingMap(folderName)
+    try {
+      const willBeMap = !currentIsMap
+      const res = await window.api.dayz.toggleMapMod(activeServerId, folderName, willBeMap)
+      if (willBeMap) {
+        if (res?.missionResult?.templates?.length) {
+          openDayzInfoModal(
+            `Map configured successfully! Mission template(s) [${res.missionResult.templates.join(', ')}] are ready in mpmissions. You can now select this map under Options -> Map (Template).`
+          )
+        } else {
+          openDayzInfoModal(
+            `Mod marked as map. You can select its mission template under Options -> Map (Template).`
+          )
+        }
+      }
+      await loadInstalledMods()
+    } catch (e: any) {
+      console.error(e)
+      openDayzInfoModal('Failed to update map mod: ' + (e.message || e))
+    } finally {
+      setTogglingMap(null)
+    }
   }
 
   const handleToggleModStatus = async (mod: any) => {
@@ -49,6 +71,7 @@ export const useDayzModStatus = (
 
   return {
     handleToggleMap,
-    handleToggleModStatus
+    handleToggleModStatus,
+    togglingMap
   }
 }
