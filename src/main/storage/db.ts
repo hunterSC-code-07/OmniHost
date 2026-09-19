@@ -23,6 +23,15 @@ function getDatabase(): Database.Database {
     )
   `)
 
+  // Ensure column exists for existing databases
+  try {
+    database.exec('ALTER TABLE servers ADD COLUMN folder_name TEXT')
+  } catch (e: any) {
+    if (!e.message.includes('duplicate column name')) {
+      throw e
+    }
+  }
+
   // Migrate existing rows that don't have a folder_name
   database.exec(`
     UPDATE servers 
