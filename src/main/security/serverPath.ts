@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { lstat } from 'fs/promises'
 import { isAbsolute, join, relative, resolve, sep } from 'path'
 
@@ -44,7 +44,7 @@ export async function resolveServerPath(
     throw new Error('Absolute paths are not allowed')
   }
 
-  const serverRoot = resolve(serverStorage.getPath(), String(serverId))
+  const serverRoot = resolve(getServerDirectory(Number(serverId)))
   const targetPath = resolve(serverRoot, untrustedRelativePath || '.')
   const relativeTarget = relative(serverRoot, targetPath)
 

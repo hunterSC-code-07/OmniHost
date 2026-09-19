@@ -3,6 +3,7 @@ import { OverlayScrollbarsComponent } from 'overlayscrollbars-react'
 import type { SteamCacheStorageInfo } from '@shared/steamCacheStorage'
 import { useToastStore } from '../../store/useToastStore'
 import { useUiStore } from '../../store/useUiStore'
+import { HUB_REGISTRY } from '../layout/HubRegistry'
 
 type SettingsTab = 'general' | 'storage' | 'diagnostics' | 'integrations'
 
@@ -41,7 +42,9 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     bootSoundVolume,
     setBootSoundVolume,
     useCustomBootSound,
-    setUseCustomBootSound
+    setUseCustomBootSound,
+    setCacheSizes,
+    setGameCacheStatus
   } = useUiStore()
 
   const loadLogs = useCallback(async () => {
@@ -83,6 +86,24 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     }
   }, [activeTab, loadLogs, loadStorageInfo])
 
+  const updateGlobalCacheState = async () => {
+    try {
+      // @ts-ignore
+      const sizes = await window.api.system.getDetailedCacheInfo()
+      setCacheSizes(sizes)
+
+      for (const [gameName, config] of Object.entries(HUB_REGISTRY)) {
+        if (config.steamAppId) {
+          // @ts-ignore
+          const isCached = await window.api.steam.checkCache(config.steamAppId)
+          setGameCacheStatus(gameName, isCached)
+        }
+      }
+    } catch (e) {
+      console.error('Failed to update global cache state after storage change', e)
+    }
+  }
+
   const browseForStorage = async (): Promise<void> => {
     setStorageAction('browse')
     try {
@@ -90,6 +111,7 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
         (await window.api.steam.selectCacheStorage()) as SteamCacheStorageInfo | null
       if (selectedStorage) {
         setStorageInfo(selectedStorage)
+        await updateGlobalCacheState()
         showToast('Steam base-cache folder updated.', 'success')
       }
     } catch (error) {
@@ -102,9 +124,10 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const resetStorage = async (): Promise<void> => {
     setStorageAction('reset')
     try {
-      const defaultStorage = (await window.api.steam.resetCacheStorage()) as SteamCacheStorageInfo
-      setStorageInfo(defaultStorage)
-      showToast('Steam base-cache folder reset to default.', 'success')
+      const newStorage = (await window.api.steam.resetCacheStorage()) as SteamCacheStorageInfo
+      setStorageInfo(newStorage)
+      await updateGlobalCacheState()
+      showToast('Steam cache folder reset to default location.', 'success')
     } catch (error) {
       showToast(`Could not reset the cache folder: ${getErrorMessage(error)}`, 'error')
     } finally {
@@ -403,6 +426,21 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                           </p>
                         </div>
                       </div>
+
+                      {storageInfo?.cachedGames && storageInfo.cachedGames.length > 0 && (
+                        <div className="mt-4 flex flex-col gap-2 rounded-lg bg-black/15 px-3 py-3">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+                            <p className="text-xs text-on-surface-variant">Detected Cache</p>
+                          </div>
+                          {storageInfo.cachedGames.map(game => (
+                            <div key={game.appId} className="flex justify-between items-center text-sm">
+                              <span className="text-white font-medium">{game.gameName}</span>
+                              <span className="text-on-surface-variant">{formatBytes(game.sizeBytes)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                       {storageInfo?.isCustom && (
                         <p className="mt-4 break-all text-xs text-on-surface-variant">

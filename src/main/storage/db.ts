@@ -18,8 +18,16 @@ function getDatabase(): Database.Database {
       name TEXT NOT NULL,
       game TEXT NOT NULL,
       status TEXT NOT NULL DEFAULT 'Offline',
-      players INTEGER NOT NULL DEFAULT 0
+      players INTEGER NOT NULL DEFAULT 0,
+      folder_name TEXT
     )
+  `)
+
+  // Migrate existing rows that don't have a folder_name
+  database.exec(`
+    UPDATE servers 
+    SET folder_name = CAST(id AS TEXT) 
+    WHERE folder_name IS NULL
   `)
 
   const rows = database.prepare('SELECT id, name, game FROM servers ORDER BY id').all() as Array<{
@@ -35,7 +43,7 @@ function getDatabase(): Database.Database {
     rows[1]?.id === 2 &&
     rows[1]?.name === 'My Palworld Base' &&
     rows[1]?.game === 'Palworld' &&
-    rows.every((row) => !existsSync(join(serverStorage.getPath(), String(row.id), 'omnihost.json')))
+    rows.every((row) => !existsSync(join(getServerDirectory(row.id), 'omnihost.json')))
 
   if (isUntouchedLegacyDemoDatabase) {
     database.prepare('DELETE FROM servers WHERE id IN (1, 2)').run()
@@ -54,11 +62,27 @@ export function getServers(): unknown[] {
   return getDatabase().prepare('SELECT * FROM servers').all()
 }
 
+export function getServerDirectory(id: number): string {
+  const row = getDatabase()
+    .prepare('SELECT folder_name FROM servers WHERE id = ?')
+    .get(id) as { folder_name: string | null } | undefined
+
+  const folderName = row?.folder_name || id.toString()
+  return join(serverStorage.getPath(), folderName)
+}
+
+function sanitizeForPath(str: string): string {
+  return str.replace(/[^a-zA-Z0-9]/g, '_')
+}
+
 export function createServer(name: string, game: string): number | bigint {
+  const date = new Date().toISOString().split('T')[0]
+  const folderName = `${sanitizeForPath(name)}_${sanitizeForPath(game)}_${date}`
+  
   const insert = getDatabase().prepare(
-    'INSERT INTO servers (name, game, status, players) VALUES (?, ?, ?, ?)'
+    'INSERT INTO servers (name, game, status, players, folder_name) VALUES (?, ?, ?, ?, ?)'
   )
-  return insert.run(name, game, 'Offline', 0).lastInsertRowid
+  return insert.run(name, game, 'Offline', 0, folderName).lastInsertRowid
 }
 
 export function deleteServer(id: number): void {

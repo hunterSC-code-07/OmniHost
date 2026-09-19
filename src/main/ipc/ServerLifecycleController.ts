@@ -1,3 +1,4 @@
+import { getServerDirectory } from '../storage/db'
 import { serverStorage } from '../storage/ServerStorage'
 import { ipcMain } from 'electron'
 import { join } from 'path'
@@ -59,7 +60,7 @@ export class ServerLifecycleController {
       )
       if (!server) throw new Error(`Server ${id} does not exist`)
       let game = server.game || 'Minecraft'
-      const metaPath = join(serverStorage.getPath(), String(id), 'omnihost.json')
+      const metaPath = join(getServerDirectory(id), 'omnihost.json')
       try {
         if (fs.existsSync(metaPath)) {
           const metadata = JSON.parse(fs.readFileSync(metaPath, 'utf8'))
@@ -118,7 +119,7 @@ export class ServerLifecycleController {
       await stopServer(id)
       delete activeServers[id]
 
-      const serverDirectory = join(serverStorage.getPath(), String(id))
+      const serverDirectory = getServerDirectory(id)
       if (await exists(serverDirectory)) {
         for (let attempt = 0; attempt < 5; attempt += 1) {
           try {
@@ -145,7 +146,7 @@ export class ServerLifecycleController {
         throw new Error('Wake-on-connect is currently supported only for Minecraft servers')
       }
       const manager = getOrCreateManager(id)
-      const propertiesPath = join(serverStorage.getPath(), String(id), 'server.properties')
+      const propertiesPath = join(getServerDirectory(id), 'server.properties')
       let port = 25565
       if (await exists(propertiesPath)) {
         const match = (await fsPromises.readFile(propertiesPath, 'utf8')).match(/server-port=(\d+)/)
@@ -162,7 +163,7 @@ export class ServerLifecycleController {
       id: number,
       metadata: Record<string, unknown>
     ): Promise<void> => {
-      const serverDirectory = join(serverStorage.getPath(), String(id))
+      const serverDirectory = getServerDirectory(id)
       const game = String(metadata.game ?? readServerGame(id))
       if (game === 'Minecraft') {
         const entries = await fsPromises.readdir(serverDirectory)
@@ -246,7 +247,7 @@ export class ServerLifecycleController {
       if (typeof game !== 'string' || !game.trim()) throw new Error('Game is required')
       const gameString = game === 'Minecraft' ? `Minecraft (${type})` : game
       const id = Number(createServer(name.trim(), gameString))
-      const serverDirectory = join(serverStorage.getPath(), String(id))
+      const serverDirectory = getServerDirectory(id)
       try {
         await fsPromises.mkdir(serverDirectory, { recursive: true })
         await fsPromises.writeFile(
@@ -273,7 +274,7 @@ export class ServerLifecycleController {
       const id = requireServerId(rawId)
       return runExclusive(id, async () => {
         readServerGame(id)
-        const metadataPath = join(serverStorage.getPath(), String(id), 'omnihost.json')
+        const metadataPath = join(getServerDirectory(id), 'omnihost.json')
         const metadata = JSON.parse(await fsPromises.readFile(metadataPath, 'utf8'))
 
         if (!skipAssertion) {
@@ -325,7 +326,7 @@ export class ServerLifecycleController {
     })
 
     for (const server of getServers() as Array<{ id: number }>) {
-      const metadataPath = join(serverStorage.getPath(), String(server.id), 'omnihost.json')
+      const metadataPath = join(getServerDirectory(server.id), 'omnihost.json')
       try {
         const metadata = JSON.parse(fs.readFileSync(metadataPath, 'utf8'))
         if (metadata.autoStart === true && metadata.creationState !== 'installing') {

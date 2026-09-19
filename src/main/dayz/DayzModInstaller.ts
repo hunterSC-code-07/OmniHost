@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { dialog } from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
@@ -45,7 +45,7 @@ export class DayzModInstaller {
         )
       }
 
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const keysDir = join(serverDir, 'keys')
 
       if (!(await exists(keysDir))) {
@@ -108,7 +108,7 @@ export class DayzModInstaller {
     steamGuardCode?: string
   ) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const appId = 221100
 
       const modIds = modsToInstall.map((m: any) => m.modId)
@@ -220,7 +220,7 @@ export class DayzModInstaller {
     steamGuardCode?: string
   ) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const appId = 221100
 
       // 1. Download via SteamWorkshopDownloader
@@ -309,7 +309,7 @@ export class DayzModInstaller {
 
   static async uninstallMod(serverId: number, modIdOrFolder: string) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
 
       // If it's a folder name (starts with @), remove it directly
       if (modIdOrFolder.startsWith('@')) {

@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { app, session, BrowserWindow } from 'electron'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
@@ -22,7 +22,7 @@ export function registerSevenDaysToDieModDownloader(): void {
     if (!item.getFilename().endsWith('.zip')) return
 
     const serverIdSnapshot = activeDownloadServerId
-    const serverDir = join(serverStorage.getPath(), serverIdSnapshot.toString())
+    const serverDir = getServerDirectory(serverIdSnapshot)
     const modsDir = join(serverDir, 'Mods')
 
     if (!fs.existsSync(modsDir)) {

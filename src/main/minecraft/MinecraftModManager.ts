@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { basename, isAbsolute, join, relative, resolve, sep } from 'path'
 import { promises as fsPromises } from 'fs'
 import AdmZip from 'adm-zip'
@@ -58,7 +58,7 @@ export class MinecraftModManager {
   ): Promise<boolean> {
     assertSafeFilename(fileName)
     if (!Number.isSafeInteger(id) || id <= 0) throw new Error('Invalid server ID')
-    const serverDirectory = join(serverStorage.getPath(), String(id))
+    const serverDirectory = getServerDirectory(id)
     const targetDirectory = getInstallDirectory(serverDirectory, classId)
     await fsPromises.mkdir(targetDirectory, { recursive: true })
 
@@ -99,7 +99,7 @@ export class MinecraftModManager {
     const manifestEntry = archive.getEntry('manifest.json')
     if (!manifestEntry) throw new Error('This archive is not a CurseForge modpack')
     const manifest = JSON.parse(manifestEntry.getData().toString('utf8')) as CurseForgeManifest
-    const serverDirectory = resolve(serverStorage.getPath(), String(id))
+    const serverDirectory = getServerDirectory(id)
 
     const overridesPrefix = `${(manifest.overrides || 'overrides').replace(/\\/g, '/').replace(/\/$/, '')}/`
     for (const entry of archive.getEntries()) {
@@ -165,7 +165,7 @@ export class MinecraftModManager {
   }
 
   static async getInstalledMods(id: number, classId = 6): Promise<Array<{ name: string }>> {
-    const directory = getInstallDirectory(join(serverStorage.getPath(), String(id)), classId)
+    const directory = getInstallDirectory(getServerDirectory(id), classId)
     try {
       const files = await fsPromises.readdir(directory, { withFileTypes: true })
       return files
@@ -179,13 +179,13 @@ export class MinecraftModManager {
 
   static async deleteMod(id: number, fileName: string, classId = 6): Promise<boolean> {
     assertSafeFilename(fileName)
-    const directory = getInstallDirectory(join(serverStorage.getPath(), String(id)), classId)
+    const directory = getInstallDirectory(getServerDirectory(id), classId)
     await fsPromises.unlink(join(directory, fileName))
     return true
   }
 
   static async deleteAllMods(id: number, classId = 6): Promise<boolean> {
-    const directory = getInstallDirectory(join(serverStorage.getPath(), String(id)), classId)
+    const directory = getInstallDirectory(getServerDirectory(id), classId)
     try {
       const entries = await fsPromises.readdir(directory, { withFileTypes: true })
       await Promise.all(

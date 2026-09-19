@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import {} from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
@@ -9,7 +9,7 @@ export class DayzEconomyManager {
   static async getEconomy(serverId: number) {
     if (serverId == null) return { pristineLoot: false }
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const cfgPath = join(serverDir, 'serverDZ.cfg')
       if (!(await DayzConfigManager.exists(cfgPath))) return null
 
@@ -44,7 +44,7 @@ export class DayzEconomyManager {
     settings: { pristineLoot: boolean; multipliers: Record<string, number> }
   ) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const cfgPath = join(serverDir, 'serverDZ.cfg')
       if (!(await DayzConfigManager.exists(cfgPath))) return false
 
@@ -173,7 +173,7 @@ export class DayzEconomyManager {
 
   static async wipeLoot(serverId: number, isRunning: boolean) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const cfgPath = join(serverDir, 'serverDZ.cfg')
       if (!(await DayzConfigManager.exists(cfgPath))) return false
 

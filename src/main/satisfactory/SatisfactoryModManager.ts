@@ -1,8 +1,8 @@
-import { serverStorage } from '../storage/ServerStorage'
 import {} from 'electron'
 import { join } from 'path'
 import fs from 'fs'
 import axios from 'axios'
+import { getServerDirectory } from '../storage/db'
 
 export interface ModInfo {
   mod_reference: string
@@ -22,7 +22,7 @@ export interface ModVersion {
 
 export class SatisfactoryModManager {
   private static getModsDir(serverId: number): string {
-    return join(serverStorage.getPath(), serverId.toString(), 'FactoryGame', 'Mods')
+    return join(getServerDirectory(serverId), 'FactoryGame', 'Mods')
   }
 
   private static ensureModsDir(serverId: number) {

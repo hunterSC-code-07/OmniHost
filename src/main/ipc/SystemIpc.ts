@@ -1,3 +1,4 @@
+import { getServerDirectory } from '../storage/db'
 import { dialog, BrowserWindow } from 'electron'
 import type { OpenDialogOptions } from 'electron'
 import { handleTrusted } from '../security/ipcSecurity'
@@ -121,7 +122,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Database
   // Versions & Downloads
   ipcMain.handle('update-server-meta', async (_, id, changes) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     const metaPath = join(serverDir, 'omnihost.json')
     let meta = {}
     if (fs.existsSync(metaPath)) {
@@ -144,7 +145,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Database
   // Versions & Downloads
   ipcMain.handle('get-player-stats', async (_, id) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     const statsPath = join(serverDir, 'player-stats.json')
     if (fs.existsSync(statsPath)) {
       try {
@@ -161,7 +162,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Database
   // Versions & Downloads
   ipcMain.handle('get-server-meta', async (_, id) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     const metaPath = join(serverDir, 'omnihost.json')
     let meta: any = null
     if (await exists(metaPath)) {
@@ -200,7 +201,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Radmin VPN
   // Config Editor
   ipcMain.handle('read-config', async (_, id) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     let configName = 'server.properties'
     let customPath = ''
     try {
@@ -232,7 +233,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // Radmin VPN
   // Config Editor
   ipcMain.handle('write-config', async (_, id, data) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     if (!(await exists(serverDir))) await fsPromises.mkdir(serverDir, { recursive: true })
 
     let configName = 'server.properties'
@@ -356,7 +357,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // --- Backups ---
   ipcMain.handle('create-backup', async (_, id, name) => {
     try {
-      const serverDir = join(serverStorage.getPath(), id.toString())
+      const serverDir = getServerDirectory(id)
       const backupsDir = join(serverDir, 'backups')
       if (!fs.existsSync(backupsDir)) {
         await fsPromises.mkdir(backupsDir, { recursive: true })
@@ -405,7 +406,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // --- File Manager ---
   // --- Backups ---
   ipcMain.handle('get-backups', async (_, id) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     const backupsDir = join(serverDir, 'backups')
     if (!fs.existsSync(backupsDir)) return []
 
@@ -438,7 +439,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   // --- Backups ---
   ipcMain.handle('restore-backup', async (_, id, filename) => {
     try {
-      const serverDir = join(serverStorage.getPath(), id.toString())
+      const serverDir = getServerDirectory(id)
       const backupPath = await resolveServerPath(
         id,
         join('backups', validateBackupFilename(filename))
@@ -499,7 +500,7 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   })
 
   ipcMain.handle('delete-all-backups', async (_, id) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     const backupsDir = join(serverDir, 'backups')
     if (!fs.existsSync(backupsDir)) return true
 

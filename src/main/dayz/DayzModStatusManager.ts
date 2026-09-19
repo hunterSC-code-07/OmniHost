@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import {} from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
@@ -18,7 +18,7 @@ async function exists(path: string) {
 export class DayzModStatusManager {
   static async rebuildModDependencies(serverId: number) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       if (!(await exists(serverDir))) return
 
       const folders = await fsPromises.readdir(serverDir, { withFileTypes: true })
@@ -59,7 +59,7 @@ export class DayzModStatusManager {
 
   static async getInstalledMods(serverId: number) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       if (!(await exists(serverDir))) return []
 
       const folders = await fsPromises.readdir(serverDir, { withFileTypes: true })
@@ -149,7 +149,7 @@ export class DayzModStatusManager {
 
   static async toggleMapMod(serverId: number, folderName: string, isMap: boolean) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const modDir = join(serverDir, folderName)
       if (await exists(modDir)) {
         await fsPromises.writeFile(join(modDir, 'is_map.txt'), isMap ? 'true' : 'false', 'utf-8')
@@ -164,7 +164,7 @@ export class DayzModStatusManager {
 
   static async toggleModStatus(serverId: number, folderName: string, isDisabled: boolean) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const modDir = join(serverDir, folderName)
       if (await exists(modDir)) {
         const disabledPath = join(modDir, 'disabled.txt')

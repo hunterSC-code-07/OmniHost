@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import {} from 'electron'
 import { join } from 'path'
 import fsPromises from 'fs/promises'
@@ -48,7 +48,7 @@ export class DayzMissionManager {
     if (!repoInfo || !repoInfo.repoZip) {
       throw new Error('No mission repository found for this map mod.')
     }
-    const serverDir = join(serverStorage.getPath(), serverId.toString())
+    const serverDir = getServerDirectory(serverId)
     const mpmissionsDir = join(serverDir, 'mpmissions')
 
     if (!(await exists(mpmissionsDir))) {
@@ -115,7 +115,7 @@ export class DayzMissionManager {
 
   static async extractLocalMission(serverId: number, localMissionsPath: string) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const mpmissionsDir = join(serverDir, 'mpmissions')
 
       if (!(await exists(mpmissionsDir))) {

@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { spawn, ChildProcess } from 'child_process'
 import { join } from 'path'
 import { BrowserWindow } from 'electron'
@@ -24,7 +24,7 @@ export class PalworldProcessManager {
 
   constructor(serverId: number) {
     this.serverId = serverId
-    this.serverDir = join(serverStorage.getPath(), serverId.toString())
+    this.serverDir = getServerDirectory(serverId)
     this.rcon = new PalworldRcon(serverId)
   }
 

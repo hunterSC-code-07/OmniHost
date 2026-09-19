@@ -1,9 +1,8 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { BrowserWindow, dialog } from 'electron'
 import type { OpenDialogOptions } from 'electron'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
-import { join } from 'path'
 import { SteamDownloader } from '../steam/SteamDownloader'
 import { SteamCache } from '../steam/SteamCache'
 import { steamCacheStorage } from '../steam/SteamCacheStorage'
@@ -24,7 +23,7 @@ export function registerSteamCMDIpc() {
   ipcMain.handle(
     'install-steam-app',
     async (_, id, appId, username?: string, password?: string, steamGuardCode?: string) => {
-      const serverDir = join(serverStorage.getPath(), id.toString())
+      const serverDir = getServerDirectory(id)
       await SteamDownloader.installApp(id, appId, serverDir, username, password, steamGuardCode)
       return true
     }
@@ -37,11 +36,11 @@ export function registerSteamCMDIpc() {
     return await SteamCache.isCached(appId)
   })
 
-  ipcMain.handle('get-steam-cache-storage', () => steamCacheStorage.getInfo())
+  ipcMain.handle('get-steam-cache-storage', async () => await steamCacheStorage.getInfo())
 
   ipcMain.handle('select-steam-cache-storage', async (event) => {
     assertSteamCacheStorageCanChange()
-    const currentStorage = steamCacheStorage.getInfo()
+    const currentStorage = await steamCacheStorage.getInfo()
     const browserWindow = BrowserWindow.fromWebContents(event.sender)
     const options: OpenDialogOptions = {
       title: 'Choose Steam Base Cache Folder',
@@ -54,12 +53,12 @@ export function registerSteamCMDIpc() {
       : await dialog.showOpenDialog(options)
 
     if (result.canceled || result.filePaths.length === 0) return null
-    return steamCacheStorage.setPath(result.filePaths[0])
+    return await steamCacheStorage.setPath(result.filePaths[0])
   })
 
-  ipcMain.handle('reset-steam-cache-storage', () => {
+  ipcMain.handle('reset-steam-cache-storage', async () => {
     assertSteamCacheStorageCanChange()
-    return steamCacheStorage.resetPath()
+    return await steamCacheStorage.resetPath()
   })
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
@@ -90,7 +89,7 @@ export function registerSteamCMDIpc() {
 
   // Database
   ipcMain.handle('copy-steam-cache', async (_, id: number, appId: number) => {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     await SteamCache.copyFromCache(id, appId, serverDir)
     return true
   })

@@ -7,11 +7,13 @@ import {
   renameSync,
   statSync,
   statfsSync,
-  writeFileSync
+  writeFileSync,
+  promises as fsPromises
 } from 'fs'
 import { app } from 'electron'
 import { dirname, isAbsolute, join, normalize, parse, resolve } from 'path'
 import type { SteamCacheStorageInfo } from '@shared/steamCacheStorage'
+import { AdapterRegistry } from '../adapters/AdapterRegistry'
 
 const SETTINGS_FILE_NAME = 'steam-cache-storage.json'
 
@@ -43,6 +45,24 @@ function findExistingParent(targetPath: string): string | null {
   return currentPath
 }
 
+async function getDirectorySize(dir: string): Promise<number> {
+  let size = 0
+  try {
+    const files = await fsPromises.readdir(dir, { withFileTypes: true })
+    for (const file of files) {
+      const fullPath = join(dir, file.name)
+      if (file.isDirectory()) {
+        size += await getDirectorySize(fullPath)
+      } else if (file.isFile()) {
+        size += (await fsPromises.stat(fullPath)).size
+      }
+    }
+  } catch {
+    // Ignore errors for unreadable files/folders
+  }
+  return size
+}
+
 export class SteamCacheStorageService {
   constructor(private readonly getUserDataDirectory: () => string) {}
 
@@ -55,28 +75,41 @@ export class SteamCacheStorageService {
     return settings.customPath ?? this.getDefaultPath()
   }
 
-  getInfo(): SteamCacheStorageInfo {
+  async getInfo(): Promise<SteamCacheStorageInfo> {
     const defaultPath = this.getDefaultPath()
     const currentPath = this.getPath()
+
+    const cachedGames: SteamCacheStorageInfo['cachedGames'] = []
+    if (existsSync(currentPath)) {
+      const steamConfigs = AdapterRegistry.getSteamGameConfigs()
+      for (const [gameName, config] of Object.entries(steamConfigs)) {
+        const cacheDir = join(currentPath, config.appId.toString())
+        if (config.executable && existsSync(join(cacheDir, config.executable))) {
+          const sizeBytes = await getDirectorySize(cacheDir)
+          cachedGames.push({ appId: config.appId, gameName, sizeBytes })
+        }
+      }
+    }
 
     return {
       path: currentPath,
       defaultPath,
       isCustom: !pathsEqual(currentPath, defaultPath),
-      freeBytes: this.getFreeBytes(currentPath)
+      freeBytes: this.getFreeBytes(currentPath),
+      cachedGames
     }
   }
 
-  setPath(directoryPath: string): SteamCacheStorageInfo {
+  async setPath(directoryPath: string): Promise<SteamCacheStorageInfo> {
     const normalizedPath = this.validateSelectedPath(directoryPath)
     const customPath = pathsEqual(normalizedPath, this.getDefaultPath()) ? null : normalizedPath
     this.writeSettings({ version: 1, customPath })
-    return this.getInfo()
+    return await this.getInfo()
   }
 
-  resetPath(): SteamCacheStorageInfo {
+  async resetPath(): Promise<SteamCacheStorageInfo> {
     this.writeSettings({ version: 1, customPath: null })
-    return this.getInfo()
+    return await this.getInfo()
   }
 
   private getSettingsPath(): string {
@@ -115,9 +148,28 @@ export class SteamCacheStorageService {
       throw new Error('Steam cache location must be an absolute folder path')
     }
 
-    const normalizedPath = normalize(directoryPath.trim())
+    let normalizedPath = normalize(directoryPath.trim())
     if (!statSync(normalizedPath).isDirectory()) {
       throw new Error('Steam cache location must be a folder')
+    }
+
+    // Auto-detect if they selected the parent of the steam_cache folder
+    const autoDetectedPath = join(normalizedPath, 'steam_cache')
+    if (existsSync(autoDetectedPath) && statSync(autoDetectedPath).isDirectory()) {
+      // Check if the selected path itself already has cache folders
+      // to avoid appending steam_cache if the selected path is genuinely a cache root
+      let hasDirectCache = false
+      const steamConfigs = AdapterRegistry.getSteamGameConfigs()
+      for (const config of Object.values(steamConfigs)) {
+        if (config.executable && existsSync(join(normalizedPath, config.appId.toString(), config.executable))) {
+          hasDirectCache = true
+          break
+        }
+      }
+      
+      if (!hasDirectCache) {
+        normalizedPath = autoDetectedPath
+      }
     }
 
     // The native picker only returns existing folders. This catches read-only

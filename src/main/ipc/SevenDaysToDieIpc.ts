@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import { handleTrusted } from '../security/ipcSecurity'
 const ipcMain = { handle: handleTrusted }
 import fs from 'fs'
@@ -7,7 +7,7 @@ import { join } from 'path'
 export function registerSevenDaysToDieIpc(): void {
   ipcMain.handle('get-7dtd-items', async (_event, serverId: number) => {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const itemsPath = join(serverDir, 'Data', 'Config', 'items.xml')
       const blocksPath = join(serverDir, 'Data', 'Config', 'blocks.xml')
 
@@ -59,7 +59,7 @@ export function registerSevenDaysToDieIpc(): void {
 
   ipcMain.handle('get-7dtd-entities', async (_event, serverId: number) => {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const entitiesPath = join(serverDir, 'Data', 'Config', 'entityclasses.xml')
       const entities: any[] = []
 
@@ -126,7 +126,7 @@ export function registerSevenDaysToDieIpc(): void {
 
   ipcMain.handle('get-7dtd-mods', async (_event, serverId: number) => {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const modsDir = join(serverDir, 'Mods')
       const disabledModsDir = join(serverDir, 'Mods_Disabled')
 
@@ -206,7 +206,7 @@ export function registerSevenDaysToDieIpc(): void {
     'toggle-7dtd-mod',
     async (_event, serverId: number, folderName: string, enabled: boolean) => {
       try {
-        const serverDir = join(serverStorage.getPath(), serverId.toString())
+        const serverDir = getServerDirectory(serverId)
         const modsDir = join(serverDir, 'Mods')
         const disabledModsDir = join(serverDir, 'Mods_Disabled')
 
@@ -231,7 +231,7 @@ export function registerSevenDaysToDieIpc(): void {
 
   ipcMain.handle('delete-7dtd-mod', async (_event, serverId: number, folderName: string) => {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       const modsDir = join(serverDir, 'Mods')
       const disabledModsDir = join(serverDir, 'Mods_Disabled')
 

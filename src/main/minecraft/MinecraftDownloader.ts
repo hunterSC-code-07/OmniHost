@@ -1,4 +1,4 @@
-import { serverStorage } from '../storage/ServerStorage'
+import { getServerDirectory } from '../storage/db'
 import fsPromises from 'fs/promises'
 import semver from 'semver'
 import { spawn } from 'child_process'
@@ -69,7 +69,7 @@ export class MinecraftDownloader {
     version: string,
     loaderVersion: string
   ) {
-    const serverDir = join(serverStorage.getPath(), id.toString())
+    const serverDir = getServerDirectory(id)
     const jarPath = join(serverDir, 'server.jar')
     const installerPath = join(serverDir, 'installer.jar')
 
