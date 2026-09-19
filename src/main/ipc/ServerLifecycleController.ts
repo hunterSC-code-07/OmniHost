@@ -89,7 +89,9 @@ export class ServerLifecycleController {
       states.set(id, 'Starting')
       try {
         await manager.start()
-        if (!manager.process) throw new Error('Server process did not start')
+        if (!manager.process) {
+          throw new Error('Server process failed to start. Ensure the server is fully downloaded and installed via SteamCMD/Java.')
+        }
         states.set(id, 'Online')
       } catch (error) {
         states.set(id, 'Failed')

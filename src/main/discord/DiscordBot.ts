@@ -26,7 +26,12 @@ export class DiscordBot {
       await this.stop()
     }
 
-    if (!token.trim()) {
+    let safeToken = token.trim()
+    if ((safeToken.startsWith('"') && safeToken.endsWith('"')) || (safeToken.startsWith("'") && safeToken.endsWith("'"))) {
+      safeToken = safeToken.slice(1, -1)
+    }
+
+    if (!safeToken) {
       throw new Error('Discord Bot Token is empty')
     }
 
@@ -34,7 +39,7 @@ export class DiscordBot {
 
     this.client.on('ready', async () => {
       console.log(`[DiscordBot] Logged in as ${this.client?.user?.tag}`)
-      await this.registerCommands(token)
+      await this.registerCommands(safeToken)
     })
 
     this.client.on('interactionCreate', async (interaction) => {
@@ -42,12 +47,16 @@ export class DiscordBot {
       await this.handleInteraction(interaction)
     })
 
+    console.log(`[DiscordBot] Attempting login. Token length: ${safeToken.length}, Starts with: ${safeToken.substring(0, 5)}...`)
+
     try {
-      await this.client.login(token)
+      await this.client.login(safeToken)
     } catch (error: any) {
       this.client.destroy()
       this.client = null
-      throw new Error(error?.message || 'Invalid token provided.')
+      throw new Error(
+        `Failed to login with token (length: ${safeToken.length}, starts with: '${safeToken.substring(0, 4)}...'). Reason: ${error?.message}`
+      )
     }
   }
 
