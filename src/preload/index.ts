@@ -105,6 +105,7 @@ const api = {
       ipcRenderer.invoke('start-tunnel', ip, game, port),
     stopTunnel: () => ipcRenderer.invoke('stop-tunnel'),
     getTunnelStatus: () => ipcRenderer.invoke('get-tunnel-status'),
+    getTunnelInfo: () => ipcRenderer.invoke('get-tunnel-info'),
     radminCheck: () => ipcRenderer.invoke('radmin-check'),
     radminInstall: () => ipcRenderer.invoke('radmin-install'),
     radminOpen: () => ipcRenderer.invoke('radmin-open'),
@@ -123,9 +124,13 @@ const api = {
     getSettings: () => ipcRenderer.invoke('discord-get-settings'),
     setToken: (token: string) => ipcRenderer.invoke('discord-set-token', token),
     setAutoStart: (autoStart: boolean) => ipcRenderer.invoke('discord-set-auto-start', autoStart),
+    updateSettings: (changes: Record<string, unknown>) =>
+      ipcRenderer.invoke('discord-update-settings', changes),
     startBot: (token: string) => ipcRenderer.invoke('discord-start-bot', token),
     stopBot: () => ipcRenderer.invoke('discord-stop-bot'),
     getBotStatus: () => ipcRenderer.invoke('discord-get-status'),
+    getGuilds: () => ipcRenderer.invoke('discord-get-guilds'),
+    getTextChannels: (guildId: string) => ipcRenderer.invoke('discord-get-text-channels', guildId),
     onBotStatusChanged: (callback: (isRunning: boolean) => void) => {
       ipcRenderer.removeAllListeners('discord-status-changed')
       ipcRenderer.on('discord-status-changed', (_, isRunning) => callback(isRunning))
@@ -231,8 +236,7 @@ const api = {
       ipcRenderer.invoke('rebuild-mod-dependencies', id),
     importLocalWorkshop: (id: number, workshopPath: string) =>
       ipcRenderer.invoke('import-local-workshop', id, workshopPath),
-    ensureMapMissions: (id: number) =>
-      ipcRenderer.invoke('ensure-dayz-map-missions', id)
+    ensureMapMissions: (id: number) => ipcRenderer.invoke('ensure-dayz-map-missions', id)
   },
 
   sevenDaysToDie: {

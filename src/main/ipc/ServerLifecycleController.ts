@@ -11,8 +11,15 @@ import { WakeProxy } from '../adapters/WakeProxy'
 import { assertTrustedIpcSender } from '../security/ipcSecurity'
 import { resolveServerPort } from '../network/serverPorts'
 import { SteamDownloader } from '../steam/SteamDownloader'
+import pidusage from 'pidusage'
 
 type LifecycleState = 'Offline' | 'Starting' | 'Online' | 'Stopping' | 'Failed'
+
+export interface ServerLifecycleEvent {
+  id: number
+  state: LifecycleState
+  error?: string
+}
 
 async function exists(path: string): Promise<boolean> {
   try {
@@ -33,6 +40,11 @@ export interface ServerLifecycleMethods {
   startServer: (id: number) => Promise<boolean>
   stopServer: (id: number) => Promise<boolean>
   getServerList: () => any[]
+  sendCommand: (id: number, command: string) => boolean
+  getPlayerInventory: (id: number, playerName: string) => Promise<unknown>
+  getPlayerStats: (id: number, playerName: string) => Promise<unknown>
+  onEvent: (listener: (event: ServerLifecycleEvent) => void) => () => void
+  getServerResources: (id: number) => Promise<{ cpuPercent: number; memoryMb: number } | null>
 }
 
 export class ServerLifecycleController {
@@ -42,6 +54,10 @@ export class ServerLifecycleController {
   ): ServerLifecycleMethods {
     const states = new Map<number, LifecycleState>()
     const operations = new Map<number, Promise<unknown>>()
+    const listeners = new Set<(event: ServerLifecycleEvent) => void>()
+    const emit = (event: ServerLifecycleEvent): void => {
+      for (const listener of listeners) listener(event)
+    }
 
     const runExclusive = async <T>(id: number, operation: () => Promise<T>): Promise<T> => {
       const previous = operations.get(id) ?? Promise.resolve()
@@ -87,14 +103,19 @@ export class ServerLifecycleController {
       if (manager.process) return
       activeProxies[id]?.stopListening()
       states.set(id, 'Starting')
+      emit({ id, state: 'Starting' })
       try {
         await manager.start()
         if (!manager.process) {
-          throw new Error('Server process failed to start. Ensure the server is fully downloaded and installed via SteamCMD/Java.')
+          throw new Error(
+            'Server process failed to start. Ensure the server is fully downloaded and installed via SteamCMD/Java.'
+          )
         }
         states.set(id, 'Online')
+        emit({ id, state: 'Online' })
       } catch (error) {
         states.set(id, 'Failed')
+        emit({ id, state: 'Failed', error: error instanceof Error ? error.message : String(error) })
         throw error
       }
     }
@@ -103,14 +124,18 @@ export class ServerLifecycleController {
       const manager = activeServers[id]
       if (!manager) {
         states.set(id, 'Offline')
+        emit({ id, state: 'Offline' })
         return
       }
       states.set(id, 'Stopping')
+      emit({ id, state: 'Stopping' })
       try {
         await Promise.resolve(manager.stop())
         states.set(id, 'Offline')
+        emit({ id, state: 'Offline' })
       } catch (error) {
         states.set(id, 'Failed')
+        emit({ id, state: 'Failed', error: error instanceof Error ? error.message : String(error) })
         throw error
       }
     }
@@ -227,6 +252,47 @@ export class ServerLifecycleController {
           }
         })
         .filter((server) => server.creationState !== 'installing')
+    }
+
+    const sendCommand = (id: number, command: string): boolean => {
+      const manager = activeServers[id]
+      if (!manager?.process || typeof manager.sendCommand !== 'function') return false
+      manager.sendCommand(command)
+      return true
+    }
+
+    const getPlayerInventory = async (id: number, playerName: string): Promise<unknown> => {
+      const manager = activeServers[id] as IServerAdapter & {
+        getInventory?: (name: string) => Promise<unknown>
+      }
+      if (!manager?.process || typeof manager.getInventory !== 'function') return null
+      return manager.getInventory(playerName)
+    }
+
+    const getPlayerStats = async (id: number, playerName: string): Promise<unknown> => {
+      const manager = activeServers[id] as IServerAdapter & {
+        getPlayerNbtStats?: (name: string) => Promise<unknown>
+      }
+      if (!manager?.process || typeof manager.getPlayerNbtStats !== 'function') return null
+      return manager.getPlayerNbtStats(playerName)
+    }
+
+    const onEvent = (listener: (event: ServerLifecycleEvent) => void): (() => void) => {
+      listeners.add(listener)
+      return () => listeners.delete(listener)
+    }
+
+    const getServerResources = async (
+      id: number
+    ): Promise<{ cpuPercent: number; memoryMb: number } | null> => {
+      const manager = activeServers[id]
+      const pid = manager?.process?.pid
+      if (!pid) return null
+      const usage = await pidusage(pid)
+      return {
+        cpuPercent: usage.cpu,
+        memoryMb: usage.memory / (1024 * 1024)
+      }
     }
 
     ipcMain.handle('get-servers', (event) => {
@@ -363,7 +429,12 @@ export class ServerLifecycleController {
       shutdownServers,
       startServer: startServerPublic,
       stopServer: stopServerPublic,
-      getServerList
+      getServerList,
+      sendCommand,
+      getPlayerInventory,
+      getPlayerStats,
+      onEvent,
+      getServerResources
     }
   }
 }

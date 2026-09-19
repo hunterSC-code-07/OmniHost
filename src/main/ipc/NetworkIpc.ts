@@ -15,6 +15,10 @@ import { IVpnAdapter } from '../adapters/IVpnAdapter'
 let tunnelProviders: Record<string, BaseFrpAdapter> | null = null
 let currentTunnelProvider: BaseFrpAdapter | null = null
 
+export function getCurrentTunnelInfo() {
+  return currentTunnelProvider?.getTunnelInfo() ?? null
+}
+
 export function registerNetworkIpc(vpnProvider: IVpnAdapter) {
   if (!tunnelProviders) {
     tunnelProviders = {
@@ -54,6 +58,8 @@ export function registerNetworkIpc(vpnProvider: IVpnAdapter) {
   ipcMain.handle('get-tunnel-status', () => {
     return currentTunnelProvider?.process ? 'Online' : 'Offline'
   })
+
+  ipcMain.handle('get-tunnel-info', () => getCurrentTunnelInfo())
 
   // --- VPN ---
   ipcMain.handle('radmin-check', () => {

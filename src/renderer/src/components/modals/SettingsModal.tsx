@@ -32,6 +32,15 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
   const [serverStorageAction, setServerStorageAction] = useState<'browse' | 'reset' | null>(null)
   const [discordToken, setDiscordToken] = useState('')
   const [discordAutoStart, setDiscordAutoStart] = useState(false)
+  const [discordAnnouncementChannel, setDiscordAnnouncementChannel] = useState('')
+  const [discordGuildId, setDiscordGuildId] = useState('')
+  const [discordAllowedRoles, setDiscordAllowedRoles] = useState('')
+  const [discordGuilds, setDiscordGuilds] = useState<Array<{ id: string; name: string }>>([])
+  const [discordChannels, setDiscordChannels] = useState<Array<{ id: string; name: string }>>([])
+  const [discordAnnouncePublicIp, setDiscordAnnouncePublicIp] = useState(false)
+  const [discordAnnounceLanIp, setDiscordAnnounceLanIp] = useState(true)
+  const [discordAnnounceRadminIp, setDiscordAnnounceRadminIp] = useState(true)
+  const [discordAnnounceEvents, setDiscordAnnounceEvents] = useState(true)
   const [discordRunning, setDiscordRunning] = useState(false)
   const [discordLoading, setDiscordLoading] = useState(false)
   const [isSelectingSound, setIsSelectingSound] = useState(false)
@@ -76,9 +85,21 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
     } else if (activeTab === 'diagnostics') {
       void loadLogs()
     } else if (activeTab === 'integrations') {
-      void window.api.discord.getSettings().then((settings: any) => {
+      void window.api.discord.getSettings().then(async (settings: any) => {
         setDiscordToken(settings.token)
         setDiscordAutoStart(settings.autoStart)
+        setDiscordAnnouncementChannel(settings.announcementChannelId || '')
+        setDiscordGuildId(settings.guildId || '')
+        setDiscordAllowedRoles((settings.allowedRoleIds || []).join(', '))
+        const guilds = await window.api.discord.getGuilds()
+        setDiscordGuilds(guilds || [])
+        if (settings.guildId) {
+          setDiscordChannels((await window.api.discord.getTextChannels(settings.guildId)) || [])
+        }
+        setDiscordAnnouncePublicIp(settings.announcePublicIp ?? false)
+        setDiscordAnnounceLanIp(settings.announceLanIp ?? true)
+        setDiscordAnnounceRadminIp(settings.announceRadminIp ?? true)
+        setDiscordAnnounceEvents(settings.announceServerEvents ?? true)
       })
       void window.api.discord.getBotStatus().then((status: boolean) => {
         setDiscordRunning(status)
@@ -430,13 +451,20 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       {storageInfo?.cachedGames && storageInfo.cachedGames.length > 0 && (
                         <div className="mt-4 flex flex-col gap-2 rounded-lg bg-black/15 px-3 py-3">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="material-symbols-outlined text-primary text-[18px]">verified</span>
+                            <span className="material-symbols-outlined text-primary text-[18px]">
+                              verified
+                            </span>
                             <p className="text-xs text-on-surface-variant">Detected Cache</p>
                           </div>
-                          {storageInfo.cachedGames.map(game => (
-                            <div key={game.appId} className="flex justify-between items-center text-sm">
+                          {storageInfo.cachedGames.map((game) => (
+                            <div
+                              key={game.appId}
+                              className="flex justify-between items-center text-sm"
+                            >
                               <span className="text-white font-medium">{game.gameName}</span>
-                              <span className="text-on-surface-variant">{formatBytes(game.sizeBytes)}</span>
+                              <span className="text-on-surface-variant">
+                                {formatBytes(game.sizeBytes)}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -682,6 +710,146 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       </button>
                     </div>
 
+                    <div className="mt-6 border-t border-outline-variant/20 pt-6">
+                      <h4 className="text-sm font-bold text-white">Discord Access Controls</h4>
+                      <p className="mt-1 text-xs text-on-surface-variant">
+                        Restrict commands to one server and optionally a comma-separated list of
+                        role IDs.
+                      </p>
+                      {discordGuilds.length > 0 && (
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <select
+                            value={discordGuildId}
+                            onChange={async (event) => {
+                              const guildId = event.target.value
+                              setDiscordGuildId(guildId)
+                              setDiscordChannels(
+                                (await window.api.discord.getTextChannels(guildId)) || []
+                              )
+                              void window.api.discord.updateSettings({ guildId })
+                            }}
+                            className="w-full rounded-lg border border-outline-variant/30 bg-black/20 px-4 py-2.5 text-sm text-white focus:border-primary/50 focus:outline-none"
+                          >
+                            <option value="">Select a Discord server</option>
+                            {discordGuilds.map((guild) => (
+                              <option key={guild.id} value={guild.id}>
+                                {guild.name}
+                              </option>
+                            ))}
+                          </select>
+                          <select
+                            value={discordAnnouncementChannel}
+                            onChange={(event) => {
+                              setDiscordAnnouncementChannel(event.target.value)
+                              void window.api.discord.updateSettings({
+                                announcementChannelId: event.target.value
+                              })
+                            }}
+                            className="w-full rounded-lg border border-outline-variant/30 bg-black/20 px-4 py-2.5 text-sm text-white focus:border-primary/50 focus:outline-none"
+                          >
+                            <option value="">Select announcement channel</option>
+                            {discordChannels.map((channel) => (
+                              <option key={channel.id} value={channel.id}>
+                                #{channel.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
+                      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                        <input
+                          value={discordGuildId}
+                          onChange={(event) => {
+                            setDiscordGuildId(event.target.value)
+                            void window.api.discord.updateSettings({ guildId: event.target.value })
+                          }}
+                          placeholder="Guild/server ID (optional)"
+                          className="w-full rounded-lg border border-outline-variant/30 bg-black/20 px-4 py-2.5 font-mono text-sm text-white focus:border-primary/50 focus:outline-none"
+                        />
+                        <input
+                          value={discordAllowedRoles}
+                          onChange={(event) => {
+                            setDiscordAllowedRoles(event.target.value)
+                            void window.api.discord.updateSettings({
+                              allowedRoleIds: event.target.value
+                                .split(',')
+                                .map((id: string) => id.trim())
+                                .filter(Boolean)
+                            })
+                          }}
+                          placeholder="Allowed role IDs (optional)"
+                          className="w-full rounded-lg border border-outline-variant/30 bg-black/20 px-4 py-2.5 font-mono text-sm text-white focus:border-primary/50 focus:outline-none"
+                        />
+                      </div>
+
+                      <div className="mt-6 border-t border-outline-variant/20 pt-6">
+                        <h4 className="text-sm font-bold text-white">
+                          Automatic Connection Announcements
+                        </h4>
+                        <p className="mt-1 text-xs text-on-surface-variant">
+                          Post server status and join addresses when a server becomes available.
+                        </p>
+                        <input
+                          value={discordAnnouncementChannel}
+                          onChange={(event) => {
+                            setDiscordAnnouncementChannel(event.target.value)
+                            void window.api.discord.updateSettings({
+                              announcementChannelId: event.target.value
+                            })
+                          }}
+                          placeholder="Announcement channel ID"
+                          className="mt-3 w-full rounded-lg border border-outline-variant/30 bg-black/20 px-4 py-2.5 font-mono text-sm text-white focus:border-primary/50 focus:outline-none"
+                        />
+                        <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-on-surface-variant sm:grid-cols-2">
+                          {[
+                            [
+                              'announceServerEvents',
+                              'Server status events',
+                              discordAnnounceEvents,
+                              setDiscordAnnounceEvents
+                            ],
+                            [
+                              'announceLanIp',
+                              'LAN address',
+                              discordAnnounceLanIp,
+                              setDiscordAnnounceLanIp
+                            ],
+                            [
+                              'announceRadminIp',
+                              'Radmin VPN address',
+                              discordAnnounceRadminIp,
+                              setDiscordAnnounceRadminIp
+                            ],
+                            [
+                              'announcePublicIp',
+                              'Public IP address',
+                              discordAnnouncePublicIp,
+                              setDiscordAnnouncePublicIp
+                            ]
+                          ].map(([key, label, value, setter]) => (
+                            <label key={key as string} className="flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={value as boolean}
+                                onChange={(event) => {
+                                  const checked = event.target.checked
+                                  ;(setter as (value: boolean) => void)(checked)
+                                  void window.api.discord.updateSettings({
+                                    [key as string]: checked
+                                  })
+                                }}
+                              />
+                              {label as string}
+                            </label>
+                          ))}
+                        </div>
+                        <p className="mt-2 text-xs text-on-surface-variant">
+                          Public IP forwarding is disabled by default because it exposes your home
+                          network address.
+                        </p>
+                      </div>
+                    </div>
+
                     <div className="mt-6 flex gap-3 pt-6 border-t border-outline-variant/20">
                       {!discordRunning ? (
                         <button
@@ -757,6 +925,34 @@ export function SettingsModal({ onClose }: { onClose: () => void }) {
                       <li>
                         <strong className="text-white">/status &lt;id&gt;</strong> - View detailed
                         live status of a server
+                      </li>
+                      <li>
+                        <strong className="text-white">/address &lt;id&gt;</strong> - Show available
+                        connection addresses
+                      </li>
+                      <li>
+                        <strong className="text-white">/players &lt;id&gt;</strong> - List online
+                        players
+                      </li>
+                      <li>
+                        <strong className="text-white">/restart &lt;id&gt;</strong> - Restart a
+                        server
+                      </li>
+                      <li>
+                        <strong className="text-white">/logs &lt;id&gt;</strong> - View recent
+                        server logs
+                      </li>
+                      <li>
+                        <strong className="text-white">/inventory &lt;id&gt; &lt;player&gt;</strong>{' '}
+                        - Inspect supported player inventory
+                      </li>
+                      <li>
+                        <strong className="text-white">/backup-create &lt;id&gt;</strong> - Create a
+                        stopped-server backup
+                      </li>
+                      <li>
+                        <strong className="text-white">/schedule-start /schedule-stop</strong> -
+                        Schedule server actions
                       </li>
                     </ul>
                   </div>

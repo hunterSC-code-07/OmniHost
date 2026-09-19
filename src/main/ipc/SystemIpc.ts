@@ -11,6 +11,7 @@ import { resolveServerPath } from '../security/serverPath'
 import { serverStorage } from '../storage/ServerStorage'
 import { discordBotSettings } from '../discord/DiscordBotSettings'
 import { discordBot } from '../discord/DiscordBot'
+import type { DiscordBotSettings } from '@shared/discordSettings'
 
 async function exists(path: string) {
   try {
@@ -33,6 +34,34 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
     return discordBotSettings.setAutoStart(autoStart)
   })
 
+  ipcMain.handle('discord-update-settings', async (_, changes: Partial<DiscordBotSettings>) => {
+    const current = discordBotSettings.readSettings()
+    const next = { ...current }
+    if (typeof changes.guildId === 'string') next.guildId = changes.guildId.trim()
+    if (typeof changes.defaultChannelId === 'string')
+      next.defaultChannelId = changes.defaultChannelId.trim()
+    if (typeof changes.announcementChannelId === 'string')
+      next.announcementChannelId = changes.announcementChannelId.trim()
+    if (typeof changes.dashboardMessageId === 'string')
+      next.dashboardMessageId = changes.dashboardMessageId.trim()
+    if (typeof changes.announcePublicIp === 'boolean')
+      next.announcePublicIp = changes.announcePublicIp
+    if (typeof changes.announceLanIp === 'boolean') next.announceLanIp = changes.announceLanIp
+    if (typeof changes.announceRadminIp === 'boolean')
+      next.announceRadminIp = changes.announceRadminIp
+    if (typeof changes.announceServerEvents === 'boolean')
+      next.announceServerEvents = changes.announceServerEvents
+    if (Array.isArray(changes.allowedRoleIds))
+      next.allowedRoleIds = changes.allowedRoleIds.filter((id) => typeof id === 'string')
+    if (Array.isArray(changes.allowedUserIds))
+      next.allowedUserIds = changes.allowedUserIds.filter((id) => typeof id === 'string')
+    if (Array.isArray(changes.adminRoleIds))
+      next.adminRoleIds = changes.adminRoleIds.filter((id) => typeof id === 'string')
+    discordBotSettings.writeSettings(next)
+    if (discordBot.isRunning()) await discordBot.refreshCommands()
+    return next
+  })
+
   ipcMain.handle('discord-start-bot', async (_, token: string) => {
     await discordBot.start(token)
     return discordBot.isRunning()
@@ -44,6 +73,10 @@ export function registerSystemIpc(activeServers: Record<number, any>, getServers
   })
 
   ipcMain.handle('discord-get-status', () => discordBot.isRunning())
+  ipcMain.handle('discord-get-guilds', () => discordBot.getGuilds())
+  ipcMain.handle('discord-get-text-channels', (_, guildId: string) =>
+    discordBot.getTextChannels(guildId)
+  )
 
   // --- 2. IPC HANDLERS (THE BRIDGE) ---
 

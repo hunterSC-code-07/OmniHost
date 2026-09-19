@@ -6,11 +6,19 @@ import os from 'os'
 import axios from 'axios'
 import AdmZip from 'adm-zip'
 
+export interface FrpTunnelInfo {
+  host: string
+  port: number
+  localPort: number
+  status: 'Online' | 'Offline'
+}
+
 export abstract class BaseFrpAdapter {
   process: ChildProcess | null = null
   frpDir: string
   exePath: string
   configPath: string
+  private tunnelInfo: FrpTunnelInfo | null = null
 
   constructor() {
     this.frpDir = join(app.getPath('userData'), 'frp_client')
@@ -70,6 +78,9 @@ export abstract class BaseFrpAdapter {
     }
 
     const proxyConfig = this.getProxyConfig(localIp, portOverride)
+    const remotePort = Number(
+      proxyConfig.match(/remotePort\s*=\s*(\d+)/)?.[1] ?? portOverride ?? 25565
+    )
 
     const tomlConfig = `
 serverAddr = "${ip}"
@@ -83,6 +94,7 @@ ${proxyConfig}
     // 3. Launch the Client
     const tunnelProcess = spawn(this.exePath, ['-c', this.configPath], { cwd: this.frpDir })
     this.process = tunnelProcess
+    this.tunnelInfo = { host: ip, port: remotePort, localPort: remotePort, status: 'Online' }
 
     tunnelProcess.stdout?.on('data', (data) => this.sendLog(`[FRP]: ${data.toString().trim()}`))
     tunnelProcess.stderr?.on('data', (data) =>
@@ -91,11 +103,21 @@ ${proxyConfig}
 
     tunnelProcess.on('error', (err) => {
       this.sendLog(`[FRP Fatal]: ${err.message}`)
-      if (this.process === tunnelProcess) this.process = null
+      if (this.process === tunnelProcess) {
+        this.process = null
+        this.tunnelInfo = null
+      }
     })
     tunnelProcess.on('exit', () => {
-      if (this.process === tunnelProcess) this.process = null
+      if (this.process === tunnelProcess) {
+        this.process = null
+        this.tunnelInfo = null
+      }
     })
+  }
+
+  getTunnelInfo(): FrpTunnelInfo | null {
+    return this.tunnelInfo ? { ...this.tunnelInfo } : null
   }
 
   stop() {
@@ -103,6 +125,7 @@ ${proxyConfig}
       this.sendLog('[FRP Tunnel] Disconnecting...')
       this.process.kill()
       this.process = null
+      this.tunnelInfo = null
     }
   }
 }
