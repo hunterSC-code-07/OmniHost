@@ -217,7 +217,7 @@ export class DayzMissionManager {
 
   static async ensureInstalledMapMissions(serverId: number) {
     try {
-      const serverDir = join(serverStorage.getPath(), serverId.toString())
+      const serverDir = getServerDirectory(serverId)
       if (!(await exists(serverDir))) return []
 
       const mpmissionsDir = join(serverDir, 'mpmissions')
