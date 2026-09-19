@@ -42,7 +42,13 @@ export class DiscordBot {
       await this.handleInteraction(interaction)
     })
 
-    await this.client.login(token)
+    try {
+      await this.client.login(token)
+    } catch (error: any) {
+      this.client.destroy()
+      this.client = null
+      throw new Error(error?.message || 'Invalid token provided.')
+    }
   }
 
   async stop(): Promise<void> {
